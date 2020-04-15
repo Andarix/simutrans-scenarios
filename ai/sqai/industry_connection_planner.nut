@@ -10,6 +10,7 @@ openwater <- {
 function get_max_convoi_length(wt)
 {
 	switch(wt) {
+		case wt_rail:   return settings.get_max_rail_convoi_length();
 		case wt_road:   return settings.get_max_road_convoi_length();
 		case wt_water:  return settings.get_max_ship_convoi_length();
 	}
@@ -45,6 +46,11 @@ class industry_connection_planner_t extends manager_t
 		}
 		dbgprint("production = " + prod);
 
+		// rail
+		local rprt = plan_simple_connection(wt_rail, null, null)
+		if (rprt) {
+			append_report(rprt)
+		}
 		// road
 		local rprt = plan_simple_connection(wt_road, null, null)
 		if (rprt) {
@@ -106,16 +112,25 @@ class industry_connection_planner_t extends manager_t
 		prototyper.min_speed = 1
 
 		prototyper.max_vehicles = get_max_convoi_length(wt)
-		prototyper.max_length = 1
+		prototyper.max_length = prototyper.max_vehicles * 8    
+
+		if (wt == wt_rail) {
+			//prototyper.max_length = 8
+		}
+
 		if (wt == wt_water) {
-			prototyper.max_length = 4
+			//prototyper.max_length = 4
 		}
 
 		local cnv_valuator = valuator_simple_t()
 		cnv_valuator.wt = wt
 		cnv_valuator.freight = freight
 		cnv_valuator.volume = prod
-		cnv_valuator.max_cnvs = 200
+		cnv_valuator.max_cnvs = 200   
+		// no signals and double tracks - limit 1 convoy for rail
+		if (wt == wt_rail) {
+			cnv_valuator.max_cnvs = 1
+		}
 		cnv_valuator.distance = distance
 		// compute correct distance
 		if (distance == 0) {
@@ -151,8 +166,14 @@ class industry_connection_planner_t extends manager_t
 
 				local test = cnv_valuator.valuate_monthly_transport(planned_convoy)
 				if (best == null  ||  test > best) {
-					best = test
-					best_way = way
+					best = test 
+					// max track speed 160
+					if (cnv_valuator.way_max_speed < 161 && wt == wt_rail ) {
+						best_way = way
+					}  
+					else {
+						best_way = way
+					}
 				}
 			}
 			dbgprint("Best value = " + best + " way = " + best_way.get_name())
@@ -167,16 +188,30 @@ class industry_connection_planner_t extends manager_t
 		// valuate again with best way
 		r.gain_per_m = cnv_valuator.valuate_monthly_transport(planned_convoy)
 
+		gui.add_message_at(our_player, "plan station ", world.get_time())
 		// plan station
-		local planned_station = null
+		local planned_station = null  
+		if ( wt == wt_rail ) {
+			//planned_convoy.length = 12
+		}
+		gui.add_message_at(our_player, "wt " + wt, world.get_time())
+		gui.add_message_at(our_player, "planned_convoy.length " + planned_convoy.length, world.get_time())
 		if (wt != wt_water) {
 			local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt, good_desc_x(freight))
-			planned_station = select_station(station_list, planned_convoy.length, planned_convoy.capacity)
+			if ( wt == wt_rail ) {
+				planned_station = select_station(station_list, 8, planned_convoy.capacity)
+			}
+			else {
+				planned_station = select_station(station_list, planned_convoy.length, planned_convoy.capacity)
+			}
+		
 		}
 		else {
 			local station_list = building_desc_x.get_available_stations(building_desc_x.harbour, wt, good_desc_x(freight))
 			planned_station = select_station(station_list, 1, planned_convoy.capacity)
 		}
+
+
 		// plan depot
 		local planned_depot = null
 		{
@@ -199,6 +234,7 @@ class industry_connection_planner_t extends manager_t
 		// create action node
 		local cn = null
 		switch(wt) {
+			case wt_rail:  cn = rail_connector_t(); break
 			case wt_road:  cn = road_connector_t(); break
 			case wt_water: cn = ship_connector_t(); break
 		}
@@ -254,13 +290,14 @@ class industry_connection_planner_t extends manager_t
 			local ok = (best_station == null)
 			local s_capacity = station_length * station.get_capacity()
 
+
 			if (!ok  &&  station_length == 1) {
 				// prefer terminus
 				ok = station.is_terminus()  &&  !station_is_terminus
 				if (!ok) {
 					// then prefer stations with enough capacity
 					ok = station_capacity < capacity ? station_capacity < s_capacity
-					                                 : capacity < s_capacity  &&  s_capacity < station_capacity
+					 : capacity < s_capacity  &&  s_capacity < station_capacity
 				}
 			}
 			if (station_length >  1) {

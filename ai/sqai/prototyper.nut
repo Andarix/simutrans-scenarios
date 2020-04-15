@@ -1,9 +1,9 @@
 class cnv_proto_t
 {
 	weight = 0
-	power  = 0
+	power = 0
 	min_top_speed = 0
-	max_speed = 1000000000000
+	max_speed = 1000000000 //1000000000000
 	length = 0
 	capacity = 0
 	maintenance = 0
@@ -34,10 +34,10 @@ class cnv_proto_t
 		cnv.length = length + newveh.get_length()
 
 		local fits = newveh.get_freight().is_interchangeable(freight)
-		cnv.missing_freight = missing_freight  &&  (newveh.get_capacity()==0  ||  !fits)
+		cnv.missing_freight = missing_freight &&  (newveh.get_capacity()==0 ||  !fits)
 
 		cnv.min_top_speed = convoy_x.calc_max_speed(cnv.power, cnv.weight, cnv.max_speed)
-// 		print("XXX Power " +cnv.power + "  weight = " +cnv.weight + " amx = " + cnv.max_speed+ " speed = " + cnv.min_top_speed)
+//    print("XXX Power " +cnv.power + " weight = " +cnv.weight + " amx = " + cnv.max_speed+ " speed = " + cnv.min_top_speed)
 		cnv.capacity = capacity + (fits ? newveh.get_capacity() : 0)
 		cnv.maintenance = maintenance + newveh.get_maintenance()
 		cnv.running_cost = running_cost + newveh.get_running_cost()
@@ -68,7 +68,7 @@ class prototyper_t extends node_t
 	freight = 0
 	max_vehicles = 0
 	max_length   = 0
-	min_speed    = 0
+	min_speed   = 0
 
 	valuate = null
 
@@ -82,9 +82,16 @@ class prototyper_t extends node_t
 		freight = good_desc_x(f)
 	}
 
-
 	function step()
 	{
+		local units = get_max_convoi_length(wt)
+		gui.add_message_at(our_player, "___________________________________________________________", world.get_time())
+		gui.add_message_at(our_player, "create convoy ", world.get_time())
+		gui.add_message_at(our_player, "wt " + wt, world.get_time())
+		gui.add_message_at(our_player, "units: " + units, world.get_time())
+		gui.add_message_at(our_player, "CARUNITS_PER_TILE: " + CARUNITS_PER_TILE, world.get_time())
+		gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
+
 		local list = vehicle_desc_x.get_available_vehicles(wt)
 
 		local list_first = []
@@ -96,20 +103,25 @@ class prototyper_t extends node_t
 			local fits  = veh.get_freight().is_interchangeable(freight)
 			local pwer  = veh.get_power()>0
 			local none  = veh.get_freight().get_name()=="None" || veh.get_capacity()==0
+			local timeline = !veh.is_retired(world.get_time()) //true //veh.get_retire_date() > world.get_time()
+			local electrified = !veh.needs_electrification()
 
+			//gui.add_message_at(our_player, "timeline: " + veh.get_name() + " - " + timeline, world.get_time())
 			// use vehicles that can carry freight
 			// or that are powered and have no freight capacity
-			if (fits ||  (pwer  && none) ) {
+			if ( (fits || (pwer && none)) && timeline && electrified) {
 				if (first)
 					list_first.append(veh)
+				//gui.add_message_at(our_player, "vehicle found: " + veh.get_name(), world.get_time())
 
 				list_other.append(veh)
+				gui.add_message_at(our_player, "* vehicle found: " + veh.get_name(), world.get_time())
 			}
 
 		}
 
-// 		foreach(veh in list_first) print("candidate...leading " + veh.get_name())
-// 		foreach(veh in list_other) print("candidate...        " + veh.get_name())
+//    foreach(veh in list_first) print("candidate...leading " + veh.get_name())
+//    foreach(veh in list_other) print("candidate...        " + veh.get_name())
 
 		// array of lists we try to iterate
 		local it_lists = []; it_lists.resize(max_vehicles+1)
@@ -118,7 +130,7 @@ class prototyper_t extends node_t
 		local it_ind = [];     it_ind.resize(max_vehicles+1)
 
 		// current convoy candidate - array of desc
-		local cnv = [];           cnv.resize(max_vehicles+1)
+		local cnv = [];          cnv.resize(max_vehicles+1)
 
 		// initialize
 		cnv[0] =  cnv_proto_t()
@@ -127,6 +139,7 @@ class prototyper_t extends node_t
 
 		// iterating ind-th position in convoy
 		local ind = 1
+
 
 		while(true) {
 
@@ -148,28 +161,46 @@ class prototyper_t extends node_t
 			if ( ind==1 ? !test.can_be_first() : !vehicle_desc_x.is_coupling_allowed(cnv[ind-1].veh.top(), test) ) {
 				continue;
 			}
-// 			print("Test[" + ind + "] = " + test.get_name())
+//      print("Test[" + ind + "] = " + test.get_name())
 			// append
 			cnv[ind] = cnv[ind-1].append(test, freight)
 			local c = cnv[ind]
 
-// 			local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight", "capacity","maintenance","price","running_cost"]
-// 			foreach(key in ccc) print(" ... " + key + " = " + c[key] )
+//      local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight","capacity","maintenance","price","running_cost"]
+//      foreach(key in ccc) print(" ... " + key + " = " + c[key] )
 
 			// check constraints
 			// .. length
 			local l = (ind > 1 ?  cnv[ind-1].length : 0) + max( CARUNITS_PER_TILE/2, test.get_length());
-			if (l > CARUNITS_PER_TILE*max_length) {
+			//gui.add_message_at(our_player, "convoy length max: " + max( CARUNITS_PER_TILE/2, test.get_length()), test)
+			//max_vehicles 
+      local a = 0
+			if ( wt == wt_water ) {
+				a = CARUNITS_PER_TILE * 4
+			}
+			else if ( wt == wt_rail ) {
+				a = CARUNITS_PER_TILE * 3
+			}
+			else {
+				a = CARUNITS_PER_TILE
+			} 
+      
+			if (l > a || c["min_top_speed"] < c["max_speed"] ) { //) { max_length   CARUNITS_PER_TILE
 				continue;
 			}
 			// .. more ??
+			gui.add_message_at(our_player, "convoy length: " + l, world.get_time())
+			local ccc = ["power","min_top_speed","max_speed","capacity","length"]
+			foreach(key in ccc) gui.add_message_at(our_player," ... " + key + " = " + c[key], world.get_time())
 
 			// check if convoy finished
-			if (test.can_be_last()  &&  !c.missing_freight  &&  c.min_top_speed >= min_speed) {
+			if (test.can_be_last() && !c.missing_freight  &&  c.min_top_speed >= min_speed) {
 				// evaluate this candidate
+					gui.add_message_at(our_player, "valuate: " + valuate, world.get_time())
 				if (valuate) {
 					local value = valuate.call(getroottable(), c)
-// 					print(" === " + value)
+//          print(" === " + value)
+					gui.add_message_at(our_player, "evaluate this candidate: " + value, world.get_time())
 					if (best==null  ||  value > best_value) {
 						best = c
 						best_value = value
@@ -181,7 +212,7 @@ class prototyper_t extends node_t
 					break
 				}
 
-// 				print("..... ***")
+//        print("..... ***")
 			}
 
 			// move on to next position
@@ -201,8 +232,8 @@ class prototyper_t extends node_t
 				print("Best[" + ind + "] = " + test.get_name())
 			}
 
-// 			local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight", "capacity","maintenance","price","running_cost"]
-// 			foreach(key in ccc) print(" ... " + key + " = " + best[key] )
+//      local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight", "capacity","maintenance","price","running_cost"]
+//      foreach(key in ccc) print(" ... " + key + " = " + best[key] )
 //
 			return r_t(RT_SUCCESS)
 		}
@@ -237,6 +268,11 @@ class valuator_simple_t {
 		// realistic number of convoys
 		local ncnv = min(n1, min(max_cnvs, max(distance / 8, 3) ) )
 		cnv.nr_convoys = ncnv
+
+		// double track and signals missing
+		if (wt == wt_rail) {
+			cnv.nr_convoys = 1
+		}
 
 		if (way_max_speed > 0) {
 			// correction factor to prefer faster ways:

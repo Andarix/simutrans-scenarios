@@ -370,12 +370,21 @@ class industry_manager_t extends manager_t
 		if (wt == wt_water) {
 			prototyper.max_length = 4
 		}
+		if (wt == wt_rail) {
+			prototyper.max_length = 16
+		}
 
 		local cnv_valuator    = valuator_simple_t()
 		cnv_valuator.wt       = cnv.get_waytype()
 		cnv_valuator.freight  = link.freight.get_name()
 		cnv_valuator.volume   = transported
 		cnv_valuator.max_cnvs = 200
+
+    // double track and signals missing
+		if (wt == wt_rail) {
+			cnv_valuator.max_cnvs = 1
+		}
+
 		cnv_valuator.distance = dist
 
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)

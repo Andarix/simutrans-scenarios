@@ -4,6 +4,8 @@ class freight_station_t
 	road_depot  = null // tile_x
 	road_unload = null // tile_x
 	ship_depot  = null // tile_x
+	rail_depot  = null // tile_x
+	rail_unload = null // tile_x
 
 	constructor(f)
 	{
