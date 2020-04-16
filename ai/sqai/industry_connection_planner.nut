@@ -138,6 +138,9 @@ class industry_connection_planner_t extends manager_t
 				cnv_valuator.distance += abs( (start ? start[i] : fsrc[i]) - (target ? target[i] : fdest[i]))
 			}
 		}
+		gui.add_message_at(our_player, "___________________________start__________________________________", world.get_time())
+		gui.add_message_at(our_player, "plan way ", world.get_time())
+		gui.add_message_at(our_player, "Plan link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
 
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
 		prototyper.valuate = bound_valuator
@@ -188,6 +191,7 @@ class industry_connection_planner_t extends manager_t
 		// valuate again with best way
 		r.gain_per_m = cnv_valuator.valuate_monthly_transport(planned_convoy)
 
+		gui.add_message_at(our_player, "*** ", world.get_time())
 		gui.add_message_at(our_player, "plan station ", world.get_time())
 		// plan station
 		local planned_station = null  
@@ -262,6 +266,11 @@ class industry_connection_planner_t extends manager_t
 		dbgprint("Report: dist = " + cnv_valuator.distance+ " way_cost = " + planned_way.get_cost())
 		dbgprint("Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
 
+		gui.add_message_at(our_player, "----- ", world.get_time())
+		gui.add_message_at(our_player, "Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name(), world.get_time())
+		gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + planned_convoy.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly, world.get_time())
+		gui.add_message_at(our_player, "Report: dist = " + cnv_valuator.distance+ " way_cost = " + planned_way.get_cost(), world.get_time())
+		gui.add_message_at(our_player, "Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost(), world.get_time())
 		return r
 	}
 

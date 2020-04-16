@@ -14,7 +14,7 @@ class cnv_proto_t
 
 	// set by valuator
 	nr_convoys = 0
-
+  
 	constructor()
 	{
 		veh = []
@@ -75,6 +75,9 @@ class prototyper_t extends node_t
 	best = null
 	best_value = 0
 
+	// print messages box 
+	print_message_box = 0
+	
 	constructor(w, /*string*/f)
 	{
 		base.constructor("prototyper");
@@ -83,15 +86,17 @@ class prototyper_t extends node_t
 	}
 
 	function step()
-	{
-		local units = get_max_convoi_length(wt)
-		gui.add_message_at(our_player, "___________________________________________________________", world.get_time())
-		gui.add_message_at(our_player, "create convoy ", world.get_time())
-		gui.add_message_at(our_player, "wt " + wt, world.get_time())
-		gui.add_message_at(our_player, "units: " + units, world.get_time())
-		gui.add_message_at(our_player, "CARUNITS_PER_TILE: " + CARUNITS_PER_TILE, world.get_time())
-		gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
-
+	{ 
+		if ( print_message_box == 1 ) {
+			local units = get_max_convoi_length(wt)
+			gui.add_message_at(our_player, "**** ", world.get_time())
+			gui.add_message_at(our_player, "create convoy ", world.get_time())
+			gui.add_message_at(our_player, "wt " + wt, world.get_time())
+			gui.add_message_at(our_player, "units: " + units, world.get_time())
+			gui.add_message_at(our_player, "CARUNITS_PER_TILE: " + CARUNITS_PER_TILE, world.get_time())
+			gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
+    }
+		
 		local list = vehicle_desc_x.get_available_vehicles(wt)
 
 		local list_first = []
@@ -115,7 +120,10 @@ class prototyper_t extends node_t
 				//gui.add_message_at(our_player, "vehicle found: " + veh.get_name(), world.get_time())
 
 				list_other.append(veh)
-				gui.add_message_at(our_player, "* vehicle found: " + veh.get_name(), world.get_time())
+				
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "* vehicle found: " + veh.get_name(), world.get_time())
+				}
 			}
 
 		}
@@ -174,7 +182,7 @@ class prototyper_t extends node_t
 			local l = (ind > 1 ?  cnv[ind-1].length : 0) + max( CARUNITS_PER_TILE/2, test.get_length());
 			//gui.add_message_at(our_player, "convoy length max: " + max( CARUNITS_PER_TILE/2, test.get_length()), test)
 			//max_vehicles 
-      local a = 0
+			local a = 0
 			if ( wt == wt_water ) {
 				a = CARUNITS_PER_TILE * 4
 			}
@@ -184,23 +192,23 @@ class prototyper_t extends node_t
 			else {
 				a = CARUNITS_PER_TILE
 			} 
-      
+			
 			if (l > a || c["min_top_speed"] < c["max_speed"] ) { //) { max_length   CARUNITS_PER_TILE
 				continue;
 			}
 			// .. more ??
-			gui.add_message_at(our_player, "convoy length: " + l, world.get_time())
-			local ccc = ["power","min_top_speed","max_speed","capacity","length"]
-			foreach(key in ccc) gui.add_message_at(our_player," ... " + key + " = " + c[key], world.get_time())
+			//gui.add_message_at(our_player, "convoy length: " + l, world.get_time())
+			//local ccc = ["power","min_top_speed","max_speed","capacity","length"]
+			//foreach(key in ccc) gui.add_message_at(our_player," ... " + key + " = " + c[key], world.get_time())
 
 			// check if convoy finished
 			if (test.can_be_last() && !c.missing_freight  &&  c.min_top_speed >= min_speed) {
 				// evaluate this candidate
-					gui.add_message_at(our_player, "valuate: " + valuate, world.get_time())
+					//gui.add_message_at(our_player, "valuate: " + valuate, world.get_time())
 				if (valuate) {
 					local value = valuate.call(getroottable(), c)
 //          print(" === " + value)
-					gui.add_message_at(our_player, "evaluate this candidate: " + value, world.get_time())
+					//gui.add_message_at(our_player, "evaluate this candidate: " + value, world.get_time())
 					if (best==null  ||  value > best_value) {
 						best = c
 						best_value = value

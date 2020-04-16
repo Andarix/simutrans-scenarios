@@ -54,7 +54,7 @@ class industry_manager_t extends manager_t
 	static function key(src, des, fre)
 	{
 		return (translate(fre) + "-from-" + src.get_name() + coord_to_string(src)
-		                       + "-to-" + des.get_name() + coord_to_string(des) ).toalnum()
+													 + "-to-" + des.get_name() + coord_to_string(des) ).toalnum()
 	}
 
 	function set_link_state(src, des, fre, state)
@@ -195,7 +195,7 @@ class industry_manager_t extends manager_t
 		}
 		dbgprint("Capacity of convoy " + cnv.get_name() + " = " + capacity)
 		dbgprint("Speed of convoy " + cnv.get_name() + " = " + cnv.get_speed())
-    
+		
 		// iterate through schedule, check for available freight
 		local freight_available = false
 		{
@@ -222,7 +222,7 @@ class industry_manager_t extends manager_t
 				local freight_on_schedule = halt.get_freight_to_halt(lf, nexthalt)
 				local capacity_halt = halt.get_capacity(lf)
 				dbgprint("Freight from " + halt.get_name() + " to " + nexthalt.get_name() + " = " + freight_on_schedule)
-        // either start is 2/3 full or more good available as one cnv can transport
+				// either start is 2/3 full or more good available as one cnv can transport
 				freight_available = (3*freight_on_schedule > 2*capacity_halt)
 					|| (freight_on_schedule > capacity);
 			}
@@ -286,17 +286,17 @@ class industry_manager_t extends manager_t
 		dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
 		dbgprint("")  
  		
-    if (freight_available  &&  cc_new == 0  &&  cc_stop < 2) {
+		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2) {
 
-      // rail no build double track and signals -> single convoy on line
-      if (cnv.get_waytype() == wt_rail && cnv_count == 1) { 
-		    //gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-		    //gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> no add convoy by rail", world.get_time())
-        return 
-      }
-			      
-      
-      if (gain_per_m > 0) {
+			// no signals and double tracks - limit 1 convoy for rail
+			if (cnv.get_waytype() == wt_rail && cnv_count == 1) { 
+				//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
+				//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> no add convoy by rail", world.get_time())
+				return 
+			}
+						
+			
+			if (gain_per_m > 0) {
 				// directly append
 				// TODO put into report
 				local proto = cnv_proto_t.from_convoy(cnv, lf)
@@ -310,8 +310,8 @@ class industry_manager_t extends manager_t
 				c.p_count  = 1
 				append_child(c)
 				dbgprint("==> build additional convoy")
-		    //gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-		    //gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
+				//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
+				//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
 			}
 		}
 
@@ -321,8 +321,8 @@ class industry_manager_t extends manager_t
 			// delete one convoy
 			cnv_empty_stopped.destroy(our_player)
 			dbgprint("==> destroy empty convoy")
-		  //gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-		  //gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time())
+			//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
+			//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time())
 		}
 		dbgprint("")
 
@@ -393,7 +393,7 @@ class industry_manager_t extends manager_t
 		cnv_valuator.volume   = transported
 		cnv_valuator.max_cnvs = 200
 
-    // double track and signals missing
+		// double track and signals missing
 		if (wt == wt_rail) {
 			cnv_valuator.max_cnvs = 1
 		}
