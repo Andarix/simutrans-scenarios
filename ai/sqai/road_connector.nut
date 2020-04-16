@@ -21,6 +21,9 @@ class road_connector_t extends manager_t
 	c_line  = null
 	c_cnv   = null
 
+	// print messages box 
+	print_message_box = 1
+
 	constructor()
 	{
 		base.constructor("road_connector_t")
@@ -35,7 +38,7 @@ class road_connector_t extends manager_t
 
 		switch(phase) {
 			case 0: // find places for stations
-				gui.add_message_at(our_player, "______________________ build road ______________________", world.get_time())
+				if ( print_message_box == 1 ) { gui.add_message_at(our_player, "______________________ build road ______________________", world.get_time()) }
 				if (c_start == null) {
 					c_start = ::finder.find_station_place(fsrc, fdest)
 				}
@@ -56,11 +59,11 @@ class road_connector_t extends manager_t
 					local d = pl.get_current_cash();
 					local err = construct_road(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
-					gui.add_message_at(our_player, "Build road from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time())
 					if (err) {
-						print("Failed to build way from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
+						print("Failed to build way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
 						return error_handler()
 					}
+					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build road from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time()) }
 					phase ++
 				}
 			case 2: // build station
@@ -68,7 +71,7 @@ class road_connector_t extends manager_t
 					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_start))
-						//gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_start) + " error " + err, world.get_time())
+						if ( print_message_box == 1 ) { gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_start) + " error " + err, world.get_time()) }
 						return error_handler()
 					}
 					local err = command_x.build_station(pl, c_end, planned_station )
@@ -86,6 +89,7 @@ class road_connector_t extends manager_t
 							print( recursive_save({unload = c_end}, "\t\t\t", []) )
 						}
 					}
+					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) }
 					phase ++
 				}
 			case 3: // find depot place
@@ -115,6 +119,7 @@ class road_connector_t extends manager_t
 							}
 						}
 					}
+					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
 					phase ++
 				}
 			case 6: // create schedule
