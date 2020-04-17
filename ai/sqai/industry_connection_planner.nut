@@ -25,7 +25,11 @@ class industry_connection_planner_t extends manager_t
 	prod = -1   	// integer
 
 	// print messages box 
-	print_message_box = 0
+	// 1 = vehicles
+	// 2 = stations 
+	// 3 = depots
+	print_message_box = 3
+	wt_name = ["", "road", "rail", "water"]
 	
 	constructor(s,d,f)
 	{
@@ -55,7 +59,7 @@ class industry_connection_planner_t extends manager_t
 			append_report(rprt)
 		}
 		// road
-		local rprt = plan_simple_connection(wt_road, null, null)
+		rprt = plan_simple_connection(wt_road, null, null)
 		if (rprt) {
 			append_report(rprt)
 		}
@@ -145,7 +149,7 @@ class industry_connection_planner_t extends manager_t
 			gui.add_message_at(our_player, "___________________________start__________________________________", world.get_time())
 			gui.add_message_at(our_player, "plan way ", world.get_time())
 			gui.add_message_at(our_player, "Plan link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
-    }
+		}
 		
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
 		prototyper.valuate = bound_valuator
@@ -195,7 +199,7 @@ class industry_connection_planner_t extends manager_t
 
 		// valuate again with best way
 		r.gain_per_m = cnv_valuator.valuate_monthly_transport(planned_convoy)
-    
+
 		if ( print_message_box == 1 ) { 
 			gui.add_message_at(our_player, "*** ", world.get_time())
 			gui.add_message_at(our_player, "plan station ", world.get_time())
@@ -207,7 +211,7 @@ class industry_connection_planner_t extends manager_t
 		}
 		
 		if ( print_message_box == 1 ) { 
-			gui.add_message_at(our_player, "wt " + wt, world.get_time())
+			gui.add_message_at(our_player, "wt " + wt_name[wt], world.get_time())
 			gui.add_message_at(our_player, "planned_convoy.length " + planned_convoy.length, world.get_time())
 		}
 		if (wt != wt_water) {
@@ -228,7 +232,8 @@ class industry_connection_planner_t extends manager_t
 
 		// plan depot
 		local planned_depot = null
-		{
+		{ 
+			
 			local depot_list = building_desc_x.get_available_stations(building_desc_x.depot, wt, {})
 
 			if (depot_list.len()) {
@@ -275,7 +280,7 @@ class industry_connection_planner_t extends manager_t
 		dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + planned_convoy.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
 		dbgprint("Report: dist = " + cnv_valuator.distance+ " way_cost = " + planned_way.get_cost())
 		dbgprint("Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
-    if ( print_message_box == 1 ) { 
+		if ( print_message_box == 1 ) { 
 			gui.add_message_at(our_player, "----- ", world.get_time())
 			gui.add_message_at(our_player, "Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name(), world.get_time())
 			gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + planned_convoy.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly, world.get_time())
@@ -306,10 +311,17 @@ class industry_connection_planner_t extends manager_t
 		local station_is_terminus = false
 		local best_station = null
 
+		if ( print_message_box == 2 ) { 
+			gui.add_message_at(our_player, "---- station list ----", world.get_time())
+		}
+
 		foreach(station in list) {
 			local ok = (best_station == null)
 			local s_capacity = station_length * station.get_capacity()
 
+		if ( print_message_box == 2 ) { 
+			gui.add_message_at(our_player, "station " + station.get_name() + ", type = " + station.get_type(), world.get_time())
+		}
 
 			if (!ok  &&  station_length == 1) {
 				// prefer terminus
@@ -329,6 +341,9 @@ class industry_connection_planner_t extends manager_t
 				station_capacity = station.get_capacity()
 				station_is_terminus = station.is_terminus()
 			}
+		}
+		if ( print_message_box == 2 ) { 
+			gui.add_message_at(our_player, "----> selectet station: " + best_station.get_name(), world.get_time())
 		}
 		return best_station
 	}

@@ -77,6 +77,7 @@ class prototyper_t extends node_t
 
 	// print messages box 
 	print_message_box = 0
+	wt_name = ["", "road", "rail", "water"]
 	
 	constructor(w, /*string*/f)
 	{
@@ -91,7 +92,7 @@ class prototyper_t extends node_t
 			local units = get_max_convoi_length(wt)
 			gui.add_message_at(our_player, "**** ", world.get_time())
 			gui.add_message_at(our_player, "create convoy ", world.get_time())
-			gui.add_message_at(our_player, "wt " + wt, world.get_time())
+			gui.add_message_at(our_player, "wt " + wt_name[wt], world.get_time())
 			gui.add_message_at(our_player, "units: " + units, world.get_time())
 			gui.add_message_at(our_player, "CARUNITS_PER_TILE: " + CARUNITS_PER_TILE, world.get_time())
 			gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
@@ -240,7 +241,7 @@ class prototyper_t extends node_t
 				print("Best[" + ind + "] = " + test.get_name())
 			}
 
-//      local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight", "capacity","maintenance","price","running_cost"]
+//      local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight","capacity","maintenance","price","running_cost"]
 //      foreach(key in ccc) print(" ... " + key + " = " + best[key] )
 //
 			return r_t(RT_SUCCESS)
