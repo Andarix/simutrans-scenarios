@@ -23,11 +23,11 @@ class ship_connector_t extends manager_t
 	c_line  = null
 	c_cnv   = null
 
-	// print messages box 
-	print_message_box = 1
-
-	// print messages box 
-	print_message_box = 1
+	// print messages box
+	// 1
+	// 2
+	// 3 
+	print_message_box = 0
 
 	constructor()
 	{
@@ -51,7 +51,7 @@ class ship_connector_t extends manager_t
 				local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))  
 				planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
 				
-				if ( print_message_box == 1 ) { gui.add_message_at(our_player," ... build station: " + planned_station.get_name(), world.get_time()) }
+				if ( print_message_box == 1 ) { gui.add_message_at(our_player," ... build station: " + planned_station.get_name() + " / " + planned_harbour_flat.get_name(), world.get_time()) }
 				
 				phase ++
 			}
@@ -70,30 +70,8 @@ class ship_connector_t extends manager_t
 				}
 				else {
 					if ( print_message_box == 1 ) { gui.add_message_at(our_player, " ... ERROR No station places found ", world.get_time()) }   
-					
-					local station_list = building_desc_x.get_available_stations(building_desc_x.harbour, wt_water, good_desc_x(freight))
-					planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
-				
-					if ( print_message_box == 1 ) { gui.add_message_at(our_player," ... build station: " + planned_station.get_name(), world.get_time()) }
-					
-					// find empty water tiles
-					if (c_start == null) {
-						c_start = find_anchorage(fsrc,  planned_station, planned_harbour_flat, c_harbour_tiles)
-					}
-					if (c_end == null) {
-						c_end   = find_anchorage(fdest, planned_station, planned_harbour_flat, c_harbour_tiles)
-					}
-
-
-					if (c_start.len()>0  &&  c_end.len()>0) {
-						if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Water way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time()) }
-						phase ++
-					}
-					else {
-						print("No station places found")
-						if ( print_message_box == 1 ) { gui.add_message_at(our_player, " ... ERROR No station places found ", world.get_time()) }
-						return error_handler()
-					}
+					print("No station places found")
+					return error_handler()
 				}
 
 			case 2: // find path between both factories
@@ -266,14 +244,26 @@ class ship_connector_t extends manager_t
 				for(local d = 1; d<16; d*=2) {
 					local to = tile.get_neighbour(wt_all, d)
 
+					if ( print_message_box == 1 ) { 
+						gui.add_message_at(our_player, "place finder: to.is_empty() " + to.is_empty(), world.get_time())
+					}
+
 					if (to  &&  to.is_empty()) {
 						local ok = false
+							if ( print_message_box == 1 ) { 
+								gui.add_message_at(our_player, "place finder: to.get_slope() " + to.get_slope(), world.get_time())
+							}
 						if (to.get_slope() !=0) {
+
 							// check place for harbour
 							local size = planned_station.get_size(0)
 							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
 						}
 						else if (planned_harbour_flat) {
+
+							if ( print_message_box == 1 ) { 
+								gui.add_message_at(our_player, "place finder: planned_harbour_flat " + coord3d_to_string(to), world.get_time())
+							}
 							// check place for flat one
 							local size = planned_harbour_flat.get_size(0)
 							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
