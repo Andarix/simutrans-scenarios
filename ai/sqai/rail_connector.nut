@@ -22,7 +22,10 @@ class rail_connector_t extends manager_t
 	c_cnv   = null
 
 	// print messages box 
-	print_message_box = 1
+	// 1 = way
+	// 2 = stations 
+	// 3 = depot
+	print_message_box = 2
 
 	constructor()
 	{
@@ -38,7 +41,7 @@ class rail_connector_t extends manager_t
 
 		switch(phase) {
 			case 0: // find places for stations
-				if ( print_message_box == 1 ) { gui.add_message_at(our_player, "______________________ build rail ______________________", world.get_time()) }
+				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "______________________ build rail ______________________", world.get_time()) }
 				if (c_start == null) {
 					c_start = ::finder.find_station_place(fsrc, fdest)
 				}
@@ -59,8 +62,13 @@ class rail_connector_t extends manager_t
 					local d = pl.get_current_cash();
 					local err = construct_rail(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
-					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build rail from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end), world.get_time()) }
-					if (err) {
+					if ( print_message_box == 1 && c_start.len()>0  &&  c_end.len()>0) { 
+						gui.add_message_at(our_player, "Build rail from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]), world.get_time()) 
+					}
+					if (err && c_start.len()>0  &&  c_end.len()>0) {
+						print("Failed to build way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
+						return error_handler()
+					} else if (err) {
 						print("Failed to build way from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
 						return error_handler()
 					}
@@ -71,12 +79,31 @@ class rail_connector_t extends manager_t
 					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_start))
-						if ( print_message_box == 1 ) { gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_start) + " error " + err, world.get_time()) }
+						if ( print_message_box == 2 ) { gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_start) + " error " + err, world.get_time()) }
 						return error_handler()
 					}
+					
+					if ( print_message_box == 2 ) { 
+						gui.add_message_at(our_player, " planned_convoy.length " + planned_convoy.length, world.get_time()) 
+					} 
+					
+					// stations lenght
+					local a = planned_convoy.length
+					local count = 0
+					do {
+    				a -= 16
+						count += 1
+					} while(a > 0)					
+					
+					if ( print_message_box == 2 ) { 
+						gui.add_message_at(our_player, " stations lenght: " + count, world.get_time()) 
+					} 
+					
 					local err = command_x.build_station(pl, c_end, planned_station )
 					if (err) {
-						gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end) + " error " + err, world.get_time())
+						if ( print_message_box == 2 ) {
+							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end) + " error " + err, world.get_time())
+						}
 						print("Failed to build station at " + coord_to_string(c_end))
 						return error_handler()
 					}
@@ -89,7 +116,27 @@ class rail_connector_t extends manager_t
 							print( recursive_save({unload = c_end}, "\t\t\t", []) )
 						}
 					}
-					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) }
+					
+					// Ausrichtung ermitteln
+					// 0 - .x
+					// 1 - .y
+					// 2 - way ns or ew
+					
+					err = check_station(our_player, c_start, count)
+					err = check_station(our_player, c_end, count)
+					
+					// Felder prüfen auf Schiene oder frei
+					
+					
+					// wenn ja dann Station anbauen
+					
+					// wenn nein Schienen bauen und Station anbauen
+					
+					if ( print_message_box == 2 ) { 
+						//gui.add_message_at(our_player, " ... rotate " + rotate, world.get_time()) 
+						gui.add_message_at(our_player, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) 
+					} 
+					
 					phase ++
 				}
 			case 3: // find depot place
@@ -103,6 +150,45 @@ class rail_connector_t extends manager_t
 				}
 			case 5: // build depot
 				{
+					if ( print_message_box == 3 ) {
+						gui.add_message_at(our_player, "___________ exists depots rail ___________", world.get_time())
+			 			gui.add_message_at(our_player," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())      
+					}
+					local list_exists_depot = depot_x.get_depot_list(our_player, wt_road) 
+					local seach_field = 5 
+					local tile_min = [c_start.x - seach_field, c_start.y - seach_field, c_end.x - seach_field, c_end.y - seach_field]
+					local tile_max = [c_start.x + seach_field, c_start.y + seach_field, c_end.x + seach_field, c_end.y + seach_field]
+					local depot_found = false
+
+					foreach(key in list_exists_depot) {
+
+						if ( print_message_box == 3 ) {
+			 				gui.add_message_at(our_player," ... depot pos: " + key.get_pos(), world.get_time())      
+						}
+
+						if ( key.x >= tile_min[0] && key.y >= tile_min[1] && key.x <= tile_max[0] && key.y <= tile_max[1] ) {
+							c_depot = depot_x(key.x, key.y, key.z)
+							if ( print_message_box == 3 ) {
+			 					gui.add_message_at(our_player," ---> depot found c_start: " + key.get_pos(), world.get_time())      
+							}
+							depot_found = true
+							break
+						} else if ( key.x >= tile_min[2] && key.y >= tile_min[3] && key.x <= tile_max[2] && key.y <= tile_max[3] ) {
+							c_depot = depot_x(key.x, key.y, key.z)
+							if ( print_message_box == 3 ) {
+			 					gui.add_message_at(our_player," ---> depot found c_end: " + key.get_pos(), world.get_time())      
+							}
+							depot_found = true
+							break
+						} else {
+						}
+				
+					}
+
+					if ( depot_found && print_message_box == 3 ) {
+			 			gui.add_message_at(our_player," *** depot not found *** ", world.get_time())      
+					}
+
 					// depot already existing ?
 					if (c_depot.find_object(mo_depot_rail) == null) {
 						// no: build
@@ -303,6 +389,98 @@ class rail_connector_t extends manager_t
 			}
 		}
 		return find_empty_place(area, target)
+	}
+	
+	function check_station(pl, starts_field, st_lenght) {
+
+					if ( print_message_box == 2 ) {
+						gui.add_message_at(our_player, " --- start field : " + coord3d_to_string(c_start), world.get_time())
+					}
+					
+					local a = 0
+					local f = 1
+					local t = null 
+					local st_build = false 
+					local err = null
+					
+					// check c_start to w
+					do {
+    				a = tile_x(starts_field.x + f, starts_field.y, starts_field.z).has_way(wt_rail)
+						if ( print_message_box == 2 ) {
+							gui.add_message_at(pl, " --- field test w : " + coord3d_to_string(tile_x(starts_field.x + f, starts_field.y, starts_field.z)) + " -> " + a, world.get_time()) 
+						}	
+						f++
+						if ( f == st_lenght ) { 
+						  for(f = 1; f < st_lenght; f++) {
+								err = command_x.build_station(pl, tile_x(starts_field.x + f, starts_field.y, starts_field.z), planned_station ) 
+								if ( print_message_box == 2 ) {
+									gui.add_message_at(pl, " --- st build : " + coord3d_to_string(tile_x(starts_field.x + f, starts_field.y, starts_field.z)) + " err : " + err, world.get_time()) 
+								}	
+							}
+							a = false
+							st_build = true 
+						}
+					} while(a == true)					
+					
+					// check c_start to e
+					local f = 1
+					if ( !st_build ) {
+						do {
+    					a = tile_x(starts_field.x - f, starts_field.y, starts_field.z).has_way(wt_rail)
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test e : " + coord3d_to_string(tile_x(starts_field.x - f, starts_field.y, starts_field.z)) + " -> " + a, world.get_time()) 
+							}	
+							f++
+							if ( f == st_lenght ) {
+						  	for(f = 1; f < st_lenght; f++) {
+									err = command_x.build_station(pl, tile_x(starts_field.x - f, starts_field.y, starts_field.z), planned_station ) 
+								}
+								a = false
+								st_build = true 
+							}
+						} while(a == true)					
+					}
+					
+					// check c_start to s
+					local f = 1
+					if ( !st_build ) {
+						do {
+    					a = tile_x(starts_field.x, starts_field.y + f, starts_field.z).has_way(wt_rail)
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test s : " + coord3d_to_string(tile_x(starts_field.x, starts_field.y + f, starts_field.z)) + " -> " + a, world.get_time()) 
+							}	
+							f++
+							if ( f == st_lenght ) {
+						  	for(f = 1; f < st_lenght; f++) {
+									
+									err = command_x.build_station(pl, tile_x(starts_field.x, starts_field.y + f, starts_field.z), planned_station ) 
+								}
+								a = false
+								st_build = true 
+							}
+						} while(a == true)					
+					}
+
+					// check c_start to n
+					local f = 1
+					if ( !st_build ) {
+						do {
+    					a = tile_x(starts_field.x, starts_field.y - f, starts_field.z).has_way(wt_rail)
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test n : " + coord3d_to_string(tile_x(starts_field.x, starts_field.y - f, starts_field.z)) + " -> " + a, world.get_time()) 
+							}	
+							f++
+							if ( f == st_lenght ) {
+						  	for(f = 1; f < st_lenght; f++) {
+									err = command_x.build_station(pl, tile_x(starts_field.x, starts_field.y - f, starts_field.z), planned_station ) 
+								}                                                            
+								a = false
+								st_build = true 
+							}
+						} while(a == true)					
+					}
+	
+	
 	}
 }
 
