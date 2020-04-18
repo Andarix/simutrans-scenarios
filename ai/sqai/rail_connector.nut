@@ -136,11 +136,6 @@ class rail_connector_t extends manager_t
 				}
 			case 3: // find depot place
 				{
-					local err = construct_rail_to_depot(pl, c_start, planned_way)
-					if (err) {
-						print("Failed to build depot access from " + coord_to_string(c_start))
-						return error_handler()
-					}
 					phase += 2
 				}
 			case 5: // build depot
@@ -149,11 +144,12 @@ class rail_connector_t extends manager_t
 						gui.add_message_at(our_player, "___________ exists depots rail ___________", world.get_time())
 			 			gui.add_message_at(our_player," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())      
 					}
-					local list_exists_depot = depot_x.get_depot_list(our_player, wt_road) 
+					local list_exists_depot = depot_x.get_depot_list(our_player, wt_rail) 
 					local seach_field = 5 
 					local tile_min = [c_start.x - seach_field, c_start.y - seach_field, c_end.x - seach_field, c_end.y - seach_field]
 					local tile_max = [c_start.x + seach_field, c_start.y + seach_field, c_end.x + seach_field, c_end.y + seach_field]
 					local depot_found = false
+					local station_to_depot = null
 
 					foreach(key in list_exists_depot) {
 
@@ -167,6 +163,7 @@ class rail_connector_t extends manager_t
 			 					gui.add_message_at(our_player," ---> depot found c_start: " + key.get_pos(), world.get_time())      
 							}
 							depot_found = true
+							station_to_depot = tile_x(c_start.x, c_start.y, c_start.z)
 							break
 						} else if ( key.x >= tile_min[2] && key.y >= tile_min[3] && key.x <= tile_max[2] && key.y <= tile_max[3] ) {
 							c_depot = depot_x(key.x, key.y, key.z)
@@ -174,6 +171,7 @@ class rail_connector_t extends manager_t
 			 					gui.add_message_at(our_player," ---> depot found c_end: " + key.get_pos(), world.get_time())      
 							}
 							depot_found = true
+							station_to_depot = tile_x(c_end.x, c_end.y, c_end.z)
 							break
 						} else {
 						}
@@ -184,7 +182,17 @@ class rail_connector_t extends manager_t
 			 			gui.add_message_at(our_player," *** depot not found *** ", world.get_time())      
 					}
 
-					// depot already existing ?
+					// build rail to depot
+					if ( depot_found ) {
+					  local err = construct_rail(our_player, station_to_depot, c_depot, planned_way)
+					} else {
+						local err = construct_rail_to_depot(pl, c_start, planned_way)
+						if (err) {
+							print("Failed to build depot access from " + coord_to_string(c_start))
+							return error_handler()
+						}
+	        }
+						// depot already existing ?
 					if (c_depot.find_object(mo_depot_rail) == null) {
 						// no: build
 						local err = command_x.build_depot(pl, c_depot, planned_depot )
@@ -423,13 +431,13 @@ class rail_connector_t extends manager_t
 		if ( print_message_box == 2 ) { 
 			gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
 			gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time()) 
-			gui.add_message_at(pl, " ------ test eastwest : " + d1, world.get_time()) 
-			gui.add_message_at(pl, " ------ test northsouth : " + d2, world.get_time()) 
+			//gui.add_message_at(pl, " ------ test eastwest : " + d1, world.get_time()) 
+			//gui.add_message_at(pl, " ------ test northsouth : " + d2, world.get_time()) 
 		}	
 									
 
 					
-		//if ( d1 == 8 ) {			
+		if ( d == 2 || d == 8 || d == 10 ) {			
 					// check  w - e 
 					// 1 - w
 					// 2 - e
@@ -442,7 +450,7 @@ class rail_connector_t extends manager_t
 							// tile empty then build rail
 					  	if ( b1_tile.is_empty() ) {
 								// buld way to tile
-								//err = construct_rail(pl, starts_field, b1_tile, planned_way)
+								err = construct_rail(pl, starts_field, b1_tile, planned_way)
 							}
             	if ( err ) { 
 						  	a_1 = false 
@@ -463,8 +471,7 @@ class rail_connector_t extends manager_t
 								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b1_tile) + " tile_build : " + a_1, world.get_time())
 							}	
 						}
-					
-												
+		
 						// e tile empty or single rail
 						if ( !a_1 && (b2_tile.is_empty() || b2_tile.has_way(wt_rail)) && !b2_tile.has_two_ways() ) { 
 							// tile empty then build rail
@@ -506,9 +513,9 @@ class rail_connector_t extends manager_t
 							a = true 
 						} 
 					} while(a == false)	
-		//}					
+		}					
 					
-		if ( !st_build ) { 
+		if ( !st_build && ( d == 1 || d == 4 || d == 5 ) ) { 
 			f1 = 1
 			f2 = 1
 			a = false
@@ -525,7 +532,7 @@ class rail_connector_t extends manager_t
 							// tile empty then build rail
 					  	if ( b1_tile.is_empty() ) {
 								// buld way to tile
-								//err = construct_rail(pl, starts_field, b1_tile, planned_way)
+								err = construct_rail(pl, starts_field, b1_tile, planned_way)
 							}
             	if ( err ) { 
 						  	a_1 = false 
