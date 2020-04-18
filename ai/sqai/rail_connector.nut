@@ -41,7 +41,7 @@ class rail_connector_t extends manager_t
 
 		switch(phase) {
 			case 0: // find places for stations
-				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "______________________ build rail ______________________", world.get_time()) }
+				if ( print_message_box > 0 ) { gui.add_message_at(pl, "______________________ build rail ______________________", world.get_time()) }
 				if (c_start == null) {
 					c_start = ::finder.find_station_place(fsrc, fdest)
 				}
@@ -63,7 +63,7 @@ class rail_connector_t extends manager_t
 					local err = construct_rail(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 					if ( print_message_box == 1 && c_start.len()>0  &&  c_end.len()>0) { 
-						gui.add_message_at(our_player, "Build rail from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]), world.get_time()) 
+						gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]), world.get_time()) 
 					}
 					if (err && c_start.len()>0  &&  c_end.len()>0) {
 						print("Failed to build way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
@@ -84,7 +84,7 @@ class rail_connector_t extends manager_t
 					}
 					
 					if ( print_message_box == 2 ) { 
-						gui.add_message_at(our_player, " planned_convoy.length " + planned_convoy.length, world.get_time()) 
+						gui.add_message_at(pl, " planned_convoy.length " + planned_convoy.length, world.get_time()) 
 					} 
 					
 					// stations lenght
@@ -118,6 +118,7 @@ class rail_connector_t extends manager_t
 					}
 					
 					err = check_station(our_player, c_start, count)
+					
 					err = check_station(our_player, c_end, count)
 					
 					// Felder prüfen auf Schiene oder frei
@@ -129,7 +130,7 @@ class rail_connector_t extends manager_t
 					
 					if ( print_message_box == 2 ) { 
 						//gui.add_message_at(our_player, " ... rotate " + rotate, world.get_time()) 
-						gui.add_message_at(our_player, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) 
+						gui.add_message_at(pl, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) 
 					} 
 					
 					phase ++
@@ -141,8 +142,8 @@ class rail_connector_t extends manager_t
 			case 5: // build depot
 				{
 					if ( print_message_box == 3 ) {
-						gui.add_message_at(our_player, "___________ exists depots rail ___________", world.get_time())
-			 			gui.add_message_at(our_player," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())      
+						gui.add_message_at(pl, "___________ exists depots rail ___________", world.get_time())
+			 			gui.add_message_at(pl," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())      
 					}
 					local list_exists_depot = depot_x.get_depot_list(our_player, wt_rail) 
 					local seach_field = 5 
@@ -184,7 +185,7 @@ class rail_connector_t extends manager_t
 
 					// build rail to depot
 					if ( depot_found ) {
-					  local err = construct_rail(our_player, station_to_depot, c_depot, planned_way)
+					  local err = construct_rail(pl, station_to_depot, c_depot, planned_way)
 					} else {
 						local err = construct_rail_to_depot(pl, c_start, planned_way)
 						if (err) {
@@ -208,7 +209,7 @@ class rail_connector_t extends manager_t
 							}
 						}
 					}
-					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
+					if ( print_message_box == 1 ) { gui.add_message_at(pl, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
 					phase ++
 				}
 			case 6: // create schedule
@@ -295,14 +296,14 @@ class rail_connector_t extends manager_t
 		if (as.bridger.bridge == null) {
 			as.bridger = null
 		}
-
+    
 		local res = as.search_route(starts, ends)
 
 		if ("err" in res) {
 			return res.err
 		}
 		c_start = res.start
-		c_end   = res.end
+		c_end   = res.end 
 	}
 
 	function construct_rail_to_depot(pl, start, way)
@@ -397,7 +398,7 @@ class rail_connector_t extends manager_t
 	function check_station(pl, starts_field, st_lenght) {
 
 		if ( print_message_box == 2 ) {
-			gui.add_message_at(our_player, " --- start field : " + coord3d_to_string(starts_field), world.get_time())
+			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field), world.get_time())
 		}
 					
 		local a = false
@@ -411,31 +412,21 @@ class rail_connector_t extends manager_t
 		local st_build = false 
 		local err = null
 		
+		local t_start = tile_x(c_start.x, c_start.y, c_start.z)
+		local t_end = tile_x(c_end.x, c_end.y, c_end.z)
+	
 					
 	  // Ausrichtung ermitteln
 	  // 0 - .x      eastwest
 	  // 1 - .y      northsouth
 		local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
 		local d = t.get_way_dirs(wt_rail)
-		local d1 = null
-		local d2 = null
 		local loop = 0
-		if ( d == 2 || d == 4 ) {
-			d1 = dir.eastwest
-			d2 = dir.northsouth
-		}
-		//if (dir.is_signle(d)) {
-		//	d1 = t.get_neighbour(wt_rail, d) // only w - e
-		//	d2 = d & dir.northsouth() // only s - n 
-		//}
+
 		if ( print_message_box == 2 ) { 
 			gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
 			gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time()) 
-			//gui.add_message_at(pl, " ------ test eastwest : " + d1, world.get_time()) 
-			//gui.add_message_at(pl, " ------ test northsouth : " + d2, world.get_time()) 
 		}	
-									
-
 					
 		if ( d == 2 || d == 8 || d == 10 ) {			
 					// check  w - e 
@@ -450,8 +441,12 @@ class rail_connector_t extends manager_t
 							// tile empty then build rail
 					  	if ( b1_tile.is_empty() ) {
 								// buld way to tile
-								err = construct_rail(pl, starts_field, b1_tile, planned_way)
+								err = command_x.build_road(our_player, starts_field, b1_tile, planned_way, false, true)
 							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test w empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " *** field w build way : " + coord3d_to_string(b1_tile) + " -> " + err, world.get_time()) 
+							}	
             	if ( err ) { 
 						  	a_1 = false 
 								err = null
@@ -467,9 +462,10 @@ class rail_connector_t extends manager_t
 								}
 							}
 							if ( print_message_box == 2 ) {
-								gui.add_message_at(pl, " --- field test w empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
 								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b1_tile) + " tile_build : " + a_1, world.get_time())
 							}	
+						} else {
+							a_1 = false
 						}
 		
 						// e tile empty or single rail
@@ -477,8 +473,12 @@ class rail_connector_t extends manager_t
 							// tile empty then build rail
 					  	if ( b2_tile.is_empty() ) {
 								// buld way to tile
-								//err = construct_rail(pl, starts_field, b2_tile, planned_way)
+								err = command_x.build_road(our_player, starts_field, b2_tile, planned_way, false, true)
 							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test e empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " *** field e build way : " + coord3d_to_string(b1_tile) + " -> " + err, world.get_time()) 
+							}	
             	if ( err ) { 
 						  	a_2 = false 
 								err = null
@@ -495,7 +495,6 @@ class rail_connector_t extends manager_t
 							} 
 							
 							if ( print_message_box == 2 ) {
-								gui.add_message_at(pl, " --- field test e empty : " + coord3d_to_string(b2_tile) + " -> " + b2_tile.is_empty(), world.get_time()) 
 								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b2_tile) + " tile_build : " + a_2, world.get_time())
 							}	
 						}
@@ -532,8 +531,12 @@ class rail_connector_t extends manager_t
 							// tile empty then build rail
 					  	if ( b1_tile.is_empty() ) {
 								// buld way to tile
-								err = construct_rail(pl, starts_field, b1_tile, planned_way)
+								err = command_x.build_road(our_player, starts_field, b1_tile, planned_way, false, true)
 							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test n empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " *** field n build way : " + coord3d_to_string(b1_tile) + " -> " + err, world.get_time()) 
+							}	
             	if ( err ) { 
 						  	a_1 = false 
 								err = null
@@ -549,9 +552,10 @@ class rail_connector_t extends manager_t
 								}
 							}
 							if ( print_message_box == 2 ) {
-								gui.add_message_at(pl, " --- field test n empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
 								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b1_tile) + " tile_build : " + a_1, world.get_time())
 							}	
+						} else {
+							a_1 = false
 						}
 					
 												
@@ -560,8 +564,12 @@ class rail_connector_t extends manager_t
 							// tile empty then build rail
 					  	if ( b2_tile.is_empty() ) {
 								// buld way to tile
-								//err = construct_rail(pl, starts_field, b2_tile, planned_way)
+								err = command_x.build_road(our_player, starts_field, b2_tile, planned_way, false, true)
 							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test s empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " *** field s build way : " + coord3d_to_string(b1_tile) + " -> " + err, world.get_time()) 
+							}	
             	if ( err ) { 
 						  	a_2 = false 
 								err = null
@@ -578,7 +586,6 @@ class rail_connector_t extends manager_t
 							} 
 							
 							if ( print_message_box == 2 ) {
-								gui.add_message_at(pl, " --- field test s empty : " + coord3d_to_string(b2_tile) + " -> " + b2_tile.is_empty(), world.get_time()) 
 								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b2_tile) + " tile_build : " + a_2, world.get_time())
 							}	
 						}
