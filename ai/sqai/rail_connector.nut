@@ -158,7 +158,7 @@ class rail_connector_t extends manager_t
 						}
 
 						if ( key.x >= tile_min[0] && key.y >= tile_min[1] && key.x <= tile_max[0] && key.y <= tile_max[1] ) {
-							c_depot = depot_x(key.x, key.y, key.z)
+							c_depot = tile_x(key.x, key.y, key.z)
 							if ( print_message_box == 3 ) {
 			 					gui.add_message_at(our_player," ---> depot found c_start: " + key.get_pos(), world.get_time())      
 							}
@@ -166,7 +166,7 @@ class rail_connector_t extends manager_t
 							station_to_depot = tile_x(c_start.x, c_start.y, c_start.z)
 							break
 						} else if ( key.x >= tile_min[2] && key.y >= tile_min[3] && key.x <= tile_max[2] && key.y <= tile_max[3] ) {
-							c_depot = depot_x(key.x, key.y, key.z)
+							c_depot = tile_x(key.x, key.y, key.z)
 							if ( print_message_box == 3 ) {
 			 					gui.add_message_at(our_player," ---> depot found c_end: " + key.get_pos(), world.get_time())      
 							}
