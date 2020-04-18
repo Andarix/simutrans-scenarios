@@ -459,8 +459,8 @@ class rail_connector_t extends manager_t
 								}
 							}
 							if ( print_message_box == 2 ) {
-								gui.add_message_at(pl, " --- field test w : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
-								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b1_tile) + " err : " + a_1, world.get_time())
+								gui.add_message_at(pl, " --- field test w empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b1_tile) + " tile_build : " + a_1, world.get_time())
 							}	
 						}
 					
@@ -487,17 +487,20 @@ class rail_connector_t extends manager_t
 								}
 							} 
 							
-						  loop++
-							if ( loop == st_lenght ) {
-								a = true
-							}
 							if ( print_message_box == 2 ) {
-								gui.add_message_at(pl, " --- field test e : " + coord3d_to_string(b2_tile) + " -> " + a_2, world.get_time()) 
-								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b2_tile) + " err : " + a_2, world.get_time())
-								gui.add_message_at(pl, " --- loop : " + loop, world.get_time())
+								gui.add_message_at(pl, " --- field test e empty : " + coord3d_to_string(b2_tile) + " -> " + b2_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b2_tile) + " tile_build : " + a_2, world.get_time())
 							}	
 						}
 					
+						loop++
+						if ( loop >= st_lenght ) {
+							a = true
+						}
+						if ( print_message_box == 2 ) {
+							gui.add_message_at(pl, " --- loop : " + loop, world.get_time())
+						}	
+							
 						if ( tile_build == (st_lenght - 1) ) { 
 							st_build = true
 							a = true 
@@ -514,8 +517,8 @@ class rail_connector_t extends manager_t
 					// 1 - n
 					// 2 - s
 					do {
-						b1_tile = tile_x(starts_field.x, starts_field.y - f2, starts_field.z)
-						b2_tile = tile_x(starts_field.x, starts_field.y + f1, starts_field.z)
+						b1_tile = tile_x(starts_field.x, starts_field.y - f1, starts_field.z)
+						b2_tile = tile_x(starts_field.x, starts_field.y + f2, starts_field.z)
 						
 						// n tile empty or single rail
 						if ( (b1_tile.is_empty() || b1_tile.has_way(wt_rail)) && !b1_tile.has_two_ways() ) { 
@@ -539,8 +542,8 @@ class rail_connector_t extends manager_t
 								}
 							}
 							if ( print_message_box == 2 ) {
-								gui.add_message_at(pl, " --- field test n : " + coord3d_to_string(b1_tile) + " -> " + a_1, world.get_time()) 
-								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b1_tile) + " err : " + a_1, world.get_time())
+								gui.add_message_at(pl, " --- field test n empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b1_tile) + " tile_build : " + a_1, world.get_time())
 							}	
 						}
 					
@@ -567,17 +570,20 @@ class rail_connector_t extends manager_t
 								}
 							} 
 							
-						  loop++
-							if ( loop == st_lenght ) {
-								a = true
-							}
 							if ( print_message_box == 2 ) {
-								gui.add_message_at(pl, " --- field test s : " + coord3d_to_string(b2_tile) + " -> " + a_2, world.get_time()) 
-								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b2_tile) + " err : " + a_2, world.get_time())
-								gui.add_message_at(pl, " --- loop : " + loop, world.get_time())
+								gui.add_message_at(pl, " --- field test s empty : " + coord3d_to_string(b2_tile) + " -> " + b2_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b2_tile) + " tile_build : " + a_2, world.get_time())
 							}	
 						}
 					
+						loop++
+						if ( loop >= st_lenght ) {
+							a = true
+						}
+						if ( print_message_box == 2 ) {
+							gui.add_message_at(pl, " --- loop : " + loop, world.get_time())
+						}	
+
 						if ( tile_build == (st_lenght - 1) ) { 
 							st_build = true
 							a = true 
