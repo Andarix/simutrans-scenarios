@@ -149,15 +149,16 @@ class road_connector_t extends manager_t
 			 			gui.add_message_at(our_player," *** depot not found *** ", world.get_time())      
 					} 
 	        
+					local err = null
 					// build road to depot
 					if ( depot_found ) {
-					  local err = construct_road(our_player, station_to_depot, c_depot, planned_way)
+					  //err = construct_road(our_player, station_to_depot, c_depot, planned_way)
 					} else {
 						local err = construct_road_to_depot(pl, c_start, planned_way)
 						if (err) {
 							print("Failed to build depot access from " + coord_to_string(c_start))
 							return error_handler()
-						}
+						}  
 					}
 					
 					// depot already existing ?
