@@ -46,12 +46,12 @@ class ship_connector_t extends manager_t
 		switch(phase) {
 
 			case 0: {
-				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "______________________ build ship ______________________", world.get_time()) }
+				if ( print_message_box > 0 ) { gui.add_message_at(pl, "______________________ build ship ______________________", world.get_time()) }
 				// find flat harbour building
 				local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))  
 				planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
 				
-				if ( print_message_box == 1 ) { gui.add_message_at(our_player," ... build station: " + planned_station.get_name() + " / " + planned_harbour_flat.get_name(), world.get_time()) }
+				if ( print_message_box == 1 ) { gui.add_message_at(pl," ... build station: " + planned_station.get_name() + " / " + planned_harbour_flat.get_name(), world.get_time()) }
 				
 				phase ++
 			}
@@ -65,11 +65,11 @@ class ship_connector_t extends manager_t
 				}
 
 				if (c_start.len()>0  &&  c_end.len()>0) {
-					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Water way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time()) }
+					if ( print_message_box == 1 ) { gui.add_message_at(pl, "Water way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time()) }
 					phase ++
 				}
 				else {
-					if ( print_message_box == 1 ) { gui.add_message_at(our_player, " ... ERROR No station places found ", world.get_time()) }   
+					if ( print_message_box == 1 ) { gui.add_message_at(pl, " ... ERROR No station places found ", world.get_time()) }   
 					print("No station places found")
 					return error_handler()
 				}
@@ -105,7 +105,7 @@ class ship_connector_t extends manager_t
 					}
 
 					c_harbour_tiles = null
-					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build station on " + coord_to_string(c_start[0]) + " and " + coord_to_string(c_end[0]), world.get_time()) }
+					if ( print_message_box == 1 ) { gui.add_message_at(pl, "Build station on " + coord_to_string(c_start[0]) + " and " + coord_to_string(c_end[0]), world.get_time()) }
 					phase ++
 				}
 			case 4: // find route again after harbour was built
@@ -138,7 +138,7 @@ class ship_connector_t extends manager_t
 							}
 						}
 					}
-					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
+					if ( print_message_box == 1 ) { gui.add_message_at(pl, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
 					phase ++
 				}
 			case 6: // create schedule
@@ -184,7 +184,8 @@ class ship_connector_t extends manager_t
 				}
 			case 9: // build station extension
 
-				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "____________________ build ship end _____________________", world.get_time()) }
+				if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build ship end _____________________", world.get_time()) }
+				gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + " (" + coord_to_string(c_start) + ") to " + fdest.get_name() + " (" + coord_to_string(c_end) + ")", c_start)
 		}
 
 		if (finalize) {

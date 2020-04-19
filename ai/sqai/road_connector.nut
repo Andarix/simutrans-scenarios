@@ -62,8 +62,11 @@ class road_connector_t extends manager_t
 					local d = pl.get_current_cash();
 					local err = construct_road(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
-					if (err) {
-						print("Failed to build way from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
+					if (err && c_start.len()>0  &&  c_end.len()>0) {
+						print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
+						return error_handler()
+					} else if (err) {
+						print("Failed to build way from " + coord_to_string(c_start) + " to " + coord_to_string(c_end))
 						return error_handler()
 					}
 					if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build road from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time()) }
@@ -113,7 +116,7 @@ class road_connector_t extends manager_t
 			 			gui.add_message_at(our_player," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())      
 					}
 					local list_exists_depot = depot_x.get_depot_list(our_player, wt_road) 
-					local seach_field = 10 
+					local seach_field = 8 
 					local tile_min = [c_start.x - seach_field, c_start.y - seach_field, c_end.x - seach_field, c_end.y - seach_field]
 					local tile_max = [c_start.x + seach_field, c_start.y + seach_field, c_end.x + seach_field, c_end.y + seach_field]
 					local depot_found = false
@@ -221,9 +224,10 @@ class road_connector_t extends manager_t
 					phase ++
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
-			case 9: // build station extension
+			case 9: // build station extension                              
 
 				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "____________________ build road end _____________________", world.get_time()) }
+				gui.add_message_at(pl, pl.get_name() + " build road line from " + fsrc.get_name() + " (" + coord_to_string(c_start) + ") to " + fdest.get_name() + " (" + coord_to_string(c_end) + ")", c_start)
 		}
 
 		if (finalize) {
