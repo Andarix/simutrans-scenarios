@@ -223,6 +223,7 @@ class road_connector_t extends manager_t
 				}
 			case 9: // build station extension
 
+				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "____________________ build road end _____________________", world.get_time()) }
 		}
 
 		if (finalize) {

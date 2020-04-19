@@ -46,7 +46,7 @@ class ship_connector_t extends manager_t
 		switch(phase) {
 
 			case 0: {
-				if ( print_message_box == 1 ) { gui.add_message_at(our_player, "______________________ build water ______________________", world.get_time()) }
+				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "______________________ build ship ______________________", world.get_time()) }
 				// find flat harbour building
 				local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))  
 				planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
@@ -184,6 +184,7 @@ class ship_connector_t extends manager_t
 				}
 			case 9: // build station extension
 
+				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "____________________ build ship end _____________________", world.get_time()) }
 		}
 
 		if (finalize) {
