@@ -368,3 +368,222 @@ function remove_field(pos)
 		tool.work(our_player, pos)
 	}
 }
+
+/*
+function for check station lenght
+
+*/
+function check_station(pl, starts_field, st_lenght, wt) {
+
+		if ( print_message_box == 2 ) {
+			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field), world.get_time())
+		}
+					
+		local a = false
+		local a_1 = null
+		local a_2 = null
+		local b1_tile = null
+		local b2_tile = null
+		local f1 = 1
+		local f2 = 1
+		local tile_build = 0 
+		local st_build = false 
+		local err = null
+		
+		local t_start = tile_x(c_start.x, c_start.y, c_start.z)
+		local t_end = tile_x(c_end.x, c_end.y, c_end.z)
+	
+					
+	  // Ausrichtung ermitteln
+	  // 0 - .x      eastwest
+	  // 1 - .y      northsouth
+		local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
+		local d = t.get_way_dirs(wt)
+		local loop = 0
+
+		if ( print_message_box == 2 ) { 
+			gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
+			gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time()) 
+		}	
+					
+		if ( d == 2 || d == 8 || d == 10 ) {			
+					// check  w - e 
+					// 1 - w
+					// 2 - e
+					do {
+						b1_tile = tile_x(starts_field.x + f1, starts_field.y, starts_field.z)
+						b2_tile = tile_x(starts_field.x - f2, starts_field.y, starts_field.z)
+						
+						// w tile empty or single rail
+						if ( (b1_tile.is_empty() || b1_tile.has_way(wt)) && !b1_tile.has_two_ways() ) { 
+							// tile empty then build rail
+					  	if ( b1_tile.is_empty() ) {
+								// buld way to tile
+								err = command_x.build_road(pl, starts_field, b1_tile, planned_way, false, true)
+							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test w empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " *** field w build way : " + coord3d_to_string(b1_tile) + " -> " + err, world.get_time()) 
+							}	
+            	if ( err ) { 
+						  	a_1 = false 
+								err = null
+							} else {
+								// buld station to tile
+								err = command_x.build_station(pl, b1_tile, planned_station ) 
+            		if ( err ) { 
+						  		a_1 = false 
+									err = null
+								} else {
+									f1++
+						  		tile_build++
+								}
+							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b1_tile) + " tile_build : " + a_1, world.get_time())
+							}	
+						} else {
+							a_1 = false
+						}
+		
+						// e tile empty or single rail
+						if ( !a_1 && (b2_tile.is_empty() || b2_tile.has_way(wt)) && !b2_tile.has_two_ways() ) { 
+							// tile empty then build rail
+					  	if ( b2_tile.is_empty() ) {
+								// buld way to tile
+								err = command_x.build_road(pl, starts_field, b2_tile, planned_way, false, true)
+							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test e empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " *** field e build way : " + coord3d_to_string(b1_tile) + " -> " + err, world.get_time()) 
+							}	
+            	if ( err ) { 
+						  	a_2 = false 
+								err = null
+							} else {
+								// buld station to tile
+								err = command_x.build_station(pl, b2_tile, planned_station ) 
+            		if ( err ) { 
+						  		a_2 = false 
+									err = null
+								} else {
+									f2++
+						  		tile_build++
+								}
+							} 
+							
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b2_tile) + " tile_build : " + a_2, world.get_time())
+							}	
+						}
+					
+						loop++
+						if ( loop >= st_lenght ) {
+							a = true
+						}
+						if ( print_message_box == 2 ) {
+							gui.add_message_at(pl, " --- loop : " + loop, world.get_time())
+						}	
+							
+						if ( tile_build == (st_lenght - 1) ) { 
+							st_build = true
+							a = true 
+						} 
+					} while(a == false)	
+		}					
+					
+		if ( !st_build && ( d == 1 || d == 4 || d == 5 ) ) { 
+			f1 = 1
+			f2 = 1
+			a = false
+			loop = 0
+					// check  n - s 
+					// 1 - n
+					// 2 - s
+					do {
+						b1_tile = tile_x(starts_field.x, starts_field.y - f1, starts_field.z)
+						b2_tile = tile_x(starts_field.x, starts_field.y + f2, starts_field.z)
+						
+						// n tile empty or single rail
+						if ( (b1_tile.is_empty() || b1_tile.has_way(wt)) && !b1_tile.has_two_ways() ) { 
+							// tile empty then build rail
+					  	if ( b1_tile.is_empty() ) {
+								// buld way to tile
+								err = command_x.build_road(pl, starts_field, b1_tile, planned_way, false, true)
+							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test n empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " *** field n build way : " + coord3d_to_string(b1_tile) + " -> " + err, world.get_time()) 
+							}	
+            	if ( err ) { 
+						  	a_1 = false 
+								err = null
+							} else {
+								// buld station to tile
+								err = command_x.build_station(pl, b1_tile, planned_station ) 
+            		if ( err ) { 
+						  		a_1 = false 
+									err = null
+								} else {
+									f1++
+						  		tile_build++
+								}
+							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b1_tile) + " tile_build : " + a_1, world.get_time())
+							}	
+						} else {
+							a_1 = false
+						}
+					
+												
+						// s tile empty or single rail
+						if ( !a_1 && (b2_tile.is_empty() || b2_tile.has_way(wt)) && !b2_tile.has_two_ways() ) { 
+							// tile empty then build rail
+					  	if ( b2_tile.is_empty() ) {
+								// buld way to tile
+								err = command_x.build_road(pl, starts_field, b2_tile, planned_way, false, true)
+							}
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- field test s empty : " + coord3d_to_string(b1_tile) + " -> " + b1_tile.is_empty(), world.get_time()) 
+								gui.add_message_at(pl, " *** field s build way : " + coord3d_to_string(b1_tile) + " -> " + err, world.get_time()) 
+							}	
+            	if ( err ) { 
+						  	a_2 = false 
+								err = null
+							} else {
+								// buld station to tile
+								err = command_x.build_station(pl, b2_tile, planned_station ) 
+            		if ( err ) { 
+						  		a_2 = false 
+									err = null
+								} else {
+									f2++
+						  		tile_build++
+								}
+							} 
+							
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(pl, " --- st build : " + coord3d_to_string(b2_tile) + " tile_build : " + a_2, world.get_time())
+							}	
+						}
+					
+						loop++
+						if ( loop >= st_lenght ) {
+							a = true
+						}
+						if ( print_message_box == 2 ) {
+							gui.add_message_at(pl, " --- loop : " + loop, world.get_time())
+						}	
+
+						if ( tile_build == (st_lenght - 1) ) { 
+							st_build = true
+							a = true 
+						} 
+					} while(a == false)	
+		}			
+					
+	
+	  return st_build
+}
+
