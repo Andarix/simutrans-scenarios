@@ -39,9 +39,15 @@ class rail_connector_t extends manager_t
 		local pl = our_player
 		local tic = get_ops_total();
 
+		local fs = fsrc.get_tile_list()
+		local fd = fdest.get_tile_list()
+
 		switch(phase) {
 			case 0: // find places for stations
-				if ( print_message_box > 0 ) { gui.add_message_at(pl, "______________________ build rail ______________________", world.get_time()) }
+				if ( print_message_box > 0 ) { 
+					gui.add_message_at(pl, "______________________ build rail ______________________", world.get_time()) 
+					gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
+				}
 				if (c_start == null) {
 					c_start = ::finder.find_station_place(fsrc, fdest)
 				}
@@ -249,7 +255,7 @@ class rail_connector_t extends manager_t
 			case 9: // build station extension
 
 				if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build rail end _____________________", world.get_time()) }
-				gui.add_message_at(pl, pl.get_name() + " build rail line from " + fsrc.get_name() + " (" + coord_to_string(c_start) + ") to " + fdest.get_name() + " (" + coord_to_string(c_end) + ")", c_start)
+				gui.add_message_at(pl, pl.get_name() + " build rail line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", c_start)
 		}
 
 		if (finalize) {
