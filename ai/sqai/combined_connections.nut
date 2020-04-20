@@ -5,8 +5,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		base.constructor(s,d,f);
 		name = "amphibious_connection_planner_t"
 	}
-
-
+  
 	function step()
 	{
 		print("amphibious_connection_planner_t " + this)
@@ -21,6 +20,11 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		if (rprt_road == null) {
 			return failed()
 		}
+		// rail - initial
+		local rprt_rail = plan_simple_connection(wt_rail, null, null)
+		if (rprt_rail == null) {
+			return failed()
+		}
 		// water - initial
 		local rprt_water = plan_simple_connection(wt_water, null, null)
 		if (rprt_water == null) {
@@ -28,7 +32,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		}
 
 		// find amphibious path
-		local marine = amphibious_pathfinder_t(rprt_road.action.planned_way, rprt_water.action.planned_station)
+		local marine = amphibious_pathfinder_t(rprt_road.action.planned_way, rprt_water.action.planned_station, rprt_water.action.planned_station)
 		marine.search_route(fsrc,fdest)
 
 		local route = marine.route
@@ -110,21 +114,30 @@ class amphibious_pathfinder_t extends astar
 	planned_harbour = null
 	planned_harbour_flat = null
 	planned_harbour_len = 0
+	planned_harbour_flat_len = 0
 
 	c_harbour_tiles = null
 
-	constructor(way_, harbour_)
+	// print messages box 
+	// 1 
+	print_message_box = 1
+
+	constructor(way_, harbour_, harbour_flat_)
 	{
 		base.constructor()
 		way = way_
 		builder = way_planner_x(our_player)
 		builder.set_build_types(way)
 		planned_harbour = harbour_
+		planned_harbour_flat = harbour_flat_
 
 		local size = planned_harbour.get_size(0)
 		planned_harbour_len = size.x*size.y
 
 		// TODO find flat harbour building
+		local size = planned_harbour_flat.get_size(0)
+		planned_harbour_flat_len = size.x*size.y
+
 	}
 
 	function process_node(cnode)
@@ -181,7 +194,8 @@ class amphibious_pathfinder_t extends astar
 				else if (from_water) {
 					// water -> land
 					if (!from.is_water()  ||  !to.is_empty()  ||  dir.to_slope(d) != to.get_slope()
-						||  !finder.check_harbour_place(from, planned_harbour_len, dir.backward(d)))
+						||  !finder.check_harbour_place(from, planned_harbour_len, dir.backward(d))
+						||  !finder.check_harbour_place(from, planned_harbour_flat_len, dir.backward(d)))
 					{
 						continue
 					}
@@ -196,7 +210,8 @@ class amphibious_pathfinder_t extends astar
 					// land -> water
 					if (!to.is_water()  ||  !from.is_empty()  ||  dir.to_slope(dir.backward(d)) != from.get_slope()
 						||  (cnode.flag & 0x60)
-						||  !finder.check_harbour_place(to, planned_harbour_len, d))
+						||  !finder.check_harbour_place(to, planned_harbour_len, d)
+						||  !finder.check_harbour_place(to, planned_harbour_flat_len, d))
 					{
 						continue
 					}
@@ -250,6 +265,12 @@ class amphibious_pathfinder_t extends astar
 	function search_route(fsrc, fdest)
 	{
 		print("Search amphibious connection")
+		if ( print_message_box > 0 ) { 
+			local fs = fsrc.get_tile_list()
+			local fd = fdest.get_tile_list()
+			gui.add_message_at(our_player, "____________ Search amphibious connection ___________", world.get_time()) 
+			gui.add_message_at(our_player, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
+		}
 		// find station places
 		local s = []
 		local e = []
@@ -286,5 +307,8 @@ class amphibious_pathfinder_t extends astar
 		search()
 
 		print("End amphibious route search")
+		if ( print_message_box == 1 ) {
+			gui.add_message_at(our_player, "------------ End amphibious route search -------------", world.get_time()) 
+		}   
 	}
 }

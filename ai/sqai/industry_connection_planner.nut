@@ -206,6 +206,7 @@ class industry_connection_planner_t extends manager_t
 		}
 		// plan station
 		local planned_station = null  
+		local planned_harbour_flat = null
 		if ( wt == wt_rail ) {
 			//planned_convoy.length = 12
 		}
@@ -227,6 +228,10 @@ class industry_connection_planner_t extends manager_t
 		else {
 			local station_list = building_desc_x.get_available_stations(building_desc_x.harbour, wt, good_desc_x(freight))
 			planned_station = select_station(station_list, 1, planned_convoy.capacity)
+			// find flat harbour building
+			station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))  
+			planned_harbour_flat = select_station(station_list, 1, planned_convoy.capacity)
+				
 		}
 
 
