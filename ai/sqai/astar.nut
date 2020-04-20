@@ -203,25 +203,46 @@ class pontifex
 
 	constructor(pl, way)
 	{
+		// print messages box 
+		// 1 = erreg
+		// 2 = list bridges
+		local print_message_box = 1
+		local wt_name = ["", "road", "rail", "water"]
+
+		if ( print_message_box > 1 ) { 
+			gui.add_message_at(our_player, "____________ Search bridge ___________", world.get_time()) 
+		}
 		player = pl
 		local list = bridge_desc_x.get_available_bridges(way.get_waytype())
 		local len = list.len()
 		local way_speed = way.get_topspeed()
+		local bridge_min_len = 12
 		if (len>0) {
 			bridge = list[0]
-			for(local i=1; i<len; i++) {
-				local b = list[i]
-				if (bridge.get_topspeed() < way_speed) {
-					if (b.get_topspeed() > bridge.get_topspeed()) {
-						bridge = b
-					}
+			for(local i=0; i<len; i++) {
+				local b = list[i] 
+				if ( print_message_box == 2 ) {
+					gui.add_message_at(pl, " ***** way : " + wt_name[way.get_waytype()], world.get_time())
+					gui.add_message_at(pl, " ***** bridge : " + b.get_name(), world.get_time())
+					gui.add_message_at(pl, " ***** get_max_length : " + b.get_max_length(), world.get_time())
 				}
-				else {
-					if (way_speed < b.get_topspeed()  && b.get_topspeed()  < bridge.get_topspeed()) {
-						bridge = b
+				if ( b.get_max_length() > bridge_min_len || b.get_max_length() == 0 ) {
+					if (bridge.get_topspeed() < way_speed) {
+						if (b.get_topspeed() > bridge.get_topspeed()) {
+							bridge = b
+						}
+					}
+					else {
+						if (way_speed < b.get_topspeed() && b.get_topspeed() < bridge.get_topspeed()) {
+							bridge = b
+						}
 					}
 				}
 			}
+		}
+		if ( print_message_box > 1 ) { 
+			gui.add_message_at(pl, " *** bridge found : " + bridge.get_name() + " way : " + wt_name[way.get_waytype()], world.get_time())
+			gui.add_message_at(our_player, "--------- Search bridge end ----------", world.get_time()) 
 		}
 	}
 
@@ -369,10 +390,10 @@ function remove_field(pos)
 	}
 }
 
-/*
-function for check station lenght
-
-*/
+/**
+ * function for check station lenght
+ * 
+ */
 function check_station(pl, starts_field, st_lenght, wt) {
 
 		if ( print_message_box == 2 ) {
