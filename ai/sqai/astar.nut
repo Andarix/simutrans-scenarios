@@ -210,16 +210,23 @@ class pontifex
 		local wt_name = ["", "road", "rail", "water"]
 
 		if ( print_message_box > 1 ) { 
-			gui.add_message_at(our_player, "____________ Search bridge ___________", world.get_time()) 
+			gui.add_message_at(pl, "____________ Search bridge ___________", world.get_time()) 
 		}
 		player = pl
 		local list = bridge_desc_x.get_available_bridges(way.get_waytype())
 		local len = list.len()
 		local way_speed = way.get_topspeed()
-		local bridge_min_len = 12
+		local bridge_min_len = 12 
+		
 		if (len>0) {
 			bridge = list[0]
-			for(local i=0; i<len; i++) {
+				if ( print_message_box == 2 ) {
+					gui.add_message_at(pl, " ***** way : " + wt_name[way.get_waytype()], world.get_time())
+					gui.add_message_at(pl, " ***** bridge : " + bridge.get_name(), world.get_time())
+					gui.add_message_at(pl, " ***** get_max_length : " + bridge.get_max_length(), world.get_time())
+				}
+
+			for(local i=1; i<len; i++) {
 				local b = list[i] 
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(pl, " ***** way : " + wt_name[way.get_waytype()], world.get_time())
@@ -608,3 +615,29 @@ function check_station(pl, starts_field, st_lenght, wt) {
 	  return st_build
 }
 
+/**
+ * search existing depot on range to station
+ *
+ */
+function search_depot(field_pos, wt) {
+	
+	local list_exists_depot = depot_x.get_depot_list(our_player, wt) 
+	// search range
+	local seach_field = 10
+
+	local tile_min = [field_pos.x - seach_field, field_pos.y - seach_field]
+	local tile_max = [field_pos.x + seach_field, field_pos.y + seach_field]
+	local depot_found = false
+
+	foreach(key in list_exists_depot) {
+
+		if ( key.x >= tile_min[0] && key.y >= tile_min[1] && key.x <= tile_max[0] && key.y <= tile_max[1] ) {
+			depot_found = tile_x(key.x, key.y, key.z)
+			break
+		} 
+				
+	}
+
+	return depot_found
+
+}

@@ -300,7 +300,18 @@ class industry_manager_t extends manager_t
 				// directly append
 				// TODO put into report
 				local proto = cnv_proto_t.from_convoy(cnv, lf)
-				local depot = cnv.get_home_depot()
+				local depot  = null //cnv.get_home_depot()   		
+				local stations_list = cnv.get_schedule().entries 
+
+				for (local i=0; i<stations_list.len(); i++) {
+			
+					local c = tile_x(stations_list[i].x, stations_list[i].y, stations_list[i].z)
+					local depot = search_depot(c, wt)
+					if ( depot ) {
+						break
+					}
+				
+				} 
 
 				local c = vehicle_constructor_t()
 
@@ -423,7 +434,18 @@ class industry_manager_t extends manager_t
 		dbgprint("Upgrade line "  + line.get_name())
 		// build the new one, withdraw the old ones
 		// directly append
-		local depot  = cnv.get_home_depot()
+		local depot  = null //cnv.get_home_depot()   		
+		local stations_list = cnv.get_schedule().entries 
+		for (local i=0; i<stations_list.len(); i++) {
+			
+			local c = tile_x(stations_list[i].x, stations_list[i].y, stations_list[i].z)
+			local depot = search_depot(c, wt)
+			if ( depot ) {
+				break
+			}
+				
+		} 
+		
 		// TODO put into report
 		local c = vehicle_constructor_t()
 		c.p_depot    = depot_x(depot.x, depot.y, depot.z)
