@@ -43,6 +43,12 @@ class industry_manager_t extends manager_t
 	link_list = null
 	link_iterator = null
 
+	// print messages box 
+	// 1 = vehicles
+	// 2 =  
+	// 3 = 
+	print_message_box = 0
+
 	constructor()
 	{
 		base.constructor("industry_manager_t")
@@ -302,11 +308,12 @@ class industry_manager_t extends manager_t
 				local proto = cnv_proto_t.from_convoy(cnv, lf)
 				local depot  = null //cnv.get_home_depot()   		
 				local stations_list = cnv.get_schedule().entries 
+				local wt = cnv.get_schedule().waytype 
 
 				for (local i=0; i<stations_list.len(); i++) {
 			
 					local c = tile_x(stations_list[i].x, stations_list[i].y, stations_list[i].z)
-					local depot = search_depot(c, wt)
+					depot = search_depot(c, wt)
 					if ( depot ) {
 						break
 					}
@@ -320,9 +327,11 @@ class industry_manager_t extends manager_t
 				c.p_convoy = proto
 				c.p_count  = 1
 				append_child(c)
-				dbgprint("==> build additional convoy")
-				//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-				//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
+				dbgprint("==> build additional convoy")          
+				if ( print_message_box == 1 ) { 
+					gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
+					gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())   
+				}
 			}
 		}
 
@@ -332,8 +341,10 @@ class industry_manager_t extends manager_t
 			// delete one convoy
 			cnv_empty_stopped.destroy(our_player)
 			dbgprint("==> destroy empty convoy")
-			//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-			//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time())
+			if ( print_message_box == 1 ) { 
+				gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
+				gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time()) 
+			}
 		}
 		dbgprint("")
 

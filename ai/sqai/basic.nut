@@ -114,7 +114,9 @@ class report_t
 	cost_fix = 0
 	cost_monthly = 0
 	// expected gain per month
-	gain_per_m = 0
+	gain_per_m = 0 
+	// 
+	distance = 0
 
 	function merge_report(r)
 	{
@@ -122,6 +124,7 @@ class report_t
 		cost_fix     += r.cost_fix
 		cost_monthly += r.cost_monthly
 		gain_per_m   += r.gain_per_m
+		distance   += r.distance
 	}
 
 	function _save()

@@ -5,7 +5,7 @@ class ship_connector_t extends manager_t
 	fdest = null
 	freight = null
 	planned_station = null // harbour on slope
-	planned_harbour_flat = null
+	planned_harbour_flat = null // dock flat ground to water
 	planned_convoy = null
 	planned_way = null // unused
 	planned_depot = null
@@ -27,7 +27,7 @@ class ship_connector_t extends manager_t
 	// 1 = way
 	// 2 = stations 
 	// 3 = depot
-	print_message_box = 2
+	print_message_box = 0
 
 	constructor()
 	{
@@ -54,10 +54,15 @@ class ship_connector_t extends manager_t
 					gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
 				}
 				// find flat harbour building
-				//local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))  
-				//planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
-				
-				if ( print_message_box == 1 ) { gui.add_message_at(pl," ... build station: " + planned_station.get_name() + " / " + planned_harbour_flat.get_name(), world.get_time()) }
+				//if ( !planned_harbour_flat ) {
+					local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))  
+					planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
+				//}
+				if ( print_message_box == 2 ) {
+					local flat = "----"  
+					if ( planned_harbour_flat ) { flat = planned_harbour_flat.get_name() }
+					gui.add_message_at(pl," ... build station: " + planned_station.get_name() + " / " + flat, world.get_time()) 
+				}
 				
 				phase ++
 			}
@@ -112,7 +117,7 @@ class ship_connector_t extends manager_t
 						print("Failed to build harbour at " + key + " / " + err)
 						if ( print_message_box == 2 ) { 
 							gui.add_message_at(pl, " --- Failed to build harbour at " + key + " / " + err, world.get_time()) 
-							gui.add_message_at(pl, " --- c_end " + coord_to_string(c_end), world.get_time()) 
+							gui.add_message_at(pl, " --- c_end " + coord_to_string(c_end[0]), world.get_time()) 
 						}
 						return error_handler()
 					}
@@ -199,7 +204,7 @@ class ship_connector_t extends manager_t
 
 				if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build ship end _____________________", world.get_time()) }
 				if ( fsrc && fdest ) { 
-					gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", coord_to_string(fs[0]))
+					gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
 				}
 			}
 
@@ -261,20 +266,24 @@ class ship_connector_t extends manager_t
 				for(local d = 1; d<16; d*=2) {
 					local to = tile.get_neighbour(wt_all, d)
 
-					if ( print_message_box == 2 ) { 
+					if ( print_message_box == 2 && to.is_empty() ) { 
 						gui.add_message_at(our_player, " ... place finder: to.is_empty() " + coord3d_to_string(to) + " = "  + to.is_empty(), world.get_time())
 					}
 
 					if (to  &&  to.is_empty()) {
 						local ok = false
-						if ( print_message_box == 2 ) { 
+						if ( print_message_box == 2 && to.get_slope()) { 
 							gui.add_message_at(our_player, " ... place finder: to.get_slope() " + coord3d_to_string(to) + " = "  + to.get_slope(), world.get_time())
 						}
-						if (to.get_slope() !=0) {
+						if (to.get_slope() || ( !to.get_slope() && !planned_harbour_flat ) ) {
 
 							// check place for harbour
 							local size = planned_station.get_size(0)
 							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
+							if ( print_message_box == 2 ) { 
+								gui.add_message_at(our_player, " ... place finder: planned_harbour " + coord3d_to_string(to), world.get_time())
+								gui.add_message_at(our_player, " ... finder.check_harbour_place(): " + ok, world.get_time())
+							}
 						}
 						else if (planned_harbour_flat) {
 
@@ -317,7 +326,7 @@ class ship_connector_t extends manager_t
 		}
 		print("Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water) )
 
-		if ( tile.get_slope() && planned_harbour_flat ) {
+		if ( tile.get_slope() || ( !tile.get_slope() && !planned_harbour_flat ) ) {
 
 			local slope = dir.to_slope(coord_to_dir(dif))
 			
