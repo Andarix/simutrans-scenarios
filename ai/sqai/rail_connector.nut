@@ -144,70 +144,49 @@ class rail_connector_t extends manager_t
 						gui.add_message_at(pl, "___________ exists depots rail ___________", world.get_time())
 			 			gui.add_message_at(pl," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())      
 					}
-					local list_exists_depot = depot_x.get_depot_list(our_player, wt_rail) 
-					local seach_field = 5 
-					local tile_min = [c_start.x - seach_field, c_start.y - seach_field, c_end.x - seach_field, c_end.y - seach_field]
-					local tile_max = [c_start.x + seach_field, c_start.y + seach_field, c_end.x + seach_field, c_end.y + seach_field]
-					local depot_found = false
-					local station_to_depot = null
-
-					foreach(key in list_exists_depot) {
-
-						if ( print_message_box == 3 ) {
-			 				gui.add_message_at(our_player," ... depot pos: " + key.get_pos(), world.get_time())      
-						}
-
-						if ( key.x >= tile_min[0] && key.y >= tile_min[1] && key.x <= tile_max[0] && key.y <= tile_max[1] ) {
-							c_depot = tile_x(key.x, key.y, key.z)
-							if ( print_message_box == 3 ) {
-			 					gui.add_message_at(our_player," ---> depot found c_start: " + key.get_pos(), world.get_time())      
-							}
-							depot_found = true
-							station_to_depot = tile_x(c_start.x, c_start.y, c_start.z)
-							break
-						} else if ( key.x >= tile_min[2] && key.y >= tile_min[3] && key.x <= tile_max[2] && key.y <= tile_max[3] ) {
-							c_depot = tile_x(key.x, key.y, key.z)
-							if ( print_message_box == 3 ) {
-			 					gui.add_message_at(our_player," ---> depot found c_end: " + key.get_pos(), world.get_time())      
-							}
-							depot_found = true
-							station_to_depot = tile_x(c_end.x, c_end.y, c_end.z)
-							break
-						} else {
-						}
-				
+          
+					// search depot to range start and end station
+					local depot_found = search_depot(c_start, wt_rail)
+					local starts_field = c_start
+          if ( !depot_found ) {
+						depot_found = search_depot(c_end, wt_rail)
+						starts_field = c_end
 					}
 
-					if ( depot_found && print_message_box == 3 ) {
-			 			gui.add_message_at(our_player," *** depot not found *** ", world.get_time())      
+					if ( !depot_found && print_message_box == 3 ) {
+			 			gui.add_message_at(pl," *** depot not found *** ", world.get_time())      
+					}	else if ( print_message_box == 3 ) {
+						gui.add_message_at(pl," ---> depot found : " + depot_found.get_pos(), coord_to_string(depot_found))      
 					}
 
 					// build rail to depot
-					if ( depot_found ) {
-					  local err = construct_rail(pl, station_to_depot, c_depot, planned_way)
+					if ( depot_found ) { 
+						c_depot = depot_found
+						err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 					} else {
 						local err = construct_rail_to_depot(pl, c_start, planned_way)
 						if (err) {
 							print("Failed to build depot access from " + coord_to_string(c_start))
 							return error_handler()
 						}
-	        }
 						// depot already existing ?
-					if (c_depot.find_object(mo_depot_rail) == null) {
-						// no: build
-						local err = command_x.build_depot(pl, c_depot, planned_depot )
-						if (err) {
-							print("Failed to build depot at " + coord_to_string(c_depot))
-							return error_handler()
-						}
-						if (finalize) {
-							// store depot location
-							local fs = ::station_manager.access_freight_station(fsrc)
-							if (fs.rail_depot == null) {
-								fs.rail_depot = c_depot
+						if (c_depot.find_object(mo_depot_rail) == null) {
+							// no: build
+							local err = command_x.build_depot(pl, c_depot, planned_depot )
+							if (err) {
+								print("Failed to build depot at " + coord_to_string(c_depot))
+								return error_handler()
+							}
+							if (finalize) {
+								// store depot location
+								local fs = ::station_manager.access_freight_station(fsrc)
+								if (fs.rail_depot == null) {
+									fs.rail_depot = c_depot
+								}
 							}
 						}
-					}
+	        } 
+					
 					if ( print_message_box == 1 ) { gui.add_message_at(pl, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
 					phase ++
 				}
