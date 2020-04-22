@@ -27,6 +27,7 @@ class ship_connector_t extends manager_t
 	// 1 = way
 	// 2 = stations 
 	// 3 = depot
+	// 5 = errors
 	print_message_box = 0
 
 	constructor()
@@ -115,7 +116,7 @@ class ship_connector_t extends manager_t
 					}
 					if (err) {
 						print("Failed to build harbour at " + key + " / " + err)
-						if ( print_message_box == 2 ) { 
+						if ( print_message_box == 5 ) { 
 							gui.add_message_at(pl, " --- Failed to build harbour at " + key + " / " + err, world.get_time()) 
 							gui.add_message_at(pl, " --- c_end " + coord_to_string(c_end[0]), world.get_time()) 
 						}
@@ -342,16 +343,17 @@ class ship_connector_t extends manager_t
 				}
 			}
 			err = command_x.build_station(our_player, tile, planned_station)
-			if (err) gui.add_message_at(our_player, "Failed to harbour at " + coord_to_string(tile) +"\n" + err, tile)
+			if (err) gui.add_message_at(our_player, " *#* Failed to harbour at " + coord_to_string(tile) +"\n" + err, tile)
 
 			local size = planned_station.get_size(0)
 			len = size.x*size.y
 
 		}
-		else {
+		else { 
+		
 			err = command_x.build_station(our_player, tile, planned_harbour_flat)
-			if (err) gui.add_message_at(our_player, "Failed to flat harbour at " + coord_to_string(tile) +"\n" + err, tile)
-
+			if (err) gui.add_message_at(our_player, " *#* Failed to flat harbour at " + coord_to_string(tile) + "\n" + err, tile)
+			
 			local size = planned_harbour_flat.get_size(0)
 			len = size.x*size.y
 		}

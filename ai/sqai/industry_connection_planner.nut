@@ -28,7 +28,7 @@ class industry_connection_planner_t extends manager_t
 	// 1 = vehicles
 	// 2 = stations 
 	// 3 = depots
-	print_message_box = 3
+	print_message_box = 0
 	wt_name = ["", "road", "rail", "water"]
 	
 	constructor(s,d,f)
@@ -282,7 +282,7 @@ class industry_connection_planner_t extends manager_t
 
 		// successfull - complete report
 		r.action = cn 
-		r.distance = cnv_valuator.distance 
+    r.distance = cnv_valuator.distance 
 		
 		
 		dbgprint("Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name());
