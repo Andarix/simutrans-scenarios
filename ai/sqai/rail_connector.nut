@@ -162,7 +162,7 @@ class rail_connector_t extends manager_t
 					// build rail to depot
 					if ( depot_found ) { 
 						c_depot = depot_found
-						err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
+						local err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 					} else {
 						local err = construct_rail_to_depot(pl, c_start, planned_way)
 						if (err) {
