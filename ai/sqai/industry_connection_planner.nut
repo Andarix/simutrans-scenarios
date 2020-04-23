@@ -27,8 +27,9 @@ class industry_connection_planner_t extends manager_t
 	// print messages box 
 	// 1 = vehicles
 	// 2 = stations 
-	// 3 = depots
-	print_message_box = 0
+	// 3 = depots  
+	// 4 = reports
+	print_message_box = 4
 	wt_name = ["", "road", "rail", "water"]
 	
 	constructor(s,d,f)
@@ -110,8 +111,18 @@ class industry_connection_planner_t extends manager_t
 	// if start or target are null then use fsrc/fdest
 	function plan_simple_connection(wt, start, target, distance = 0)
 	{
+		// compute correct distance
 		if (distance == 0) {
-			distance = 1
+			foreach(i in ["x", "y"]) {
+				distance += abs( (start ? start[i] : fsrc[i]) - (target ? target[i] : fdest[i]))
+			}
+		}
+		if (distance == 0) {
+			// still zero? avoid division by zero in the prototyper 
+			// distance factorys
+			distance = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y) 
+			// add 10% from distance
+			distance += distance / 100 * 10
 		}
 		// plan convoy prototype
 		local prototyper = prototyper_t(wt, freight)
@@ -139,13 +150,8 @@ class industry_connection_planner_t extends manager_t
 			cnv_valuator.max_cnvs = 1
 		}
 		cnv_valuator.distance = distance
-		// compute correct distance
-		if (distance == 0) {
-			foreach(i in ["x", "y"]) {
-				cnv_valuator.distance += abs( (start ? start[i] : fsrc[i]) - (target ? target[i] : fdest[i]))
-			}
-		} 
-		if ( print_message_box == 1 ) { 
+
+		if ( print_message_box > 0 ) { 
 			gui.add_message_at(our_player, "___________________________ Start plan_simple_connection __________________________", world.get_time())
 			//gui.add_message_at(our_player, "plan way ", world.get_time())
 			local t = tile_x(fsrc.x, fsrc.y, 0)
@@ -227,6 +233,7 @@ class industry_connection_planner_t extends manager_t
 		
 		}
 		else {
+			// find harbour building
 			local station_list = building_desc_x.get_available_stations(building_desc_x.harbour, wt, good_desc_x(freight))
 			planned_station = select_station(station_list, 1, planned_convoy.capacity)
 			// find flat harbour building
@@ -250,12 +257,7 @@ class industry_connection_planner_t extends manager_t
 		if (planned_convoy == null  ||  planned_way == null || planned_station == null || planned_depot == null) {
 			return null
 		}
-
-		// successfull - complete report
-		r.cost_fix     = cnv_valuator.distance * planned_way.get_cost() + 2*planned_station.get_cost() + planned_depot.get_cost()
-		r.cost_monthly = cnv_valuator.distance * planned_way.get_maintenance() + 2*planned_station.get_maintenance() + planned_depot.get_maintenance()
-		r.gain_per_m  -= r.cost_monthly
-
+    
 		// create action node
 		local cn = null
 		switch(wt) {
@@ -279,22 +281,57 @@ class industry_connection_planner_t extends manager_t
 			cn.c_end = [target]
 			print("Connector to " + coord_to_string(target))
 		}
+		
+		
+		// no set distance 
+		local t = "" 
+		r.distance = cnv_valuator.distance
+		/*
+		if ( cnv_valuator.distance == 1 ) {
+			r.distance = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y)   
+			// + 10% 
+			r.distance += r.distance / 100 * 10
+			t = "factory "			
+		} else {
+    	r.distance = cnv_valuator.distance 
+			t = "stations "			
+		}
+		*/
+		
+		// stations lenght
+		local a = planned_convoy.length
+		local count = 0
+		do {
+    	a -= 16
+			count += 1
+		} while(a > 0)					
+       
+		// build cost for way, stations and depot
+		local build_cost = r.distance * planned_way.get_cost() + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost()
+		// build cost / 12 months
+		build_cost = build_cost / 12
+		
+		// successfull - complete report
+		r.cost_fix     = build_cost
+		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance()
+		r.gain_per_m  -= r.cost_monthly
+
 
 		// successfull - complete report
-		r.action = cn 
-    r.distance = cnv_valuator.distance 
-		
+		r.action = cn  
 		
 		dbgprint("Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name());
 		dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + planned_convoy.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
 		dbgprint("Report: dist = " + cnv_valuator.distance + " way_cost = " + planned_way.get_cost())
 		dbgprint("Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
-		if ( print_message_box == 1 ) { 
+		if ( print_message_box == 4 ) { 
 			gui.add_message_at(our_player, "----- ", world.get_time())
 			gui.add_message_at(our_player, "Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name(), world.get_time())
-			gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + planned_convoy.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly, world.get_time())
-			gui.add_message_at(our_player, "Report: dist = " + cnv_valuator.distance + " way_cost = " + planned_way.get_cost(), world.get_time())
+			gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys = " + planned_convoy.nr_convoys + ", 1/12 cost_build = " + r.cost_fix + ", cost_monthly = " + r.cost_monthly, world.get_time())
+			gui.add_message_at(our_player, "Report: dist " + t + "= " + r.distance + " way_cost = " + planned_way.get_cost(), world.get_time())
 			gui.add_message_at(our_player, "Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost(), world.get_time()) 
+		}
+		if ( print_message_box > 0 ) { 
 			gui.add_message_at(our_player, "___________________________ End  plan_simple_connection __________________________", world.get_time())
 		}
 		return r
