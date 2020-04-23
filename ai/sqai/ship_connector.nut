@@ -55,10 +55,10 @@ class ship_connector_t extends manager_t
 					gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
 				}
 				// find flat harbour building
-				//if ( !planned_harbour_flat ) {
-					local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))  
+				if (planned_harbour_flat == null) {
+					local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
 					planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
-				//}
+				}
 				if ( print_message_box == 2 ) {
 					local flat = "----"  
 					if ( planned_harbour_flat ) { flat = planned_harbour_flat.get_name() }
@@ -351,7 +351,8 @@ class ship_connector_t extends manager_t
 		}
 		else { 
 		
-			err = command_x.build_station(our_player, tile, planned_harbour_flat)
+			local dir = dir.backward(coord_to_dir( dif) )
+			err = command_x.build_station(our_player, tile, planned_harbour_flat, dir)
 			if (err) gui.add_message_at(our_player, " *#* Failed to flat harbour at " + coord_to_string(tile) + "\n" + err, tile)
 			
 			local size = planned_harbour_flat.get_size(0)
