@@ -282,21 +282,7 @@ class industry_connection_planner_t extends manager_t
 			print("Connector to " + coord_to_string(target))
 		}
 		
-		
-		// no set distance 
-		local t = "" 
 		r.distance = cnv_valuator.distance
-		/*
-		if ( cnv_valuator.distance == 1 ) {
-			r.distance = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y)   
-			// + 10% 
-			r.distance += r.distance / 100 * 10
-			t = "factory "			
-		} else {
-    	r.distance = cnv_valuator.distance 
-			t = "stations "			
-		}
-		*/
 		
 		// stations lenght
 		local a = planned_convoy.length
@@ -308,8 +294,8 @@ class industry_connection_planner_t extends manager_t
        
 		// build cost for way, stations and depot
 		local build_cost = r.distance * planned_way.get_cost() + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost()
-		// build cost / 12 months
-		build_cost = build_cost / 12
+		// build cost / 13 months
+		build_cost = build_cost / 13
 		
 		// successfull - complete report
 		r.cost_fix     = build_cost
@@ -327,8 +313,8 @@ class industry_connection_planner_t extends manager_t
 		if ( print_message_box == 4 ) { 
 			gui.add_message_at(our_player, "----- ", world.get_time())
 			gui.add_message_at(our_player, "Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name(), world.get_time())
-			gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys = " + planned_convoy.nr_convoys + ", 1/12 cost_build = " + r.cost_fix + ", cost_monthly = " + r.cost_monthly, world.get_time())
-			gui.add_message_at(our_player, "Report: dist " + t + "= " + r.distance + " way_cost = " + planned_way.get_cost(), world.get_time())
+			gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys = " + planned_convoy.nr_convoys + ", 1/13 cost_build = " + r.cost_fix + ", cost_monthly = " + r.cost_monthly, world.get_time())
+			gui.add_message_at(our_player, "Report: dist = " + r.distance + " way_cost = " + planned_way.get_cost(), world.get_time())
 			gui.add_message_at(our_player, "Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost(), world.get_time()) 
 		}
 		if ( print_message_box > 0 ) { 
