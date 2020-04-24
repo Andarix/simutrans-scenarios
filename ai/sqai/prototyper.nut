@@ -112,23 +112,36 @@ class prototyper_t extends node_t
 
 			local first = veh.can_be_first()
 			local fits  = veh.get_freight().is_interchangeable(freight)
-			local pwer  = veh.get_power()>0
+			local pwer  = veh.get_power()>0 
+			local power = veh.get_power() / 64
+			local speed = veh.get_topspeed()
 			local none  = veh.get_freight().get_name()=="None" || veh.get_capacity()==0
-			local timeline = !veh.is_retired(world.get_time()) //true //veh.get_retire_date() > world.get_time()
+			local timeline = !veh.is_retired(world.get_time()) //true //veh.get_retire_date() > world.get_time() 
+			// no build catenary -> no electrified vehicles
 			local electrified = !veh.needs_electrification()
 
 			//gui.add_message_at(our_player, "timeline: " + veh.get_name() + " - " + timeline, world.get_time())
 			// use vehicles that can carry freight
 			// or that are powered and have no freight capacity
-			if ( (fits || (pwer && none)) && timeline && electrified) {
-				if (first)
-					list_first.append(veh)
-				//gui.add_message_at(our_player, "vehicle found: " + veh.get_name(), world.get_time())
-
+			if ( (fits || (pwer && none)) && timeline && electrified) { 
+				local t = 0
+				if (first && pwer) {
+					t = (power / speed)	
+					/**
+					 * power / speed <= 12 added for rail
+					 * or speed < 161 - max speed for factory goods 
+					 * no over powered vehicles for trains by max lenght 3 stations fields
+					 */	
+					if ( (t <= 12 || speed < 161 ) && wt == wt_rail ) {
+						list_first.append(veh)
+					} else {
+						list_first.append(veh)
+					}
+        }
 				list_other.append(veh)
 				
 				if ( print_message_box == 1 ) {
-					gui.add_message_at(our_player, "* vehicle found: " + veh.get_name(), world.get_time())
+					gui.add_message_at(our_player, "* vehicle found: " + veh.get_name() + " power " + power + " speed " + speed + " power/speed " + t, world.get_time())
 				}
 			}
 
