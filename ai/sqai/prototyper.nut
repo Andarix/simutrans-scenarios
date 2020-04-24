@@ -128,11 +128,11 @@ class prototyper_t extends node_t
 				if (first && pwer) {
 					t = (power / speed)	
 					/**
-					 * power / speed <= 12 added for rail
+					 * power / speed < 12 added ( not for ships )
 					 * or speed < 161 - max speed for factory goods 
 					 * no over powered vehicles for trains by max lenght 3 stations fields
 					 */	
-					if ( (t <= 12 || speed < 161 ) && wt == wt_rail ) {
+					if ( (t < 12 || speed < 161 ) && wt == wt_rail ) {
 						list_first.append(veh)
 					} else {
 						list_first.append(veh)
@@ -274,7 +274,7 @@ class valuator_simple_t {
 	freight = null
 	volume = 0 // monthly transport volume
 	max_cnvs = 0
-	distance = 0
+	distance = 0 
 
 	way_max_speed = -1
 	way_maintenance = 0

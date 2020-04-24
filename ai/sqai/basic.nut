@@ -116,7 +116,8 @@ class report_t
 	// expected gain per month
 	gain_per_m = 0 
 	// 
-	distance = 0
+	distance = 0 
+	points = 0
 
 	function merge_report(r)
 	{
@@ -124,7 +125,8 @@ class report_t
 		cost_fix     += r.cost_fix
 		cost_monthly += r.cost_monthly
 		gain_per_m   += r.gain_per_m
-		distance   += r.distance
+		distance  	 += r.distance
+		//points	  	 += r.points
 	}
 
 	function _save()
@@ -176,15 +178,27 @@ class manager_t extends node_seq_t
 				// too expensive
 				continue
 			}
+      
+			if ( test.points == 0 ) {
+				continue
+			}
+			/*
+				// build cost / 13 months
+				best_month_build_cost = best.cost_fix / 13			
+				test_month_build_cost = test.cost_fix / 13  
+     	*/
+			
+			// 
 
 			if ( best == null
-				|| (best.gain_per_m * test.cost_fix < test.gain_per_m * best.cost_fix)
+				|| (best.gain_per_m * test.cost_fix < best.gain_per_m * test.cost_fix)
 				|| (test.cost_fix == 0  &&  best.cost_fix == 0  &&   best.gain_per_m < test.gain_per_m) )
 			{
 				best = test
 				i = j
 			}
 		}
+		
 		if (best) {
 			reports.remove(i)
 		}

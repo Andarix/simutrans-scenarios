@@ -28,7 +28,8 @@ class industry_connection_planner_t extends manager_t
 	// 1 = vehicles
 	// 2 = stations 
 	// 3 = depots  
-	// 4 = reports
+	// 4 = reports 
+	// 5 = factorys
 	print_message_box = 4
 	wt_name = ["", "road", "rail", "water"]
 	
@@ -294,14 +295,27 @@ class industry_connection_planner_t extends manager_t
        
 		// build cost for way, stations and depot
 		local build_cost = r.distance * planned_way.get_cost() + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost()
-		// build cost / 13 months
+		// build cost / 12 months
 		build_cost = build_cost / 13
+		
+		local conv_capacity = planned_convoy.capacity
+		local freight_input = fdest.input[freight].get_base_consumption()
+		local input_convoy = freight_input/conv_capacity
+		local freight_output = fsrc.output[freight].get_base_production()
+		local output_convoy = freight_output/conv_capacity
+		
+		r.points = 100
+		if ( output_convoy > 250 ) {
+			r.points = 0
+		} 
+		if ( ( freight_input < 700 ) && ( wt == wt_rail && r.distance < 150 ) ) {
+			r.points = 0
+		}
 		
 		// successfull - complete report
 		r.cost_fix     = build_cost
 		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance()
 		r.gain_per_m  -= r.cost_monthly
-
 
 		// successfull - complete report
 		r.action = cn  
@@ -313,9 +327,14 @@ class industry_connection_planner_t extends manager_t
 		if ( print_message_box == 4 ) { 
 			gui.add_message_at(our_player, "----- ", world.get_time())
 			gui.add_message_at(our_player, "Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name(), world.get_time())
-			gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys = " + planned_convoy.nr_convoys + ", 1/13 cost_build = " + r.cost_fix + ", cost_monthly = " + r.cost_monthly, world.get_time())
+			gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys = " + planned_convoy.nr_convoys + ", cost_build = " + r.cost_fix + ", cost_monthly = " + r.cost_monthly, world.get_time())
 			gui.add_message_at(our_player, "Report: dist = " + r.distance + " way_cost = " + planned_way.get_cost(), world.get_time())
-			gui.add_message_at(our_player, "Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost(), world.get_time()) 
+			gui.add_message_at(our_player, "Report: station = " + planned_station.get_cost() + " depot = " + planned_depot.get_cost(), world.get_time()) 
+
+
+			gui.add_message_at(our_player, " * Report: freight = " + freight + " convoy capacity = " + conv_capacity, world.get_time()) 
+			gui.add_message_at(our_player, " * Report: input amount = " + freight_input + " input amount / convoy capacity = " + input_convoy, world.get_time()) 
+			gui.add_message_at(our_player, " * Report: output = " + freight_output + " output / convoy capacity = " + output_convoy, world.get_time()) 
 		}
 		if ( print_message_box > 0 ) { 
 			gui.add_message_at(our_player, "___________________________ End  plan_simple_connection __________________________", world.get_time())
@@ -330,6 +349,23 @@ class industry_connection_planner_t extends manager_t
 		local dest_con = fdest.input[freight].get_base_consumption();
 
 		// TODO implement production factors
+		local src_prod_faktor = fsrc.output[freight].get_production_factor();
+		local dest_con_faktor = fdest.input[freight].get_consumption_factor();
+		 
+		if ( print_message_box == 5 ) { 
+			gui.add_message_at(our_player, "----- factory info -----", world.get_time())
+			gui.add_message_at(our_player, " fsrc : " + fsrc.get_name(), world.get_time())
+			gui.add_message_at(our_player, "freight = " + freight + ", output = " + dest_con + ", factor = " + dest_con_faktor, world.get_time())
+
+			gui.add_message_at(our_player, "-----", world.get_time())
+
+			gui.add_message_at(our_player, " fdest : " + fdest.get_name(), world.get_time())  
+			gui.add_message_at(our_player, "freight = " + freight + ", input = " + src_prod + ", factor = " + src_prod_faktor, world.get_time())
+
+			gui.add_message_at(our_player, "--- factory info end ---", world.get_time())
+		}
+		
+
 
 		dbgprint("production = " + src_prod + " / " + dest_con);
 		return min(src_prod,dest_con)
