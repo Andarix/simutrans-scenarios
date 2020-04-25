@@ -30,7 +30,7 @@ class industry_connection_planner_t extends manager_t
 	// 3 = depots  
 	// 4 = reports 
 	// 5 = factorys
-	print_message_box = 4
+	print_message_box = 0
 	wt_name = ["", "road", "rail", "water"]
 	
 	constructor(s,d,f)
@@ -258,7 +258,7 @@ class industry_connection_planner_t extends manager_t
 		if (planned_convoy == null  ||  planned_way == null || planned_station == null || planned_depot == null) {
 			return null
 		}
-    
+		
 		// create action node
 		local cn = null
 		switch(wt) {
@@ -289,10 +289,10 @@ class industry_connection_planner_t extends manager_t
 		local a = planned_convoy.length
 		local count = 0
 		do {
-    	a -= 16
+			a -= 16
 			count += 1
 		} while(a > 0)					
-       
+			 
 		// build cost for way, stations and depot
 		local build_cost = r.distance * planned_way.get_cost() + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost()
 		// build cost / 12 months
@@ -316,7 +316,7 @@ class industry_connection_planner_t extends manager_t
 		r.cost_fix     = build_cost
 		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance()
 		r.gain_per_m  -= r.cost_monthly
-
+		
 		// successfull - complete report
 		r.action = cn  
 		
