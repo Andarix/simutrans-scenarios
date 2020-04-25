@@ -452,13 +452,13 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 						gui.add_message_at(pl, " ---> dir : 8", world.get_time())
 					}	
           for ( x = 1; x < st_lenght; x++ ) {
-						b1_tile = tile_x(starts_field.x, starts_field.y - x, starts_field.z) 
+						b1_tile = tile_x(starts_field.x, starts_field.y + x, starts_field.z) 
 						if ( print_message_box == 2 ) { 
 							gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile) + " empty " + b1_tile.is_empty(), world.get_time())
 						}	
 						if ( (b1_tile.is_empty() || (b1_tile.has_way(wt) && !b1_tile.has_two_ways())) && b1_tile.get_slope() == 0 ) {
 								// tile is empty or single way and flat 
-								if ( b1_tile.is_ground() && b1_tile.is_empty() ) {
+								if ( b1_tile.is_ground() ) {
 									if ( print_message_box == 2 ) { 
 										gui.add_message_at(pl, " ---=> tile is empty or single way and flat ", world.get_time())
 									}	
@@ -512,7 +512,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 						}	
 						if ( (b1_tile.is_empty() || (b1_tile.has_way(wt) && !b1_tile.has_two_ways())) && b1_tile.get_slope() == 0 ) {
 								// tile is empty or single way and flat 
-								if ( b1_tile.is_ground() && b1_tile.is_empty() ) {
+								if ( b1_tile.is_ground() ) {
 									if ( print_message_box == 2 ) { 
 										gui.add_message_at(pl, " ---=> tile is empty or single way and flat ", world.get_time())
 									}	
@@ -560,13 +560,13 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 						gui.add_message_at(pl, " ---> dir : 4", world.get_time())
 					}	
           for ( x = 1; x < st_lenght; x++ ) {
-						b1_tile = tile_x(starts_field.x, starts_field.y + x, starts_field.z) 
+						b1_tile = tile_x(starts_field.x, starts_field.y - x, starts_field.z) 
 						if ( print_message_box == 2 ) { 
 							gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile) + " empty " + b1_tile.is_empty(), world.get_time())
 						}	
 						if ( (b1_tile.is_empty() || (b1_tile.has_way(wt) && !b1_tile.has_two_ways())) && b1_tile.get_slope() == 0 ) {
 								// tile is empty or single way and flat 
-								if ( b1_tile.is_ground() && b1_tile.is_empty() ) {
+								if ( b1_tile.is_ground() ) {
 									if ( print_message_box == 2 ) { 
 										gui.add_message_at(pl, " ---=> tile is empty or single way and flat ", world.get_time())
 									}	
@@ -620,7 +620,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 						}	
 						if ( (b1_tile.is_empty() || (b1_tile.has_way(wt) && !b1_tile.has_two_ways())) && b1_tile.get_slope() == 0 ) {
 								// tile is empty or single way and flat 
-								if ( b1_tile.is_ground() && b1_tile.is_empty() ) {
+								if ( b1_tile.is_ground() ) {
 									if ( print_message_box == 2 ) { 
 										gui.add_message_at(pl, " ---=> tile is empty or single way and flat ", world.get_time())
 									}	
