@@ -108,7 +108,10 @@ class prototyper_t extends node_t
 		local list = vehicle_desc_x.get_available_vehicles(wt)
 
 		local list_first = []
-		local list_other = []
+		local list_other = []	
+		
+		local t = 0
+
 
 		foreach(veh in list) {
 
@@ -126,7 +129,6 @@ class prototyper_t extends node_t
 			// use vehicles that can carry freight
 			// or that are powered and have no freight capacity
 			if ( (fits || (pwer && none)) && timeline && electrified) { 
-				local t = 0
 				if (first && pwer) {
 					t = (power / speed)	
 					/**
@@ -139,9 +141,10 @@ class prototyper_t extends node_t
 					} else {
 						list_first.append(veh)
 					}
-        }
-				list_other.append(veh)
-				
+        } else {
+					list_other.append(veh)					
+				}
+				t = 0
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(our_player, "* vehicle found: " + veh.get_name() + " power " + power + " speed " + speed + " power/speed " + t, world.get_time())
 				}

@@ -1,5 +1,3 @@
-// account for changes in scenario_base
-factory_production_x.scaling <- 0
 
 // TODO obey construction speed setting
 // TODO check allowed transport types
@@ -143,17 +141,6 @@ function step()
 		s._next_construction_step += 1 + (s._step % 3)
 	}
 
-	// ??
-}
-
-
-function compare_coord(c1, c2)
-{
-	local res = c1.x <=> c2.x
-	if (res == 0) {
-		res = c1.y <=> c2.y
-	}
-	return res
 }
 
 function coord3d_to_key(c)

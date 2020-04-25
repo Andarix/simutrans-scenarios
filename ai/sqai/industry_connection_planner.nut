@@ -1,6 +1,4 @@
 
-function abs(a) { return a >= 0 ? a : -a }
-
 openwater <- {
 	function get_cost() { return 0; }
 	function get_maintenance()  { return 0; }
@@ -306,7 +304,7 @@ class industry_connection_planner_t extends manager_t
 		
 		r.points = 100
 		if ( output_convoy > 250 ) {
-			r.points = 0
+			r.points = 50
 		} 
 		if ( ( freight_input < 700 ) && ( wt == wt_rail && r.distance < 150 ) ) {
 			r.points = 0
