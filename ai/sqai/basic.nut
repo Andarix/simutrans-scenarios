@@ -191,7 +191,7 @@ class manager_t extends node_seq_t
 			// 
 
 			if ( best == null
-				|| (best.gain_per_m * test.cost_fix < best.gain_per_m * test.cost_fix)
+				|| (best.gain_per_m * test.cost_fix < test.gain_per_m * best.cost_fix)
 				|| (test.cost_fix == 0  &&  best.cost_fix == 0  &&   best.gain_per_m < test.gain_per_m) )
 			{
 				best = test

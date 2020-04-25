@@ -461,10 +461,13 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 								if ( b1_tile.is_ground() ) {
 									if ( print_message_box == 2 ) { 
 										gui.add_message_at(pl, " ---=> tile is empty or single way and flat ", world.get_time())
-									}	
-						  		b_tile.append(b1_tile) 
-									tile_build = x 
+									}
+									if ( b_tile.len() < st_lenght ) { 	
+						  			b_tile.append(b1_tile) 
+										tile_build = x 
+									}
 								}
+												
 						} else if ( b1_tile.is_empty() && b1_tile.z == (starts_field.z - 1) ) {
 								// terraform up   
 								if ( print_message_box == 2 ) { 
@@ -516,8 +519,10 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 									if ( print_message_box == 2 ) { 
 										gui.add_message_at(pl, " ---=> tile is empty or single way and flat ", world.get_time())
 									}	
-						  		b_tile.append(b1_tile) 
-									tile_build = x 
+									if ( b_tile.len() < st_lenght ) { 	
+						  			b_tile.append(b1_tile) 
+										tile_build = x 
+									}
 								}
 						} else if ( b1_tile.is_empty() && b1_tile.z == (starts_field.z - 1) ) {
 								// terraform up   
@@ -570,8 +575,10 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 									if ( print_message_box == 2 ) { 
 										gui.add_message_at(pl, " ---=> tile is empty or single way and flat ", world.get_time())
 									}	
-						  		b_tile.append(b1_tile) 
-									tile_build = x 
+									if ( b_tile.len() < st_lenght ) { 	
+						  			b_tile.append(b1_tile) 
+										tile_build = x 
+									}
 								}
 						} else if ( b1_tile.is_empty() && b1_tile.z == (starts_field.z - 1) ) {
 								// terraform up   
@@ -624,8 +631,10 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 									if ( print_message_box == 2 ) { 
 										gui.add_message_at(pl, " ---=> tile is empty or single way and flat ", world.get_time())
 									}	
-						  		b_tile.append(b1_tile) 
-									tile_build = x 
+									if ( b_tile.len() < st_lenght ) { 	
+						  			b_tile.append(b1_tile) 
+										tile_build = x 
+									}
 								}
 						} else if ( b1_tile.is_empty() && b1_tile.z == (starts_field.z - 1) ) {
 								// terraform up   
