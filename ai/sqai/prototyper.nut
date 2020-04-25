@@ -81,6 +81,8 @@ class prototyper_t extends node_t
 	best_value = 0
 
 	// print messages box 
+	// 1 = vehicle create data
+	// 2 = vehicle found
 	print_message_box = 0
 	wt_name = ["", "road", "rail", "water"]
 	
@@ -132,7 +134,7 @@ class prototyper_t extends node_t
 					 * or speed < 161 - max speed for factory goods 
 					 * no over powered vehicles for trains by max lenght 3 stations fields
 					 */	
-					if ( (t < 12 || speed < 161 ) && wt == wt_rail ) {
+					if ( t < 12 && wt == wt_rail ) {  //  speed < 161
 						list_first.append(veh)
 					} else {
 						list_first.append(veh)
@@ -140,7 +142,7 @@ class prototyper_t extends node_t
         }
 				list_other.append(veh)
 				
-				if ( print_message_box == 1 ) {
+				if ( print_message_box == 2 ) {
 					gui.add_message_at(our_player, "* vehicle found: " + veh.get_name() + " power " + power + " speed " + speed + " power/speed " + t, world.get_time())
 				}
 			}
@@ -227,7 +229,9 @@ class prototyper_t extends node_t
 				if (valuate) {
 					local value = valuate.call(getroottable(), c)
 //          print(" === " + value)
-					//gui.add_message_at(our_player, "evaluate this candidate: " + value, world.get_time())
+					//if ( print_message_box == 2 ) {
+					//	gui.add_message_at(our_player, "evaluate this candidate: " + value, world.get_time())
+					//}
 					if (best==null  ||  value > best_value) {
 						best = c
 						best_value = value
