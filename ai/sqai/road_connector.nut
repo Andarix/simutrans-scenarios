@@ -293,7 +293,7 @@ class road_connector_t extends manager_t
 			}
 		}
 
-		local cov = 5
+		local cov = 8
 		local area = []
 
 		local t = tile_x(start.x, start.y, start.z)
