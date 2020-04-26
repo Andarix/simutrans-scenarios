@@ -136,7 +136,7 @@ class prototyper_t extends node_t
 					 * or speed < 161 - max speed for factory goods 
 					 * no over powered vehicles for trains by max lenght 3 stations fields
 					 */	
-					if ( t < 12 && wt == wt_rail ) {  //  speed < 161
+					if ( t < 12 || wt == wt_water ) {  //  speed < 161
 						list_first.append(veh)
 					} else {
 						list_first.append(veh)
