@@ -293,7 +293,7 @@ class industry_connection_planner_t extends manager_t
 			 
 		// build cost for way, stations and depot
 		local build_cost = r.distance * planned_way.get_cost() + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost()
-		// build cost / 12 months
+		// build cost / 13 months
 		build_cost = build_cost / 13
 		
 		local conv_capacity = planned_convoy.capacity
@@ -302,13 +302,105 @@ class industry_connection_planner_t extends manager_t
 		local freight_output = fsrc.output[freight].get_base_production()
 		local output_convoy = freight_output/conv_capacity
 		
+    /**
+		 * Assessment for the different connections
+		 * points calculated in function get_report() (basic.nut)
+		 *
+		 */
+
 		r.points = 100
+		// to many convoys
 		if ( output_convoy > 250 ) {
-			r.points = 50
+			r.points -= 25
 		} 
-		if ( ( freight_input < 700 ) && ( wt == wt_rail && r.distance < 150 ) ) {
-			r.points = 0
+		// low freight volume
+		if ( freight_input < 700 || freight_output < 700 ) {
+			switch (wt) {
+				case wt_rail:
+				  r.points -= 12
+			    break
+				case wt_road:
+				  r.points += 12
+			    break
+				case wt_water:
+				  r.points += 0
+			    break
+			}
 		}
+		// high freight volume
+		if ( freight_input > 3000 || freight_output > 3000 ) {
+			switch (wt) {
+				case wt_rail:
+				  r.points += 15
+			    break
+				case wt_road:
+				  r.points -= 15
+			    break
+				case wt_water:
+				  r.points += 0
+			    break
+			}
+		} 
+		
+		// factory distance direct
+		local f_dist = distance = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y)
+		// + 15% for long distance 
+		local f_dist_long = f_dist + (f_dist / 100 * 15) 
+		// + 25% for short distance 
+		local f_dist_short = f_dist + (f_dist / 100 * 25) 
+		
+    // higt distance
+		if  ( r.distance > 350 ) {
+			switch (wt) {
+				case wt_rail:
+					if ( f_dist_long < r.distance ) {
+				  	r.points += 10	
+					} else {
+						r.points += 20
+					}
+			    break
+				case wt_road:
+					if ( f_dist_long < r.distance ) {
+				  	r.points -= 20	
+					} else {
+						r.points -= 10
+					}
+			    break
+				case wt_water: 
+					if ( f_dist_long < r.distance ) {
+				  	r.points -= 20	
+					} else {
+						r.points += 0
+					}
+			    break
+			}
+		}
+		// low distance
+		if  ( r.distance < 150 ) {
+			switch (wt) {
+				case wt_rail:
+					if ( f_dist_short < r.distance ) {
+				  	r.points -= 20	
+					} else {
+						r.points -= 10
+					}
+			    break
+				case wt_road:
+					if ( f_dist_short < r.distance ) {
+				  	r.points += 10	
+					} else {
+						r.points += 20
+					}
+			    break
+				case wt_water: 
+					if ( f_dist_short < r.distance ) {
+				  	r.points -= 20	
+					} else {
+						r.points -= 10
+					}
+			    break
+			}
+		}  
 		
 		// successfull - complete report
 		r.cost_fix     = build_cost

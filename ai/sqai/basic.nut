@@ -169,7 +169,10 @@ class manager_t extends node_seq_t
 		if (reports.len() == 0) return null
 		// find report that maximizes gain_per_m / cost_fix
 		local i = -1
-		local best = null
+		local best = null  
+		
+		local p_test = 0
+		local p_best = 0
 
 		for(local j=0; j<reports.len(); j++) {
 			local test = reports[j]
@@ -179,19 +182,18 @@ class manager_t extends node_seq_t
 				continue
 			}
       
-			if ( test.points == 0 ) {
+			if ( test.points <= 0 ) {
 				continue
 			}
-			/*
-				// build cost / 13 months
-				best_month_build_cost = best.cost_fix / 13			
-				test_month_build_cost = test.cost_fix / 13  
-     	*/
 			
-			// 
-
+			// calculate evaluation points
+			if ( best != null ) {
+				p_test = test.gain_per_m * best.cost_fix * test.points
+				p_best = best.gain_per_m * test.cost_fix * best.points
+      }
+			
 			if ( best == null
-				|| (best.gain_per_m * test.cost_fix < test.gain_per_m * best.cost_fix)
+				|| ( p_best < p_test )
 				|| (test.cost_fix == 0  &&  best.cost_fix == 0  &&   best.gain_per_m < test.gain_per_m) )
 			{
 				best = test
