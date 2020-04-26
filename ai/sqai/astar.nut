@@ -659,14 +659,14 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 									tile_build = x
 								}
 						} else {
-							d = 1
+							d = 2
 							break
 						}
 							
 					}
           
 					// add fields to station
-					if ( tile_build = st_lenght - 1 ) {
+					if ( tile_build == st_lenght - 1 ) {
 						st_build = expand_station(pl, b_tile, wt) 
 					}
 
@@ -693,12 +693,14 @@ function expand_station(pl, fields, wt) {
 	local err = null
 	local t = fields.len()
 	
-	local f = tile_x(fields[t-1].x, fields[t-1].y, fields[t-1].z)
 
 	// build way to tiles 
 	if ( t > 0 ) { 
-		if ( f.is_empty() ) {
-			err = command_x.build_way(pl, fields[0], f, planned_way, true) 
+		for ( local x = 1; x < t; x++ ) {
+			local f = tile_x(fields[x].x, fields[x].y, fields[x].z)
+			if ( f.is_empty() ) {
+				err = command_x.build_way(pl, fields[0], f, planned_way, true) 
+			}
 		}
    	if ( !err ) {
 			// build station to tile
