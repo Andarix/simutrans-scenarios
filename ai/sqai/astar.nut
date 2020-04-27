@@ -1,3 +1,12 @@
+/**
+ * Classes to help with route-searching.
+ * Based on the A* algorithm.
+ */
+
+
+/**
+ * Nodes for A*
+ */
 class astar_node extends coord3d
 {
 	previous = null // previous node
@@ -20,8 +29,20 @@ class astar_node extends coord3d
 	}
 }
 
-function abs(x) { return x>0 ? x : -x }
-
+/**
+ * Class to perform A* searches.
+ *
+ * Derived classes have to implement:
+ *    process_node(node): add nodes to open list reachable by node
+ *
+ * To use this:
+ * 1) call prepare_search
+ * 2) add tiles to target array
+ * 3) call compute_bounding_box
+ * 4) add start tiles to open list
+ * 5) call search()
+ * 6) use route
+ */
 class astar
 {
 	closed_list = null // table
@@ -33,10 +54,12 @@ class astar
 
 	route       = null // route, reversed: target to start
 
+	// statistics
 	calls_open = 0
 	calls_closed = 0
 	calls_pop = 0
 
+	// costs - can be fine-tuned
 	cost_straight = 10
 	cost_curve    = 14
 
@@ -60,6 +83,7 @@ class astar
 		calls_pop = 0
 	}
 
+	// adds node c to closed list
 	function add_to_close(c)
 	{
 		closed_list[ coord3d_to_key(c) ] <- 1
@@ -85,6 +109,7 @@ class astar
 		return (key in closed_list)
 	}
 
+	// add node c to open list with give weight
 	function add_to_open(c, weight)
 	{
 		local i = nodes.len()
@@ -133,6 +158,9 @@ class astar
 		print("Calls: pop = " + calls_pop + ", open = " + calls_open + ", close = " + calls_closed)
 	}
 
+	/**
+	 * Computes bounding box of all targets to speed up distance computation.
+	 */
 	function compute_bounding_box()
 	{
 		if (targets.len()>0) {
@@ -149,6 +177,10 @@ class astar
 		}
 	}
 
+	/**
+	 * Estimates distance to target.
+	 * Returns zero if and only if c is a target tile.
+	 */
 	function estimate_distance(c)
 	{
 		local d = 0
@@ -185,8 +217,8 @@ class astar
 
 class ab_node extends ::astar_node
 {
-	dir = 0 // direction to reach this node
-	flag = 0
+	dir = 0   // direction to reach this node
+	flag = 0  // flag internal to the route searcher
 	constructor(c, p, co, w, d, di, fl=0)
 	{
 		base.constructor(c, p, co, w, d)
@@ -195,7 +227,9 @@ class ab_node extends ::astar_node
 	}
 }
 
-
+/**
+ * Helper class to find bridges and spots to place them.
+ */
 class pontifex
 {
 	player = null
@@ -259,14 +293,15 @@ class pontifex
 	}
 }
 
-
+/**
+ * Class to search a route and to build a connection (i.e. roads).
+ * Builds bridges. But not tunnels (not implemented).
+ */
 class astar_builder extends astar
 {
 	builder = null
 	bridger = null
 	way     = null
-
-
 
 	function process_node(cnode)
 	{
@@ -369,7 +404,7 @@ class astar_builder extends astar
 				local err
 				// build
 				if (route[i-1].flag == 0) {
-					err = command_x.build_road(our_player, route[i-1], route[i], way, false, true)
+					err = command_x.build_way(our_player, route[i-1], route[i], way, true)
 					if (err) gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				else if (route[i-1].flag == 1) {
@@ -387,7 +422,10 @@ class astar_builder extends astar
 	}
 }
 
-
+/**
+ * Helper class to remove a field at a factory.
+ * Used if no empty spot is available to place a station.
+ */
 function remove_field(pos)
 {
 	local tile = square_x(pos.x, pos.y).get_ground_tile()
@@ -402,7 +440,7 @@ function remove_field(pos)
  * 
  * pl = player
  * starts_field = tile station from plan_simple_connection
- * st_lenght = stations fields
+ * st_lenght = stations fields count
  * wt = waytype
  * build = 0 -> test ; 1 -> build
  * 
@@ -429,9 +467,16 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 		local t_end = tile_x(c_end.x, c_end.y, c_end.z)
 	
 					
-	  // Ausrichtung ermitteln
-	  // 0 - .x      eastwest
-	  // 1 - .y      northsouth
+	  /** alignment
+	    *  1	-> test north 
+	    *  2	-> test west
+			*  4	-> test south
+			*  5	-> test northsouth
+			*  8	-> test east
+			* 10	-> test eastwest
+			*
+			*
+			*/
 		local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
 		local d = t.get_way_dirs(wt)
 		local loop = 0
@@ -447,7 +492,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 		for ( local i = 0; i < 2; i++ ) {
 			switch (d) {
 		    case 1:
-					// add n
+					// check n
 					if ( print_message_box == 2 ) { 
 						gui.add_message_at(pl, " ---> dir : 8", world.get_time())
 					}	
@@ -473,7 +518,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 				  break
 				
 				case 2:
-		      // add w
+		      // check w
 					if ( print_message_box == 2 ) { 
 						gui.add_message_at(pl, " ---> dir : 2", world.get_time())
 					}	
@@ -499,7 +544,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 					break	
 	
 				case 4:
-		      // add s
+		      // check s
 					if ( print_message_box == 2 ) { 
 						gui.add_message_at(pl, " ---> dir : 4", world.get_time())
 					}	
@@ -525,7 +570,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 			    break
 
 				case 8:
-		      // add e
+		      // check e
 					if ( print_message_box == 2 ) { 
 						gui.add_message_at(pl, " ---> dir : 8", world.get_time())
 					}	
@@ -554,13 +599,13 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 			// add fields to station
 			if ( (tile_build == st_lenght - 1) && build == 1) {
 				st_build = expand_station(pl, b_tile, wt) 
-			} else if ( build == 0 ) {
+			} else if ( (tile_build == st_lenght - 1) && build == 0 ) {
 				st_build = true
-			} 
+			}
 			
 			loop++
-			if ( st_build || loop >= 2 ) {
-				a = true
+			if ( loop >= 2 ) {
+				return false
 			}  
 			
 			
@@ -582,41 +627,46 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 
 	local print_message_box = 2
 	
-						if ( t_tile.is_empty() && t_tile.get_slope() == 0 ) {
-								// tile is empty or single way and flat 
-								if ( t_tile.is_ground() ) {
-									if ( print_message_box == 2 ) { 
-										gui.add_message_at(pl, " ---=> tile is empty and flat ", world.get_time())
-									}
-						  		return true 
-								}
-						} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.get_slope() == 0 ) { 
-							//
-									if ( print_message_box == 2 ) { 
-										gui.add_message_at(pl, " ---=> tile has single way and flat ", world.get_time())
-									}	
-						  		return true 
-						} else if ( t_tile.is_empty() && t_tile.z == (ref_hight - 1) ) {
-								// terraform up   
-								if ( print_message_box == 2 ) { 
-									gui.add_message_at(pl, " ---=> terraform up ", world.get_time())
-									gui.add_message_at(pl, " ---=> tile z" + t_tile.z + " start tile z " + ref_hight, world.get_time())
-								}	
-								err = command_x.set_slope(pl, t_tile, 82 )
-								if ( !err ) {
-						  			return true 
-								}
-						} else if ( t_tile.is_empty() && t_tile.z == (ref_hight + 1) ) {
-								// terraform down   
-								if ( print_message_box == 2 ) { 
-									gui.add_message_at(pl, " ---=> terraform down ", world.get_time())
-									gui.add_message_at(pl, " ---=> tile z" + t_tile.z + " start tile z " + ref_hight, world.get_time())
-								}	
-								err = command_x.set_slope(pl, t_tile, 83 )
-								if ( !err ) {
-						  			return true 
-								}
-	           }
+	if ( t_tile.is_empty() && t_tile.get_slope() == 0 ) {
+		// tile is empty and is flat 
+		if ( t_tile.is_ground() ) {
+			if ( print_message_box == 2 ) { 
+			gui.add_message_at(pl, " ---=> tile is empty and is flat ", world.get_time())
+		}
+			return true 
+		}
+	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.get_slope() == 0 ) { 
+		// tile has single way and is flat
+		if ( print_message_box == 2 ) { 
+			gui.add_message_at(pl, " ---=> tile has single way and is flat ", world.get_time())
+		}	
+		return true 
+	} else if ( t_tile.is_empty() && t_tile.get_slope() > 0 ) {
+		// terraform 
+		if ( print_message_box == 2 ) { 
+			gui.add_message_at(pl, " ---=> terraform", world.get_time())
+			gui.add_message_at(pl, " ---=> tile z" + t_tile.z + " start tile z " + ref_hight, world.get_time())
+		}	
+		if ( t_tile.z == (ref_hight - 1) ) {
+			// terraform up   
+			if ( print_message_box == 2 ) { 
+				gui.add_message_at(pl, " ---=> tile up to flat ", world.get_time())
+			}	
+			err = command_x.set_slope(pl, t_tile, 82 )
+			if ( !err ) {
+				return true 
+			}
+		} else if ( t_tile.z == ref_hight ) {
+			// terraform down   
+			if ( print_message_box == 2 ) { 
+				gui.add_message_at(pl, " ---=> tile slope to flat ", world.get_time())
+			}	
+			err = command_x.set_slope(pl, t_tile, 83 )
+			if ( !err ) {
+				return true 
+			}			
+		}
+	}
 
 	return false
 }
