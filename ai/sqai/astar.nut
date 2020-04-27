@@ -625,7 +625,8 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
  */
 function test_field(pl, t_tile, wt, rotate, ref_hight) {
 
-	local print_message_box = 2
+	local print_message_box = 2 
+	local err = null
 	
 	if ( t_tile.is_empty() && t_tile.get_slope() == 0 ) {
 		// tile is empty and is flat 
