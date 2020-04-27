@@ -446,6 +446,7 @@ class industry_connection_planner_t extends manager_t
 			gui.add_message_at(our_player, " * Report: freight = " + freight + " convoy capacity = " + conv_capacity, world.get_time()) 
 			gui.add_message_at(our_player, " * Report: input amount = " + freight_input + " input amount / convoy capacity = " + input_convoy, world.get_time()) 
 			gui.add_message_at(our_player, " * Report: output = " + freight_output + " output / convoy capacity = " + output_convoy, world.get_time()) 
+			gui.add_message_at(our_player, " * Report: link points = " + r.points, world.get_time()) 
 		}
 		if ( print_message_box > 0 ) { 
 			gui.add_message_at(our_player, "___________________________ End  plan_simple_connection __________________________", world.get_time())
