@@ -39,7 +39,7 @@ class industry_connection_planner_t extends manager_t
 	// 3 = depots  
 	// 4 = reports 
 	// 5 = factorys
-	print_message_box = 0
+	print_message_box = 4
 	wt_name = ["", "road", "rail", "water"]
 	
 	constructor(s,d,f)
@@ -335,7 +335,7 @@ class industry_connection_planner_t extends manager_t
 			r.points -= 25
 		} 
 		// low freight volume
-		if ( freight_input < 700 || freight_output < 700 ) {
+		if ( freight_input < 700 || freight_output < 550 ) {
 			switch (wt) {
 				case wt_rail:
 				  r.points -= 12
@@ -349,7 +349,7 @@ class industry_connection_planner_t extends manager_t
 			}
 		}
 		// high freight volume
-		if ( freight_input > 3000 || freight_output > 3000 ) {
+		if ( freight_input > 2250 || freight_output > 1900 ) {
 			switch (wt) {
 				case wt_rail:
 				  r.points += 15
