@@ -109,33 +109,21 @@ class rail_connector_t extends manager_t
 					// check place and build station to c_start
 					local err = check_station(pl, c_start, count, wt_rail)
 					if ( !err ) {
-						// search new place for station
+						print("Failed to build station at " + coord_to_string(c_start)) 
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_start), world.get_time())
 						}
-						print("Failed to build station at " + coord_to_string(c_start)) 
-						err = null
-						// TODO function for place
-						//err = command_x.build_station(pl, c_start, planned_station )
-						if ( err ) {
-							return error_handler()
-						}
+						return error_handler()
 					}
 					
 					// check place and build station to c_start
 					err = check_station(pl, c_end, count, wt_rail)
 					if ( !err ) {
-						// search new place for station
+						print("Failed to build station at " + coord_to_string(c_end)) 
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end), world.get_time())
 						}
-						print("Failed to build station at " + coord_to_string(c_end)) 
-						err = null
-						// TODO function for place
-						//err = command_x.build_station(pl, c_end, planned_station )
-						if ( err ) {
-							return error_handler()
-						}
+						return error_handler()
 					}
 										
 					//local 

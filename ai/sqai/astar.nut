@@ -488,7 +488,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 		local b_tile = [starts_field] // station fields array
 		local x = 0  
 		// get_dirs().to_coord()
-		for ( local i = 0; i < 2; i++ ) {
+		for ( local i = 0; i < 2; i++ ) { 
 			switch (d) {
 		    case 1:
 					// check n
@@ -506,6 +506,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 							}
 						  b_tile.append(b1_tile) 
+							tile_build++
 						} else { 
 							d = 4
 							break
@@ -531,6 +532,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 							}
 						  b_tile.append(b1_tile) 
+							tile_build++
 						} else {
 							d = 8
 							break
@@ -556,6 +558,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 							}
 						  b_tile.append(b1_tile) 
+							tile_build++
 						} else {
 							d = 1
 							break
@@ -581,6 +584,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 							}
 						  b_tile.append(b1_tile) 
+							tile_build++
 						} else {
 							d = 2
 							break
@@ -588,11 +592,22 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 							
 					}
           
-					break
-
+        break
 			}  // end switch 
 			
-			if ( b_tile.len() < st_lenght && i == 1 ) { 
+			// build station
+			if ( b_tile.len() == st_lenght && build == 1) {
+				st_build = expand_station(pl, b_tile, wt) 
+				break
+			} else if ( b_tile.len() == st_lenght && build == 0 ) {
+				st_build = true 
+				break
+			}
+						
+		} 
+		
+		
+		if ( b_tile.len() < st_lenght && !st_build ) { 
 				// search other place for station
 				if ( print_message_box == 2 ) { 
 					gui.add_message_at(pl, " -#-=> not place found for station ", world.get_time())
@@ -682,21 +697,19 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 					} else if ( c_end == starts_field ) {
 						c_end == b_tile[0]
 					}
-				}
-			}
-			
+				} 
+				
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
 				st_build = expand_station(pl, b_tile, wt) 
-				break
+				//break
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true 
-				break
+				//break
 			}
-						
-		} 
-		
-		if ( st_build ) {
+		}
+			
+		if ( !st_build ) {
 			// move station
 			if ( print_message_box == 2 ) { 
 				gui.add_message_at(pl, " *#* ERROR => expand station failed", world.get_time())
