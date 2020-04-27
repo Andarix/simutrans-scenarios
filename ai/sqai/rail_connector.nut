@@ -81,14 +81,15 @@ class rail_connector_t extends manager_t
 					phase ++
 				}
 			case 2: // build station
-				{
+				{ 
+					/*
 					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_start))
 						if ( print_message_box == 2 ) { gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_start) + " error " + err, world.get_time()) }
 						return error_handler()
 					}
-					
+					*/
 					if ( print_message_box == 2 ) { 
 						gui.add_message_at(pl, " planned_convoy.length " + planned_convoy.length, world.get_time()) 
 					} 
@@ -105,15 +106,40 @@ class rail_connector_t extends manager_t
 						gui.add_message_at(our_player, " stations lenght: " + count, world.get_time()) 
 					} 
 					
-					local err = command_x.build_station(pl, c_end, planned_station )
-					if (err) {
+					// check place and build station to c_start
+					local err = check_station(pl, c_start, count, wt_rail)
+					if ( !err ) {
+						// search new place for station
 						if ( print_message_box == 2 ) {
-							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end) + " error " + err, world.get_time())
+							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_start), world.get_time())
 						}
-						print("Failed to build station at " + coord_to_string(c_end))
-						return error_handler()
+						print("Failed to build station at " + coord_to_string(c_start)) 
+						err = null
+						// TODO function for place
+						//err = command_x.build_station(pl, c_start, planned_station )
+						if ( err ) {
+							return error_handler()
+						}
 					}
-					if (finalize) {
+					
+					// check place and build station to c_start
+					err = check_station(pl, c_end, count, wt_rail)
+					if ( !err ) {
+						// search new place for station
+						if ( print_message_box == 2 ) {
+							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end), world.get_time())
+						}
+						print("Failed to build station at " + coord_to_string(c_end)) 
+						err = null
+						// TODO function for place
+						//err = command_x.build_station(pl, c_end, planned_station )
+						if ( err ) {
+							return error_handler()
+						}
+					}
+										
+					//local 
+					if ( finalize ) {
 						// store place of unload station for future use
 						local fs = ::station_manager.access_freight_station(fdest)
 						if (fs.rail_unload == null) {
@@ -123,10 +149,6 @@ class rail_connector_t extends manager_t
 						}
 					}
 					
-					err = check_station(pl, c_start, count, wt_rail)
-					
-					err = check_station(pl, c_end, count, wt_rail)
-										
 					if ( print_message_box == 2 ) { 
 						//gui.add_message_at(our_player, " ... rotate " + rotate, world.get_time()) 
 						gui.add_message_at(pl, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) 

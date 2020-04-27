@@ -404,7 +404,7 @@ class astar_builder extends astar
 				local err
 				// build
 				if (route[i-1].flag == 0) {
-					err = command_x.build_way(our_player, route[i-1], route[i], way, true)
+					err = command_x.build_road(our_player, route[i-1], route[i], way, true, true)
 					if (err) gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				else if (route[i-1].flag == 1) {
@@ -479,7 +479,6 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 			*/
 		local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
 		local d = t.get_way_dirs(wt)
-		local loop = 0
 
 		if ( print_message_box == 2 ) { 
 			gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
@@ -507,7 +506,6 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 							}
 						  b_tile.append(b1_tile) 
-							tile_build += 1 
 						} else { 
 							d = 4
 							break
@@ -533,7 +531,6 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 							}
 						  b_tile.append(b1_tile) 
-							tile_build += 1 
 						} else {
 							d = 8
 							break
@@ -559,7 +556,6 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 							}
 						  b_tile.append(b1_tile) 
-							tile_build += 1 
 						} else {
 							d = 1
 							break
@@ -585,7 +581,6 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 							}
 						  b_tile.append(b1_tile) 
-							tile_build += 1 
 						} else {
 							d = 2
 							break
@@ -593,22 +588,121 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 							
 					}
           
+					break
 
-			}  // end switch
+			}  // end switch 
 			
-			// add fields to station
-			if ( (tile_build == st_lenght - 1) && build == 1) {
-				st_build = expand_station(pl, b_tile, wt) 
-			} else if ( (tile_build == st_lenght - 1) && build == 0 ) {
-				st_build = true
+			if ( b_tile.len() < st_lenght && i == 1 ) { 
+				// search other place for station
+				if ( print_message_box == 2 ) { 
+					gui.add_message_at(pl, " -#-=> not place found for station ", world.get_time())
+				} 
+				if ( d == 1 || d == 4 ) {
+					b_tile.clear()
+					// test e
+          for ( x = 1; x <= st_lenght; x++ ) {
+						b1_tile = tile_x(starts_field.x + x, starts_field.y, starts_field.z) 
+						if ( print_message_box == 2 ) { 
+							gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
+						}
+
+						if ( test_field(pl, b1_tile, wt, 5, starts_field.z) && b_tile.len() < st_lenght ) {
+							if ( print_message_box == 2 ) { 
+								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
+							}
+						  b_tile.append(b1_tile) 
+						} 
+							
+					}
+					if ( b_tile.len() < st_lenght ) {  
+						b_tile.clear()
+						// test w
+          	for ( x = 1; x <= st_lenght; x++ ) {
+							b1_tile = tile_x(starts_field.x - x, starts_field.y, starts_field.z) 
+							if ( print_message_box == 2 ) { 
+								gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
+							}
+
+							if ( test_field(pl, b1_tile, wt, 5, starts_field.z) && b_tile.len() < st_lenght ) {
+								if ( print_message_box == 2 ) { 
+									gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
+								}
+						  	b_tile.append(b1_tile) 
+							} 
+						}
+						
+					}
+					if ( b_tile.len() == st_lenght ) {
+						err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true) 
+
+					}				
+				} else if ( d == 2 || d == 8 ) {
+					b_tile.clear()
+					// test s
+          for ( x = 1; x <= st_lenght; x++ ) {
+						b1_tile = tile_x(starts_field.x, starts_field.y + x, starts_field.z) 
+						if ( print_message_box == 2 ) { 
+							gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
+						}
+
+						if ( test_field(pl, b1_tile, wt, 10, starts_field.z) && b_tile.len() < st_lenght ) {
+							if ( print_message_box == 2 ) { 
+								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
+							}
+						  b_tile.append(b1_tile) 
+						} 
+							
+					}
+					if ( b_tile.len() < st_lenght ) {  
+						b_tile.clear()
+						// test n
+          	for ( x = 1; x <= st_lenght; x++ ) {
+							b1_tile = tile_x(starts_field.x, starts_field.y - x, starts_field.z) 
+							if ( print_message_box == 2 ) { 
+								gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
+							}
+
+							if ( test_field(pl, b1_tile, wt, 10, starts_field.z) && b_tile.len() < st_lenght ) {
+								if ( print_message_box == 2 ) { 
+									gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
+								}
+						  	b_tile.append(b1_tile) 
+							} 
+						}
+						
+					}
+					if ( b_tile.len() == st_lenght ) {
+						err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true) 
+
+					}				
+				}
+				if ( !err ) {
+					if ( c_start == starts_field ) {
+						c_start = b_tile[0]
+					} else if ( c_end == starts_field ) {
+						c_end == b_tile[0]
+					}
+				}
 			}
 			
-			loop++
-			if ( loop >= 2 ) {
-				return false
-			}  
-			
-			
+			// build station
+			if ( b_tile.len() == st_lenght && build == 1) {
+				st_build = expand_station(pl, b_tile, wt) 
+				break
+			} else if ( b_tile.len() == st_lenght && build == 0 ) {
+				st_build = true 
+				break
+			}
+						
+		} 
+		
+		if ( st_build ) {
+			// move station
+			if ( print_message_box == 2 ) { 
+				gui.add_message_at(pl, " *#* ERROR => expand station failed", world.get_time())
+				gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
+				gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time()) 
+			}	
 		}
 		
 	  print_message_box = 0
@@ -626,14 +720,15 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 function test_field(pl, t_tile, wt, rotate, ref_hight) {
 
 	local print_message_box = 2 
-	local err = null
+	local err = null 
+	local z = null 
 	
 	if ( t_tile.is_empty() && t_tile.get_slope() == 0 ) {
 		// tile is empty and is flat 
 		if ( t_tile.is_ground() ) {
 			if ( print_message_box == 2 ) { 
-			gui.add_message_at(pl, " ---=> tile is empty and is flat ", world.get_time())
-		}
+				gui.add_message_at(pl, " ---=> tile is empty and is flat ", world.get_time()) 
+			}
 			return true 
 		}
 	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.get_slope() == 0 ) { 
@@ -646,28 +741,36 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 		// terraform 
 		if ( print_message_box == 2 ) { 
 			gui.add_message_at(pl, " ---=> terraform", world.get_time())
-			gui.add_message_at(pl, " ---=> tile z" + t_tile.z + " start tile z " + ref_hight, world.get_time())
+			gui.add_message_at(pl, " ---=> tile z " + z + " start tile z " + ref_hight, world.get_time())
 		}	
-		if ( t_tile.z == (ref_hight - 1) ) {
+		
+    // find z coord
+		z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
+		local s = 0;
+		if ( z.z < ref_hight && z.z >= (ref_hight - 2) ) { 
 			// terraform up   
 			if ( print_message_box == 2 ) { 
 				gui.add_message_at(pl, " ---=> tile up to flat ", world.get_time())
 			}	
-			err = command_x.set_slope(pl, t_tile, 82 )
-			if ( !err ) {
-				return true 
-			}
-		} else if ( t_tile.z == ref_hight ) {
+			do {
+				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 82 )
+				z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
+				if ( err ) { break }
+			} while(z.z < ref_hight ) 
+
+		} else if ( z.z == ref_hight || z.z <= (ref_hight + 1) ) {
 			// terraform down   
-			if ( print_message_box == 2 ) { 
-				gui.add_message_at(pl, " ---=> tile slope to flat ", world.get_time())
-			}	
-			err = command_x.set_slope(pl, t_tile, 83 )
-			if ( !err ) {
-				return true 
-			}			
+			do {
+				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 83 )
+				z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
+				if ( err ) { break }
+			} while(z.z > ref_hight ) 
 		}
-	}
+		if ( err ) {
+			return false 
+		}			
+    return true
+	} 
 
 	return false
 }
@@ -698,7 +801,7 @@ function expand_station(pl, fields, wt) {
 		}
    	if ( err == null ) {
 			// build station to tile
-			for ( local x = 1; x < t; x++ ) {
+			for ( local x = 0; x < t; x++ ) {
 				err = command_x.build_station(pl, fields[x], planned_station) 
 				if ( err ) { 
 					gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[x]), world.get_time()) 
