@@ -758,7 +758,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 		}	
 		
     // find z coord
-		z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
+		z = tile_x(t_tile.x, t_tile.y, t_tile.z) //square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
 		local s = 0;
 		if ( z.z < ref_hight && z.z >= (ref_hight - 2) ) { 
 			// terraform up   
@@ -767,7 +767,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 			}	
 			do {
 				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 82 )
-				z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
+				//z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
 				if ( err ) { break }
 			} while(z.z < ref_hight ) 
 
@@ -775,7 +775,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 			// terraform down   
 			do {
 				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 83 )
-				z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
+				//z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
 				if ( err ) { break }
 			} while(z.z > ref_hight ) 
 		}
