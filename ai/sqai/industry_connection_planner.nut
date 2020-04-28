@@ -331,7 +331,7 @@ class industry_connection_planner_t extends manager_t
 
 		r.points = 100
 		// to many convoys
-		if ( output_convoy > 250 ) {
+		if ( output_convoy > 200 ) {
 			r.points -= 25
 		} 
 		// low freight volume
@@ -397,7 +397,7 @@ class industry_connection_planner_t extends manager_t
 			}
 		}
 		// low distance
-		if  ( r.distance < 150 ) {
+		if  ( r.distance < 120 ) {
 			switch (wt) {
 				case wt_rail:
 					if ( f_dist_short < r.distance ) {
@@ -422,6 +422,38 @@ class industry_connection_planner_t extends manager_t
 			    break
 			}
 		}  
+
+		// freight weight
+		local g = good_desc_x(freight).get_weight_per_unit()	
+		g = (g * 50) / 1000 
+		// weight hight
+    if ( g > 32 ) {
+			switch (wt) {
+				case wt_rail:
+
+			    break
+				case wt_road:
+        	r.points -= 8
+			    break
+				case wt_water: 
+
+			    break
+			}
+		}
+		// weight low
+    if ( g < 20 ) {
+			switch (wt) {
+				case wt_rail:
+
+			    break
+				case wt_road:
+          r.points += 8
+			    break
+				case wt_water: 
+
+			    break
+			}
+		}
 		
 		// successfull - complete report
 		r.cost_fix     = build_cost
