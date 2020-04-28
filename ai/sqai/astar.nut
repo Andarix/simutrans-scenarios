@@ -691,7 +691,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 
 					}				
 				}
-				if ( !err ) {
+				if ( !err && b_tile.len() > 0 ) {
 					if ( c_start == starts_field ) {
 						c_start = b_tile[0]
 					} else if ( c_end == starts_field ) {
@@ -748,6 +748,12 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 		// tile has single way and is flat
 		if ( print_message_box == 2 ) { 
 			gui.add_message_at(pl, " ---=> tile has single way and is flat ", world.get_time())
+		}	
+		return true 
+	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.is_bridge() ) { 
+		// tile has single way has bridge
+		if ( print_message_box == 2 ) { 
+			gui.add_message_at(pl, " ---=> tile has single way and is bridge ", world.get_time())
 		}	
 		return true 
 	} else if ( t_tile.is_empty() && t_tile.get_slope() > 0 ) {
