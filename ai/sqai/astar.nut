@@ -751,7 +751,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 		}	
 		return true 
 	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.is_bridge() ) { 
-		// tile has single way has bridge
+		// tile has single way and has bridge
 		if ( print_message_box == 2 ) { 
 			gui.add_message_at(pl, " ---=> tile has single way and is bridge ", world.get_time())
 		}	
@@ -821,6 +821,10 @@ function expand_station(pl, fields, wt) {
    	if ( err == null ) {
 			// build station to tile
 			for ( local x = 0; x < t; x++ ) {
+				if ( tile_x(fields[x].x, fields[x].y, fields[x].z).is_bridge() ) { 
+					// bridge start field -> build to ground
+					fields[x].z -= 1
+				}
 				err = command_x.build_station(pl, fields[x], planned_station) 
 				if ( err ) { 
 					gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[x]), world.get_time()) 
