@@ -140,7 +140,7 @@ class report_t
 		cost_monthly += r.cost_monthly
 		gain_per_m   += r.gain_per_m
 		distance  	 += r.distance
-		//points	  	 += r.points
+		points	  	 += r.points
 	}
 
 	function _save()
