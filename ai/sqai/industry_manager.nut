@@ -56,7 +56,7 @@ class industry_manager_t extends manager_t
 	// 1 = vehicles
 	// 2 =  
 	// 3 = 
-	print_message_box = 1
+	print_message_box = 0
 
 	constructor()
 	{
@@ -430,77 +430,60 @@ class industry_manager_t extends manager_t
 		{
 			local list = line.get_convoy_list()
 			if (list.get_count() == 0) {
-				// ??
-				return
+				// no convois - strange
+				return false
 			}
 			cnv = list[0]
 		}
+		local wt = cnv.get_waytype()
 		// estimate transport volume
 		local transported = line.get_transported_goods().reduce(max)
 
 		// plan convoy prototype
-		local prototyper = prototyper_t(cnv.get_waytype(), link.freight.get_name())
+		local prototyper = prototyper_t(wt, link.freight.get_name())
 
 		// iterate through schedule to estimate distance
 		local dist = 0
 		{
 			local entries = cnv.get_schedule().entries
-			local i = 0
+			local halts = []
+			for(local i=0; i < entries.len(); i++) {
+				if (entries[i].get_halt(our_player)) {
+					halts.append( entries[i] )
+				}
+			}
+			if (halts.len() < 2) {
+				// not enough halts??
+				return false
+			}
+			dist = abs(halts.top().x - halts[0].x) + abs(halts.top().y - halts[0].y)
 
-			while(i < entries.len()) {
-				local entry = entries[i]
-				// stations on schedule
-				if (entry.get_halt(our_player) == null) {
-					continue
-				}
-
-				// next station on schedule
-				local nexthalt = null
-				i++
-				while(i < entries.len()) {
-					if (nexthalt = entries[i].get_halt(our_player)) break
-					i++
-				}
-				if (nexthalt == null) {
-					i = 0
-				}
-				local diff = abs(entry.x - entries[i].x) + abs(entry.y - entries[i].y)
-				if (diff > dist)  {
-					dist = diff
-				}
+			for(local i=1; i < halts.len(); i++) {
+				dist = max(dist, abs(halts[i].x - halts[i-1].x) + abs(halts[i].y - halts[i-1].y) )
 			}
 		}
 
+		local wt = wt
 		// TODO do something smarter
 		prototyper.min_speed  = 1
+		prototyper.max_vehicles = get_max_convoi_length(wt)
 		prototyper.max_length = 1
-		prototyper.max_vehicles = get_max_convoi_length( cnv.get_waytype() )
-    /*
 		if (wt == wt_water) {
 			prototyper.max_length = 4
 		}
-		if (wt == wt_rail) {
-			prototyper.max_length = 16
-		}
-    */
+
 		local cnv_valuator    = valuator_simple_t()
-		cnv_valuator.wt       = cnv.get_waytype()
+		cnv_valuator.wt       = wt
 		cnv_valuator.freight  = link.freight.get_name()
 		cnv_valuator.volume   = transported
 		cnv_valuator.max_cnvs = 200
-
-		// double track and signals missing
-		if (wt == wt_rail) {
-			cnv_valuator.max_cnvs = 1
-		}
-
 		cnv_valuator.distance = dist
 
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
 		prototyper.valuate = bound_valuator
 
 		if (prototyper.step().has_failed()) {
-			return // TODO process return value
+			return false
 		}
 
 		local planned_convoy = prototyper.best
@@ -519,18 +502,7 @@ class industry_manager_t extends manager_t
 		dbgprint("Upgrade line "  + line.get_name())
 		// build the new one, withdraw the old ones
 		// directly append
-		local depot  = null //cnv.get_home_depot()   		
-		local stations_list = cnv.get_schedule().entries 
-		for (local i=0; i<stations_list.len(); i++) {
-			
-			local c = tile_x(stations_list[i].x, stations_list[i].y, stations_list[i].z)
-			local depot = search_depot(c, wt)
-			if ( depot ) {
-				break
-			}
-				
-		} 
-		
+		local depot  = cnv.get_home_depot()
 		// TODO put into report
 		local c = vehicle_constructor_t()
 		c.p_depot    = depot_x(depot.x, depot.y, depot.z)
