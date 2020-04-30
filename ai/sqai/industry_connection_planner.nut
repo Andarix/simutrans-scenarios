@@ -39,7 +39,7 @@ class industry_connection_planner_t extends manager_t
 	// 3 = depots  
 	// 4 = reports 
 	// 5 = factorys
-	print_message_box = 4
+	print_message_box = 0
 	wt_name = ["", "road", "rail", "water"]
 	
 	constructor(s,d,f)
@@ -137,13 +137,16 @@ class industry_connection_planner_t extends manager_t
 				distance += abs( (start ? start[i] : fsrc[i]) - (target ? target[i] : fdest[i]))
 			}
 		}
+		/*
 		if (distance == 0) {
 			// still zero? avoid division by zero in the prototyper 
 			// distance factorys
 			distance = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y) 
 			// add 10% from distance
 			distance += distance / 100 * 10
-		}
+		}  
+		*/
+		
 		// plan convoy prototype
 		local prototyper = prototyper_t(wt, freight)
 
@@ -152,12 +155,12 @@ class industry_connection_planner_t extends manager_t
 		prototyper.max_vehicles = get_max_convoi_length(wt)
 		prototyper.max_length = prototyper.max_vehicles * 8    
 
-		if (wt == wt_rail) {
-			//prototyper.max_length = 8
-		}
-
-		if (wt == wt_water) {
-			//prototyper.max_length = 4
+		local freight_input = fdest.input[freight].get_base_consumption()
+		local freight_output = fsrc.output[freight].get_base_production()
+		prototyper.volume = min(freight_input, freight_output)
+		if ( print_message_box == 5 ) { 
+			gui.add_message_at(our_player, "freight_input " + freight_input + " freight_output " + freight_output, world.get_time())
+			gui.add_message_at(our_player, "min(freight_input, freight_output) " + min(freight_input, freight_output), world.get_time())
 		}
 
 		local cnv_valuator = valuator_simple_t()
@@ -318,9 +321,7 @@ class industry_connection_planner_t extends manager_t
 		build_cost = build_cost / 13
 		
 		local conv_capacity = planned_convoy.capacity
-		local freight_input = fdest.input[freight].get_base_consumption()
 		local input_convoy = freight_input/conv_capacity
-		local freight_output = fsrc.output[freight].get_base_production()
 		local output_convoy = freight_output/conv_capacity
 		
     /**

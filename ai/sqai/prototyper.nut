@@ -97,6 +97,8 @@ class prototyper_t extends node_t
 	max_length   = 0  // maximum lenght of convoy in number of tiles
 	min_speed    = 0  // minimum speed
 
+	volume = 0     // monthly transport volume
+
 	valuate = null    // valuate function, takes prototype, returns number (null -> first valid prototype is returned)
 
 	best = null       // the best prototype up to now
@@ -232,8 +234,13 @@ class prototyper_t extends node_t
 			if ( wt == wt_water ) {
 				a = CARUNITS_PER_TILE * 4
 			}
-			else if ( wt == wt_rail ) {
-				a = CARUNITS_PER_TILE * 3
+			else if ( wt == wt_rail ) { 
+				local tiles = 3
+				if ( volume > 1500 ) {
+			    tiles = 4
+			  }
+			
+				a = CARUNITS_PER_TILE * tiles
 			}
 			else {
 				a = CARUNITS_PER_TILE
