@@ -56,7 +56,7 @@ class industry_manager_t extends manager_t
 	// 1 = vehicles
 	// 2 =  
 	// 3 = 
-	print_message_box = 0
+	print_message_box = 1
 
 	constructor()
 	{
@@ -324,9 +324,60 @@ class industry_manager_t extends manager_t
 				// directly append
 				// TODO put into report
 				local proto = cnv_proto_t.from_convoy(cnv, lf)
+				local wt = cnv.get_schedule().waytype 
+
+				local wt = cnv.get_waytype() 
+
+				if ( print_message_box == 1 ) { 
+					gui.add_message_at(our_player, "###---- check convoys line : " + line.get_name(), world.get_time())
+				}
+		
+				// plan convoy prototype
+				local freight = lf.get_name()
+				local prototyper = prototyper_t(wt, freight)
+
+				prototyper.min_speed = 1
+
+				prototyper.max_vehicles = get_max_convoi_length(wt)
+				prototyper.max_length = prototyper.max_vehicles * 8    
+
+				local cnv_valuator = valuator_simple_t()
+				cnv_valuator.wt = wt
+				cnv_valuator.freight = freight
+				cnv_valuator.volume = line.get_transported_goods().reduce(max)
+				cnv_valuator.max_cnvs = 200   
+				// no signals and double tracks - limit 1 convoy for rail
+				if (wt == wt_rail) {
+					cnv_valuator.max_cnvs = 1
+				}
+
+				// through schedule to estimate distance
+				local dist = 0  
+				local entries = cnv.get_schedule().entries
+				dist = abs(entries[0].x - entries[1].x) + abs(entries[0].y - entries[1].y) 
+				// add 10% from distance
+				dist += dist / 100 * 10
+
+				cnv_valuator.distance = dist
+
+				local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
+				prototyper.valuate = bound_valuator
+
+				if (prototyper.step().has_failed()) {
+					if ( print_message_box == 1 ) { 
+					gui.add_message_at(our_player, "   ----> prototyper.step().has_failed() ", world.get_time())
+					}
+					return null
+				}
+				local proto = prototyper.best
+
+				if ( print_message_box == 1 ) { 
+					gui.add_message_at(our_player, "   ----> proto : " + proto, world.get_time())
+				}
+        
+				// build convoy
 				local depot  = null //cnv.get_home_depot()   		
 				local stations_list = cnv.get_schedule().entries 
-				local wt = cnv.get_schedule().waytype 
 
 				for (local i=0; i<stations_list.len(); i++) {
 			
@@ -424,13 +475,14 @@ class industry_manager_t extends manager_t
 		prototyper.min_speed  = 1
 		prototyper.max_length = 1
 		prototyper.max_vehicles = get_max_convoi_length( cnv.get_waytype() )
+    /*
 		if (wt == wt_water) {
 			prototyper.max_length = 4
 		}
 		if (wt == wt_rail) {
 			prototyper.max_length = 16
 		}
-
+    */
 		local cnv_valuator    = valuator_simple_t()
 		cnv_valuator.wt       = cnv.get_waytype()
 		cnv_valuator.freight  = link.freight.get_name()
