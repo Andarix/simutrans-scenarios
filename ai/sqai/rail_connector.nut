@@ -107,7 +107,7 @@ class rail_connector_t extends manager_t
 					} 
 					
 					// check place and build station to c_start
-					local err = check_station(pl, c_start, count, wt_rail)
+					local err = check_station(pl, c_start, count, wt_rail, planned_station)
 					if ( !err ) {
 						print("Failed to build station at " + coord_to_string(c_start)) 
 						if ( print_message_box == 2 ) {
@@ -116,8 +116,17 @@ class rail_connector_t extends manager_t
 						return error_handler()
 					}
 					
-					// check place and build station to c_start
-					err = check_station(pl, c_end, count, wt_rail)
+					// low cost station for line end
+					local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
+					local x = 0
+					local station_select = planned_station 
+					foreach(station in station_list) { 
+						if ( station.cost < station_select.cost ) {
+							station_select = station
+						}
+					}
+					// check place and build station to c_end
+					err = check_station(pl, c_end, count, wt_rail, station_select)
 					if ( !err ) {
 						print("Failed to build station at " + coord_to_string(c_end)) 
 						if ( print_message_box == 2 ) {
@@ -326,7 +335,8 @@ class depot_pathfinder extends astar_builder
 			return 0
 		}
 		return 10
-	}
+	} 
+	
 	function add_to_open(c, weight)
 	{
 		if (c.dist == 0) {

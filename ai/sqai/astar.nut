@@ -403,9 +403,15 @@ class astar_builder extends astar
 
 				local err
 				// build
-				if (route[i-1].flag == 0) {
-					err = command_x.build_road(our_player, route[i-1], route[i], way, true, true)
-					if (err) gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+				if (route[i-1].flag == 0) { 
+					if ( way.get_waytype() == wt_road ) {
+						err = command_x.build_road(our_player, route[i-1], route[i], way, true, true)
+						if (err) gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])   
+						
+					} else {
+						err = command_x.build_way(our_player, route[i-1], route[i], way, true)
+						if (err) gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])   						
+					}
 				}
 				else if (route[i-1].flag == 1) {
 					err = command_x.build_bridge(our_player, route[i], route[i-1], bridger.bridge)
@@ -445,7 +451,7 @@ function remove_field(pos)
  * build = 0 -> test ; 1 -> build
  * 
  */
-function check_station(pl, starts_field, st_lenght, wt, build = 1) {
+function check_station(pl, starts_field, st_lenght, wt, select_station, build = 1) {
 
 		// print messages box 
 		// 1 
@@ -597,7 +603,7 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 			
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
-				st_build = expand_station(pl, b_tile, wt) 
+				st_build = expand_station(pl, b_tile, wt, select_station) 
 				break
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true 
@@ -693,15 +699,35 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 				}
 				if ( !err && b_tile.len() > 0 ) {
 					if ( c_start == starts_field ) {
+						// check connect factory
+						local st = halt_x.get_halt(starts_field, pl)
+						local fl_st = st.get_factory_list ()
+						if ( fl_st.len() == 0 ) {
+							if ( print_message_box == 2 ) { 
+								gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(starts_field), world.get_time())
+							}
+							// TODO add extension to connect factory
+						}
+						
 						c_start = b_tile[0]
 					} else if ( c_end == starts_field ) {
+						// check connect factory
+						local st = halt_x.get_halt(starts_field, pl)
+						local fl_st = st.get_factory_list ()
+						if ( fl_st.len() == 0 ) {
+							if ( print_message_box == 2 ) { 
+								gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(starts_field), world.get_time())
+							}
+							// TODO add extension to connect factory
+						}
+						
 						c_end == b_tile[0]
 					}
 				} 
 				
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
-				st_build = expand_station(pl, b_tile, wt) 
+				st_build = expand_station(pl, b_tile, wt, select_station) 
 				//break
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true 
@@ -716,8 +742,8 @@ function check_station(pl, starts_field, st_lenght, wt, build = 1) {
 				gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
 				gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time()) 
 			}	
-		}
-		
+		} 
+				
 	  print_message_box = 0
 	  return st_build
 }
@@ -734,7 +760,10 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 
 	local print_message_box = 2 
 	local err = null 
-	local z = null 
+	local z = null      
+	
+	// tile out of map
+	if ( !world.is_coord_valid(t_tile) ) { return false }
 	
 	if ( t_tile.is_empty() && t_tile.get_slope() == 0 ) {
 		// tile is empty and is flat 
@@ -758,14 +787,16 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 		return true 
 	} else if ( t_tile.is_empty() && t_tile.get_slope() > 0 ) {
 		// terraform 
+
+    // find z coord 
+		local r = square_x(t_tile.x, t_tile.y)
+		z = r.get_ground_tile() //tile_x(t_tile.x, t_tile.y, t_tile.z) //square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
+
 		if ( print_message_box == 2 ) { 
 			gui.add_message_at(pl, " ---=> terraform", world.get_time())
-			gui.add_message_at(pl, " ---=> tile z " + z + " start tile z " + ref_hight, world.get_time())
+			gui.add_message_at(pl, " ---=> tile z " + z.z + " start tile z " + ref_hight, world.get_time())
 		}	
 		
-    // find z coord
-		z = tile_x(t_tile.x, t_tile.y, t_tile.z) //square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
-		local s = 0;
 		if ( z.z < ref_hight && z.z >= (ref_hight - 2) ) { 
 			// terraform up   
 			if ( print_message_box == 2 ) { 
@@ -785,7 +816,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 				if ( err ) { break }
 			} while(z.z > ref_hight ) 
 		}
-		if ( err ) {
+		if ( !err ) {
 			return false 
 		}			
     return true
@@ -796,12 +827,13 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 
 
 /**
- * expand station
+ * function expand station()
  * pl = player
  * fields = array fields
- * wt = waytype
+ * wt = waytype 
+ * select_station = station object
  */
-function expand_station(pl, fields, wt) {
+function expand_station(pl, fields, wt, select_station) {
 
 	local err = null
 	local t = fields.len()
@@ -825,7 +857,7 @@ function expand_station(pl, fields, wt) {
 					// bridge start field -> build to ground
 					fields[x].z -= 1
 				}
-				err = command_x.build_station(pl, fields[x], planned_station) 
+				err = command_x.build_station(pl, fields[x], select_station) 
 				if ( err ) { 
 					gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[x]), world.get_time()) 
 				} else {
