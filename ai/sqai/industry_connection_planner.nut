@@ -409,9 +409,9 @@ class industry_connection_planner_t extends manager_t
 			    break
 				case wt_road:
 					if ( f_dist_short < r.distance ) {
-				  	r.points += 10	
+				  	r.points += 25	
 					} else {
-						r.points += 20
+						r.points += 10
 					}
 			    break
 				case wt_water: 
@@ -534,9 +534,9 @@ class industry_connection_planner_t extends manager_t
 			local ok = (best_station == null)
 			local s_capacity = station_length * station.get_capacity()
 
-		if ( print_message_box == 2 ) { 
-			gui.add_message_at(our_player, "station " + station.get_name() + ", type = " + station.get_type(), world.get_time())
-		}
+			if ( print_message_box == 2 ) { 
+				gui.add_message_at(our_player, "station " + station.get_name() + ", type = " + station.get_type(), world.get_time())
+			}
 
 			if (!ok  &&  station_length == 1) {
 				// prefer terminus
