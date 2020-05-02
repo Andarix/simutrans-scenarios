@@ -701,7 +701,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 					if ( c_start == starts_field ) {
 						// check connect factory
 						local st = halt_x.get_halt(starts_field, pl)
-						local fl_st = st.get_factory_list ()
+						local fl_st = st.get_factory_list()
 						if ( fl_st.len() == 0 ) {
 							if ( print_message_box == 2 ) { 
 								gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(starts_field), world.get_time())
