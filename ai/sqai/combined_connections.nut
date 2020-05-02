@@ -170,6 +170,9 @@ class amphibious_pathfinder_t extends astar
 	planned_harbour_len = 0
 	planned_harbour_flat_len = 0
 
+	cost_harbour = 333
+	cost_road_stop = 17
+
 	c_harbour_tiles = null
 
 	// print messages box 
@@ -256,7 +259,7 @@ class amphibious_pathfinder_t extends astar
 
 					if (cnode.flag & 0x20) jps = jps | 0x40;
 
-					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
+					local node = ab_node(to, cnode, cost, dist, d, jps)
 					add_to_open(node, weight)
 					
 					message[0] = 1
@@ -267,11 +270,11 @@ class amphibious_pathfinder_t extends astar
 					{
 						continue
 					}
-					local move   = 333;
+					local move   = cost_harbour;
 					local dist   = estimate_distance(to)
 					local weight = cnode.cost + dist
 
-					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x10)
+					local node = ab_node(to, cnode, cnode.cost + move, dist, d, 0x10)
 					add_to_open(node, weight)
 					
 					message[1] = 1
@@ -292,11 +295,11 @@ class amphibious_pathfinder_t extends astar
 						}
 					}
 
-					local move   = 333;
+					local move   = cost_harbour;
 					local dist   = estimate_distance(to)
 					local weight = cnode.cost + dist
 
-					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x0f)
+					local node = ab_node(to, cnode, cnode.cost + move, dist, d, 0x0f)
 					add_to_open(node, weight)
 					
 					message[2] = 1
@@ -339,13 +342,13 @@ class amphibious_pathfinder_t extends astar
 					local to = square_x(c.x, c.y).get_ground_tile()
 					if (to  &&  to.is_empty()  &&  to.get_slope()==0) {
 						// can place station here
-						local move   = 17
+						local move   = cost_road_stop
 						local dist   = estimate_distance(to)
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist
 
-						local node = ab_node(to, cnode, cost, weight, dist, 0x0f, 0x0f)
+						local node = ab_node(to, cnode, cost, dist, 0x0f, 0x0f)
 						add_to_open(node, weight)
 					}
 				}
@@ -377,7 +380,7 @@ class amphibious_pathfinder_t extends astar
 				do {
 					local to = coord3d(tile.x, tile.y, tile.z) + dir.to_coord(d)
 					if (world.is_coord_valid(to)) {
-						local move   = cost_road_stop
+						local move   = 1 //cost_road_stop
 						local dist   = estimate_distance(to)
 
 						local cost   = cnode.cost + move

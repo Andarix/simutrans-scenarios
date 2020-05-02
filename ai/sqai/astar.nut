@@ -11,16 +11,14 @@ class astar_node extends coord3d
 {
 	previous = null // previous node
 	cost     = -1   // cost to reach this node
-	weight   = -1   // heuristic cost to reach target
 	dist     = -1   // distance to target
-	constructor(c, p, co, w, d)
+	constructor(c, p, co, d)
 	{
 		x = c.x
 		y = c.y
 		z = c.z
 		previous = p
 		cost     = co
-		weight   = w
 		dist     = d
 	}
 	function is_straight_move(d)
@@ -219,9 +217,9 @@ class ab_node extends ::astar_node
 {
 	dir = 0   // direction to reach this node
 	flag = 0  // flag internal to the route searcher
-	constructor(c, p, co, w, d, di, fl=0)
+	constructor(c, p, co, d, di, fl=0)
 	{
-		base.constructor(c, p, co, w, d)
+		base.constructor(c, p, co, d)
 		dir  = di
 		flag = fl
 	}
@@ -331,7 +329,7 @@ class astar_builder extends astar
 
 					local cost   = cnode.cost + move
 					local weight = cost + dist
-					local node = ab_node(to, cnode, cost, weight, dist, d)
+					local node = ab_node(to, cnode, cost, dist, d)
 
 					add_to_open(node, weight)
 				}
@@ -348,14 +346,12 @@ class astar_builder extends astar
 						local bridge_len = abs(from.x-to.x) + abs(from.y-to.y)
 
 						local move = bridge_len * cost_straight  * 3  /*extra bridge penalty */;
-						// set distance to 1 if at a target tile,
-						// still route might come back to this tile in a loop (?)
-						// but if there is space for a loop there is also place for another target tile (?)
+						// set distance to 1 if at a target tile
 						local dist = max(estimate_distance(to), 1)
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist
-						local node = ab_node(to, cnode, cost, weight, dist, d, 1 /*bridge*/)
+						local node = ab_node(to, cnode, cost, dist, d, 1 /*bridge*/)
 
 						add_to_open(node, weight)
 
@@ -414,7 +410,7 @@ class astar_builder extends astar
 					}
 				}
 				else if (route[i-1].flag == 1) {
-					err = command_x.build_bridge(our_player, route[i], route[i-1], bridger.bridge)
+					err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
 					if (err) gui.add_message_at(our_player, "Failed to build bridge from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				if (err) {
