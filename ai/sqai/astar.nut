@@ -444,6 +444,7 @@ function remove_field(pos)
  * starts_field = tile station from plan_simple_connection
  * st_lenght = stations fields count
  * wt = waytype
+ * select_station = station object
  * build = 0 -> test ; 1 -> build
  *
  */
