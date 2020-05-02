@@ -690,11 +690,21 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 					}
 					if ( b_tile.len() == st_lenght ) {
-						err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
+						err = command_x.build_way(pl, starts_field, b_tile[st_lenght - 1], planned_way, true)
 
 					}
-				}
-				if ( !err && b_tile.len() > 0 ) {
+				}  
+				
+			// build station
+			if ( b_tile.len() == st_lenght && build == 1) {
+				st_build = expand_station(pl, b_tile, wt, select_station)
+				//break
+			} else if ( b_tile.len() == st_lenght && build == 0 ) {
+				st_build = true
+				//break
+			}
+
+				if ( !err && b_tile.len() > 0 ) { 				
 					if ( c_start == starts_field ) {
 						// check connect factory
 						local st = halt_x.get_halt(starts_field, pl)
@@ -722,14 +732,6 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 					}
 				}
 
-			// build station
-			if ( b_tile.len() == st_lenght && build == 1) {
-				st_build = expand_station(pl, b_tile, wt, select_station)
-				//break
-			} else if ( b_tile.len() == st_lenght && build == 0 ) {
-				st_build = true
-				//break
-			}
 		}
 
 		if ( !st_build ) {
@@ -801,16 +803,16 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 			}
 			do {
 				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 82 )
-				//z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
-				if ( err ) { break }
+				if ( !err ) { break } 
+				z = r.get_ground_tile()
 			} while(z.z < ref_hight )
 
 		} else if ( z.z == ref_hight || z.z <= (ref_hight + 1) ) {
 			// terraform down
 			do {
 				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 83 )
-				//z = square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
-				if ( err ) { break }
+				if ( !err ) { break } 
+				z = r.get_ground_tile()
 			} while(z.z > ref_hight )
 		}
 		if ( !err ) {
