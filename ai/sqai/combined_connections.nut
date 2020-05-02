@@ -56,7 +56,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 
 		// find amphibious path
 		local marine = null
-		if ( rprt_rail != null && ( rprt_rail.gain_per_m > rprt_road.gain_per_m ) ) {
+		if ( rprt_rail != null && ( rprt_road==null ||  rprt_rail.gain_per_m > rprt_road.gain_per_m ) ) {
 			marine = amphibious_pathfinder_t(rprt_rail.action.planned_way, rprt_water.action.planned_station, rprt_water.action.planned_harbour_flat)
 			wt = wt_rail
 			if ( print_message_box_x == 1 ) {
