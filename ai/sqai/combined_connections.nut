@@ -172,6 +172,7 @@ class amphibious_pathfinder_t extends astar
 
 	cost_harbour = 333
 	cost_road_stop = 17
+
 	c_harbour_tiles = null
 
 	// print messages box
