@@ -318,7 +318,7 @@ class industry_connection_planner_t extends manager_t
 		// build cost for way, stations and depot
 		local build_cost = r.distance * planned_way.get_cost() + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost()
 		// build cost / 13 months
-		build_cost = build_cost / 13
+		//build_cost = build_cost / 13
 		
 		local conv_capacity = planned_convoy.capacity
 		local input_convoy = freight_input/conv_capacity

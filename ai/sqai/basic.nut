@@ -192,13 +192,15 @@ class manager_t extends node_seq_t
 		local i = -1
 		local best = null  
 		
-		local p_test = 0
-		local p_best = 0
+		// [0] = cost_fix / 13
+		// [1] = gain_per_m * ( cost_fix / 13 ) * points
+		local p_test = [0, 0]
+		local p_best = [0, 0] 
 
 		for(local j=0; j<reports.len(); j++) {
 			local test = reports[j]
 			// check account balance
-			if (!is_cash_available(test.cost_fix)) {
+			if (!is_cash_available(test.cost_fix + test.cost_monthly)) {
 				// too expensive
 				continue
 			}
@@ -206,15 +208,19 @@ class manager_t extends node_seq_t
 			if ( test.points <= 0 ) {
 				continue
 			}
-			
+						
 			// calculate evaluation points
 			if ( best != null ) {
-				p_test = test.gain_per_m * best.cost_fix * test.points
-				p_best = best.gain_per_m * test.cost_fix * best.points
+			
+				p_test[0] = test.cost_fix / 13
+				p_best[0] = best.cost_fix / 13
+			
+				p_test[1] = test.gain_per_m * p_best[0] * test.points
+				p_best[1] = best.gain_per_m * p_test[0] * best.points
       }
 			
 			if ( best == null
-				|| ( p_best < p_test )
+				|| ( p_best[1] < p_test[1] )
 				|| (test.cost_fix == 0  &&  best.cost_fix == 0  &&   best.gain_per_m < test.gain_per_m) )
 			{
 				best = test

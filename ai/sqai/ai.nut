@@ -173,7 +173,7 @@ function coord3d_to_key(c)
 
 function is_cash_available(cost /* in 1/100 cr */)
 {
-	return 2*cost + 2*our_player.get_current_maintenance() < our_player.get_current_net_wealth()
+	return cost + 2*our_player.get_current_maintenance() < our_player.get_current_net_wealth()
 }
 
 /**
