@@ -5,11 +5,11 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		base.constructor(s,d,f);
 		name = "amphibious_connection_planner_t"
 	}
-  
+
 	// print messages box
-	// 1 = 
-	// 2 =  
-	// 3 = 
+	// 1 =
+	// 2 =
+	// 3 =
 	print_message_box_x = 0
 
 	function step()
@@ -18,15 +18,15 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		local wt = null
 
 		print("amphibious_connection_planner_t " + this)
-		if ( print_message_box_x > 1 ) { 
-			gui.add_message_at(our_player, " ** amphibious_connection_planner_t " + this, world.get_time()) 
+		if ( print_message_box_x > 1 ) {
+			gui.add_message_at(our_player, " ** amphibious_connection_planner_t " + this, world.get_time())
 		}
 		// compute monthly production
 		if (prod < 0) {
 			prod = calc_production()
 		}
 		dbgprint("production = " + prod);
-    
+
 		// road - initial
 		local rprt_road = plan_simple_connection(wt_road, null, null)
 		if (rprt_road == null) {
@@ -38,48 +38,38 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 			//return failed()
 		}
 		// water - initial
-		local rprt_water = plan_simple_connection(wt_water, null, null) 
-		
+		local rprt_water = plan_simple_connection(wt_water, null, null)
+
 		if (rprt_water == null && ( rprt_road == null || rprt_rail == null )) {
 			return failed()
 		}
-    		
-		if ( print_message_box_x == 1 ) { 
-			gui.add_message_at(our_player, " **** rprt_water - gain_per_m : " + rprt_water.gain_per_m + " # distance : " + rprt_water.distance, world.get_time()) 
-			gui.add_message_at(our_player, " **** rprt_rail - gain_per_m : " + rprt_rail.gain_per_m + " # distance : " + rprt_rail.distance, world.get_time()) 
-			gui.add_message_at(our_player, " **** rprt_road - gain_per_m : " + rprt_road.gain_per_m + " # distance : " + rprt_road.distance, world.get_time()) 
+
+		if ( print_message_box_x == 1 ) {
+			gui.add_message_at(our_player, " **** rprt_water - gain_per_m : " + rprt_water.gain_per_m + " # distance : " + rprt_water.distance, world.get_time())
+			gui.add_message_at(our_player, " **** rprt_rail - gain_per_m : " + rprt_rail.gain_per_m + " # distance : " + rprt_rail.distance, world.get_time())
+			gui.add_message_at(our_player, " **** rprt_road - gain_per_m : " + rprt_road.gain_per_m + " # distance : " + rprt_road.distance, world.get_time())
 		}
 
 		// find flat harbour building
 		local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
 		rprt_water.action.planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, rprt_water.action.planned_convoy.capacity)
 
-		// find amphibious path 
+		// find amphibious path
 		local marine = null
 		if ( rprt_rail != null && ( rprt_rail.gain_per_m > rprt_road.gain_per_m ) ) {
-			marine = amphibious_pathfinder_t(rprt_rail.action.planned_way, rprt_water.action.planned_station, rprt_water.action.planned_harbour_flat) 
+			marine = amphibious_pathfinder_t(rprt_rail.action.planned_way, rprt_water.action.planned_station, rprt_water.action.planned_harbour_flat)
 			wt = wt_rail
-			if ( print_message_box_x == 1 ) { 
-				gui.add_message_at(our_player, " ---> rprt_rail  ", world.get_time()) 
+			if ( print_message_box_x == 1 ) {
+				gui.add_message_at(our_player, " ---> rprt_rail  ", world.get_time())
 			}
 		} else if ( rprt_road != null ) {
 			marine = amphibious_pathfinder_t(rprt_road.action.planned_way, rprt_water.action.planned_station, rprt_water.action.planned_harbour_flat)
 			wt = wt_road
-			if ( print_message_box_x == 1 ) { 
-				gui.add_message_at(our_player, " ---> rprt_road  ", world.get_time()) 
+			if ( print_message_box_x == 1 ) {
+				gui.add_message_at(our_player, " ---> rprt_road  ", world.get_time())
 			}
 		}
-		
-		marine.search_route(fsrc,fdest)
 
-		local route = marine.route
-		if (route.len() == 0) {
-			return r_t(RT_TOTAL_FAIL)
-		}
-		// generate report
-		local report = report_t()
-		report.action = node_seq_t()
-			
 		marine.search_route(fsrc,fdest)
 
 		local route = marine.route
@@ -90,8 +80,18 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		local report = report_t()
 		report.action = node_seq_t()
 
-		if ( print_message_box_x == 1 ) { 
-			gui.add_message_at(our_player, " ---> marine.route.len(fsrc,fdest)  " + route.len(), world.get_time()) 
+		marine.search_route(fsrc,fdest)
+
+		local route = marine.route
+		if (route.len() == 0) {
+			return r_t(RT_TOTAL_FAIL)
+		}
+		// generate report
+		local report = report_t()
+		report.action = node_seq_t()
+
+		if ( print_message_box_x == 1 ) {
+			gui.add_message_at(our_player, " ---> marine.route.len(fsrc,fdest)  " + route.len(), world.get_time())
 		}
 
 		// now loop through route backwards
@@ -107,8 +107,8 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 
 			if (change || i==0) {
 				print("-- Plan arc from " + coord_to_string(from) + " to " + coord_to_string(route[i]))
-				if ( print_message_box_x == 1 ) { 
-					gui.add_message_at(our_player, " **-- Plan arc from " + coord_to_string(from) + " to " + coord_to_string(route[i]), world.get_time()) 
+				if ( print_message_box_x == 1 ) {
+					gui.add_message_at(our_player, " **-- Plan arc from " + coord_to_string(from) + " to " + coord_to_string(route[i]), world.get_time())
 				}
 				// change between land and sea
 				local r = null
@@ -170,15 +170,18 @@ class amphibious_pathfinder_t extends astar
 	planned_harbour_len = 0
 	planned_harbour_flat_len = 0
 
+	cost_harbour = 333
+	cost_road_stop = 17
 	c_harbour_tiles = null
 
-	// print messages box 
-	// 1 
+	// print messages box
+	// 1
 	print_message_box_x = 0
 
 	constructor(way_, harbour_, harbour_flat_)
 	{
 		base.constructor()
+
 		way = way_
 		builder = way_planner_x(our_player)
 		builder.set_build_types(way)
@@ -192,7 +195,6 @@ class amphibious_pathfinder_t extends astar
 			local size = planned_harbour_flat.get_size(0)
 			planned_harbour_flat_len = size.x*size.y
 		}
-
 	}
 
 	function process_node(cnode)
@@ -201,10 +203,10 @@ class amphibious_pathfinder_t extends astar
 		local back = dir.backward(cnode.dir)
 		local from_water = ::finder._tile_water_way(from)
 		local water_dir = from.get_way_dirs(wt_water)
-    
-		// 
+
+		//
 		local message = [0, 0, 0]
-		
+
 		// flags
 		// 0x0f -> jps
 		// 0x10 -> find flat place
@@ -231,7 +233,7 @@ class amphibious_pathfinder_t extends astar
 				// water -> water
 				// land -> land
 				if (from_water ==  to_water) {
-					// can we build way here
+					// can we build way here?
 					if (!from_water) {
 						// empty space for station near a halt with harbour
 						local halt = to.get_halt()
@@ -256,29 +258,42 @@ class amphibious_pathfinder_t extends astar
 
 					if (cnode.flag & 0x20) jps = jps | 0x40;
 
-					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
+					local node = ab_node(to, cnode, cost, dist, d, jps)
 					add_to_open(node, weight)
-					
+
 					message[0] = 1
 				}
 				else if (from_water) {
 					// water -> land
+					if (from.is_water()  &&  to.get_halt()) {
+						// check for existing harbour
+						local halt = ship_connector_t.get_harbour_halt(to)
+						if (halt) {
+							// create node as end node of water route
+							local harbour_node = ab_node(to, cnode, cnode.cost, cnode.dist, 0x0f, 0x0f)
+							// now look for empty spots to connect to this halt
+							process_node_to_harbour(harbour_node, halt)
+						}
+					}
+					// we have to build ourselves
 					if (!from.is_water()  ||  !can_place_harbour(to, d) )
 					{
 						continue
 					}
-					local move   = 333;
+					local move   = cost_harbour
 					local dist   = estimate_distance(to)
-					local weight = cnode.cost + dist
+					local cost   = cnode.cost + move
+					local weight = cost + dist
 
-					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x10)
+					local node = ab_node(to, cnode, cost, dist, d, 0x10)
+
 					add_to_open(node, weight)
-					
+
 					message[1] = 1
 				}
 				else {
 					// land -> water
-					if (!to.is_water()  
+					if (!to.is_water()
 						||  !can_place_harbour(from, dir.backward(d))
 						||  (cnode.flag & 0x60) )
 					{
@@ -292,35 +307,41 @@ class amphibious_pathfinder_t extends astar
 						}
 					}
 
-					local move   = 333;
+					local move   = cost_harbour
 					local dist   = estimate_distance(to)
-					local weight = cnode.cost + dist
+					local cost   = cnode.cost + move
+					local weight = cost + dist
 
-					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x0f)
+					local node = ab_node(to, cnode, cost, dist, d, 0x0f)
 					add_to_open(node, weight)
-					
+
 					message[2] = 1
 				}
 			}
     }
-		/*					
+		/*
 		if ( print_message_box_x == 1 ) {
 			if ( message[0] == 1 ) {
-							gui.add_message_at(our_player, "---- water -> water", world.get_time()) 
-							gui.add_message_at(our_player, "---- found", world.get_time()) 
-			}   
+							gui.add_message_at(our_player, "---- water -> water", world.get_time())
+							gui.add_message_at(our_player, "---- found", world.get_time())
+			}
 			if ( message[1] == 1 ) {
-							gui.add_message_at(our_player, "---- water -> land", world.get_time()) 
-							gui.add_message_at(our_player, "---- found", world.get_time()) 
-						}   
+							gui.add_message_at(our_player, "---- water -> land", world.get_time())
+							gui.add_message_at(our_player, "---- found", world.get_time())
+						}
 			if ( message[2] == 1 ) {
-							gui.add_message_at(our_player, "---- land -> water", world.get_time()) 
-							gui.add_message_at(our_player, "---- found", world.get_time()) 
-			}   
+							gui.add_message_at(our_player, "---- land -> water", world.get_time())
+							gui.add_message_at(our_player, "---- found", world.get_time())
+			}
 		}
 	  */
 	}
-				
+
+	function can_place_harbour(tile, d_water_to_land)
+	{
+		return ship_connector_t.get_harbour_type_for_tile(tile, planned_harbour, planned_harbour_flat, d_water_to_land) > 0
+	}
+
 	function can_place_harbour(tile, d_water_to_land)
 	{
 		return ship_connector_t.get_harbour_type_for_tile(tile, planned_harbour, planned_harbour_flat, d_water_to_land) > 0
@@ -339,14 +360,45 @@ class amphibious_pathfinder_t extends astar
 					local to = square_x(c.x, c.y).get_ground_tile()
 					if (to  &&  to.is_empty()  &&  to.get_slope()==0) {
 						// can place station here
-						local move   = 17
+						local move   = cost_road_stop
 						local dist   = estimate_distance(to)
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist
 
-						local node = ab_node(to, cnode, cost, weight, dist, 0x0f, 0x0f)
+						local node = ab_node(to, cnode, cost, dist, 0x0f, 0x0f)
 						add_to_open(node, weight)
+					}
+				}
+				catch(ev) {}
+			}
+		}
+	}
+
+	function process_node_to_harbour(cnode, halt)
+	{
+		local visited = {}
+		// process all tiles of this halt
+		foreach(tile in halt.get_tile_list()) {
+			// check all neighbouring tiles for empty spots
+			for(local d = 1; d<16; d*=2) {
+				local c = coord(tile.x, tile.y) + dir.to_coord(d)
+				try {
+					local to = square_x(c.x, c.y).get_ground_tile()
+
+					if (to  &&  to.is_empty()  &&  to.get_slope()==0  &&  !(coord3d_to_key(to) in visited) ) {
+						// can place station here
+						local move   = cost_road_stop
+						local dist   = estimate_distance(to)
+
+						local cost   = cnode.cost + move
+						local weight = cost + dist
+
+						local node = ab_node(to, cnode, cost, dist, 0x0f, 0x0f)
+						add_to_open(node, weight)
+
+						// mark as visited
+						visited[ coord3d_to_key(to) ] <- 1
 					}
 				}
 				catch(ev) {}
@@ -396,10 +448,10 @@ class amphibious_pathfinder_t extends astar
 	function search_route(fsrc, fdest)
 	{
 		print("Search amphibious connection")
-		if ( print_message_box_x > 0 ) { 
+		if ( print_message_box_x > 0 ) {
 			local fs = fsrc.get_tile_list()
 			local fd = fdest.get_tile_list()
-			gui.add_message_at(our_player, "____________ Search amphibious connection ___________", world.get_time()) 
+			gui.add_message_at(our_player, "____________ Search amphibious connection ___________", world.get_time())
 			gui.add_message_at(our_player, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
 		}
 		// find station places
@@ -439,7 +491,7 @@ class amphibious_pathfinder_t extends astar
 
 		print("End amphibious route search")
 		if ( print_message_box_x > 0 ) {
-			gui.add_message_at(our_player, "------------ End amphibious route search -------------", world.get_time()) 
-		}   
+			gui.add_message_at(our_player, "------------ End amphibious route search -------------", world.get_time())
+		}
 	}
 }

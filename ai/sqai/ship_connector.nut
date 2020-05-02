@@ -25,7 +25,7 @@ class ship_connector_t extends manager_t
 
 	// print messages box
 	// 1 = way
-	// 2 = stations 
+	// 2 = stations
 	// 3 = depot
 	// 5 = errors
 	print_message_box = 0
@@ -50,8 +50,8 @@ class ship_connector_t extends manager_t
 		switch(phase) {
 
 			case 0: {
-				if ( print_message_box > 0 ) { 
-					gui.add_message_at(pl, "______________________ build ship ______________________", world.get_time()) 
+				if ( print_message_box > 0 ) {
+					gui.add_message_at(pl, "______________________ build ship ______________________", world.get_time())
 					gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
 				}
 				// find flat harbour building
@@ -60,11 +60,11 @@ class ship_connector_t extends manager_t
 					planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
 				}
 				if ( print_message_box == 2 ) {
-					local flat = "----"  
+					local flat = "----"
 					if ( planned_harbour_flat ) { flat = planned_harbour_flat.get_name() }
-					gui.add_message_at(pl," ... build station: " + planned_station.get_name() + " / " + flat, world.get_time()) 
+					gui.add_message_at(pl," ... build station: " + planned_station.get_name() + " / " + flat, world.get_time())
 				}
-				
+
 				phase ++
 			}
 			case 1:
@@ -82,9 +82,9 @@ class ship_connector_t extends manager_t
 				}
 				else {
 					if ( print_message_box == 2 ) {
-						gui.add_message_at(pl, " ... ERROR No station places found ", world.get_time()) 
-						gui.add_message_at(pl, "---------------------- ship end -----------------------", world.get_time()) 
-					}   
+						gui.add_message_at(pl, " ... ERROR No station places found ", world.get_time())
+						gui.add_message_at(pl, "---------------------- ship end -----------------------", world.get_time())
+					}
 					print("No station places found")
 					return error_handler()
 				}
@@ -116,9 +116,9 @@ class ship_connector_t extends manager_t
 					}
 					if (err) {
 						print("Failed to build harbour at " + key + " / " + err)
-						if ( print_message_box == 5 ) { 
-							gui.add_message_at(pl, " --- Failed to build harbour at " + key + " / " + err, world.get_time()) 
-							gui.add_message_at(pl, " --- c_end " + coord_to_string(c_end[0]), world.get_time()) 
+						if ( print_message_box == 5 ) {
+							gui.add_message_at(pl, " --- Failed to build harbour at " + key + " / " + err, world.get_time())
+							gui.add_message_at(pl, " --- c_end " + coord_to_string(c_end[0]), world.get_time())
 						}
 						return error_handler()
 					}
@@ -204,7 +204,7 @@ class ship_connector_t extends manager_t
 			case 9: // build station extension
 
 				if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build ship end _____________________", world.get_time()) }
-				if ( fsrc && fdest ) { 
+				if ( fsrc && fdest ) {
 					gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
 				}
 			}
@@ -267,7 +267,7 @@ class ship_connector_t extends manager_t
 				for(local d = 1; d<16; d*=2) {
 					local to = tile.get_neighbour(wt_all, d)
 
-					if ( print_message_box == 2 && to.is_empty() ) { 
+					if ( print_message_box == 2 && to.is_empty() ) {
 						gui.add_message_at(our_player, " ... place finder: to.is_empty() " + coord3d_to_string(to) + " = "  + to.is_empty(), world.get_time())
 					}
 
@@ -275,7 +275,15 @@ class ship_connector_t extends manager_t
 
 						anch.append(tile)
 						c_harbour_tiles[coord3d_to_key(tile)] <- to
-						break					}
+						break
+					}
+
+					if (to  &&  get_harbour_type_for_tile(to, planned_station, planned_harbour_flat, d) > 0) {
+
+						anch.append(tile)
+						c_harbour_tiles[coord3d_to_key(tile)] <- to
+						break
+					}
 				}
 			}
 		}
@@ -349,9 +357,9 @@ class ship_connector_t extends manager_t
 		local err = null
 		local len = 0
 		local dif = { x=tile.x-water.x, y=tile.y-water.y}
-	
-	
-		if ( print_message_box == 2 ) { 
+
+
+		if ( print_message_box == 2 ) {
 			gui.add_message_at(our_player, " --- Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water), world.get_time())
 		}
 		print("Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water) )
@@ -517,7 +525,7 @@ class route_finder_water extends astar
 					// use jump-point search (see dataobj/route.cc)
 					local jps = cnode.previous ? (water_dir ^ 0x0f) | d | cnode.dir | from.get_canal_ribi() : 0x0f
 
-					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
+					local node = ab_node(to, cnode, cost, dist, d, jps)
 					add_to_open(node, weight)
 				}
 			}
@@ -538,7 +546,7 @@ class route_finder_water extends astar
 			if (dist == 0) {
 				continue
 			}
-			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
+			add_to_open(ab_node(s, null, 1, dist+1, 0), dist+1)
 		}
 
 		search()
@@ -559,11 +567,29 @@ class route_finder_water extends astar
 
 class route_finder_water_depot extends route_finder_water
 {
-	function estimate_distance(tile)
+	function estimate_distance(c)
 	{
-		return tile.get_objects().get_count()
-		// take first empty tile
-
+		local t = tile_x(c.x, c.y, c.z)
+		if (t.is_water()  &&  t.get_objects().get_count()==0) {
+			return 0
+		}
+		local depot = t.find_object(mo_depot_water)
+		if (depot  &&  depot.get_owner().nr == our_player_nr) {
+			return 0
+		}
+		return 10
+	}
+	function add_to_open(c, weight)
+	{
+		if (c.dist == 0) {
+			// test for depot
+			local t = tile_x(c.x, c.y, c.z)
+			if (t.get_objects().get_count()==0) {
+				// depot not existing, we must build, increase weight
+				weight += 25 * cost_straight
+			}
+		}
+		base.add_to_open(c, weight)
 	}
 
 	function search_route(watertiles)
@@ -578,7 +604,7 @@ class route_finder_water_depot extends route_finder_water
 		for(local i=0; i<watertiles.len(); i++)
 		{
 			local dist = (watertiles.len() - i)*10;
-			process_node(ab_node(watertiles[i], null, 1, dist+1, dist, 0))
+			process_node(ab_node(watertiles[i], null, 1, dist+1, 0))
 		}
 
 		search()

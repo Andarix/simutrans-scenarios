@@ -159,7 +159,6 @@ function step()
 		}
 		s._next_construction_step += 1 + (s._step % 3)
 	}
-
 }
 
 /**

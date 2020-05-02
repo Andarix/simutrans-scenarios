@@ -21,7 +21,7 @@ class road_connector_t extends manager_t
 	c_line  = null
 	c_cnv   = null
 
-	// print messages box 
+	// print messages box
 	// 1 = way
 	// 2 = station
 	// 3 = depot
@@ -41,11 +41,11 @@ class road_connector_t extends manager_t
 
 		local fs = fsrc.get_tile_list()
 		local fd = fdest.get_tile_list()
-					
+
 		switch(phase) {
 			case 0: // find places for stations
-				if ( print_message_box > 0 ) { 
-					gui.add_message_at(our_player, "______________________ build road ______________________", world.get_time()) 
+				if ( print_message_box > 0 ) {
+					gui.add_message_at(our_player, "______________________ build road ______________________", world.get_time())
 					gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
 				}
 				if (c_start == null) {
@@ -106,7 +106,7 @@ class road_connector_t extends manager_t
 				}
 			case 3: // find depot place
 				{
-				
+
 					//local err = construct_road_to_depot(pl, c_start, planned_way)
 					//if (err) {
 					//	print("Failed to build depot access from " + coord_to_string(c_start))
@@ -119,28 +119,28 @@ class road_connector_t extends manager_t
 
 					if ( print_message_box == 3 ) {
 						gui.add_message_at(our_player, "___________ exists depots road ___________", world.get_time())
-			 			gui.add_message_at(our_player," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())      
+			 			gui.add_message_at(our_player," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())
 					}
 
 					// search depot to range start and end station
 					local depot_found = search_depot(c_start, wt_road)
 					local starts_field = c_start
           if ( !depot_found ) {
-						depot_found = search_depot(c_end, wt_road) 
+						depot_found = search_depot(c_end, wt_road)
 						starts_field = c_end
 					}
 
 					if ( !depot_found && print_message_box == 3 ) {
-			 			gui.add_message_at(pl," *** depot not found *** ", world.get_time())      
+			 			gui.add_message_at(pl," *** depot not found *** ", world.get_time())
 					}	else if ( print_message_box == 3 ) {
-						gui.add_message_at(pl," ---> depot found : " + depot_found.get_pos(), coord_to_string(depot_found))      
+						gui.add_message_at(pl," ---> depot found : " + depot_found.get_pos(), coord_to_string(depot_found))
 					}
 
-	        
+
 					local err = null
 					// build road to depot
-					if ( depot_found ) { 
-						c_depot = depot_found 
+					if ( depot_found ) {
+						c_depot = depot_found
 						err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 					  //err = construct_road(our_player, station_to_depot, c_depot, planned_way)
 					} else {
@@ -148,8 +148,8 @@ class road_connector_t extends manager_t
 						if (err) {
 							print("Failed to build depot access from " + coord_to_string(c_start))
 							return error_handler()
-						}  
-					
+						}
+
 						// depot already existing ?
 						if (c_depot.find_object(mo_depot_road) == null) {
 							// no: build
@@ -165,9 +165,9 @@ class road_connector_t extends manager_t
 									fs.road_depot = c_depot
 								}
 							}
-						} 
+						}
 					}
-					
+
 					if ( print_message_box == 3 ) { gui.add_message_at(our_player, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
 					phase ++
 				}
@@ -212,7 +212,7 @@ class road_connector_t extends manager_t
 					phase ++
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
-			case 9: // build station extension                              
+			case 9: // build station extension
 
 				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "____________________ build road end _____________________", world.get_time()) }
 				gui.add_message_at(pl, pl.get_name() + " build road line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", c_start)
@@ -281,7 +281,6 @@ class road_connector_t extends manager_t
 		local d = res.end
 		c_depot = tile_x(d.x, d.y, d.z)
 	}
-
 }
 
 
