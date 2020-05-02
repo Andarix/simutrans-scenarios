@@ -70,6 +70,10 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 			}
 		}
 
+		if (marine == null) {
+			return r_t(RT_TOTAL_FAIL)
+		}
+
 		marine.search_route(fsrc,fdest)
 
 		local route = marine.route
