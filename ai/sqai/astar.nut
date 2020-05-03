@@ -498,7 +498,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 					if ( print_message_box == 2 ) {
 						gui.add_message_at(pl, " ---> dir : 8", world.get_time())
 					}
-					for ( i = 1; i < st_lenght; x++ ) {
+					for ( i = 1; i < st_lenght; i++ ) {
 						b1_tile = tile_x(starts_field.x, starts_field.y + i, starts_field.z)
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
