@@ -600,7 +600,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
-				st_build = expand_station(pl, b_tile, wt, select_station)
+				st_build = expand_station(pl, b_tile, wt, select_station, starts_field.z)
 				break
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true
@@ -694,7 +694,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
-				st_build = expand_station(pl, b_tile, wt, select_station)
+				st_build = expand_station(pl, b_tile, wt, select_station, starts_field.z)
 				//break
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true
@@ -795,7 +795,8 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 		return true
 	} else if ( t_tile.is_empty() && ( t_tile.get_slope() > 0 || ref_hight != z.z ) ) {
 		// terraform
-
+    // return true and terraform befor build station
+    /*
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " ---=> terraform", world.get_time())
 			gui.add_message_at(pl, " ---=> tile z " + z.z + " start tile z " + ref_hight, world.get_time())
@@ -825,7 +826,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 		}
 		if ( err ) {
 			return false
-		}
+		}  */
 		return true
 	}
 
@@ -840,15 +841,54 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
  * wt = waytype
  * select_station = station object
  */
-function expand_station(pl, fields, wt, select_station) {
+function expand_station(pl, fields, wt, select_station, ref_hight) {
 
 	local err = null
 	local t = fields.len()
 
 	// build way to tiles
 	if ( t > 0 ) {
+
 		for ( local i = 1; i < t; i++ ) {
 			local f = tile_x(fields[i].x, fields[i].y, fields[i].z)
+      // terrafom
+			local r = square_x(f.x, f.y)
+			local z = r.get_ground_tile()
+
+      if ( f.is_empty() && ( f.get_slope() > 0 || ref_hight != z.z ) ) {
+
+		    if ( print_message_box == 2 ) {
+			     gui.add_message_at(pl, " ---=> terraform", world.get_time())
+			     gui.add_message_at(pl, " ---=> tile z " + z.z + " start tile z " + ref_hight, world.get_time())
+		    }
+
+		    if ( z.z < ref_hight && z.z >= (ref_hight - 2) ) {
+			  // terraform up
+			    if ( print_message_box == 2 ) {
+				    gui.add_message_at(pl, " ---=> tile up to flat ", world.get_time())
+			    }
+			    do {
+				    err = command_x.set_slope(pl, tile_x(f.x, f.y, z.z), 82 )
+				    if ( !err ) { break }
+				    z = r.get_ground_tile()
+			    } while(z.z < ref_hight )
+
+		    } else if ( z.z >= ref_hight || z.z <= (ref_hight + 1) ) {
+			     // terraform down
+			  	if ( print_message_box == 2 ) {
+				  	gui.add_message_at(pl, " ---=> tile down to flat ", world.get_time())
+			  	}
+			  	do {
+						err = command_x.set_slope(pl, tile_x(f.x, f.y, z.z), 83 )
+						if ( !err ) { break }
+						z = r.get_ground_tile()
+			  	} while(z.z > ref_hight )
+		  	}
+		  	if ( err ) {
+					return false
+		  	}
+      }
+      // empty then build way
 			if ( f.is_empty() ) {
 				err = command_x.build_way(pl, fields[0], f, planned_way, true)
 			}
