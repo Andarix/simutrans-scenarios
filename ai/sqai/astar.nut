@@ -612,19 +612,19 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 		if ( b_tile.len() < st_lenght && !st_build ) {
 				// search other place for station
+				b_tile.clear()
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(pl, " -#-=> not place found for station ", world.get_time())
 				}
 				if ( d == 1 || d == 4 ) {
-					b_tile.clear()
 					// test e
-					for ( i = 0; i < st_lenght; i++ ) {
+					for ( i = 1; i < st_lenght; i++ ) {
 						b1_tile = tile_x(starts_field.x + i, starts_field.y, starts_field.z)
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
 						}
 
-						if ( test_field(pl, b1_tile, wt, 5, starts_field.z) && b_tile.len() <= st_lenght ) {
+						if ( test_field(pl, b1_tile, wt, 5, starts_field.z) && b_tile.len() < st_lenght ) {
 							if ( print_message_box == 2 ) {
 								gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 							}
@@ -635,13 +635,13 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 					if ( b_tile.len() < st_lenght ) {
 						b_tile.clear()
 						// test w
-						for ( i = 0; i < st_lenght; i++ ) {
+						for ( i = 1; i < st_lenght; i++ ) {
 							b1_tile = tile_x(starts_field.x - i, starts_field.y, starts_field.z)
 							if ( print_message_box == 2 ) {
 								gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
 							}
 
-							if ( test_field(pl, b1_tile, wt, 5, starts_field.z) && b_tile.len() <= st_lenght ) {
+							if ( test_field(pl, b1_tile, wt, 5, starts_field.z) && b_tile.len() < st_lenght ) {
 								if ( print_message_box == 2 ) {
 									gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 								}
@@ -654,7 +654,6 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 						err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
 					}
 				} else if ( d == 2 || d == 8 ) {
-					b_tile.clear()
 					// test s
 					for ( i = 1; i <= st_lenght; i++ ) {
 						b1_tile = tile_x(starts_field.x, starts_field.y + i, starts_field.z)
@@ -700,7 +699,12 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true
 				//break
-			}
+			} else {
+        b_tile.clear()
+      }
+
+
+		}
 
 				if ( !err && b_tile.len() > 0 ) {
 					if ( c_start == starts_field ) {
@@ -734,9 +738,6 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 					}
 				}
-
-		}
-
 
 		if ( !st_build ) {
 			// move station
