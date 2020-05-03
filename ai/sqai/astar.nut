@@ -491,7 +491,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		local b_tile = [starts_field] // station fields array
 		local i = 0
 		// get_dirs().to_coord()
-		for ( local j = 0; j < 2; i++ ) {
+		for ( local j = 0; j < 2; j++ ) {
 			switch (d) {
 				case 1:
 					// check n
@@ -691,8 +691,8 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 					if ( b_tile.len() == st_lenght ) {
 						err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
 					}
-				}  
-				
+				}
+
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
 				st_build = expand_station(pl, b_tile, wt, select_station)
@@ -702,7 +702,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 				//break
 			}
 
-				if ( !err && b_tile.len() > 0 ) { 				
+				if ( !err && b_tile.len() > 0 ) {
 					if ( c_start == starts_field ) {
 						// check connect factory || dock
 						local st = halt_x.get_halt(b_tile[0], pl)
@@ -731,12 +731,12 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 							c_end == b_tile[0]
 						}
-								
+
 					}
 				}
 
-		}  
-		
+		}
+
 
 		if ( !st_build ) {
 			// move station
@@ -807,7 +807,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 			}
 			do {
 				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 82 )
-				if ( !err ) { break } 
+				if ( !err ) { break }
 				z = r.get_ground_tile()
 			} while(z.z < ref_hight )
 
@@ -818,7 +818,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 			}
 			do {
 				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 83 )
-				if ( !err ) { break } 
+				if ( !err ) { break }
 				z = r.get_ground_tile()
 			} while(z.z > ref_hight )
 		}
@@ -857,7 +857,7 @@ function expand_station(pl, fields, wt, select_station) {
 			}
 		}
 	 	if ( err == null ) {
-			// build station to tile 
+			// build station to tile
 			for ( local i = 0; i < t; i++ ) {
 				if ( tile_x(fields[i].x, fields[i].y, fields[i].z).is_bridge() ) {
 					// bridge start field -> build to ground
@@ -869,7 +869,7 @@ function expand_station(pl, fields, wt, select_station) {
 					return false
 				}
 				gui.add_message_at(pl, " ---=> build station tile at " + coord3d_to_string(fields[i]), world.get_time())
-				
+
 			}
 		}
 
@@ -886,7 +886,7 @@ function search_depot(field_pos, wt) {
 	local list_exists_depot = depot_x.get_depot_list(our_player, wt)
 	// search range
 	local seach_field = 10
-  
+
 	if ( list_exists_depot ) {
 		local tile_min = [field_pos.x - seach_field, field_pos.y - seach_field]
 		local tile_max = [field_pos.x + seach_field, field_pos.y + seach_field]
