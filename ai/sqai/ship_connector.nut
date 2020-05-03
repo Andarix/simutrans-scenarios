@@ -142,11 +142,11 @@ class ship_connector_t extends manager_t
 			case 5: // build depot
 				{
 					// search depot to range start and end station
-					local depot_found = search_depot(c_start, wt_water)
-					local starts_field = c_start
+					local depot_found = search_depot(c_start[0], wt_water)
+					local starts_field = c_start[0]
           if ( !depot_found ) {
-						depot_found = search_depot(c_end, wt_water)
-						starts_field = c_end
+						depot_found = search_depot(c_end[0], wt_water)
+						starts_field = c_end[0]
 					}
 
 					if ( !depot_found && print_message_box == 3 ) {

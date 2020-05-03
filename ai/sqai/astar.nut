@@ -851,7 +851,7 @@ function expand_station(pl, fields, wt, select_station) {
 			if ( f.is_empty() ) {
 				err = command_x.build_way(pl, fields[0], f, planned_way, true)
 			}
-			if ( !err ) {
+			if ( err ) {
 				gui.add_message_at(pl, " ---=> not build way tile at " + coord3d_to_string(fields[i]) + " err " + err, world.get_time())
 				return false
 			}
@@ -864,7 +864,7 @@ function expand_station(pl, fields, wt, select_station) {
 					fields[i].z -= 1
 				}
 				err = command_x.build_station(pl, fields[i], select_station)
-				if ( !err ) {
+				if ( err ) {
 					gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[i]), world.get_time())
 					return false
 				}
@@ -886,20 +886,22 @@ function search_depot(field_pos, wt) {
 	local list_exists_depot = depot_x.get_depot_list(our_player, wt)
 	// search range
 	local seach_field = 10
+  
+	if ( list_exists_depot ) {
+		local tile_min = [field_pos.x - seach_field, field_pos.y - seach_field]
+		local tile_max = [field_pos.x + seach_field, field_pos.y + seach_field]
+		local depot_found = false
 
-	local tile_min = [field_pos.x - seach_field, field_pos.y - seach_field]
-	local tile_max = [field_pos.x + seach_field, field_pos.y + seach_field]
-	local depot_found = false
+		foreach(key in list_exists_depot) {
 
-	foreach(key in list_exists_depot) {
+			if ( key.x >= tile_min[0] && key.y >= tile_min[1] && key.x <= tile_max[0] && key.y <= tile_max[1] ) {
+				depot_found = tile_x(key.x, key.y, key.z)
+				break
+			}
 
-		if ( key.x >= tile_min[0] && key.y >= tile_min[1] && key.x <= tile_max[0] && key.y <= tile_max[1] ) {
-			depot_found = tile_x(key.x, key.y, key.z)
-			break
 		}
 
-	}
-
-	return depot_found
-
+		return depot_found
+  }
+	return false
 }
