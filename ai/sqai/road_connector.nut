@@ -166,9 +166,9 @@ class road_connector_t extends manager_t
 								}
 							}
 						}
+						if ( print_message_box == 3 ) { gui.add_message_at(our_player, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
 					}
 
-					if ( print_message_box == 3 ) { gui.add_message_at(our_player, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
 					phase ++
 				}
 			case 6: // create schedule

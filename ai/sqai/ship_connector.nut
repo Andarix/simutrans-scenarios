@@ -141,23 +141,44 @@ class ship_connector_t extends manager_t
 				}
 			case 5: // build depot
 				{
-					// depot already existing ?
-					if (c_depot.find_object(mo_depot_water) == null) {
-						// no: build
-						local err = command_x.build_depot(pl, c_depot, planned_depot )
-						if (err) {
-							print("Failed to build depot at " + coord_to_string(c_depot))
-							return error_handler()
-						}
-						if (finalize) {
-							// store depot location
-							local fs = ::station_manager.access_freight_station(fsrc)
-							if (fs.ship_depot == null) {
-								fs.ship_depot = c_depot
+					// search depot to range start and end station
+					local depot_found = search_depot(c_start, wt_water)
+					local starts_field = c_start
+          if ( !depot_found ) {
+						depot_found = search_depot(c_end, wt_water)
+						starts_field = c_end
+					}
+
+					if ( !depot_found && print_message_box == 3 ) {
+			 			gui.add_message_at(pl," *** depot not found *** ", world.get_time())      
+					}	else if ( print_message_box == 3 ) {
+						gui.add_message_at(pl," ---> depot found : " + depot_found.get_pos(), coord_to_string(depot_found))      
+					}
+
+					// build rail to depot
+					if ( depot_found ) { 
+						c_depot = depot_found
+						local err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
+					} else {
+						// depot already existing ?
+						if (c_depot.find_object(mo_depot_water) == null) {
+							// no: build
+							local err = command_x.build_depot(pl, c_depot, planned_depot )
+							if (err) {
+								print("Failed to build depot at " + coord_to_string(c_depot))
+								return error_handler()
+							}
+							if (finalize) {
+								// store depot location
+								local fs = ::station_manager.access_freight_station(fsrc)
+								if (fs.ship_depot == null) {
+									fs.ship_depot = c_depot
+								}
 							}
 						}
+						if ( print_message_box == 3 ) { gui.add_message_at(pl, "Build depot on " + coord_to_string(c_depot), world.get_time()) } 
 					}
-					if ( print_message_box == 3 ) { gui.add_message_at(pl, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
+					}
 					phase ++
 				}
 			case 6: // create schedule
