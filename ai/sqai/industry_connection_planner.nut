@@ -139,17 +139,11 @@ class industry_connection_planner_t extends manager_t
 		}
 		if (distance == 0) {
 			// still zero? avoid division by zero in the prototyper
-			distance = 1
-		}
-		/*
-		if (distance == 0) {
-			// still zero? avoid division by zero in the prototyper
 			// distance factorys
 			distance = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y)
 			// add 10% from distance
 			distance += distance / 100 * 10
 		}
-		*/
 
 		// plan convoy prototype
 		local prototyper = prototyper_t(wt, freight)
