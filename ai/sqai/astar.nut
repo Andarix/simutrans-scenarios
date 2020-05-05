@@ -456,7 +456,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		local print_message_box = 2
 
 		if ( print_message_box == 2 ) {
-			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field), world.get_time())
+			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "# station lenght : " + st_lenght, world.get_time())
 		}
 
 		local a = false
@@ -618,7 +618,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 				}
 				if ( d == 1 || d == 4 ) {
 					// test e
-					for ( i = 1; i < st_lenght; i++ ) {
+					for ( i = 1; i <= st_lenght; i++ ) {
 						b1_tile = tile_x(starts_field.x + i, starts_field.y, starts_field.z)
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
@@ -635,7 +635,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 					if ( b_tile.len() < st_lenght ) {
 						b_tile.clear()
 						// test w
-						for ( i = 1; i < st_lenght; i++ ) {
+						for ( i = 1; i <= st_lenght; i++ ) {
 							b1_tile = tile_x(starts_field.x - i, starts_field.y, starts_field.z)
 							if ( print_message_box == 2 ) {
 								gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
