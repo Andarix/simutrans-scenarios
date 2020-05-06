@@ -456,7 +456,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		local print_message_box = 2
 
 		if ( print_message_box == 2 ) {
-			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "# station lenght : " + st_lenght, world.get_time())
+			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
 		}
 
 		local a = false
@@ -600,7 +600,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
-				st_build = expand_station(pl, b_tile, wt, select_station, starts_field.z)
+				st_build = expand_station(pl, b_tile, wt, select_station, starts_field)
 				break
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true
@@ -609,7 +609,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 		}
 
-
+    // station not build, then search other place
 		if ( b_tile.len() < st_lenght && !st_build ) {
 				// search other place for station
 				b_tile.clear()
@@ -687,18 +687,14 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 						}
 
 					}
-					if ( b_tile.len() == st_lenght ) {
-						err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
-					}
 				}
 
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
-				st_build = expand_station(pl, b_tile, wt, select_station, starts_field.z)
-				//break
+				st_build = expand_station(pl, b_tile, wt, select_station, starts_field)
+				err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true
-				//break
 			} else {
         b_tile.clear()
       }
@@ -841,9 +837,57 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
  * wt = waytype
  * select_station = station object
  */
-function expand_station(pl, fields, wt, select_station, ref_hight) {
+function expand_station(pl, fields, wt, select_station, start_field) {
 
+	local print_message_box = 2
+
+	local ref_hight = start_field.z
 	local err = null
+
+	// check harbour/dock
+  if ( fields[0] != start_field ) {
+		local extension = search_extension(wt)
+		if ( extension ) {
+			if ( print_message_box == 2 ) {
+				gui.add_message_at(our_player, "-*---> selectet extension: " + extension.get_name(), world.get_time())
+			}
+      local st_dock = search_station(start_field, wt, 1)
+      if ( st_dock ) {
+				if ( print_message_box == 2 ) {
+					gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), world.get_time())
+				}
+        if ( st_dock[0].x != fields[0].x && st_dock[0].y != fields[0].y ) {
+					local r = tile_x(start_field.x, start_field.y, start_field.z)
+          local d = r.get_way_dirs(wt)
+					local t = null
+					switch(d) {
+						case 1:
+						  t = square_x(start_field.x, start_field.y + 1)
+							break
+						case 2:
+						  t = square_x(start_field.x - 1, start_field.y)
+							break
+						case 4:
+						  t = square_x(start_field.x, start_field.y - 1)
+							break
+						case 8:
+						  t = square_x(start_field.x + i, start_field.y)
+							break
+
+					}
+					local tile = tile_x(t.x, t.y, t.get_ground_tile().z)
+					if ( print_message_box == 2 ) {
+						gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
+					}
+					err = command_x.build_station(pl, tile, extension)
+
+				}
+
+			}
+
+		}
+	}
+
 	local t = fields.len()
 
 	// build way to tiles
@@ -919,6 +963,65 @@ function expand_station(pl, fields, wt, select_station, ref_hight) {
 }
 
 /**
+	* search extension building
+	*
+	*
+	*/
+function search_extension(wt) {
+
+	local print_message_box = 0
+
+	local select_extension = null
+
+	// extension building from waytype for selected good
+	local extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt, good_desc_x(freight))
+
+  if ( extension_list.len() > 0 ) {
+		foreach(extension in extension_list) {
+			local ok = (select_extension == null)
+
+			if ( print_message_box == 2 ) {
+				gui.add_message_at(our_player, "extension " + extension.get_name(), world.get_time())
+			}
+
+			if ( !ok ) {
+				if ( select_extension.get_capacity() > extension.get_capacity() ) {
+					select_extension = extension
+				}
+			} else {
+				select_extension = extension
+			}
+		}
+  } else {
+		// not find extension from waytype for selected good
+		// search post extension from all waytypes
+		extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_all, good_desc_x("post"))
+
+  	if ( extension_list.len() > 0 ) {
+			foreach(extension in extension_list) {
+				local ok = (select_extension == null)
+
+				if ( print_message_box == 2 ) {
+					gui.add_message_at(our_player, "extension " + extension.get_name(), world.get_time())
+				}
+
+				if ( !ok ) {
+					if ( select_extension.get_capacity() > extension.get_capacity() ) {
+						select_extension = extension
+					}
+				} else {
+					select_extension = extension
+				}
+			}
+  	}
+
+	}
+
+	return select_extension
+
+}
+
+/**
  * search existing depot on range to station
  *
  */
@@ -945,4 +1048,32 @@ function search_depot(field_pos, wt) {
 		return depot_found
   }
 	return false
+}
+
+/**
+ * search existing station on range to field
+ *
+ *  field_pos	= start field
+ *  wt				= waytype
+ *  range			= search range
+ *
+ */
+function search_station(field_pos, wt, range) {
+
+		local tile_min = [field_pos.x - range, field_pos.y - range]
+		local tile_max = [field_pos.x + range, field_pos.y + range]
+		local station_found = false
+
+    foreach(halt in halt_list_x()) {
+        if (halt.get_owner().nr == our_player_nr) {  // && halt.get_type == wt
+					local tile = halt.get_tile_list()
+					if ( tile[0].x >= tile_min[0] && tile[0].y >= tile_min[1] && tile[0].x <= tile_max[0] && tile[0].y <= tile_max[1] ) {
+						station_found = tile
+						break
+					}
+
+        }
+    }
+
+		return station_found
 }
