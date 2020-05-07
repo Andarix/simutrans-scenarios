@@ -701,7 +701,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 
 		}
-
+        /*
 				if ( !err && b_tile.len() > 0 ) {
 					if ( c_start == starts_field ) {
 						// check connect factory || dock
@@ -733,7 +733,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 						}
 
 					}
-				}
+				} */
 
 		if ( !st_build ) {
 			// move station
@@ -792,37 +792,6 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 	} else if ( t_tile.is_empty() && ( t_tile.get_slope() > 0 || ref_hight != z.z ) ) {
 		// terraform
     // return true and terraform befor build station
-    /*
-		if ( print_message_box == 2 ) {
-			gui.add_message_at(pl, " ---=> terraform", world.get_time())
-			gui.add_message_at(pl, " ---=> tile z " + z.z + " start tile z " + ref_hight, world.get_time())
-		}
-
-		if ( z.z < ref_hight && z.z >= (ref_hight - 2) ) {
-			// terraform up
-			if ( print_message_box == 2 ) {
-				gui.add_message_at(pl, " ---=> tile up to flat ", world.get_time())
-			}
-			do {
-				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 82 )
-				if ( !err ) { break }
-				z = r.get_ground_tile()
-			} while(z.z < ref_hight )
-
-		} else if ( z.z >= ref_hight || z.z <= (ref_hight + 1) ) {
-			// terraform down
-			if ( print_message_box == 2 ) {
-				gui.add_message_at(pl, " ---=> tile down to flat ", world.get_time())
-			}
-			do {
-				err = command_x.set_slope(pl, tile_x(t_tile.x, t_tile.y, z.z), 83 )
-				if ( !err ) { break }
-				z = r.get_ground_tile()
-			} while(z.z > ref_hight )
-		}
-		if ( err ) {
-			return false
-		}  */
 		return true
 	}
 
@@ -843,6 +812,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 	local ref_hight = start_field.z
 	local err = null
+  local combined_station = false
 
 	// check harbour/dock
   if ( fields[0] != start_field ) {
@@ -880,11 +850,11 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 						gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
 					}
 					err = command_x.build_station(pl, tile, extension)
-
+          if ( err ) {
+						combined_station = true
+					}
 				}
-
 			}
-
 		}
 	}
 
@@ -944,7 +914,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 	 	if ( err == null ) {
 			// build station to tile
 			for ( local i = 0; i < t; i++ ) {
-				if ( tile_x(fields[i].x, fields[i].y, fields[i].z).is_bridge() ) {
+				if ( tile_x(fields[i].x, fields[i].y, fields[i].z).is_bridge() && f.get_slope() > 0 ) {
 					// bridge start field -> build to ground
 					fields[i].z -= 1
 				}
@@ -954,6 +924,19 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 					return false
 				}
 				gui.add_message_at(pl, " ---=> build station tile at " + coord3d_to_string(fields[i]), world.get_time())
+
+						local st = halt_x.get_halt(fields[0], pl)
+						if ( st ) {
+							local fl_st = st.get_factory_list()
+							if ( !combined_station && fl_st.len() == 0 ) {
+								if ( print_message_box == 2 ) {
+									gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(starts_field), world.get_time())
+								}
+							// TODO add extension to connect factory
+							}
+
+							c_end == fields[0]
+						}
 
 			}
 		}
