@@ -609,7 +609,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 		}
 
-    // station not build, then search other place
+		// station not build, then search other place
 		if ( b_tile.len() < st_lenght && !st_build ) {
 				// search other place for station
 				b_tile.clear()
@@ -696,12 +696,12 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true
 			} else {
-        b_tile.clear()
-      }
+				b_tile.clear()
+			}
 
 
 		}
-        /*
+				/*
 				if ( !err && b_tile.len() > 0 ) {
 					if ( c_start == starts_field ) {
 						// check connect factory || dock
@@ -791,7 +791,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 		return true
 	} else if ( t_tile.is_empty() && ( t_tile.get_slope() > 0 || ref_hight != z.z ) ) {
 		// terraform
-    // return true and terraform befor build station
+		// return true and terraform befor build station
 		return true
 	}
 
@@ -812,36 +812,36 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 	local ref_hight = start_field.z
 	local err = null
-  local combined_station = false
+	local combined_station = false
 
 	// check harbour/dock
-  if ( fields[0] != start_field ) {
+	if ( fields[0] != start_field ) {
 		local extension = search_extension(wt)
 		if ( extension ) {
 			if ( print_message_box == 2 ) {
 				gui.add_message_at(our_player, "-*---> selectet extension: " + extension.get_name(), world.get_time())
 			}
-      local st_dock = search_station(start_field, wt, 1)
-      if ( st_dock ) {
+			local st_dock = search_station(start_field, wt, 1)
+			if ( st_dock ) {
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), world.get_time())
 				}
-        if ( st_dock[0].x != fields[0].x && st_dock[0].y != fields[0].y ) {
+				if ( st_dock[0].x != fields[0].x && st_dock[0].y != fields[0].y ) {
 					local r = tile_x(start_field.x, start_field.y, start_field.z)
-          local d = r.get_way_dirs(wt)
+					local d = r.get_way_dirs(wt)
 					local t = null
 					switch(d) {
 						case 1:
-						  t = square_x(start_field.x, start_field.y + 1)
+							t = square_x(start_field.x, start_field.y + 1)
 							break
 						case 2:
-						  t = square_x(start_field.x - 1, start_field.y)
+							t = square_x(start_field.x - 1, start_field.y)
 							break
 						case 4:
-						  t = square_x(start_field.x, start_field.y - 1)
+							t = square_x(start_field.x, start_field.y - 1)
 							break
 						case 8:
-						  t = square_x(start_field.x + i, start_field.y)
+							t = square_x(start_field.x + i, start_field.y)
 							break
 
 					}
@@ -850,7 +850,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 						gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
 					}
 					err = command_x.build_station(pl, tile, extension)
-          if ( err ) {
+					if ( err ) {
 						combined_station = true
 					}
 				}
@@ -862,51 +862,54 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 	// build way to tiles
 	if ( t > 0 ) {
-
-		for ( local i = 1; i < t; i++ ) {
+		local i = 1
+		if ( fields[0] != start_field ) {
+			i = 0
+		}
+		for ( i; i < t; i++ ) {
 			local f = tile_x(fields[i].x, fields[i].y, fields[i].z)
-      // terrafom
+			// terrafom
 			local r = square_x(f.x, f.y)
 			local z = r.get_ground_tile()
 
-      if ( f.is_empty() && ( f.get_slope() > 0 || ref_hight != z.z ) ) {
+			if ( f.is_empty() && ( f.get_slope() > 0 || ref_hight != z.z ) ) {
 
-		    if ( print_message_box == 2 ) {
-			     gui.add_message_at(pl, " ---=> terraform", world.get_time())
-			     gui.add_message_at(pl, " ---=> tile z " + z.z + " start tile z " + ref_hight, world.get_time())
-		    }
+				if ( print_message_box == 2 ) {
+					 gui.add_message_at(pl, " ---=> terraform", world.get_time())
+					 gui.add_message_at(pl, " ---=> tile z " + z.z + " start tile z " + ref_hight, world.get_time())
+				}
 
-		    if ( z.z < ref_hight && z.z >= (ref_hight - 2) ) {
-			  // terraform up
-			    if ( print_message_box == 2 ) {
-				    gui.add_message_at(pl, " ---=> tile up to flat ", world.get_time())
-			    }
-			    do {
-				    err = command_x.set_slope(pl, tile_x(f.x, f.y, z.z), 82 )
-				    if ( !err ) { break }
-				    z = r.get_ground_tile()
-			    } while(z.z < ref_hight )
-
-		    } else if ( z.z >= ref_hight || z.z <= (ref_hight + 1) ) {
-			     // terraform down
-			  	if ( print_message_box == 2 ) {
-				  	gui.add_message_at(pl, " ---=> tile down to flat ", world.get_time())
-			  	}
-			  	do {
-						err = command_x.set_slope(pl, tile_x(f.x, f.y, z.z), 83 )
-						if ( !err ) { break }
+				if ( z.z < ref_hight && z.z >= (ref_hight - 2) ) {
+				// terraform up
+					if ( print_message_box == 2 ) {
+						gui.add_message_at(pl, " ---=> tile up to flat ", world.get_time())
+					}
+					do {
+						err = command_x.set_slope(pl, tile_x(f.x, f.y, z.z), 82 )
+						if ( err != null ) { break }
 						z = r.get_ground_tile()
-			  	} while(z.z > ref_hight )
-		  	}
-		  	if ( err ) {
+					} while(z.z < ref_hight )
+
+				} else if ( z.z >= ref_hight || z.z <= (ref_hight + 1) ) {
+					 // terraform down
+					if ( print_message_box == 2 ) {
+						gui.add_message_at(pl, " ---=> tile down to flat ", world.get_time())
+					}
+					do {
+						err = command_x.set_slope(pl, tile_x(f.x, f.y, z.z), 83 )
+						if ( err != null ) { break }
+						z = r.get_ground_tile()
+					} while(z.z > ref_hight )
+				}
+				if ( err ) {
 					return false
-		  	}
-      }
-      // empty then build way
+				}
+			}
+			// empty then build way
 			if ( f.is_empty() ) {
 				err = command_x.build_way(pl, fields[0], f, planned_way, true)
 			}
-			if ( err ) {
+			if ( err != null ) {
 				gui.add_message_at(pl, " ---=> not build way tile at " + coord3d_to_string(fields[i]) + " err " + err, world.get_time())
 				return false
 			}
@@ -928,9 +931,9 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 						local st = halt_x.get_halt(fields[0], pl)
 						if ( st ) {
 							local fl_st = st.get_factory_list()
-							if ( !combined_station && fl_st.len() == 0 ) {
+							if ( combined_station == false && fl_st.len() == 0 ) {
 								if ( print_message_box == 2 ) {
-									gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(starts_field), world.get_time())
+									gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), world.get_time())
 								}
 							// TODO add extension to connect factory
 							}
@@ -959,7 +962,7 @@ function search_extension(wt) {
 	// extension building from waytype for selected good
 	local extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt, good_desc_x(freight))
 
-  if ( extension_list.len() > 0 ) {
+	if ( extension_list.len() > 0 ) {
 		foreach(extension in extension_list) {
 			local ok = (select_extension == null)
 
@@ -975,12 +978,12 @@ function search_extension(wt) {
 				select_extension = extension
 			}
 		}
-  } else {
+	} else {
 		// not find extension from waytype for selected good
 		// search post extension from all waytypes
 		extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_all, good_desc_x("post"))
 
-  	if ( extension_list.len() > 0 ) {
+		if ( extension_list.len() > 0 ) {
 			foreach(extension in extension_list) {
 				local ok = (select_extension == null)
 
@@ -996,7 +999,7 @@ function search_extension(wt) {
 					select_extension = extension
 				}
 			}
-  	}
+		}
 
 	}
 
@@ -1029,7 +1032,7 @@ function search_depot(field_pos, wt) {
 		}
 
 		return depot_found
-  }
+	}
 	return false
 }
 
@@ -1047,16 +1050,16 @@ function search_station(field_pos, wt, range) {
 		local tile_max = [field_pos.x + range, field_pos.y + range]
 		local station_found = false
 
-    foreach(halt in halt_list_x()) {
-        if (halt.get_owner().nr == our_player_nr) {  // && halt.get_type == wt
+		foreach(halt in halt_list_x()) {
+				if (halt.get_owner().nr == our_player_nr) {  // && halt.get_type == wt
 					local tile = halt.get_tile_list()
 					if ( tile[0].x >= tile_min[0] && tile[0].y >= tile_min[1] && tile[0].x <= tile_max[0] && tile[0].y <= tile_max[1] ) {
 						station_found = tile
 						break
 					}
 
-        }
-    }
+				}
+		}
 
 		return station_found
 }
