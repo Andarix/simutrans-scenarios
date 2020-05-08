@@ -779,7 +779,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 	local err = null
 	local combined_station = false
 
-	// extension field for connect station to factory
+	// extension field for connect station to factory/dock
 	local r = tile_x(start_field.x, start_field.y, start_field.z)
 	local d = r.get_way_dirs(wt)
 	local extension_tile = null
@@ -864,50 +864,29 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 		}
 
 		// check harbour/dock
+		local st_dock = search_station(start_field, wt, 1)
 		if ( fields[0] != start_field ) {
 			local extension = search_extension(wt)
 			if ( extension ) {
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(our_player, "-*---> selectet extension: " + extension.get_name(), world.get_time())
 				}
-				local st_dock = search_station(start_field, wt, 1)
 				if ( st_dock ) {
 					if ( print_message_box == 2 ) {
 						gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), world.get_time())
 					}
-					/*
-					if ( st_dock[0].x != fields[0].x && st_dock[0].y != fields[0].y ) {
-						local r = tile_x(start_field.x, start_field.y, start_field.z)
-						local d = r.get_way_dirs(wt)
-						local t = null
-						switch(d) {
-							case 1:
-								t = square_x(start_field.x, start_field.y + 1)
-								break
-							case 2:
-								t = square_x(start_field.x - 1, start_field.y)
-								break
-							case 4:
-								t = square_x(start_field.x, start_field.y - 1)
-								break
-							case 8:
-								t = square_x(start_field.x + 1, start_field.y)
-								break
-
-						}*/
-						local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
-						if ( tile.is_empty() ) {
-							if ( print_message_box == 2 ) {
-								gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
-							}
-							err = command_x.build_station(pl, tile, extension)
+					local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
+					if ( tile.is_empty() ) {
+						if ( print_message_box == 2 ) {
+							gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
 						}
-						if ( err ) {
-							combined_station = true
-						}
-					//}
+						err = command_x.build_station(pl, tile, extension)
+					}
 				}
 			}
+		}
+		if ( st_dock ) {
+			combined_station = true
 		}
 
 	 	if ( err == null ) {
