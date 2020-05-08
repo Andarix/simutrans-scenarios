@@ -901,9 +901,9 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 								gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
 							}
 							err = command_x.build_station(pl, tile, extension)
-							if ( err ) {
-								combined_station = true
-							}
+						}
+						if ( err ) {
+							combined_station = true
 						}
 					//}
 				}
