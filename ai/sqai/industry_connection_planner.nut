@@ -364,10 +364,10 @@ class industry_connection_planner_t extends manager_t
 
 		// factory distance direct
 		local f_dist = distance = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y)
-		// + 15% for long distance
-		local f_dist_long = f_dist + (f_dist / 100 * 15)
-		// + 25% for short distance
-		local f_dist_short = f_dist + (f_dist / 100 * 25)
+		// + 22% for long distance
+		local f_dist_long = f_dist + (f_dist / 100 * 22)
+		// + 35% for short distance
+		local f_dist_short = f_dist + (f_dist / 100 * 35)
 
     // higt distance
 		if  ( r.distance > 350 ) {
@@ -429,7 +429,7 @@ class industry_connection_planner_t extends manager_t
     if ( g > 32 ) {
 			switch (wt) {
 				case wt_rail:
-
+					r.points += 16
 			    break
 				case wt_road:
         	r.points -= 8
@@ -443,10 +443,10 @@ class industry_connection_planner_t extends manager_t
     if ( g < 20 ) {
 			switch (wt) {
 				case wt_rail:
-
+					r.points -= 8
 			    break
 				case wt_road:
-          r.points += 8
+          r.points += 12
 			    break
 				case wt_water:
 
