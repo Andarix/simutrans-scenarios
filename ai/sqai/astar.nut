@@ -610,7 +610,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		}
 
 		// station not build, then search other place
-		if ( b_tile.len() < st_lenght && !st_build ) {
+		if ( b_tile.len() < st_lenght && st_build == false ) {
 				// search other place for station
 				b_tile.clear()
 				if ( print_message_box == 2 ) {
@@ -698,44 +698,9 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 			} else {
 				b_tile.clear()
 			}
-
-
 		}
-				/*
-				if ( !err && b_tile.len() > 0 ) {
-					if ( c_start == starts_field ) {
-						// check connect factory || dock
-						local st = halt_x.get_halt(b_tile[0], pl)
-						if ( st ) {
-							local fl_st = st.get_factory_list()
-							if ( fl_st.len() == 0 ) {
-								if ( print_message_box == 2 ) {
-									gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(starts_field), world.get_time())
-								}
-								// TODO add extension to connect factory
-							}
 
-							c_start = b_tile[0]
-						}
-					} else if ( c_end == starts_field ) {
-						// check connect factory || dock
-						local st = halt_x.get_halt(b_tile[0], pl)
-						if ( st ) {
-							local fl_st = st.get_factory_list()
-							if ( fl_st.len() == 0 ) {
-								if ( print_message_box == 2 ) {
-									gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(starts_field), world.get_time())
-								}
-							// TODO add extension to connect factory
-							}
-
-							c_end == b_tile[0]
-						}
-
-					}
-				} */
-
-		if ( !st_build ) {
+		if ( st_build == false ) {
 			// move station
 			if ( print_message_box == 2 ) {
 				gui.add_message_at(pl, " *#* ERROR => expand station failed", world.get_time())
@@ -814,63 +779,37 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 	local err = null
 	local combined_station = false
 
-	// check harbour/dock
-	if ( fields[0] != start_field ) {
-		local extension = search_extension(wt)
-		if ( extension ) {
-			if ( print_message_box == 2 ) {
-				gui.add_message_at(our_player, "-*---> selectet extension: " + extension.get_name(), world.get_time())
-			}
-			local st_dock = search_station(start_field, wt, 1)
-			if ( st_dock ) {
-				if ( print_message_box == 2 ) {
-					gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), world.get_time())
-				}
-				if ( st_dock[0].x != fields[0].x && st_dock[0].y != fields[0].y ) {
-					local r = tile_x(start_field.x, start_field.y, start_field.z)
-					local d = r.get_way_dirs(wt)
-					local t = null
-					switch(d) {
-						case 1:
-							t = square_x(start_field.x, start_field.y + 1)
-							break
-						case 2:
-							t = square_x(start_field.x - 1, start_field.y)
-							break
-						case 4:
-							t = square_x(start_field.x, start_field.y - 1)
-							break
-						case 8:
-							t = square_x(start_field.x + i, start_field.y)
-							break
-
-					}
-					local tile = tile_x(t.x, t.y, t.get_ground_tile().z)
-					if ( print_message_box == 2 ) {
-						gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
-					}
-					err = command_x.build_station(pl, tile, extension)
-					if ( err ) {
-						combined_station = true
-					}
-				}
-			}
-		}
+	// extension field for connect station to factory
+	local r = tile_x(start_field.x, start_field.y, start_field.z)
+	local d = r.get_way_dirs(wt)
+	local extension_tile = null
+	switch(d) {
+		case 1:
+			extension_tile = square_x(start_field.x, start_field.y + 1)
+			break
+		case 2:
+			extension_tile = square_x(start_field.x - 1, start_field.y)
+			break
+		case 4:
+			extension_tile = square_x(start_field.x, start_field.y - 1)
+			break
+		case 8:
+			extension_tile = square_x(start_field.x + 1, start_field.y)
+			break
 	}
 
 	local t = fields.len()
 
-	// build way to tiles
 	if ( t > 0 ) {
+		// terrafom
 		local i = 1
-		if ( fields[0] != start_field ) {
+		if ( fields[0].x != start_field.x || fields[0].y != start_field.y ) {
 			i = 0
 		}
 		for ( i; i < t; i++ ) {
-			local f = tile_x(fields[i].x, fields[i].y, fields[i].z)
-			// terrafom
-			local r = square_x(f.x, f.y)
+			local r = square_x(fields[i].x, fields[i].y)
 			local z = r.get_ground_tile()
+			local f = tile_x(fields[i].x, fields[i].y, z.z)
 
 			if ( f.is_empty() && ( f.get_slope() > 0 || ref_hight != z.z ) ) {
 
@@ -905,15 +844,72 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 					return false
 				}
 			}
-			// empty then build way
-			if ( f.is_empty() ) {
-				err = command_x.build_way(pl, fields[0], f, planned_way, true)
-			}
-			if ( err != null ) {
-				gui.add_message_at(pl, " ---=> not build way tile at " + coord3d_to_string(fields[i]) + " err " + err, world.get_time())
-				return false
+		}
+
+		// build way to tiles
+		for ( local i = 1; i < t; i++ ) {
+			if ( fields[i].is_empty() && fields[i].get_slope() == 0 ) {
+				// empty then build way
+				if ( fields[i].is_empty() ) {
+					err = command_x.build_way(pl, fields[0], fields[i], planned_way, true)
+				}
+				if ( err != null ) {
+					gui.add_message_at(pl, " ---=> not build way tile at " + coord3d_to_string(fields[i]) + " err " + err, world.get_time())
+					return false
+				}
 			}
 		}
+		if ( fields[0] != start_field ) {
+			err = command_x.build_way(pl, start_field, fields[0], planned_way, true)
+		}
+
+		// check harbour/dock
+		if ( fields[0] != start_field ) {
+			local extension = search_extension(wt)
+			if ( extension ) {
+				if ( print_message_box == 2 ) {
+					gui.add_message_at(our_player, "-*---> selectet extension: " + extension.get_name(), world.get_time())
+				}
+				local st_dock = search_station(start_field, wt, 1)
+				if ( st_dock ) {
+					if ( print_message_box == 2 ) {
+						gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), world.get_time())
+					}
+					/*
+					if ( st_dock[0].x != fields[0].x && st_dock[0].y != fields[0].y ) {
+						local r = tile_x(start_field.x, start_field.y, start_field.z)
+						local d = r.get_way_dirs(wt)
+						local t = null
+						switch(d) {
+							case 1:
+								t = square_x(start_field.x, start_field.y + 1)
+								break
+							case 2:
+								t = square_x(start_field.x - 1, start_field.y)
+								break
+							case 4:
+								t = square_x(start_field.x, start_field.y - 1)
+								break
+							case 8:
+								t = square_x(start_field.x + 1, start_field.y)
+								break
+
+						}*/
+						local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
+						if ( tile.is_empty() ) {
+							if ( print_message_box == 2 ) {
+								gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
+							}
+							err = command_x.build_station(pl, tile, extension)
+							if ( err ) {
+								combined_station = true
+							}
+						}
+					//}
+				}
+			}
+		}
+
 	 	if ( err == null ) {
 			// build station to tile
 			for ( local i = 0; i < t; i++ ) {
@@ -927,22 +923,27 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 					return false
 				}
 				gui.add_message_at(pl, " ---=> build station tile at " + coord3d_to_string(fields[i]), world.get_time())
-
-						local st = halt_x.get_halt(fields[0], pl)
-						if ( st ) {
-							local fl_st = st.get_factory_list()
-							if ( combined_station == false && fl_st.len() == 0 ) {
-								if ( print_message_box == 2 ) {
-									gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), world.get_time())
-								}
-							// TODO add extension to connect factory
-							}
-
-							c_end == fields[0]
-						}
-
 			}
 		}
+
+		// check station connect factory
+		local st = halt_x.get_halt(fields[0], pl)
+		if ( st ) {
+			local fl_st = st.get_factory_list()
+			if ( combined_station == false && fl_st.len() == 0 ) {
+				local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
+				if ( print_message_box == 2 ) {
+					gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
+				}
+				local extension = search_extension(wt)
+				err = command_x.build_station(pl, tile, extension)
+				if ( err ) {
+					gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), world.get_time())
+				}
+			}
+
+		}
+
 
 		return true
 	}
