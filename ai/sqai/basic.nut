@@ -128,9 +128,9 @@ class report_t
 	cost_fix = 0
 	cost_monthly = 0
 	// expected gain per month
-	gain_per_m = 0 
-	// 
-	distance = 0 
+	gain_per_m = 0
+	//
+	distance = 0
 	points = 0
 
 	function merge_report(r)
@@ -190,12 +190,12 @@ class manager_t extends node_seq_t
 		if (reports.len() == 0) return null
 		// find report that maximizes gain_per_m / cost_fix
 		local i = -1
-		local best = null  
-		
+		local best = null
+
 		// [0] = cost_fix / 13
 		// [1] = gain_per_m * ( cost_fix / 13 ) * points
 		local p_test = [0, 0]
-		local p_best = [0, 0] 
+		local p_best = [0, 0]
 
 		for(local j=0; j<reports.len(); j++) {
 			local test = reports[j]
@@ -204,21 +204,21 @@ class manager_t extends node_seq_t
 				// too expensive
 				continue
 			}
-      
+
 			if ( test.points <= 0 ) {
 				continue
 			}
-						
+
 			// calculate evaluation points
 			if ( best != null ) {
-			
-				p_test[0] = test.cost_fix / 13
-				p_best[0] = best.cost_fix / 13
-			
+
+				p_test[0] = test.cost_fix / 15
+				p_best[0] = best.cost_fix / 15
+
 				p_test[1] = test.gain_per_m * p_best[0] * test.points
 				p_best[1] = best.gain_per_m * p_test[0] * best.points
       }
-			
+
 			if ( best == null
 				|| ( p_best[1] < p_test[1] )
 				|| (test.cost_fix == 0  &&  best.cost_fix == 0  &&   best.gain_per_m < test.gain_per_m) )
@@ -227,7 +227,7 @@ class manager_t extends node_seq_t
 				i = j
 			}
 		}
-		
+
 		if (best) {
 			reports.remove(i)
 		}
