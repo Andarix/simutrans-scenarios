@@ -52,10 +52,10 @@ class industry_manager_t extends manager_t
 	link_list = null
 	link_iterator = null
 
-	// print messages box 
+	// print messages box
 	// 1 = vehicles
-	// 2 =  
-	// 3 = 
+	// 2 =
+	// 3 =
 	print_message_box = 0
 
 	constructor()
@@ -180,6 +180,7 @@ class industry_manager_t extends manager_t
 	 */
 	function check_link_line(link, line)
 	{
+		if ( line ) { return false }
 		dbgprint("Check line " + line.get_name())
 		// find convoy
 		local cnv = null
@@ -219,7 +220,7 @@ class industry_manager_t extends manager_t
 		}
 		dbgprint("Capacity of convoy " + cnv.get_name() + " = " + capacity)
 		dbgprint("Speed of convoy " + cnv.get_name() + " = " + cnv.get_speed())
-		
+
 		// iterate through schedule, check for available freight
 		local freight_available = false
 		{
@@ -308,30 +309,30 @@ class industry_manager_t extends manager_t
 			}
 		}
 		dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
-		dbgprint("")  
- 		
+		dbgprint("")
+
 		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2) {
 
 			// no signals and double tracks - limit 1 convoy for rail
-			if (cnv.get_waytype() == wt_rail && cnv_count == 1) { 
+			if (cnv.get_waytype() == wt_rail && cnv_count == 1) {
 				//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
 				//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> no add convoy by rail", world.get_time())
-				return 
+				return
 			}
-						
-			
+
+
 			if (gain_per_m > 0) {
 				// directly append
 				// TODO put into report
 				local proto = cnv_proto_t.from_convoy(cnv, lf)
-				local wt = cnv.get_schedule().waytype 
+				local wt = cnv.get_schedule().waytype
 
-				local wt = cnv.get_waytype() 
+				local wt = cnv.get_waytype()
 
-				if ( print_message_box == 1 ) { 
+				if ( print_message_box == 1 ) {
 					gui.add_message_at(our_player, "###---- check convoys line : " + line.get_name(), world.get_time())
 				}
-		
+
 				// plan convoy prototype
 				local freight = lf.get_name()
 				local prototyper = prototyper_t(wt, freight)
@@ -339,22 +340,22 @@ class industry_manager_t extends manager_t
 				prototyper.min_speed = 1
 
 				prototyper.max_vehicles = get_max_convoi_length(wt)
-				prototyper.max_length = prototyper.max_vehicles * 8    
+				prototyper.max_length = prototyper.max_vehicles * 8
 
 				local cnv_valuator = valuator_simple_t()
 				cnv_valuator.wt = wt
 				cnv_valuator.freight = freight
 				cnv_valuator.volume = line.get_transported_goods().reduce(max)
-				cnv_valuator.max_cnvs = 200   
+				cnv_valuator.max_cnvs = 200
 				// no signals and double tracks - limit 1 convoy for rail
 				if (wt == wt_rail) {
 					cnv_valuator.max_cnvs = 1
 				}
 
 				// through schedule to estimate distance
-				local dist = 0  
+				local dist = 0
 				local entries = cnv.get_schedule().entries
-				dist = abs(entries[0].x - entries[1].x) + abs(entries[0].y - entries[1].y) 
+				dist = abs(entries[0].x - entries[1].x) + abs(entries[0].y - entries[1].y)
 				// add 10% from distance
 				dist += dist / 100 * 10
 
@@ -364,30 +365,30 @@ class industry_manager_t extends manager_t
 				prototyper.valuate = bound_valuator
 
 				if (prototyper.step().has_failed()) {
-					if ( print_message_box == 1 ) { 
+					if ( print_message_box == 1 ) {
 					gui.add_message_at(our_player, "   ----> prototyper.step().has_failed() ", world.get_time())
 					}
 					return null
 				}
 				local proto = prototyper.best
 
-				if ( print_message_box == 1 ) { 
+				if ( print_message_box == 1 ) {
 					gui.add_message_at(our_player, "   ----> proto : " + proto, world.get_time())
 				}
-        
+
 				// build convoy
-				local depot  = null //cnv.get_home_depot()   		
-				local stations_list = cnv.get_schedule().entries 
+				local depot  = null //cnv.get_home_depot()
+				local stations_list = cnv.get_schedule().entries
 
 				for (local i=0; i<stations_list.len(); i++) {
-			
+
 					local c = tile_x(stations_list[i].x, stations_list[i].y, stations_list[i].z)
 					depot = search_depot(c, wt)
 					if ( depot ) {
 						break
 					}
-				
-				} 
+
+				}
 
 				local c = vehicle_constructor_t()
 
@@ -396,10 +397,10 @@ class industry_manager_t extends manager_t
 				c.p_convoy = proto
 				c.p_count  = 1
 				append_child(c)
-				dbgprint("==> build additional convoy")          
-				if ( print_message_box == 1 ) { 
+				dbgprint("==> build additional convoy")
+				if ( print_message_box == 1 ) {
 					gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-					gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())   
+					gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
 				}
 			}
 		}
@@ -410,9 +411,9 @@ class industry_manager_t extends manager_t
 			// delete one convoy
 			cnv_empty_stopped.destroy(our_player)
 			dbgprint("==> destroy empty convoy")
-			if ( print_message_box == 1 ) { 
+			if ( print_message_box == 1 ) {
 				gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-				gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time()) 
+				gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time())
 			}
 		}
 		dbgprint("")
