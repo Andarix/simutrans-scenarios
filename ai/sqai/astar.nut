@@ -466,10 +466,6 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		local st_build = false
 		local err = null
 
-		local t_start = tile_x(c_start.x, c_start.y, c_start.z)
-		local t_end = tile_x(c_end.x, c_end.y, c_end.z)
-
-
 		/** alignment
 			*  1	-> test north
 			*  2	-> test west
@@ -692,7 +688,16 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
 				st_build = expand_station(pl, b_tile, wt, select_station, starts_field)
-				err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
+				if ( starts_field.x != b_tile[0].x || starts_field.y != b_tile[0].y ) {
+					err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
+					// station move then set c_start/c_end new
+					if ( starts_field.x == c_start.x && starts_field.y == c_start.y ) {
+						c_start = tile_x(b_tile[0].x, b_tile[0].y, b_tile[0].z)
+					}
+					if ( starts_field.x == c_end.x && starts_field.y == c_end.y ) {
+						c_end = tile_x(b_tile[0].x, b_tile[0].y, b_tile[0].z)
+					}
+				}
 			} else if ( b_tile.len() == st_lenght && build == 0 ) {
 				st_build = true
 			} else {
@@ -854,7 +859,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 					err = command_x.build_way(pl, fields[0], fields[i], planned_way, true)
 				}
 				if ( err != null ) {
-					gui.add_message_at(pl, " ---=> not build way tile at " + coord3d_to_string(fields[i]) + " err " + err, world.get_time())
+					gui.add_message_at(pl, " ---=> not build way tile at " + coord3d_to_string(fields[i]) + " err " + err, fields[i])
 					return false
 				}
 			}
@@ -873,7 +878,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 				}
 				if ( st_dock ) {
 					if ( print_message_box == 2 ) {
-						gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), world.get_time())
+						gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), st_dock[0])
 					}
 					local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
 					if ( tile.is_empty() ) {
@@ -898,26 +903,27 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 				}
 				err = command_x.build_station(pl, fields[i], select_station)
 				if ( err ) {
-					gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[i]), world.get_time())
+					gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[i]), fields[i])
 					return false
 				}
-				gui.add_message_at(pl, " ---=> build station tile at " + coord3d_to_string(fields[i]), world.get_time())
+				gui.add_message_at(pl, " ---=> build station tile at " + coord3d_to_string(fields[i]), fields[i])
 			}
 		}
 
 		// check station connect factory
 		local st = halt_x.get_halt(fields[0], pl)
+
 		if ( st ) {
 			local fl_st = st.get_factory_list()
 			if ( combined_station == false && fl_st.len() == 0 ) {
 				local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
 				if ( print_message_box == 2 ) {
-					gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
+					gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile),tile)
 				}
 				local extension = search_extension(wt)
 				err = command_x.build_station(pl, tile, extension)
 				if ( err ) {
-					gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), world.get_time())
+					gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
 				}
 			}
 
