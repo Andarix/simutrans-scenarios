@@ -180,7 +180,7 @@ class industry_manager_t extends manager_t
 	 */
 	function check_link_line(link, line)
 	{
-		if ( line ) { return false }
+		if ( !line ) { return false }
 		dbgprint("Check line " + line.get_name())
 		// find convoy
 		local cnv = null
