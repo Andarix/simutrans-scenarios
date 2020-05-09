@@ -153,6 +153,9 @@ class prototyper_t extends node_t
 			local none  = veh.get_freight().get_name()=="None" || veh.get_capacity()==0
 			local timeline = !veh.is_retired(world.get_time())
 
+			local frev = good_desc_x(freight.get_name()).calc_revenue(wt, speed)/3
+			local t = frev*100 - veh.get_running_cost()
+
 			// no build catenary -> no electrified vehicles
 			local electrified = !veh.needs_electrification()
 
@@ -160,24 +163,20 @@ class prototyper_t extends node_t
 			// use vehicles that can carry freight
 			// or that are powered and have no freight capacity
 			if ( (fits || (pwer && none)) && timeline && electrified) {
-				if (first && pwer) {
-					t = (power / speed)
+				if (first && (pwer || wt == wt_water) ) {
 					/**
-					 * power / speed < 12 added ( not for ships )
-					 * or speed < 161 - max speed for factory goods
-					 * no over powered vehicles for trains by max lenght 3 stations fields
+					 * speed < 161 - max speed 160 for rail lines factory goods
 					 */
-					if ( t < 12 || wt == wt_water ) {  //  speed < 161
+					if ( speed < 161 && wt == wt_rail ) {
 						list_first.append(veh)
-					} else {
+					} else if ( wt != wt_rail ) {
 						list_first.append(veh)
 					}
         } else {
 					list_other.append(veh)
 				}
-				t = 0
-				if ( print_message_box == 2 ) {
-					gui.add_message_at(our_player, "* vehicle found: " + veh.get_name() + " power " + power + " speed " + speed + " power/speed " + t, world.get_time())
+				if ( print_message_box == 2 && wt == wt_rail && pwer ) {
+					gui.add_message_at(our_player, "* vehicle found: " + veh.get_name() + " power " + power + " speed " + speed + " ## " + t, world.get_time())
 				}
 			}
 		}
@@ -235,8 +234,10 @@ class prototyper_t extends node_t
 			}
 			else if ( wt == wt_rail ) {
 				local tiles = 3
-				if ( volume > 1500 ) {
+				if ( volume > 1200 && volume < 2200 ) {
 			    tiles = 4
+			  } else if ( volume > 2200 ) {
+			    tiles = 5
 			  }
 
 				a = CARUNITS_PER_TILE * tiles
@@ -316,7 +317,7 @@ class valuator_simple_t {
 	{
 		local speed = way_max_speed > 0 ? min(way_max_speed, cnv.min_top_speed) : cnv.min_top_speed
 
-		local frev = good_desc_x(freight).calc_revenue(wt, speed)
+		local frev = good_desc_x(freight).calc_revenue(wt, speed)/2
 
 		local capacity = cnv.capacity
 		// tiles per month of one convoy
@@ -348,6 +349,16 @@ class valuator_simple_t {
 		// monthly costs and revenue
 		local value = ncnv*( (frev*cnv.capacity+1500)/3000*tpm - cnv.running_cost*tpm - cnv.maintenance) - distance * way_maintenance
 
+/*
+		// gain per field
+		// station_maintenance missing
+		local t = (frev*cnv.capacity) - cnv.running_cost - cnv.maintenance
+		local i = 30000 // maintenance stations + bridges
+		if ( wt == wt_rail ) { i += 50000 }
+		if ( t <= way_maintenance*2 + i ) {
+			return 0
+		}
+*/
 		return value
 	}
 
