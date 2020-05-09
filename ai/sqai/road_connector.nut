@@ -125,7 +125,7 @@ class road_connector_t extends manager_t
 					// search depot to range start and end station
 					local depot_found = search_depot(c_start, wt_road)
 					local starts_field = c_start
-          if ( !depot_found ) {
+					if ( !depot_found ) {
 						depot_found = search_depot(c_end, wt_road)
 						starts_field = c_end
 					}
@@ -142,7 +142,7 @@ class road_connector_t extends manager_t
 					if ( depot_found ) {
 						c_depot = depot_found
 						err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
-					  //err = construct_road(our_player, station_to_depot, c_depot, planned_way)
+						//err = construct_road(our_player, station_to_depot, c_depot, planned_way)
 					} else {
 						local err = construct_road_to_depot(pl, c_start, planned_way)
 						if (err) {
@@ -210,12 +210,14 @@ class road_connector_t extends manager_t
 					print("road_connector wasted " + (toc-tic) + " ops")
 
 					phase ++
+					if ( print_message_box > 0 ) { gui.add_message_at(our_player, "____________________ build road end _____________________", world.get_time()) }
+					if ( fsrc && fdest ) {
+						gui.add_message_at(pl, pl.get_name() + " build road line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", c_start)
+					}
+
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
 			case 9: // build station extension
-
-				if ( print_message_box > 0 ) { gui.add_message_at(our_player, "____________________ build road end _____________________", world.get_time()) }
-				gui.add_message_at(pl, pl.get_name() + " build road line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", c_start)
 		}
 
 		if (finalize) {

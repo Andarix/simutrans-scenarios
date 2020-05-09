@@ -144,19 +144,19 @@ class ship_connector_t extends manager_t
 					// search depot to range start and end station
 					local depot_found = search_depot(c_start[0], wt_water)
 					local starts_field = c_start[0]
-          if ( !depot_found ) {
+					if ( !depot_found ) {
 						depot_found = search_depot(c_end[0], wt_water)
 						starts_field = c_end[0]
 					}
 
 					if ( !depot_found && print_message_box == 3 ) {
-			 			gui.add_message_at(pl," *** depot not found *** ", world.get_time())      
+			 			gui.add_message_at(pl," *** depot not found *** ", world.get_time())
 					}	else if ( print_message_box == 3 ) {
-						gui.add_message_at(pl," ---> depot found : " + depot_found.get_pos(), coord_to_string(depot_found))      
+						gui.add_message_at(pl," ---> depot found : " + depot_found.get_pos(), coord_to_string(depot_found))
 					}
 
 					// build rail to depot
-					if ( depot_found ) { 
+					if ( depot_found ) {
 						c_depot = depot_found
 						local err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 					} else {
@@ -176,7 +176,7 @@ class ship_connector_t extends manager_t
 								}
 							}
 						}
-						if ( print_message_box == 3 ) { gui.add_message_at(pl, "Build depot on " + coord_to_string(c_depot), world.get_time()) } 
+						if ( print_message_box == 3 ) { gui.add_message_at(pl, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
 					}
 					phase ++
 				}
@@ -219,14 +219,14 @@ class ship_connector_t extends manager_t
 					print("ship_connector wasted " + (toc-tic) + " ops")
 
 					phase ++
+					if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build ship end _____________________", world.get_time()) }
+					if ( fsrc && fdest ) {
+						gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
+					}
+
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
 			case 9: // build station extension
-
-				if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build ship end _____________________", world.get_time()) }
-				if ( fsrc && fdest ) {
-					gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
-				}
 			}
 
 		if (finalize) {

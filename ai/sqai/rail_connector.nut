@@ -21,9 +21,9 @@ class rail_connector_t extends manager_t
 	c_line  = null
 	c_cnv   = null
 
-	// print messages box 
+	// print messages box
 	// 1 = way
-	// 2 = stations 
+	// 2 = stations
 	// 3 = depot
 	print_message_box = 0
 
@@ -44,8 +44,8 @@ class rail_connector_t extends manager_t
 
 		switch(phase) {
 			case 0: // find places for stations
-				if ( print_message_box > 0 ) { 
-					gui.add_message_at(pl, "______________________ build rail ______________________", world.get_time()) 
+				if ( print_message_box > 0 ) {
+					gui.add_message_at(pl, "______________________ build rail ______________________", world.get_time())
 					gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
 				}
 				if (c_start == null) {
@@ -68,8 +68,8 @@ class rail_connector_t extends manager_t
 					local d = pl.get_current_cash();
 					local err = construct_rail(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
-					if ( print_message_box == 1 && c_start.len()>0  &&  c_end.len()>0) { 
-						gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]), world.get_time()) 
+					if ( print_message_box == 1 && c_start.len()>0  &&  c_end.len()>0) {
+						gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]), world.get_time())
 					}
 					if (err && c_start.len()>0  &&  c_end.len()>0) {
 						print("Failed to build way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
@@ -81,7 +81,7 @@ class rail_connector_t extends manager_t
 					phase ++
 				}
 			case 2: // build station
-				{ 
+				{
 					/*
 					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
@@ -90,37 +90,37 @@ class rail_connector_t extends manager_t
 						return error_handler()
 					}
 					*/
-					if ( print_message_box == 2 ) { 
-						gui.add_message_at(pl, " planned_convoy.length " + planned_convoy.length, world.get_time()) 
-					} 
-					
+					if ( print_message_box == 2 ) {
+						gui.add_message_at(pl, " planned_convoy.length " + planned_convoy.length, world.get_time())
+					}
+
 					// stations lenght
 					local a = planned_convoy.length
 					local count = 0
 					do {
-    				a -= 16
+						a -= 16
 						count += 1
-					} while(a > 0)					
-					
-					if ( print_message_box == 2 ) { 
-						gui.add_message_at(our_player, " stations lenght: " + count, world.get_time()) 
-					} 
-					
+					} while(a > 0)
+
+					if ( print_message_box == 2 ) {
+						gui.add_message_at(our_player, " stations lenght: " + count, world.get_time())
+					}
+
 					// check place and build station to c_start
 					local err = check_station(pl, c_start, count, wt_rail, planned_station)
 					if ( !err ) {
-						print("Failed to build station at " + coord_to_string(c_start)) 
+						print("Failed to build station at " + coord_to_string(c_start))
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_start), world.get_time())
 						}
 						return error_handler()
 					}
-					
+
 					// low cost station for line end
 					local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
 					local x = 0
-					local station_select = planned_station 
-					foreach(station in station_list) { 
+					local station_select = planned_station
+					foreach(station in station_list) {
 						if ( station.cost < station_select.cost ) {
 							station_select = station
 						}
@@ -128,14 +128,14 @@ class rail_connector_t extends manager_t
 					// check place and build station to c_end
 					err = check_station(pl, c_end, count, wt_rail, station_select)
 					if ( !err ) {
-						print("Failed to build station at " + coord_to_string(c_end)) 
+						print("Failed to build station at " + coord_to_string(c_end))
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end), world.get_time())
 						}
 						return error_handler()
 					}
-										
-					//local 
+
+					//local
 					if ( finalize ) {
 						// store place of unload station for future use
 						local fs = ::station_manager.access_freight_station(fdest)
@@ -145,12 +145,12 @@ class rail_connector_t extends manager_t
 							print( recursive_save({unload = c_end}, "\t\t\t", []) )
 						}
 					}
-					
-					if ( print_message_box == 2 ) { 
-						//gui.add_message_at(our_player, " ... rotate " + rotate, world.get_time()) 
-						gui.add_message_at(pl, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) 
-					} 
-					
+
+					if ( print_message_box == 2 ) {
+						//gui.add_message_at(our_player, " ... rotate " + rotate, world.get_time())
+						gui.add_message_at(pl, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time())
+					}
+
 					phase ++
 				}
 			case 3: // find depot place
@@ -161,25 +161,25 @@ class rail_connector_t extends manager_t
 				{
 					if ( print_message_box == 3 ) {
 						gui.add_message_at(pl, "___________ exists depots rail ___________", world.get_time())
-			 			gui.add_message_at(pl," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())      
+			 			gui.add_message_at(pl," c_start pos: " + coord_to_string(c_start) + " : c_end pos: " + coord_to_string(c_end), world.get_time())
 					}
-          
+
 					// search depot to range start and end station
 					local depot_found = search_depot(c_start, wt_rail)
 					local starts_field = c_start
-          if ( !depot_found ) {
+					if ( !depot_found ) {
 						depot_found = search_depot(c_end, wt_rail)
 						starts_field = c_end
 					}
 
 					if ( !depot_found && print_message_box == 3 ) {
-			 			gui.add_message_at(pl," *** depot not found *** ", world.get_time())      
+			 			gui.add_message_at(pl," *** depot not found *** ", world.get_time())
 					}	else if ( print_message_box == 3 ) {
-						gui.add_message_at(pl," ---> depot found : " + depot_found.get_pos(), coord_to_string(depot_found))      
+						gui.add_message_at(pl," ---> depot found : " + depot_found.get_pos(), coord_to_string(depot_found))
 					}
 
 					// build rail to depot
-					if ( depot_found ) { 
+					if ( depot_found ) {
 						c_depot = depot_found
 						local err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 					} else {
@@ -205,8 +205,8 @@ class rail_connector_t extends manager_t
 							}
 						}
 						if ( print_message_box == 1 ) { gui.add_message_at(pl, "Build depot on " + coord_to_string(c_depot), world.get_time()) }
-	        } 
-					
+					}
+
 					phase ++
 				}
 			case 6: // create schedule
@@ -248,12 +248,15 @@ class rail_connector_t extends manager_t
 					print("rail_connector wasted " + (toc-tic) + " ops")
 
 					phase ++
+					if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build rail end _____________________", world.get_time()) }
+
+					if ( fsrc && fdest ) {
+						gui.add_message_at(pl, pl.get_name() + " build rail line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", c_start)
+					}
+
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
 			case 9: // build station extension
-
-				if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build rail end _____________________", world.get_time()) }
-				gui.add_message_at(pl, pl.get_name() + " build rail line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", c_start)
 		}
 
 		if (finalize) {
@@ -295,14 +298,14 @@ class rail_connector_t extends manager_t
 		if (as.bridger.bridge == null) {
 			as.bridger = null
 		}
-    
+
 		local res = as.search_route(starts, ends)
 
 		if ("err" in res) {
 			return res.err
 		}
 		c_start = res.start
-		c_end   = res.end 
+		c_end   = res.end
 	}
 
 	function construct_rail_to_depot(pl, start, way)
@@ -335,8 +338,8 @@ class depot_pathfinder extends astar_builder
 			return 0
 		}
 		return 10
-	} 
-	
+	}
+
 	function add_to_open(c, weight)
 	{
 		if (c.dist == 0) {
