@@ -876,7 +876,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(our_player, "-*---> selectet extension: " + extension.get_name(), world.get_time())
 				}
-				if ( st_dock ) {
+				if ( st_dock && extension_tile ) {
 					if ( print_message_box == 2 ) {
 						gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), st_dock[0])
 					}
