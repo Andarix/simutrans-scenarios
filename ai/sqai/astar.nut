@@ -238,7 +238,7 @@ class pontifex
 		// print messages box
 		// 1 = erreg
 		// 2 = list bridges
-		local print_message_box = 1
+		local print_message_box = 0
 		local wt_name = ["", "road", "rail", "water"]
 
 		if ( print_message_box > 1 ) {
@@ -453,7 +453,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		// print messages box
 		// 1
 		// 2
-		local print_message_box = 2
+		local print_message_box = 0
 
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
@@ -728,7 +728,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
  */
 function test_field(pl, t_tile, wt, rotate, ref_hight) {
 
-	local print_message_box = 2
+	local print_message_box = 0
 	local err = null
 	local z = null
 
@@ -778,7 +778,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
  */
 function expand_station(pl, fields, wt, select_station, start_field) {
 
-	local print_message_box = 2
+	local print_message_box = 0
 
 	local ref_hight = start_field.z
 	local err = null
@@ -897,6 +897,9 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 	 	if ( err == null ) {
 			// build station to tile
 			for ( local i = 0; i < t; i++ ) {
+				local r = square_x(fields[i].x, fields[i].y)
+				local z = r.get_ground_tile()
+				local f = tile_x(fields[i].x, fields[i].y, z.z)
 				if ( tile_x(fields[i].x, fields[i].y, fields[i].z).is_bridge() && f.get_slope() > 0 ) {
 					// bridge start field -> build to ground
 					fields[i].z -= 1
@@ -906,7 +909,9 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 					gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[i]), fields[i])
 					return false
 				}
-				gui.add_message_at(pl, " ---=> build station tile at " + coord3d_to_string(fields[i]), fields[i])
+				if ( print_message_box == 2 ) {
+					gui.add_message_at(pl, " ---=> build station tile at " + coord3d_to_string(fields[i]), fields[i])
+				}
 			}
 		}
 
