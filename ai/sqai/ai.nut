@@ -172,7 +172,9 @@ function coord3d_to_key(c)
 
 function is_cash_available(cost /* in 1/100 cr */)
 {
-	return cost + 2*our_player.get_current_maintenance() < our_player.get_current_cash()
+	//gui.add_message_at(our_player, " ***** cash : " + our_player.get_current_cash(), world.get_time())
+	//gui.add_message_at(our_player, " ***** cost : " + cost, world.get_time())
+	return cost + 2*our_player.get_current_maintenance() < our_player.get_current_cash()*100
 }
 
 /**
