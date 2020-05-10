@@ -219,21 +219,22 @@ class ship_connector_t extends manager_t
 					print("ship_connector wasted " + (toc-tic) + " ops")
 
 					phase ++
-					if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build ship end _____________________", world.get_time()) }
-					if ( fsrc && fdest ) {
-						gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
-					}
 
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
 			case 9: // build station extension
-			}
+		}
 
 		if (finalize) {
 			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
 		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
+		if (c_start.len()>0  &&  c_end.len()>0) {
+			gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), c_start[0])
+		} else {
+			gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + coord_to_string(c_start) + " to " + coord_to_string(c_end), c_start)
+		}
 		return r_t(RT_TOTAL_SUCCESS)
 	}
 

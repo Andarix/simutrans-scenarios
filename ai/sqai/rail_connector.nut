@@ -69,10 +69,10 @@ class rail_connector_t extends manager_t
 					local err = construct_rail(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 					if ( print_message_box == 1 && c_start.len()>0  &&  c_end.len()>0) {
-						gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]), world.get_time())
+						gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time())
 					}
 					if (err && c_start.len()>0  &&  c_end.len()>0) {
-						print("Failed to build way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
+						print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
 						return error_handler()
 					} else if (err) {
 						print("Failed to build way from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
@@ -248,11 +248,8 @@ class rail_connector_t extends manager_t
 					print("rail_connector wasted " + (toc-tic) + " ops")
 
 					phase ++
-					if ( print_message_box > 0 ) { gui.add_message_at(pl, "____________________ build rail end _____________________", world.get_time()) }
 
-					if ( fsrc && fdest ) {
-						gui.add_message_at(pl, pl.get_name() + " build rail line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", c_start)
-					}
+					gui.add_message_at(pl, pl.get_name() + " build rail line from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), c_start)
 
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
@@ -263,6 +260,7 @@ class rail_connector_t extends manager_t
 			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
 		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
+
 
 		return r_t(RT_TOTAL_SUCCESS)
 	}
