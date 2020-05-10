@@ -230,12 +230,11 @@ class ship_connector_t extends manager_t
 		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
+		local cs = c_start
+		local ce = c_end
 		if (c_start.len()>0  &&  c_end.len()>0) {
 			local cs = c_start[0]
 			local ce = c_end[0]
-		} else {
-			local cs = c_start
-			local ce = c_end
 		}
 
 		local st = halt_x.get_halt(cs, pl)

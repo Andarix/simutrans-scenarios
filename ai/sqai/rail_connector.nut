@@ -259,7 +259,15 @@ class rail_connector_t extends manager_t
 		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
-		local st = halt_x.get_halt(c_start, pl)
+		local cs = c_start
+		local ce = c_end
+		/*
+		if (c_start.len()>0  &&  c_end.len()>0) {
+			local cs = c_start[0]
+			local ce = c_end[0]
+		}*/
+
+		local st = halt_x.get_halt(cs, pl)
 		local f_name = ["", ""]
 		if ( st ) {
 			local fl_st = st.get_factory_list()
@@ -269,7 +277,7 @@ class rail_connector_t extends manager_t
 				f_name[0] = "station"
 			}
 		}
-		st = halt_x.get_halt(c_end, pl)
+		st = halt_x.get_halt(ce, pl)
 		if ( st ) {
 			local fl_st = st.get_factory_list()
 			if ( fl_st.len() > 0 ) {
@@ -278,7 +286,7 @@ class rail_connector_t extends manager_t
 				f_name[1] = "station"
 			}
 		}
-		gui.add_message_at(pl, pl.get_name() + " build rail line from " + f_name[0] + " (" + coord_to_string(c_start) + ") to " + f_name[1] + " (" + coord_to_string(c_end) + ")", c_start)
+		gui.add_message_at(pl, pl.get_name() + " build rail line from " + f_name[0] + " (" + coord_to_string(cs) + ") to " + f_name[1] + " (" + coord_to_string(ce) + ")", c_start)
 
 		return r_t(RT_TOTAL_SUCCESS)
 	}
