@@ -249,8 +249,6 @@ class rail_connector_t extends manager_t
 
 					phase ++
 
-					gui.add_message_at(pl, pl.get_name() + " build rail line from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), c_start)
-
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
 			case 9: // build station extension
@@ -261,6 +259,7 @@ class rail_connector_t extends manager_t
 		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
+		gui.add_message_at(pl, pl.get_name() + " build rail line from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), c_start)
 
 		return r_t(RT_TOTAL_SUCCESS)
 	}

@@ -231,10 +231,11 @@ class ship_connector_t extends manager_t
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
 		if (c_start.len()>0  &&  c_end.len()>0) {
-			gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), c_start[0])
+			gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + " (" + coord_to_string(c_start[0]) + ") to " + coord_to_string(c_end[0]), c_start[0])
 		} else {
-			gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + coord_to_string(c_start) + " to " + coord_to_string(c_end), c_start)
+			gui.add_message_at(pl, pl.get_name() + " build ship line from " + fsrc.get_name() + " (" + coord_to_string(c_start) + ") to " + coord_to_string(c_end), c_start)
 		}
+
 		return r_t(RT_TOTAL_SUCCESS)
 	}
 
