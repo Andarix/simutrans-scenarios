@@ -560,4 +560,23 @@ class industry_connection_planner_t extends manager_t
 		}
 		return best_station
 	}
+
+	function check_factory_links() {
+		// stations from factory
+  	local stations_fsrc = fsrc.get_halt_list()
+  	local stations_fdest = fdest.get_halt_list()
+
+		if ( stations_fsrc.len() > 0 && stations_fdest.len() > 0 ) {
+			foreach(station in stations_fsrc) {
+
+
+
+			}
+
+		}
+
+
+
+
+	}
 }

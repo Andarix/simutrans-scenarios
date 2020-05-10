@@ -171,7 +171,9 @@ class industry_manager_t extends manager_t
 		}
 		// iterate through all lines
 		foreach(line in link.lines) {
-			check_link_line(link, line)
+			if ( line.is_valid() ) {
+				check_link_line(link, line)
+			}
 		}
 	}
 
@@ -180,7 +182,6 @@ class industry_manager_t extends manager_t
 	 */
 	function check_link_line(link, line)
 	{
-		if ( !line ) { return false }
 		dbgprint("Check line " + line.get_name())
 		// find convoy
 		local cnv = null
