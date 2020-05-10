@@ -386,7 +386,7 @@ class industry_manager_t extends manager_t
 					local c = tile_x(stations_list[i].x, stations_list[i].y, stations_list[i].z)
 					depot = search_depot(c, wt)
 					if ( depot ) {
-						break
+						return false
 					}
 
 				}
