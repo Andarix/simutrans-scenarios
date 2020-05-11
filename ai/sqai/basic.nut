@@ -200,7 +200,7 @@ class manager_t extends node_seq_t
 		for(local j=0; j<reports.len(); j++) {
 			local test = reports[j]
 			// check account balance
-			if (!is_cash_available(test.cost_fix + test.cost_monthly)) {
+			if (!is_cash_available(test.cost_fix + test.cost_monthly) || our_player.get_current_cash() < 50000) {
 				// too expensive
 				continue
 			}
