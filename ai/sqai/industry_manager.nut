@@ -172,6 +172,7 @@ class industry_manager_t extends manager_t
 		// iterate through all lines
 		foreach(line in link.lines) {
 			if ( line.is_valid() ) {
+				//gui.add_message_at(our_player, "####### line.is_valid() " + line.is_valid(), world.get_time())
 				check_link_line(link, line)
 			}
 		}
@@ -378,17 +379,26 @@ class industry_manager_t extends manager_t
 				}
 
 				// build convoy
-				local depot  = null //cnv.get_home_depot()
 				local stations_list = cnv.get_schedule().entries
+				local depot = null //cnv.get_home_depot()
 
 				for (local i=0; i<stations_list.len(); i++) {
-
 					local c = tile_x(stations_list[i].x, stations_list[i].y, stations_list[i].z)
 					depot = search_depot(c, wt)
-					if ( depot ) {
-						return false
+					if ( depot != null && depot != false ) {
+						if ( print_message_box == 1 ) {
+							gui.add_message_at(our_player, "####--> station " + coord_to_string(c), c)
+							gui.add_message_at(our_player, "####--> depot " + depot, world.get_time())
+						}
+						break
+					}
+					if ( print_message_box == 1 ) {
+							gui.add_message_at(our_player, "####--> not depot found", world.get_time())
 					}
 
+				}
+				if ( depot == null || depot == false ) {
+					return false
 				}
 
 				local c = vehicle_constructor_t()
