@@ -229,34 +229,62 @@ class ship_connector_t extends manager_t
 			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
 		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
-
-		local cs = c_start
-		local ce = c_end
+		/*
+		local cs = []
+		local ce = []
 		if (c_start.len()>0  &&  c_end.len()>0) {
-			local cs = c_start[0]
-			local ce = c_end[0]
+			cs.append(tile_x(c_start[0].x, c_start[0].y, c_start[0].z))
+			ce.append(tile_x(c_end[0].x, c_end[0].y, c_end[0].z))
+		} else {
+			cs.append(c_start[0])
+			ce.append(c_end[0])
 		}
 
-		local st = halt_x.get_halt(cs, pl)
-		local f_name = ["", ""]
-		if ( st ) {
-			local fl_st = st.get_factory_list()
-			if ( fl_st.len() > 0 ) {
-				f_name[0] = fl_st[0].get_name()
-			} else {
-				f_name[0] = "station"
+		gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(square_x(cs[0].x, cs[0].y)) + ") to " + f_name[1] + " (" + coord_to_string(square_x(ce[0].x, ce[0].y)) + ")", c_start)
+		*/
+		if (c_start.len()>0  &&  c_end.len()>0) {
+			local st = halt_x.get_halt(c_start[0], pl)
+			local f_name = ["", ""]
+			if ( st ) {
+				local fl_st = st.get_factory_list()
+				if ( fl_st.len() > 0 ) {
+					f_name[0] = fl_st[0].get_name()
+				} else {
+					f_name[0] = "station"
+				}
 			}
-		}
-		st = halt_x.get_halt(ce, pl)
-		if ( st ) {
-			local fl_st = st.get_factory_list()
-			if ( fl_st.len() > 0 ) {
-				f_name[1] = fl_st[0].get_name()
-			} else {
-				f_name[1] = "station"
+			st = halt_x.get_halt(c_end[0], pl)
+			if ( st ) {
+				local fl_st = st.get_factory_list()
+				if ( fl_st.len() > 0 ) {
+					f_name[1] = fl_st[0].get_name()
+				} else {
+					f_name[1] = "station"
+				}
 			}
+			gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start[0]) + ") to " + f_name[1] + " (" + coord_to_string(c_end[0]) + ")", c_start[0])
+		} else {
+			local st = halt_x.get_halt(c_start, pl)
+			local f_name = ["", ""]
+			if ( st ) {
+				local fl_st = st.get_factory_list()
+				if ( fl_st.len() > 0 ) {
+					f_name[0] = fl_st[0].get_name()
+				} else {
+					f_name[0] = "station"
+				}
+			}
+			st = halt_x.get_halt(c_end, pl)
+			if ( st ) {
+				local fl_st = st.get_factory_list()
+				if ( fl_st.len() > 0 ) {
+					f_name[1] = fl_st[0].get_name()
+				} else {
+					f_name[1] = "station"
+				}
+			}
+			gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start) + ") to " + f_name[1] + " (" + coord_to_string(c_end) + ")", c_start)
 		}
-		gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(cs) + ") to " + f_name[1] + " (" + coord_to_string(ce) + ")", c_start)
 
 		return r_t(RT_TOTAL_SUCCESS)
 	}
