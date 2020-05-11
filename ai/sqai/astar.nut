@@ -1011,18 +1011,15 @@ function search_depot(field_pos, wt) {
 	if ( list_exists_depot ) {
 		local tile_min = [field_pos.x - seach_field, field_pos.y - seach_field]
 		local tile_max = [field_pos.x + seach_field, field_pos.y + seach_field]
-		local depot_found = false
+		local depot_found = null
 
 		foreach(key in list_exists_depot) {
 
 			if ( key.x >= tile_min[0] && key.y >= tile_min[1] && key.x <= tile_max[0] && key.y <= tile_max[1] ) {
 				depot_found = tile_x(key.x, key.y, key.z)
-				break
+				return depot_found
 			}
-
 		}
-
-		return depot_found
 	}
 	return false
 }
