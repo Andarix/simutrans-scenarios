@@ -59,6 +59,20 @@ class industry_connection_planner_t extends manager_t
 		debug = true
 		local tic = get_ops_total();
 
+		// limit links to transport good
+		local exists_links = check_factory_links(fsrc, fdest, freight)
+		local freight_input = fdest.input[freight].get_base_consumption()
+		local freight_output = fsrc.output[freight].get_base_production()
+		if ( (freight_input < 700 || freight_output < 550) && exists_links >= 2 ) {
+			return r_t(RT_TOTAL_FAIL)
+		} else if ( (freight_input < 1500 || freight_output < 1250) && exists_links >= 3 ) {
+			return r_t(RT_TOTAL_FAIL)
+		} else if ( (freight_input > 1500 || freight_output > 1250) && exists_links >= 4 ) {
+			return r_t(RT_TOTAL_FAIL)
+		} else if ( exists_links > 4 ) {
+			return r_t(RT_TOTAL_FAIL)
+		}
+
 		print("Plan link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
 
 		// TODO check if factories are still existing
@@ -561,22 +575,49 @@ class industry_connection_planner_t extends manager_t
 		return best_station
 	}
 
-	function check_factory_links() {
+	function check_factory_links(f_src, f_dest, good) {
+		local print_message_box = 0
+
 		// stations from factory
-  	local stations_fsrc = fsrc.get_halt_list()
-  	local stations_fdest = fdest.get_halt_list()
+  	local stations_fsrc = f_src.get_halt_list()
+  	local stations_fdest = f_dest.get_halt_list()
+
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(player_x(1), "--> factory: " + f_src.get_name() + " to factory " + f_dest.get_name(), world.get_time())
+					gui.add_message_at(player_x(1), "--> good: " + good, world.get_time())
+				}
+
+		local link_count = 0
 
 		if ( stations_fsrc.len() > 0 && stations_fdest.len() > 0 ) {
 			foreach(station in stations_fsrc) {
+				local s = station.get_connections(good_desc_x(good))
+				if ( s.len() > 0 ) {
+					if ( print_message_box == 1 ) {
+						gui.add_message_at(player_x(1), "*--> station dest: " + s[0].get_name(), world.get_time())
+					}
+					local f = s[0].get_factory_list()
 
+					if ( f.len() == 1 ) {
+						local fd_t = f_dest.get_tile_list()
 
+						local fs_t = f[0].get_tile_list()
 
+						if ( fd_t[0].x == fs_t[0].x && fd_t[0].y == fs_t[0].y ) {
+							link_count += 1
+						}
+					}
+
+				}
 			}
 
 		}
 
+		if ( print_message_box == 1 ) {
+			gui.add_message_at(player_x(1), "--> link_count: " + link_count, world.get_time())
+		}
 
-
-
+		return link_count
 	}
 }
+
