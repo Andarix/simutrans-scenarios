@@ -158,7 +158,7 @@ class ship_connector_t extends manager_t
 					// build rail to depot
 					if ( depot_found ) {
 						c_depot = depot_found
-						local err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
+						//local err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 					} else {
 						// depot already existing ?
 						if (c_depot.find_object(mo_depot_water) == null) {
