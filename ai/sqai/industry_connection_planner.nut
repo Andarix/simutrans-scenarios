@@ -351,7 +351,7 @@ class industry_connection_planner_t extends manager_t
 		if ( freight_input < 700 || freight_output < 550 ) {
 			switch (wt) {
 				case wt_rail:
-				  r.points -= 12
+				  r.points -= 15
 			    break
 				case wt_road:
 				  r.points += 12
@@ -362,7 +362,7 @@ class industry_connection_planner_t extends manager_t
 			}
 		}
 		// high freight volume
-		if ( freight_input > 2250 || freight_output > 1900 ) {
+		if ( freight_input > 2250 || freight_output > 1700 ) {
 			switch (wt) {
 				case wt_rail:
 				  r.points += 15
