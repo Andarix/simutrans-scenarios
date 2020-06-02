@@ -255,6 +255,7 @@ class industry_manager_t extends manager_t
 			}
 		}
 
+
 		// calc gain per month of one convoy
 		local gain_per_m = 0
 		{
@@ -317,6 +318,12 @@ class industry_manager_t extends manager_t
 
 			// no signals and double tracks - limit 1 convoy for rail
 			if (cnv.get_waytype() == wt_rail && cnv_count == 1) {
+				// TODO check way for find fields for double track
+				local s_field = tile_x(115, 180, 2)
+				if ( s_field.get_slope() == 0 && ( s_field.get_way_dirs(wt_rail) == 5 || s_field.get_way_dirs(wt_rail) == 10 ) ) {
+					build_double_track(s_field, wt_rail)
+
+				}
 				//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
 				//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> no add convoy by rail", world.get_time())
 				return
@@ -368,7 +375,7 @@ class industry_manager_t extends manager_t
 
 				if (prototyper.step().has_failed()) {
 					if ( print_message_box == 1 ) {
-					gui.add_message_at(our_player, "   ----> prototyper.step().has_failed() ", world.get_time())
+						gui.add_message_at(our_player, "   ----> prototyper.step().has_failed() ", world.get_time())
 					}
 					return null
 				}
