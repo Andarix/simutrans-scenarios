@@ -320,12 +320,32 @@ class industry_manager_t extends manager_t
 			if (cnv.get_waytype() == wt_rail && cnv_count == 1) {
 				// TODO check way for find fields for double track
 				local s_field = tile_x(115, 180, 2)
+				local build = false
+				local cc = 1
 				if ( s_field.get_slope() == 0 && ( s_field.get_way_dirs(wt_rail) == 5 || s_field.get_way_dirs(wt_rail) == 10 ) ) {
-					build_double_track(s_field, wt_rail)
-
+					build = build_double_track(s_field, wt_rail)
+				}
+				if ( build ) {
+					cc++
+					build = false
+				}
+				local s_field = tile_x(140, 191, 3)
+				if ( s_field.get_slope() == 0 && ( s_field.get_way_dirs(wt_rail) == 5 || s_field.get_way_dirs(wt_rail) == 10 ) ) {
+					build = build_double_track(s_field, wt_rail)
+				}
+				if ( build ) {
+					cc++
+					build = false
 				}
 				//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
 				//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> no add convoy by rail", world.get_time())
+
+				if ( cc > 1 ) {
+					cnv_count = cc
+				} else {
+					return
+				}
+			} else if (cnv.get_waytype() == wt_rail && cnv_count > 1) {
 				return
 			}
 

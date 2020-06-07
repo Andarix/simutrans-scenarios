@@ -1078,26 +1078,30 @@ function build_double_track(start_field, wt) {
 	// check way - 8 fields straight
 	for ( local i = 0; i < way_len; i++ ) {
 		if ( d == 5 ) {
-			// ns
-			if ( tile_x(start_field.x + 1, start_field.y + i, start_field.z).is_empty() && square_x(start_field.x, start_field.y + i).get_ground_tile().z == start_field.z ) {
-				tiles_build_r.append(tile_x(start_field.x + 1, start_field.y + i, start_field.z))
+			// ns - r
+			local ref_ground = square_x(start_field.x, start_field.y + i).get_ground_tile()
+			if ( tile_x(start_field.x + 1, start_field.y + i, start_field.z).is_empty() && square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z ) {
+				tiles_build_r.append(tile_x(start_field.x + 1, start_field.y + i, ref_ground.z))
 			}
-			if ( tile_x(start_field.x - 1, start_field.y + i, start_field.z).is_empty() && square_x(start_field.x, start_field.y + i).get_ground_tile().z == start_field.z ) {
-				tiles_build_l.append(tile_x(start_field.x - 1, start_field.y + i, start_field.z))
+			// ns - l
+			if ( tile_x(start_field.x - 1, start_field.y + i, start_field.z).is_empty() && square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z ) {
+				tiles_build_l.append(tile_x(start_field.x - 1, start_field.y + i, ref_ground.z))
 			}
-			tiles.append(tile_x(start_field.x + i, start_field.y, start_field.z))
+			tiles.append(tile_x(start_field.x, start_field.y + i, ref_ground.z))
 		} else if ( d == 10 ) {
-			// ew
 			//gui.add_message_at(our_player, "tile r " + coord3d_to_string(tile_x(start_field.x + i, start_field.y + 1, start_field.z)) + " empty " + tile_x(start_field.x + i, start_field.y + 1, start_field.z).is_empty(), start_field)
 			//gui.add_message_at(our_player, " -- tile l " + coord3d_to_string(tile_x(start_field.x + i, start_field.y - 1, start_field.z)) + " to empty " + tile_x(start_field.x - i, start_field.y + 1, start_field.z).is_empty(), start_field)
 
-			if ( tile_x(start_field.x + i, start_field.y + 1, start_field.z).is_empty() && square_x(start_field.x + i, start_field.y).get_ground_tile().z == start_field.z ) {
-				tiles_build_r.append(tile_x(start_field.x + i, start_field.y + 1, start_field.z))
+			// ew - r
+			local ref_ground = square_x(start_field.x + i, start_field.y).get_ground_tile()
+			if ( tile_x(start_field.x + i, start_field.y + 1, start_field.z).is_empty() && square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z ) {
+				tiles_build_r.append(tile_x(start_field.x + i, start_field.y + 1, ref_ground.z))
 			}
-			if ( tile_x(start_field.x + i, start_field.y - 1, start_field.z).is_empty() && square_x(start_field.x + i, start_field.y).get_ground_tile().z == start_field.z ) {
-				tiles_build_l.append(tile_x(start_field.x + i, start_field.y - 1, start_field.z))
+			// ew - l
+			if ( tile_x(start_field.x + i, start_field.y - 1, start_field.z).is_empty() && square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z ) {
+				tiles_build_l.append(tile_x(start_field.x + i, start_field.y - 1, ref_ground.z))
 			}
-			tiles.append(tile_x(start_field.x + i, start_field.y, start_field.z))
+			tiles.append(tile_x(start_field.x + i, start_field.y, ref_ground.z))
 		}
 	}
 
@@ -1122,47 +1126,77 @@ function build_double_track(start_field, wt) {
 				}
 			}
 		}
-		//gui.add_message_at(our_player, "  tiles r get_slope() = 0 " + tr, start_field)
+		//gui.add_message_at(our_player, "  tiles r get_slope() = 0 " + tr + " - " + tiles_build_r[0].x, start_field)
 		//gui.add_message_at(our_player, "  tiles l get_slope() = 0 " + tl, start_field)
 		local tiles_build = null
 		if ( tr == 8 ) {
-				tiles_build = tiles_build_r
+			tiles_build = tiles_build_r
+			if (  d == 10 ) {
 				if ( settings.get_drive_on_left() ) {
 					signal = [{coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=8}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=2}]
 				} else {
 					signal = [{coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=8}, {coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=2}]
 				}
-		} else if ( tl == 8 ) {
-				tiles_build = tiles_build_l
+			}
+			else if ( d == 5 ) {
 				if ( settings.get_drive_on_left() ) {
-					signal = [{coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=4}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=1}]
+					signal = [{coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=4}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=1}]
 				} else {
-					signal = [{coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=4}, {coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=1}]
+					signal = [{coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=4}, {coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=1}]
 				}
-		} else {
+			}
+		} else if ( tl == 8 ) {
+			tiles_build = tiles_build_l
+			if (  d == 10 ) {
+				if ( settings.get_drive_on_left() ) {
+					signal = [{coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=8}, {coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=2}]
+				}
+				else {
+					signal = [{coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=8}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=2}]
+				}
+			}
+			else if ( d == 5 ) {
+				if ( settings.get_drive_on_left() ) {
+					signal = [{coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=4}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=1}]
+				} else {
+					signal = [{coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=4}, {coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=1}]
+				}
+			}
+		}
+		else {
 
 			tiles_build = tiles_build_r
-			if ( settings.get_drive_on_left() ) {
-				signal = [{coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=8}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=2}]
-			} else {
-				signal = [{coor=coord3d(tiles[1].x,tiles[1].y,tiles[1].z), ribi=8}, {coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=2}]
-			}
 
+			if (  d == 10 ) {
+				if ( settings.get_drive_on_left() ) {
+					signal = [{coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=8}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=2}]
+				} else {
+					signal = [{coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=8}, {coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=2}]
+				}
+			} else if ( d == 5 ) {
+				if ( settings.get_drive_on_left() ) {
+					signal = [{coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=4}, {coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=1}]
+				} else {
+					signal = [{coor=coord3d(tiles_build[1].x,tiles_build[1].y,tiles_build[1].z), ribi=1}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=4}]
+				}
+			}
 			// check terrafom
 			for ( local i = 0; i < way_len; i++ ) {
 				local r = square_x(tiles_build[i].x, tiles_build[i].y)
 				local z = r.get_ground_tile()
 				local f = tile_x(tiles_build[i].x, tiles_build[i].y, z.z)
-				local ref_hight = start_field.z
+				local ref_hight = square_x(tiles[i].x, tiles[i].y).get_ground_tile()
 
-				if ( f.is_empty() && ( f.get_slope() > 0 || ref_hight != z.z ) ) {
+				if ( ref_hight.z == z.z && tiles[i].get_slope() == f.get_slope() ) {
+
+				} else if ( f.is_empty() && ( f.get_slope() > 0 || ref_hight.z != z.z ) ) {
 
 					if ( print_message_box == 2 ) {
 					 	gui.add_message_at(b_player, " ---=> terraform", world.get_time())
 					 	gui.add_message_at(b_player, " ---=> tile z " + z.z + " start tile z " + ref_hight, world.get_time())
 					}
 
-					if ( z.z < ref_hight && z.z >= (ref_hight - 2) ) {
+					if ( z.z < ref_hight.z && z.z >= (ref_hight.z - 2) ) {
 					// terraform up
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(b_player, " ---=> tile up to flat ", world.get_time())
@@ -1171,9 +1205,9 @@ function build_double_track(start_field, wt) {
 							err = command_x.set_slope(b_player, tile_x(f.x, f.y, z.z), 82 )
 							if ( err != null ) { break }
 							z = r.get_ground_tile()
-						} while(z.z < ref_hight )
+						} while(z.z < ref_hight.z )
 
-					} else if ( z.z >= ref_hight || z.z <= (ref_hight + 1) ) {
+					} else if ( z.z >= ref_hight.z || z.z <= (ref_hight.z + 1) ) {
 					 	// terraform down
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(b_player, " ---=> tile down to flat ", world.get_time())
@@ -1182,7 +1216,7 @@ function build_double_track(start_field, wt) {
 							err = command_x.set_slope(b_player, tile_x(f.x, f.y, z.z), 83 )
 							if ( err != null ) { break }
 							z = r.get_ground_tile()
-						} while(z.z > ref_hight )
+						} while(z.z > ref_hight.z )
 					}
 					if ( err ) {
 						return false
@@ -1225,5 +1259,6 @@ function build_double_track(start_field, wt) {
 			}
 
 		}
+		return true
 	}
 }
