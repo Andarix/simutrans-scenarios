@@ -377,7 +377,7 @@ class industry_connection_planner_t extends manager_t
 		}
 
 		// factory distance direct
-		local f_dist = distance = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y)
+		local f_dist = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y)
 		// + 22% for long distance
 		local f_dist_long = f_dist + (f_dist / 100 * 22)
 		// + 35% for short distance
