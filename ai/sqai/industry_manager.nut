@@ -225,8 +225,15 @@ class industry_manager_t extends manager_t
 
 		// iterate through schedule, check for available freight
 		local freight_available = false
+		local start_l = null
+		local end_l = null
 		{
 			local entries = cnv.get_schedule().entries
+			if ( entries.len() >= 2 ) {
+				start_l = entries[0].get_halt(our_player).get_tile_list()
+				end_l = entries[entries.len()-1].get_halt(our_player).get_tile_list()
+			}
+
 			local i = 0;
 
 			while(i < entries.len()  &&  !freight_available) {
@@ -316,27 +323,57 @@ class industry_manager_t extends manager_t
 
 		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2) {
 
+			// stations distance
+			local l = abs(start_l[0].x - end_l[0].x) + abs(start_l[0].y - end_l[0].y)
+			local c = 0
+			if ( l > 50 && l <= 100 ) {
+				c = 1
+			}	else if ( l > 100 && l <= 200 ) {
+				c = 2
+			} else if ( l > 200 && l <= 300 ) {
+				c = 3
+			} else if ( l > 300 ) {
+				c = 4
+			}
+
+
 			// no signals and double tracks - limit 1 convoy for rail
 			if (cnv.get_waytype() == wt_rail && cnv_count == 1) {
+				gui.add_message_at(our_player, "####### cnv.get_waytype() " + cnv.get_waytype() + " cnv.name " + cnv.get_name(), world.get_time())
+				//
 				// TODO check way for find fields for double track
-				local s_field = tile_x(115, 180, 2)
-				local build = false
+				local s_fields = check_way_line(start_l[0], end_l[0], cnv.get_waytype(), l, c)
 				local cc = 1
-				if ( s_field.get_slope() == 0 && ( s_field.get_way_dirs(wt_rail) == 5 || s_field.get_way_dirs(wt_rail) == 10 ) ) {
-					build = build_double_track(s_field, wt_rail)
+
+				//gui.add_message_at(our_player, "####### s_fields " + s_fields, world.get_time())
+				if ( s_fields == true ) {
+					cc += c
+				} else {
+					//gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
+
+					local build = false
+					if ( s_fields.len() == c ) {
+						for ( local i = 0; i < c; i++ ) {
+							build = build_double_track(s_fields[i], wt_rail)
+							if ( build ) {
+								cc++
+								build = false
+							}
+						}
+					}
+				}
+				/*
+				if ( s_fields[21].get_slope() == 0 && ( s_fields[21].get_way_dirs(wt_rail) == 5 || s_fields[21].get_way_dirs(wt_rail) == 10 ) ) {
+
 				}
 				if ( build ) {
 					cc++
 					build = false
 				}
-				local s_field = tile_x(140, 191, 3)
-				if ( s_field.get_slope() == 0 && ( s_field.get_way_dirs(wt_rail) == 5 || s_field.get_way_dirs(wt_rail) == 10 ) ) {
-					build = build_double_track(s_field, wt_rail)
-				}
-				if ( build ) {
-					cc++
-					build = false
-				}
+				local s_field = s_fields[1]
+				if ( s_fields[41].get_slope() == 0 && ( s_fields[41].get_way_dirs(wt_rail) == 5 || s_fields[41].get_way_dirs(wt_rail) == 10 ) ) {
+					build = build_double_track(s_fields[41], wt_rail)
+				}*/
 				//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
 				//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> no add convoy by rail", world.get_time())
 
@@ -345,7 +382,7 @@ class industry_manager_t extends manager_t
 				} else {
 					return
 				}
-			} else if (cnv.get_waytype() == wt_rail && cnv_count > 1) {
+			} else if (cnv.get_waytype() == wt_rail && cnv_count > c) {
 				return
 			}
 
