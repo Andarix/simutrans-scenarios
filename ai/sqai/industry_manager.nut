@@ -230,8 +230,8 @@ class industry_manager_t extends manager_t
 		{
 			local entries = cnv.get_schedule().entries
 			if ( entries.len() >= 2 ) {
-				start_l = entries[0].get_halt(our_player).get_tile_list()
-				end_l = entries[entries.len()-1].get_halt(our_player).get_tile_list()
+				start_l = tile_x(entries[0].x, entries[0].y, entries[0].z)
+				end_l = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
 			}
 
 			local i = 0;
@@ -324,7 +324,7 @@ class industry_manager_t extends manager_t
 		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2) {
 
 			// stations distance
-			local l = abs(start_l[0].x - end_l[0].x) + abs(start_l[0].y - end_l[0].y)
+			local l = abs(start_l.x - end_l.x) + abs(start_l.y - end_l.y)
 			local c = 0
 			if ( l > 50 && l <= 100 ) {
 				c = 1
@@ -342,7 +342,7 @@ class industry_manager_t extends manager_t
 				gui.add_message_at(our_player, "####### cnv.get_waytype() " + cnv.get_waytype() + " cnv.name " + cnv.get_name(), world.get_time())
 				//
 				// TODO check way for find fields for double track
-				local s_fields = check_way_line(start_l[0], end_l[0], cnv.get_waytype(), l, c)
+				local s_fields = check_way_line(start_l, end_l, cnv.get_waytype(), l, c)
 				local cc = 1
 
 				//gui.add_message_at(our_player, "####### s_fields " + s_fields, world.get_time())
