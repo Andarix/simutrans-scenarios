@@ -1319,7 +1319,7 @@ function check_way_line(start, end, wt, l, c) {
 	for ( local i = 1; i <= l; i++ ) {
 
 		// check to signal
-		if ( d == 5 || d == 10 ) {
+		if ( (d == 5 || d == 10) && wt == wt_rail ) {
 			local sig = nexttile[i-1].find_object(mo_signal)
 			//gui.add_message_at(our_player, "find_object(mo_signal) " + sig, nexttile[i-1])
 			if ( sig != null ) {
@@ -1380,7 +1380,7 @@ function check_way_line(start, end, wt, l, c) {
 		} else {
 			fc = 0
 		}
-		gui.add_message_at(our_player, "  fc " + fc + " s[" + r + "] " + s[r] + " i " + i + " dc " + dc + " d " + d + " * " + coord3d_to_string(t), world.get_time())
+		gui.add_message_at(our_player, "  fc " + fc + " s[" + r + "] " + s[r] + " i " + i + " - " + l + " dc " + dc + " d " + d + " * " + coord3d_to_string(t), world.get_time())
 		if ( i >= s[r] && fc >= 8 && start_fields.len() < c) {
 			if ( nexttile[i-2].x > nexttile[i-1].x || nexttile[i-2].y > nexttile[i-1].y ) {
 				start_fields.append(t)

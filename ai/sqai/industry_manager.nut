@@ -338,10 +338,10 @@ class industry_manager_t extends manager_t
 
 
 			// no signals and double tracks - limit 1 convoy for rail
-			if (cnv.get_waytype() == wt_rail && cnv_count == 1) {
+			if (cnv.get_waytype() == wt_rail && cnv_count == 1 && c > 0) {
 				gui.add_message_at(our_player, "####### cnv.get_waytype() " + cnv.get_waytype() + " cnv.name " + cnv.get_name(), world.get_time())
 				//
-				// TODO check way for find fields for double track
+				// check way for find fields for double track
 				local s_fields = check_way_line(start_l, end_l, cnv.get_waytype(), l, c)
 				local cc = 1
 
@@ -362,27 +362,13 @@ class industry_manager_t extends manager_t
 						}
 					}
 				}
-				/*
-				if ( s_fields[21].get_slope() == 0 && ( s_fields[21].get_way_dirs(wt_rail) == 5 || s_fields[21].get_way_dirs(wt_rail) == 10 ) ) {
-
-				}
-				if ( build ) {
-					cc++
-					build = false
-				}
-				local s_field = s_fields[1]
-				if ( s_fields[41].get_slope() == 0 && ( s_fields[41].get_way_dirs(wt_rail) == 5 || s_fields[41].get_way_dirs(wt_rail) == 10 ) ) {
-					build = build_double_track(s_fields[41], wt_rail)
-				}*/
-				//gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-				//gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> no add convoy by rail", world.get_time())
 
 				if ( cc > 1 ) {
 					cnv_count = cc
 				} else {
 					return
 				}
-			} else if (cnv.get_waytype() == wt_rail && cnv_count > c) {
+			} else if (cnv.get_waytype() == wt_rail && (cnv_count > c || c == 0) ) {
 				return
 			}
 
