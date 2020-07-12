@@ -1311,11 +1311,28 @@ function check_way_line(start, end, wt, l, c) {
 	local start_fields = []
 	local fc = 0
 	local dc = 0
+	local di = 0
 	local r = 0
 	local s = [16, 40, 70, 90]
 	local sign = 0
+	local reset = 0
 
 	d = start.get_way_dirs(wt)
+
+	if ( d == 10 ) {
+		if ( start.x < end.x ) {
+			d = 2
+		} else {
+			d = 8
+		}
+	} else if ( d == 5 ) {
+		if ( start.y < end.y ) {
+			d = 4
+		} else {
+			d = 1
+		}
+	}
+
 	for ( local i = 1; i <= l; i++ ) {
 
 		// check to signal
@@ -1330,16 +1347,24 @@ function check_way_line(start, end, wt, l, c) {
 				//gui.add_message_at(our_player, "signals " + sign, world.get_time())
 			}
 		}
+
+		di = dc
 		dc = d
 		if ( d == 10 || d == 11 || d == 14 ) {
-	 		if ( (i < 2 && start.x < end.x) || (i > 1 && nexttile[i-2].x < nexttile[i-1].x) ) {
+
+	 		if ( (i > 1 && nexttile[i-2].x < nexttile[i-1].x) || reset == 1 ) {
 				d = 2
+			} else if ( di == 10 && d == 11 ) {
+				d = 1
 			} else {
 				d = 8
 			}
+
 		} else if ( d == 5 || d == 7 || d == 13 ) {
-			if ( (i < 2 && start.y < end.y) || (i > 1 && nexttile[i-2].y < nexttile[i-1].y) ) {
+			if ( (i > 1 && nexttile[i-2].y < nexttile[i-1].y) || reset == 1 ) {
 				d = 4
+			} else if ( di == 9 && d == 5 ) {
+				d = 1
 			} else {
 				d = 1
 			}
@@ -1351,36 +1376,86 @@ function check_way_line(start, end, wt, l, c) {
 			}
 		} else if ( d == 9 ) {
 			if ( nexttile[i-2].y < nexttile[i-1].y ) {
-				d = 8
+					d = 8
+			} else if ( ( di == 13 || di == 7 ) && d == 9 ) {
+				d = 1
 			} else {
 				d = 1
 			}
+
 		} else if ( d == 6 ) {
 			if ( nexttile[i-2].x > nexttile[i-1].x ) {
+				d = 4
+			} else if ( (di == 5 || di == 9) && d == 6 ) {
+				d = 2
+			} else if ( di == 13 && d == 6 ) {
 				d = 4
 			} else {
 				d = 8
 			}
+
 		} else if ( d == 3 ) {
 			if ( nexttile[i-2].y < nexttile[i-1].y ) {
 				d = 2
 			} else {
 				d = 1
 			}
+		} else if ( d == 15 ) {
+			if ( di == 10 && nexttile[i-2].x < nexttile[i-1].x ) {
+				d = 2
+			} else {
+				d = 8
+			}
+			if ( di == 5 && nexttile[i-2].y < nexttile[i-1].y ) {
+				d = 1
+			} else {
+				d = 4
+			}
 		}
+
+
 
 		//gui.add_message_at(our_player, " * " + coord3d_to_string(nexttile[i-1]) + " d " + d, world.get_time())
 		local t = nexttile[i-1].get_neighbour(wt, d)
 		//gui.add_message_at(our_player, " * " + d, world.get_time())
-		nexttile.append(t)
 		d = t.get_way_dirs(wt)
+
+		if ( dc == 7 && ( d == 1 || d == 4 ) ) {
+			d = 2
+			t = nexttile[i-1].get_neighbour(wt, d)
+			d = t.get_way_dirs(wt)
+		} else if ( dc == 13 && ( d == 1 || d == 4 ) ) {
+			d = 8
+			t = nexttile[i-1].get_neighbour(wt, d)
+			d = t.get_way_dirs(wt)
+		} else if ( dc == 11 && ( d == 2 || d == 8 ) ) {
+			d = 1
+			t = nexttile[i-1].get_neighbour(wt, d)
+			d = t.get_way_dirs(wt)
+		} else if ( dc == 14 && ( d == 2 || d == 8 ) ) {
+			d = 4
+			t = nexttile[i-1].get_neighbour(wt, d)
+			d = t.get_way_dirs(wt)
+		}
+
+		if ( nexttile[0].x == t.x && nexttile[0].y == t.y && nexttile[0].z == t.z ) {
+			nexttile.clear()
+			i = 0
+			reset = 1
+			gui.add_message_at(our_player, "*#* nexttile reset", world.get_time())
+		} else {
+			reset = 0
+		}
+
+		nexttile.append(t)
+
 
 		if ( dc == d && i >= s[r] ) {
 			fc++
 		} else {
 			fc = 0
 		}
-		gui.add_message_at(our_player, "  fc " + fc + " s[" + r + "] " + s[r] + " i " + i + " - " + l + " dc " + dc + " d " + d + " * " + coord3d_to_string(t), world.get_time())
+		gui.add_message_at(our_player, "  fc " + fc + " s[" + r + "] " + s[r] + " i " + i + " - " + l + " dc " + dc + " di " + di + " d " + d + " * " + coord3d_to_string(t), world.get_time())
 		if ( i >= s[r] && fc >= 8 && start_fields.len() < c) {
 			if ( nexttile[i-2].x > nexttile[i-1].x || nexttile[i-2].y > nexttile[i-1].y ) {
 				start_fields.append(t)
