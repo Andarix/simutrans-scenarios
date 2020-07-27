@@ -1202,6 +1202,15 @@ function build_double_track(start_field, wt) {
 				local build_hight = square_x(tiles_build[i].x, tiles_build[i].y).get_ground_tile()
 				local ref_hight = square_x(tiles[i].x, tiles[i].y).get_ground_tile()
 
+				local straight_slope = false
+				if ( ref_hight.get_slope() == 4 || ref_hight.get_slope() == 12 || ref_hight.get_slope() == 28 || ref_hight.get_slope() == 36 ) {
+					// single hight && double hight 1
+					straight_slope = true
+				} else if ( ref_hight.get_slope() == 8 || ref_hight.get_slope() == 24 || ref_hight.get_slope() == 56 || ref_hight.get_slope() == 72 ) {
+					// double hight 2
+					straight_slope = true
+				}
+
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(b_player, " ---=> tiles[i] ground " + coord3d_to_string(ref_hight), ref_hight)
 					gui.add_message_at(b_player, " ---=> tiles_build[i] ground " + coord3d_to_string(build_hight), build_hight)
@@ -1214,7 +1223,7 @@ function build_double_track(start_field, wt) {
 						gui.add_message_at(b_player, " ---=> slope tiles == tiles_build * tiles.z == tiles_build.z ", world.get_time())
 					}
 
-				} else if ( build_hight.is_empty() && ( ref_hight.get_slope() == 4 || ref_hight.get_slope() == 12 || ref_hight.get_slope() == 28 || ref_hight.get_slope() == 36) ) {
+				} else if ( build_hight.is_empty() && straight_slope == true ) {
 					// set slope ramp
 					if ( print_message_box == 2 ) {
 					 	gui.add_message_at(b_player, " ---=> terraform slope ramp", world.get_time())
@@ -1315,7 +1324,12 @@ function build_double_track(start_field, wt) {
  *
  */
 function check_way_line(start, end, wt, l, c) {
-	gui.add_message_at(our_player, "start line " + coord3d_to_string(start), start)
+
+	local print_message_box = 0
+
+	if ( print_message_box == 1 ) {
+		gui.add_message_at(our_player, "start line " + coord3d_to_string(start), start)
+	}
 /*
 	gui.add_message_at(our_player, "end line " + coord3d_to_string(end), end)
 	gui.add_message_at(our_player, "length " + l, world.get_time())
@@ -1459,7 +1473,9 @@ function check_way_line(start, end, wt, l, c) {
 			nexttile.clear()
 			i = 0
 			reset = 1
-			gui.add_message_at(our_player, "*#* nexttile reset", world.get_time())
+			if ( print_message_box == 1 ) {
+				gui.add_message_at(our_player, "*#* nexttile reset", world.get_time())
+			}
 		} else {
 			reset = 0
 		}
@@ -1472,14 +1488,18 @@ function check_way_line(start, end, wt, l, c) {
 		} else {
 			fc = 0
 		}
-		gui.add_message_at(our_player, "  fc " + fc + " s[" + r + "] " + s[r] + " i " + i + " - " + l + " dc " + dc + " di " + di + " d " + d + " * " + coord3d_to_string(t), world.get_time())
+		if ( print_message_box == 1 ) {
+			gui.add_message_at(our_player, "  fc " + fc + " s[" + r + "] " + s[r] + " i " + i + " - " + l + " dc " + dc + " di " + di + " d " + d + " * " + coord3d_to_string(t), world.get_time())
+		}
 		if ( i >= s[r] && fc >= 8 && start_fields.len() < c) {
 			if ( nexttile[i-2].x > nexttile[i-1].x || nexttile[i-2].y > nexttile[i-1].y ) {
 				start_fields.append(t)
 			} else {
 				start_fields.append(nexttile[i-7])
 			}
-			gui.add_message_at(our_player, "  tile s[" + r + "] " + coord3d_to_string(start_fields[r]), start_fields[r])
+			if ( print_message_box == 1 ) {
+				gui.add_message_at(our_player, "  tile s[" + r + "] " + coord3d_to_string(start_fields[r]), start_fields[r])
+			}
 			if ( r < c ) {
 				r++
 				if ( i > s[r] ) {
