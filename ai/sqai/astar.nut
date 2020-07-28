@@ -410,7 +410,12 @@ class astar_builder extends astar
 						} else {
 							err = command_x.build_way(our_player, route[i-1], route[i], way, false)
 						}
-						if (err) gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+						if (err) {
+							gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+							// remove way
+							// route[0] to route[i]
+							//err = command_x.remove_way(our_player, route[0], route[i])
+						}
 					}
 				}
 				else if (route[i-1].flag == 1) {
@@ -457,7 +462,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		// print messages box
 		// 1
 		// 2
-		local print_message_box = 0
+		local print_message_box = 2
 
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
@@ -491,7 +496,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		local b_tile = [starts_field] // station fields array
 		local i = 0
 		// get_dirs().to_coord()
-		for ( local j = 0; j < 2; j++ ) {
+		for ( local j = 0; j < 4; j++ ) {
 			switch (d) {
 				case 1:
 					// check n
@@ -1065,7 +1070,7 @@ function build_double_track(start_field, wt) {
 
 	// 1
 	// 2 - terraform
-	local print_message_box = 2
+	local print_message_box = 1
 
 	local way_list = way_desc_x.get_available_ways(wt, st_flat)
 	local way_obj = way_list[0] //start_field.find_object(mo_way)
@@ -1320,6 +1325,7 @@ function build_double_track(start_field, wt) {
  *	start	=	start field line
  *	end		=	end field line
  *	wt		=	waytype
+ *	l			= stations distance
  *	c			= count of double ways
  *
  */
@@ -1344,7 +1350,10 @@ function check_way_line(start, end, wt, l, c) {
 	local dc = 0
 	local di = 0
 	local r = 0
-	local s = [16, 40, 70, 90]
+	// distance double ways
+	local as = (l / (c + 1)) - 20
+	local s = [as, as * 2, as * 3, as * 4, as * 5]
+
 	local sign = 0
 	local reset = 0
 
@@ -1482,8 +1491,12 @@ function check_way_line(start, end, wt, l, c) {
 
 		nexttile.append(t)
 
-
-		if ( dc == d && i >= s[r] ) {
+		// check slope start field double way
+		local st = 0
+		if ( fc == 0 && t.get_slope() > 0 ) {
+			st = 1
+		}
+		if ( dc == d && i >= s[r] && !t.has_two_ways() && st == 0 ) {
 			fc++
 		} else {
 			fc = 0
@@ -1501,7 +1514,7 @@ function check_way_line(start, end, wt, l, c) {
 				gui.add_message_at(our_player, "  tile s[" + r + "] " + coord3d_to_string(start_fields[r]), start_fields[r])
 			}
 			if ( r < c ) {
-				r++
+				if ( r < s.len() - 1 ) { r++ }
 				if ( i > s[r] ) {
 					s[r] = i + 10
 				}

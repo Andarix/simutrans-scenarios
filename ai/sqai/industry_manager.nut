@@ -328,18 +328,21 @@ class industry_manager_t extends manager_t
 			local c = 0
 			if ( l > 50 && l <= 100 ) {
 				c = 1
-			}	else if ( l > 100 && l <= 200 ) {
+			}	else if ( l > 100 && l <= 180 ) {
 				c = 2
-			} else if ( l > 200 && l <= 300 ) {
+			} else if ( l > 180 && l <= 260 ) {
 				c = 3
-			} else if ( l > 300 ) {
+			} else if ( l > 260 && l <= 340 ) {
 				c = 4
+			} else if ( l > 340 ) {
+				c = 5
 			}
 
 
 			// no signals and double tracks - limit 1 convoy for rail
 			if (cnv.get_waytype() == wt_rail && cnv_count == 1 && c > 0) {
 				gui.add_message_at(our_player, "####### cnv.get_waytype() " + cnv.get_waytype() + " cnv.name " + cnv.get_name(), world.get_time())
+				gui.add_message_at(our_player, "####### lenght " + l + " double ways " + c, world.get_time())
 				//
 				// check way for find fields for double track
 				local s_fields = check_way_line(start_l, end_l, cnv.get_waytype(), l, c)
