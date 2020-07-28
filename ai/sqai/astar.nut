@@ -496,7 +496,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		local b_tile = [starts_field] // station fields array
 		local i = 0
 		// get_dirs().to_coord()
-		for ( local j = 0; j < 4; j++ ) {
+		for ( local j = 0; j < 2; j++ ) {
 			switch (d) {
 				case 1:
 					// check n
@@ -615,6 +615,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		}
 
 		// station not build, then search other place
+		d = t.get_way_dirs(wt)
 		if ( b_tile.len() < st_lenght && st_build == false ) {
 				// search other place for station
 				b_tile.clear()
@@ -655,9 +656,9 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 						}
 
 					}
-					if ( b_tile.len() == st_lenght ) {
-						err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
-					}
+					//if ( b_tile.len() == st_lenght ) {
+					//	err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
+					//}
 				} else if ( d == 2 || d == 8 ) {
 					// test s
 					for ( i = 1; i <= st_lenght; i++ ) {
@@ -674,7 +675,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 						}
 
 					}
-					if ( b_tile.len() <= st_lenght ) {
+					if ( b_tile.len() < st_lenght ) {
 						b_tile.clear()
 						// test n
 						for ( i = 1; i <= st_lenght; i++ ) {
@@ -1491,11 +1492,17 @@ function check_way_line(start, end, wt, l, c) {
 
 		nexttile.append(t)
 
-		// check slope start field double way
+		// check slope to start field for double way
 		local st = 0
 		if ( fc == 0 && t.get_slope() > 0 ) {
 			st = 1
 		}
+		// check bridge
+		if ( t.is_bridge() ) {
+			st = 1
+		}
+
+
 		if ( dc == d && i >= s[r] && !t.has_two_ways() && st == 0 ) {
 			fc++
 		} else {
