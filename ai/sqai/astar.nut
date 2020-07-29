@@ -462,7 +462,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		// print messages box
 		// 1
 		// 2
-		local print_message_box = 2
+		local print_message_box = 0
 
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
@@ -1071,7 +1071,7 @@ function build_double_track(start_field, wt) {
 
 	// 1
 	// 2 - terraform
-	local print_message_box = 1
+	local print_message_box = 0
 
 	local way_list = way_desc_x.get_available_ways(wt, st_flat)
 	local way_obj = way_list[0] //start_field.find_object(mo_way)
@@ -1352,8 +1352,17 @@ function check_way_line(start, end, wt, l, c) {
 	local di = 0
 	local r = 0
 	// distance double ways
-	local as = (l / (c + 1)) - 20
-	local s = [as, as * 2, as * 3, as * 4, as * 5]
+	local as = (l / (c + 1)) - 10
+	if ( print_message_box == 2 ) {
+		gui.add_message_at(our_player, "as " + as, start)
+	}
+	local s = []
+	for (local i = 1; i < c + 1; i++ ) {
+		s.append(as * i)
+		if ( print_message_box == 2 ) {
+			gui.add_message_at(our_player, "  s[" + (i - 1) + "] " + s[i - 1], world.get_time())
+		}
+	}
 
 	local sign = 0
 	local reset = 0
@@ -1492,14 +1501,23 @@ function check_way_line(start, end, wt, l, c) {
 
 		nexttile.append(t)
 
-		// check slope to start field for double way
 		local st = 0
 		if ( fc == 0 && t.get_slope() > 0 ) {
+			// check slope to start field for double way
 			st = 1
-		}
-		// check bridge
-		if ( t.is_bridge() ) {
+		} else if ( t.is_bridge() ) {
+			// check bridge
 			st = 1
+		} else if ( t.get_way_dirs(wt) == 10 ) {
+			// check left & right empty
+			if ( !tile_x(t.x, t.y + 1, t.z).is_empty() && !tile_x(t.x, t.y - 1, t.z).is_empty() ) {
+				st = 1
+			}
+		} else if ( t.get_way_dirs(wt) == 5 ) {
+			// check left & right empty
+			if ( !tile_x(t.x + 1, t.y, t.z).is_empty() && !tile_x(t.x - 1, t.y, t.z).is_empty() ) {
+				st = 1
+			}
 		}
 
 
@@ -1517,8 +1535,10 @@ function check_way_line(start, end, wt, l, c) {
 			} else {
 				start_fields.append(nexttile[i-7])
 			}
-			if ( print_message_box == 1 ) {
+			if ( print_message_box == 2 ) {
 				gui.add_message_at(our_player, "  tile s[" + r + "] " + coord3d_to_string(start_fields[r]), start_fields[r])
+				gui.add_message_at(our_player, "  i " + i + "  r " + r + "  s[" + r + "] " + s[r], world.get_time())
+				gui.add_message_at(our_player, "* " + coord3d_to_string(tile_x(t.x, t.y, t.z)), world.get_time())
 			}
 			if ( r < c ) {
 				if ( r < s.len() - 1 ) { r++ }
