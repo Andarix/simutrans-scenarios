@@ -1348,7 +1348,11 @@ function build_double_track(start_field, wt) {
  *
  */
 function check_way_line(start, end, wt, l, c) {
-
+	/*
+	 * 1 =
+	 * 2 =
+	 * 3 =
+	 */
 	local print_message_box = 0
 
 	if ( print_message_box == 1 ) {
@@ -1400,6 +1404,9 @@ function check_way_line(start, end, wt, l, c) {
 		}
 	}
 
+
+	local stl = 0
+	local str = 0
 	for ( local i = 1; i <= l; i++ ) {
 
 		// check to signal
@@ -1529,23 +1536,64 @@ function check_way_line(start, end, wt, l, c) {
 			// check left & right ground and empty
 			if ( !tile_x(t.x, t.y + 1, t.z).is_ground() && !tile_x(t.x, t.y - 1, t.z).is_ground() ) {
 				st = 1
+				str = 0
 			} else if ( !tile_x(t.x, t.y + 1, t.z).is_empty() && !tile_x(t.x, t.y - 1, t.z).is_empty() ) {
 				st = 1
+				stl = 0
+			} else {
+				// field right empty and ground
+				if ( tile_x(t.x, t.y + 1, t.z).is_ground() && tile_x(t.x, t.y + 1, t.z).is_empty() ) {
+					str++
+				} else {
+					str = 0
+				}
+				// field left empty and ground
+				if ( tile_x(t.x, t.y - 1, t.z).is_ground() && tile_x(t.x, t.y - 1, t.z).is_empty() ) {
+					stl++
+				} else {
+					stl = 0
+				}
 			}
 		} else if ( t.get_way_dirs(wt) == 5 ) {
 			// check left & right ground and empty
 			if ( !tile_x(t.x + 1, t.y, t.z).is_ground() && !tile_x(t.x - 1, t.y, t.z).is_ground() ) {
 				st = 1
+				str = 0
 			} else if ( !tile_x(t.x + 1, t.y, t.z).is_empty() && !tile_x(t.x - 1, t.y, t.z).is_empty() ) {
 				st = 1
+				stl = 0
+			} else {
+				// field right empty and ground
+				if ( tile_x(t.x + 1, t.y, t.z).is_ground() && tile_x(t.x + 1, t.y, t.z).is_empty() ) {
+					str++
+				} else {
+					str = 0
+				}
+				// field left empty and ground
+				if ( tile_x(t.x - 1, t.y, t.z).is_ground() && tile_x(t.x - 1, t.y, t.z).is_empty() ) {
+					stl++
+				} else {
+					stl = 0
+				}
 			}
 		}
 
 
 		if ( dc == d && i >= s[r] && !t.has_two_ways() && st == 0 ) {
-			fc++
+			if ( print_message_box == 3 ) {
+				gui.add_message_at(our_player, "  stl " + stl + " str " + str + " fc " + fc, t)
+			}
+			if ( stl == fc + 1 || str == fc + 1 ) {
+				fc++
+			} else {
+				fc = 0
+				stl = 0
+				str = 0
+			}
 		} else {
 			fc = 0
+			stl = 0
+			str = 0
 		}
 		if ( print_message_box == 1 ) {
 			gui.add_message_at(our_player, "  fc " + fc + " s[" + r + "] " + s[r] + " i " + i + " - " + l + " dc " + dc + " di " + di + " d " + d + " * " + coord3d_to_string(t), world.get_time())
