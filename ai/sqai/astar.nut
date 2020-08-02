@@ -402,7 +402,7 @@ class astar_builder extends astar
 				if (route[i-1].flag == 0) {
 					if ( way.get_waytype() == wt_road ) {
 						err = command_x.build_road(our_player, route[i-1], route[i], way, true, true)
-						if (err) gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+						if (err) gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 
 					} else {
 						if ( settings.get_pay_for_total_distance_mode == 2 ) {
@@ -411,16 +411,20 @@ class astar_builder extends astar
 							err = command_x.build_way(our_player, route[i-1], route[i], way, false)
 						}
 						if (err) {
-							gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+							gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 							// remove way
 							// route[0] to route[i]
 							//err = command_x.remove_way(our_player, route[0], route[i])
+							remove_wayline(route, (i - 1), way.get_waytype())
 						}
 					}
 				}
 				else if (route[i-1].flag == 1) {
 					err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
-					if (err) gui.add_message_at(our_player, "Failed to build bridge from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+					if (err) {
+						gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+						remove_wayline(route, (i - 1), way.get_waytype())
+					}
 				}
 				if (err) {
 					return { err =  err }
@@ -444,6 +448,41 @@ function remove_field(pos)
 	while(tile.find_object(mo_field)) {
 		tool.work(our_player, pos)
 	}
+}
+
+/**
+ * remove way line
+ * route	= way line
+ * pos		= last field to build
+ * wt			= waytype
+ */
+function remove_wayline(route, pos, wt) {
+	local tool = command_x(tool_remover)
+	//while(tile.find_object(mo_field)) {
+	//	tool.work(our_player, pos)
+	//}
+	local i = pos
+	for ( i; i >= 0; i-- ) {
+		local tile = square_x(route[i].x, route[i].y).get_ground_tile()
+		local t_field = tile.find_object(mo_way)
+		// test field has way
+		if ( t_field != null && t_field.get_waytype() == wt ) {
+			// test field has bridge start/ramp
+			if ( tile.is_bridge ) {
+				tool.work(our_player, tile)
+			} else {
+				// test way have one direction
+				local d = tile.get_way_dirs(wt)
+				if ( d < 11 ) {
+					tool.work(our_player, tile)
+				}
+			}
+		}
+	}
+	if ( i == 0 ) {
+		gui.add_message_at(our_player, "removed way from " + coord_to_string(route[pos]) + " to " + coord_to_string(route[0]), route[0])
+	}
+
 }
 
 /**
@@ -1886,14 +1925,14 @@ function check_way_line(start, end, wt, l, c) {
 		}
 		if ( i >= s[r] && ( fc >= way_len || dfcl >= way_len || dfcr >= way_len ) && start_fields.len() < c) {
 			if ( nexttile[i-1].x > nexttile[i].x || nexttile[i-1].y > nexttile[i].y ) {
-				gui.add_message_at(our_player, " add nexttile[i] ", t)
+				gui.add_message_at(our_player, " add nexttile[i] id = " + i + " " + coord3d_to_string(t), t)
 				//if ( nexttile[i].get_slope() == 0 ) {
 					start_fields.append(nexttile[i])
 				/*} else if ( nexttile[i].get_slope() == 0 && ( nexttile[i-1].get_way_dirs(wt) == 10 || nexttile[i-1].get_way_dirs(wt) == 5 ) ) {
 					start_fields.append(nexttile[i-1])
 				}*/
 			} else {
-				gui.add_message_at(our_player, " add nexttile[i-way_len+1] id = " + (i-way_len+1), t)
+				gui.add_message_at(our_player, " add nexttile[i-way_len+1] id = " + (i-way_len+1) + " " + coord3d_to_string(t), t)
 				//if ( nexttile[i-way_len-1].get_slope() == 0 ) {
 					start_fields.append(nexttile[i-way_len+1])
 				/*} else if ( nexttile[i-way_len].get_slope() == 0 && ( nexttile[i-way_len].get_way_dirs(wt) == 10 || nexttile[i-way_len].get_way_dirs(wt) == 5 ) ) {
@@ -1903,7 +1942,7 @@ function check_way_line(start, end, wt, l, c) {
 			if ( print_message_box == 2 ) {
 				gui.add_message_at(our_player, "  tile s[" + r + "] " + coord3d_to_string(start_fields[r]), start_fields[r])
 				gui.add_message_at(our_player, "  i " + i + "  r " + r + "  s[" + r + "] " + s[r], world.get_time())
-				gui.add_message_at(our_player, "* " + coord3d_to_string(tile_x(t.x, t.y, t.z)), world.get_time())
+				gui.add_message_at(our_player, "* " + coord3d_to_string(t), world.get_time())
 			}
 			if ( r < c ) {
 				if ( r < s.len() - 1 ) { r++ }
