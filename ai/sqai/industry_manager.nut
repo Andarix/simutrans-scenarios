@@ -331,13 +331,13 @@ class industry_manager_t extends manager_t
 			local c = 0
 			if ( l > 50 && l <= 100 ) {
 				c = 1
-			}	else if ( l > 100 && l <= 180 ) {
+			}	else if ( l > 100 && l <= 220 ) {
 				c = 2
-			} else if ( l > 180 && l <= 260 ) {
+			} else if ( l > 220 && l <= 360 ) {
 				c = 3
-			} else if ( l > 260 && l <= 340 ) {
+			} else if ( l > 360 && l <= 480 ) {
 				c = 4
-			} else if ( l > 340 ) {
+			} else if ( l > 480 ) {
 				c = 5
 			}
 
