@@ -16,6 +16,7 @@ class ship_connector_t extends manager_t
 	// can be provided optionally
 	c_start = null // array, must be water tiles
 	c_end   = null // array, must be water tiles
+	c_route = null // array
 	c_harbour_tiles = null
 	// generated data
 	c_depot = null

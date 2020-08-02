@@ -15,6 +15,7 @@ class rail_connector_t extends manager_t
 	// can be provided optionally
 	c_start = null // array
 	c_end   = null // array
+	c_route = null // array
 	// generated data
 	c_depot = null
 	c_sched = null
@@ -113,6 +114,7 @@ class rail_connector_t extends manager_t
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_start), world.get_time())
 						}
+						remove_wayline(c_route, c_route.len()-1, wt_rail)
 						return error_handler()
 					}
 
@@ -132,6 +134,7 @@ class rail_connector_t extends manager_t
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end), world.get_time())
 						}
+						remove_wayline(c_route, c_route.len()-1, wt_rail)
 						return error_handler()
 					}
 
@@ -330,6 +333,7 @@ class rail_connector_t extends manager_t
 		}
 		c_start = res.start
 		c_end   = res.end
+		c_route	= res.routes
 	}
 
 	function construct_rail_to_depot(pl, start, way)

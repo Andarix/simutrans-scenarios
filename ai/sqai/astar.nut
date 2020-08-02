@@ -430,7 +430,7 @@ class astar_builder extends astar
 					return { err =  err }
 				}
 			}
-			return { start = route[route.len()-1], end = route[0] }
+			return { start = route[route.len()-1], end = route[0], routes = route }
 		}
 		print("No route found")
 		return { err =  "No route" }
@@ -516,7 +516,7 @@ function remove_wayline(route, pos, wt) {
 
 
 
-	if ( i == 0 ) {
+	if ( test == 0 ) {
 		gui.add_message_at(our_player, "removed way from " + coord_to_string(route[pos]) + " to " + coord_to_string(route[0]), route[0])
 	} else {
 		gui.add_message_at(our_player, "removed way not all ", route[0])
@@ -1807,14 +1807,15 @@ function check_way_line(start, end, wt, l, c) {
 			d = t.get_way_dirs(wt)
 		} else {
 			if ( nexttile[i-1].get_way_dirs(wt) == 11 && nexttile[i-2].get_way_dirs(wt) == 10 ) {
-				d = 4
-			} else if ( nexttile[i-1].get_way_dirs(wt) == 14 && nexttile[i-2].get_way_dirs(wt) == 10 ) {
 				d = 1
-			} else if ( nexttile[i-1].get_way_dirs(wt) == 12 && nexttile[i-2].get_way_dirs(wt) == 5 ) {
-				d = 8
-			} else if ( nexttile[i-1].get_way_dirs(wt) == 13 && nexttile[i-2].get_way_dirs(wt) == 5 ) {
+			} else if ( nexttile[i-1].get_way_dirs(wt) == 14 && nexttile[i-2].get_way_dirs(wt) == 10 ) {
+				d = 4
+			} else if ( nexttile[i-1].get_way_dirs(wt) == 7 && nexttile[i-2].get_way_dirs(wt) == 5 ) {
 				d = 2
+			} else if ( nexttile[i-1].get_way_dirs(wt) == 13 && nexttile[i-2].get_way_dirs(wt) == 5 ) {
+				d = 8
 			}
+			gui.add_message_at(our_player, " * tile * " + coord3d_to_string(nexttile[i-1]) + " d " + d, nexttile[i-1])
 			t = nexttile[i-1].get_neighbour(wt, d)
 			d = t.get_way_dirs(wt)
 		}

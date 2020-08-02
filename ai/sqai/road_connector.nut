@@ -15,6 +15,7 @@ class road_connector_t extends manager_t
 	// can be provided optionally
 	c_start = null // array
 	c_end   = null // array
+	c_route = null // array
 	// generated data
 	c_depot = null
 	c_sched = null
@@ -292,6 +293,8 @@ class road_connector_t extends manager_t
 		}
 		c_start = res.start
 		c_end   = res.end
+		c_route = res.routes
+
 	}
 
 	function construct_road_to_depot(pl, start, way)
