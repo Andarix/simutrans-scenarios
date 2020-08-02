@@ -757,14 +757,14 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 			}
 			return true
 		}
-	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.get_slope() == 0 ) {
-		// tile has single way and is flat
+	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.get_slope() == 0 && !t_tile.is_bridge() ) {
+		// tile has single way and is flat - no bridge ramp
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " ---=> tile has single way and is flat ", world.get_time())
 		}
 		return true
-	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.is_bridge() ) {
-		// tile has single way and has bridge
+	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.get_slope() > 0 && t_tile.is_bridge() ) {
+		// tile has single way and has bridge start
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " ---=> tile has single way and is bridge ", world.get_time())
 		}
@@ -1078,8 +1078,9 @@ function build_double_track(start_field, wt) {
 		gui.add_message_at(our_player, " ### build_double_track ### " + coord3d_to_string(start_field), start_field)
 	}
 
-	local way_list = way_desc_x.get_available_ways(wt, st_flat)
-	local way_obj = way_list[0] //start_field.find_object(mo_way)
+	//local way_list = way_desc_x.get_available_ways(wt, st_flat)
+	local way_obj = start_field.find_object(mo_way).get_desc() //way_list[0]
+
 	local b_player = our_player //way_obj.get_owner()
 
 	local d = start_field.get_way_dirs(wt)
@@ -1313,8 +1314,8 @@ function build_double_track(start_field, wt) {
 						signal = [{coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=8}, {coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=2}]
 						gui.add_message_at(b_player, "settings.get_drive_on_left() signals terraform 10 tl " + coord3d_to_string(tiles[6]) + " & " + coord3d_to_string(tiles_build[1]), world.get_time())
 					} else {
-						signal = [{coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=8}, {coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=2}]
-						gui.add_message_at(b_player, "signals terraform 10 tl " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
+						signal = [{coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=8}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=2}]
+						gui.add_message_at(b_player, "signals terraform 10 tl " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
 					}
 				}
 			} else if ( d == 5 ) {
@@ -1558,7 +1559,12 @@ function check_way_line(start, end, wt, l, c) {
 	local di = 0
 	local r = 0
 	// distance double ways
-	local as = (l / (c + 1)) - 7
+	local as = (l / (c + 1))
+	if ( l < 100 ) {
+		as - 16
+	} else {
+		as - 8
+	}
 	if ( print_message_box == 2 ) {
 		gui.add_message_at(our_player, "as " + as, start)
 	}
