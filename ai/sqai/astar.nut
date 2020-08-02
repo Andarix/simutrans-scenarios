@@ -1887,7 +1887,7 @@ function check_way_line(start, end, wt, l, c) {
 			// check bridge
 			//gui.add_message_at(our_player, " ### check bridge " + coord3d_to_string(t), t)
 			st = 1
-		} else if ( t.get_way_dirs(wt) == 10 ) {
+		} else if ( dst = 0 && t.get_way_dirs(wt) == 10 ) {
 			// check left & right ground and empty
 			if ( !tile_x(t.x, t.y + 1, t.z).is_ground() && !tile_x(t.x, t.y - 1, t.z).is_ground() ) {
 				str = 0
@@ -1907,7 +1907,7 @@ function check_way_line(start, end, wt, l, c) {
 					stl = 0
 				}
 			}
-		} else if ( t.get_way_dirs(wt) == 5 ) {
+		} else if ( dst = 0 && t.get_way_dirs(wt) == 5 ) {
 			// check left & right ground and empty
 			if ( !tile_x(t.x + 1, t.y, t.z).is_ground() && !tile_x(t.x - 1, t.y, t.z).is_ground() ) {
 				str = 0
@@ -1927,7 +1927,7 @@ function check_way_line(start, end, wt, l, c) {
 					stl = 0
 				}
 			}
-		} else if ( t.get_way_dirs(wt) == 6 || t.get_way_dirs(wt) == 9 ) {
+		} else if ( dst > 0 && t.get_way_dirs(wt) == 6 || t.get_way_dirs(wt) == 9 ) {
 			if ( print_message_box == 3 && i >= s[0] && i < (s[0] + way_len) && str == 0 && stl == 0 ) {
 				gui.add_message_at(our_player, " # test 6/9 " + coord3d_to_string(t), t)
 				gui.add_message_at(our_player, " diagonal start dst " + dst, world.get_time())
