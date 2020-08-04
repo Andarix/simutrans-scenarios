@@ -1554,8 +1554,12 @@ function build_double_track(start_field, wt) {
 					tool.work(our_player, tiles_build[way_len - 1])
 					// build
 					err = command_x.build_way(b_player, tiles_build[way_len - 2], tiles[way_len - 2], way_obj, true)
-					if ( (tiles[way_len - 1].get_way_dirs(wt) == 11 || tiles[way_len - 1].get_way_dirs(wt) == 13) && !settings.get_drive_on_left() ) {
+					if ( settings.get_drive_on_left() ) {
+
+					} else {
+						if ( (tile_x(signal[1].coor.x-fx, signal[1].coor.y-fy, signal[1].coor.z).get_way_dirs(wt) == 11 || tile_x(signal[1].coor.x-fx, signal[1].coor.y-fy, signal[1].coor.z).get_way_dirs(wt) == 13) ) {
 						sig_field = 1
+						}
 					}
 				}
 
