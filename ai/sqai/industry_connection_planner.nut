@@ -156,7 +156,7 @@ class industry_connection_planner_t extends manager_t
 			// distance factorys
 			distance = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y)
 			// add 10% from distance
-			distance += distance / 100 * 10
+			distance + (distance / 100 * 10)
 		}
 
 		// plan convoy prototype
@@ -575,7 +575,13 @@ class industry_connection_planner_t extends manager_t
 		return best_station
 	}
 
-	function check_factory_links(f_src, f_dest, good) {
+}
+
+/**
+	* check links factory src to factory dest
+	*
+	*/
+function check_factory_links(f_src, f_dest, good) {
 		local print_message_box = 0
 
 		// stations from factory
@@ -613,11 +619,12 @@ class industry_connection_planner_t extends manager_t
 
 		}
 
+
 		if ( print_message_box == 1 ) {
-			gui.add_message_at(player_x(1), "--> link_count: " + link_count, world.get_time())
+			local fs = fsrc.get_tile_list()
+			local fd = fdest.get_tile_list()
+			gui.add_message_at(player_x(1), "--> link count factory " + f_src.get_name() + " (" + coord_to_string(fs[0]) + ") to factory " + f_dest.get_name() + " (" + coord_to_string(fd[0]) + "): " + link_count  + " # plan Player " + our_player.get_name(), f_src.get_tile_list()[0])
 		}
 
 		return link_count
-	}
 }
-
