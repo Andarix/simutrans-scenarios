@@ -1871,17 +1871,19 @@ function check_way_line(start, end, wt, l, c) {
 
 
 
-		//gui.add_message_at(our_player, " * " + coord3d_to_string(nexttile[i-1]) + " d " + d, world.get_time())
+		gui.add_message_at(our_player, " * " + coord3d_to_string(nexttile[i-1]) + " d " + d, world.get_time())
 		local t = nexttile[i-1].get_neighbour(wt, d)
-		//gui.add_message_at(our_player, " * " + d, world.get_time())
+		gui.add_message_at(our_player, " next field pos " + t, world.get_time()) //coord3d_to_string()
+		/*
 		local test = null
-		if ( wt == wt_rail ) {
+		local test_d = t.get_way_dirs(wt)
+		if ( wt == wt_rail && ( test_d == 1 || test_d == 2 || test_d == 4 || test_d == 8 ) ) {
 			test = t.find_object(mo_depot_rail)
 		}
 
-		//if ( i < 6 ) {
-		//	gui.add_message_at(our_player, " tile * " + coord3d_to_string(t) + " dc " + dc + " di " + di + " d " + d, t)
-		//}
+		if ( i < 6 ) {
+			gui.add_message_at(our_player, " tile * " + coord3d_to_string(t) + " dc " + dc + " di " + di + " d " + d, t)
+		}
 
 		if ( test == null ) {
 			d = t.get_way_dirs(wt)
@@ -1899,7 +1901,7 @@ function check_way_line(start, end, wt, l, c) {
 			t = nexttile[i-1].get_neighbour(wt, d)
 			d = t.get_way_dirs(wt)
 		}
-
+		*/
 
 		// len from double track
 		local way_len = 8
