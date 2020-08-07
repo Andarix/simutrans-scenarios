@@ -48,6 +48,8 @@ class rail_connector_t extends manager_t
 			return r_t(RT_TOTAL_FAIL)
 		}
 
+		local err = null
+
 		switch(phase) {
 			case 0: // find places for stations
 				if ( print_message_box > 0 ) {
@@ -113,8 +115,8 @@ class rail_connector_t extends manager_t
 					}
 
 					// check place and build station to c_start
-					local err = check_station(pl, c_start, count, wt_rail, planned_station)
-					if ( !err ) {
+					local s_src = check_station(pl, c_start, count, wt_rail, planned_station)
+					if ( s_src == false ) {
 						print("Failed to build station at " + coord_to_string(c_start))
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_start), world.get_time())
@@ -133,15 +135,18 @@ class rail_connector_t extends manager_t
 						}
 					}
 					// check place and build station to c_end
-					err = check_station(pl, c_end, count, wt_rail, station_select)
-					if ( !err ) {
+					local s_dest = check_station(pl, c_end, count, wt_rail, station_select)
+					if ( s_dest == false ) {
 						print("Failed to build station at " + coord_to_string(c_end))
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end), world.get_time())
 						}
 						remove_wayline(c_route, c_route.len()-1, wt_rail)
+						remove_tile_to_empty(s_src, wt_rail)
 						return error_handler()
 					}
+
+					// build station c_start and c_end
 
 					//local
 					if ( finalize ) {
@@ -260,7 +265,8 @@ class rail_connector_t extends manager_t
 
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
-			case 9: // build station extension
+			case 9: // optimize way line save in c_route // build station extension
+
 		}
 
 		if (finalize) {
