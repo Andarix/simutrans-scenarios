@@ -169,6 +169,7 @@ class industry_manager_t extends manager_t
 				link.state = industry_link_t.st_free
 				break
 		}
+
 		// iterate through all lines
 		foreach(line in link.lines) {
 			if ( line.is_valid() ) {

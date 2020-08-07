@@ -48,6 +48,11 @@ class ship_connector_t extends manager_t
 		local fs = fsrc.get_tile_list()
 		local fd = fdest.get_tile_list()
 
+		if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
+			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
+			return r_t(RT_TOTAL_FAIL)
+		}
+
 		switch(phase) {
 
 			case 0: {
