@@ -1965,6 +1965,7 @@ function check_way_line(start, end, wt, l, c) {
 	}*/
 	//as = as - ( c * 16 )
 	if ( print_message_box == 0 ) {
+		gui.add_message_at(our_player, c + " double way search", start)
 		gui.add_message_at(our_player, "as " + as + " l " + l + " c " + c, start)
 	}
 	local s = []
@@ -2012,6 +2013,7 @@ function check_way_line(start, end, wt, l, c) {
 		if ( sig != null ) {
 			sign++
 			if ( sign == c ) {
+				gui.add_message_at(our_player, c + " double way found, no build ", world.get_time())
 				return true
 			}
 			//gui.add_message_at(our_player, "signals " + sign, world.get_time())
