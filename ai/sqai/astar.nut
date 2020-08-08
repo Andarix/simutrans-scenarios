@@ -486,8 +486,13 @@ function remove_wayline(route, pos, wt) {
 				}
 			}
 
-			// remone way from tile
-			tool.work(our_player, tile)
+			if ( i == 0 && tile.find_object(mo_building) != null ) {
+				// no remove station
+				test = 1
+			} else {
+				// remone way from tile
+				tool.work(our_player, tile)
+			}
 		}
 		// break by direction 7, 11, 13, 14, 15 or owner public player next tile
 		if ( test == 1 ) { break }
@@ -518,7 +523,13 @@ function remove_wayline(route, pos, wt) {
 					}
 				}
 
-				tool.work(our_player, tile)
+				if ( j == 0 && tile.find_object(mo_building) != null ) {
+					// no remove station
+					test = 1
+				} else {
+					// remone way from tile
+					tool.work(our_player, tile)
+				}
 			}
 			// break by direction 7, 11, 13, 14, 15
 			if ( test == 1 ) { break }
@@ -1704,7 +1715,7 @@ function build_double_track(start_field, wt) {
 					if ( settings.get_drive_on_left() ) {
 
 					} else {
-						if ( (tile_x(signal[1].coor.x-fx, signal[1].coor.y-fy, signal[1].coor.z).get_way_dirs(wt) == 11 || tile_x(signal[1].coor.x-fx, signal[1].coor.y-fy, signal[1].coor.z).get_way_dirs(wt) == 13) ) {
+						if ( (tile_x(signal[1].coor.x, signal[1].coor.y, signal[1].coor.z).get_way_dirs(wt) == 11 || tile_x(signal[1].coor.x, signal[1].coor.y, signal[1].coor.z).get_way_dirs(wt) == 13) ) {
 						sig_field = 1
 						}
 					}
@@ -2015,6 +2026,8 @@ function check_way_line(start, end, wt, l, c) {
 				d = 2
 			} else if ( di == 10 && d == 11 ) {
 				d = 1
+			} else if ( dc == 5 && d == 14 ) {
+				d = 2
 			} else {
 				d = 8
 			}
@@ -2045,6 +2058,8 @@ function check_way_line(start, end, wt, l, c) {
 		} else if ( d == 6 ) {
 			if ( nexttile[i-2].x > nexttile[i-1].x ) {
 				d = 4
+			} else if ( nexttile[i-2].y > nexttile[i-1].y ) {
+				d = 2
 			} else if ( (di == 5 || di == 9) && d == 6 ) {
 				d = 2
 			} else if ( di == 13 && d == 6 ) {
@@ -2074,7 +2089,7 @@ function check_way_line(start, end, wt, l, c) {
 
 
 
-		//gui.add_message_at(our_player, " * " + coord3d_to_string(nexttile[i-1]) + " d " + d, world.get_time())
+		//gui.add_message_at(our_player, " * " + coord3d_to_string(nexttile[i-1]) + " d " + d + " i " + i + " dc " + dc + " di " + di, world.get_time())
 		local t = nexttile[i-1].get_neighbour(wt, d)
 		if ( t == null && print_message_box == 1 ) {
 			gui.add_message_at(our_player, " next field pos " + t, world.get_time())
@@ -2104,7 +2119,7 @@ function check_way_line(start, end, wt, l, c) {
 			} else if ( nexttile[i-1].get_way_dirs(wt) == 13 && nexttile[i-2].get_way_dirs(wt) == 5 ) {
 				d = 8
 			}
-			gui.add_message_at(our_player, " * tile * " + coord3d_to_string(nexttile[i-1]) + " d " + d, nexttile[i-1])
+			//gui.add_message_at(our_player, " * tile * " + coord3d_to_string(nexttile[i-1]) + " d " + d, nexttile[i-1])
 			t = nexttile[i-1].get_neighbour(wt, d)
 			d = t.get_way_dirs(wt)
 		}
@@ -2131,7 +2146,7 @@ function check_way_line(start, end, wt, l, c) {
 			d = 1
 			t = nexttile[i-1].get_neighbour(wt, d)
 			d = t.get_way_dirs(wt)
-		} else if ( dc == 14 && ( d == 2 || d == 8 ) ) {
+		} else if ( di != 5 && dc == 14 && ( d == 2 || d == 8 ) ) {
 			d = 4
 			t = nexttile[i-1].get_neighbour(wt, d)
 			d = t.get_way_dirs(wt)
