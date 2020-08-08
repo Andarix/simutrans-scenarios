@@ -441,6 +441,16 @@ class astar_builder extends astar
 }
 
 /**
+ *
+ *
+ */
+function set_marker(pos) {
+	local tile = square_x(pos.x, pos.y).get_ground_tile()
+	local tool = command_x(tool_set_marker)
+	tool.work(our_player, pos)
+}
+
+/**
  * Helper class to remove a field at a factory.
  * Used if no empty spot is available to place a station.
  */
@@ -494,14 +504,13 @@ function remove_wayline(route, pos, wt) {
 				tool.work(our_player, tile)
 			}
 		}
-		// break by direction 7, 11, 13, 14, 15 or owner public player next tile
-		if ( test == 1 ) { break }
-
 		// test crossing and remove
 		t_field = tile.find_object(mo_crossing)
 		if ( t_field != null ) {
 			tool.work(our_player, tile)
 		}
+		// break by direction 7, 11, 13, 14, 15 or owner public player next tile
+		if ( test == 1 ) { break }
 	}
 
 	if ( test == 1 ) {
@@ -531,13 +540,13 @@ function remove_wayline(route, pos, wt) {
 					tool.work(our_player, tile)
 				}
 			}
-			// break by direction 7, 11, 13, 14, 15
-			if ( test == 1 ) { break }
 			// test crossing and remove
 			t_field = tile.find_object(mo_crossing)
 			if ( t_field != null ) {
 				tool.work(our_player, tile)
 			}
+			// break by direction 7, 11, 13, 14, 15
+			if ( test == 1 ) { break }
 		}
 	}
 
@@ -559,7 +568,7 @@ function remove_wayline(route, pos, wt) {
 function remove_tile_to_empty(tiles, wt) {
 	local tool = command_x(tool_remover)
 	for ( local i = tiles.len() - 1; i >= 0; i-- ) {
-		//gui.add_message_at(our_player, "remove tile " + coord_to_string(tiles[i]), tiles[i])
+		gui.add_message_at(our_player, "remove tile " + coord_to_string(tiles[i]), tiles[i])
 		while(true){
 			tool.work(our_player, tiles[i])
 			if (tiles[i].is_empty())
@@ -1683,6 +1692,12 @@ function build_double_track(start_field, wt) {
 			if ( tiles[0].y == tiles_build[0].y - 1 ) {
 				diagonal_st = tiles[0].get_way_dirs(wt)
 			} else if ( tiles[1].y == tiles_build[0].y - 1 ) {
+				diagonal_st = tiles[1].get_way_dirs(wt)
+			}
+
+			if ( tiles[0].x == tiles_build[0].x - 1 ) {
+				diagonal_st = tiles[0].get_way_dirs(wt)
+			} else if ( tiles[1].x == tiles_build[0].x - 1 ) {
 				diagonal_st = tiles[1].get_way_dirs(wt)
 			}
 

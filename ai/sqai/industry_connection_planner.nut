@@ -315,6 +315,10 @@ class industry_connection_planner_t extends manager_t
 		if (target) {
 			cn.c_end = [target]
 			print("Connector to " + coord_to_string(target))
+			// mark tile for harbour/dock
+			if ( wt == wt_water ) {
+				set_marker(target)
+			}
 		}
 
 		r.distance = cnv_valuator.distance
