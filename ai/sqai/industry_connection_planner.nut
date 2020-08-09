@@ -588,14 +588,41 @@ class industry_connection_planner_t extends manager_t
 function check_factory_links(f_src, f_dest, good) {
 		local print_message_box = 0
 
-		// stations from factory
-  	local stations_fsrc = f_src.get_halt_list()
-  	local stations_fdest = f_dest.get_halt_list()
-
 				if ( print_message_box == 1 ) {
 					gui.add_message_at(player_x(1), "--> factory: " + f_src.get_name() + " to factory " + f_dest.get_name(), world.get_time())
 					gui.add_message_at(player_x(1), "--> good: " + good, world.get_time())
 				}
+
+		local fs = fsrc.get_tile_list()
+		local fd = fdest.get_tile_list()
+
+		local print_status = 0
+
+		local f_water = 0
+		local f_water_name = null
+
+		local stations_fsrc = null
+		local fs_tile = square_x(fs[0].x, fs[0].y).get_ground_tile()
+		if ( fs_tile.is_water && fs_tile.get_halt() ) {
+  		stations_fsrc = fs_tile.get_halt().get_connections(good_desc_x(good))
+			f_water_name = fs_tile.get_halt().get_name()
+			f_water = 1
+
+			if ( print_message_box == 2 ) {
+				gui.add_message_at(player_x(1), "--> factory: " + f_src.get_name() + " to factory " + f_dest.get_name(), world.get_time())
+				gui.add_message_at(player_x(1), "**--> factory on water " + coord_to_string(fs[0]), world.get_time())
+				print_status = 1
+				gui.add_message_at(player_x(1), "**--> f_water_name " + f_water_name, world.get_time())
+				gui.add_message_at(player_x(1), "**--> stations_fsrc.len() " + stations_fsrc.len(), world.get_time())
+			}
+		} else {
+			// stations from factory src
+  		stations_fsrc = f_src.get_halt_list()
+
+		}
+		// stations from factory dest
+  	local stations_fdest = f_dest.get_halt_list()
+
 
 		local link_count = 0
 
@@ -603,12 +630,18 @@ function check_factory_links(f_src, f_dest, good) {
 			foreach(station in stations_fsrc) {
 				local s = station.get_connections(good_desc_x(good))
 				if ( s.len() > 0 ) {
-					if ( print_message_box == 1 ) {
-						gui.add_message_at(player_x(1), "*--> station dest: " + s[0].get_name(), world.get_time())
+					local i = 0
+					if ( f_water = 1 && s[0].get_name() == f_water_name && s.len() > 1 ) {
+						i = 1
 					}
-					local f = s[0].get_factory_list()
 
-					if ( f.len() == 1 ) {
+					if ( print_message_box == 1 || print_status == 1 ) {
+						gui.add_message_at(our_player, station.get_name() + " *--> to station " + s[i].get_name(), world.get_time())
+					}
+
+					local	f = s[i].get_factory_list()
+
+					if ( f.len() == 1 || ( f_water == 1 && f.len() == 2 ) ) {
 						local fd_t = f_dest.get_tile_list()
 
 						local fs_t = f[0].get_tile_list()
@@ -624,9 +657,7 @@ function check_factory_links(f_src, f_dest, good) {
 		}
 
 
-		if ( print_message_box == 1 ) {
-			local fs = fsrc.get_tile_list()
-			local fd = fdest.get_tile_list()
+		if ( print_message_box == 1 || print_status == 1 ) {
 			gui.add_message_at(player_x(1), "--> link count factory " + f_src.get_name() + " (" + coord_to_string(fs[0]) + ") to factory " + f_dest.get_name() + " (" + coord_to_string(fd[0]) + "): " + link_count  + " # plan Player " + our_player.get_name(), f_src.get_tile_list()[0])
 		}
 
