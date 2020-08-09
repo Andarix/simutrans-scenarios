@@ -445,9 +445,16 @@ class astar_builder extends astar
  *
  */
 function set_marker(pos) {
-	local tile = square_x(pos.x, pos.y).get_ground_tile()
+	local m_tile = null
+	if ( pos.len() > 0 ) {
+		m_tile = pos[0]
+	} else {
+		m_tile = pos
+	}
+
+	local tile = square_x(m_tile.x, m_tile.y).get_ground_tile()
 	local tool = command_x(tool_set_marker)
-	tool.work(our_player, pos)
+	tool.work(our_player, tile)
 }
 
 /**
@@ -567,11 +574,11 @@ function remove_wayline(route, pos, wt) {
  */
 function remove_tile_to_empty(tiles, wt) {
 	local tool = command_x(tool_remover)
-	for ( local i = tiles.len() - 1; i >= 0; i-- ) {
-		gui.add_message_at(our_player, "remove tile " + coord_to_string(tiles[i]), tiles[i])
+	for ( local i = tiles.len(); i > 0; i-- ) {
+		gui.add_message_at(our_player, "remove tile " + coord_to_string(tiles[i-1]), tiles[i-1])
 		while(true){
-			tool.work(our_player, tiles[i])
-			if (tiles[i].is_empty())
+			tool.work(our_player, tiles[i-1])
+			if (tiles[i-1].is_empty())
 				break
 		}
 	}
