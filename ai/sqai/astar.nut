@@ -575,10 +575,11 @@ function remove_wayline(route, pos, wt) {
 function remove_tile_to_empty(tiles, wt) {
 	local tool = command_x(tool_remover)
 	for ( local i = tiles.len(); i > 0; i-- ) {
-		gui.add_message_at(our_player, "remove tile " + coord_to_string(tiles[i-1]), tiles[i-1])
+		gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i-1]), tiles[i-1])
+		local tiles_r = square_x(tiles[i-1].x, tiles[i-1].y).get_ground_tile()
 		while(true){
-			tool.work(our_player, tiles[i-1])
-			if (tiles[i-1].is_empty())
+			tool.work(our_player, tiles_r)
+			if (tiles_r.is_empty())
 				break
 		}
 	}
@@ -1808,12 +1809,16 @@ function build_double_track(start_field, wt) {
 					gui.add_message_at(b_player, " ERROR => build tile " + coord3d_to_string(tiles_build[1]) + " to tile " + coord3d_to_string(tiles_build[way_len - 3]), tiles[0])
 					err = null
 				}
-				if ( print_message_box == 3 ) {
-					gui.add_message_at(b_player, "build tiles_build[" + (way_len - 3) + "] " + coord3d_to_string(tiles_build[way_len - 3]) + " to tiles[" + (way_len - 1) + "] " + coord3d_to_string(tiles[way_len - 1]), start_field)
+				local t = 1
+				if ( tiles[way_len - t].get_way_dirs(wt) == 3 ) {
+					t = 0
 				}
-				err = command_x.build_way(b_player, tiles_build[way_len - 3], tiles[way_len - 1], way_obj, true)
+				if ( print_message_box == 3 ) {
+					gui.add_message_at(b_player, "build tiles_build[" + (way_len - 3) + "] " + coord3d_to_string(tiles_build[way_len - 3]) + " to tiles[" + (way_len - t) + "] " + coord3d_to_string(tiles[way_len - t]), start_field)
+				}
+				err = command_x.build_way(b_player, tiles_build[way_len - 3], tiles[way_len - t], way_obj, true)
 				if ( err != null ) {
-					gui.add_message_at(b_player, " ERROR => build tile " + coord3d_to_string(tiles_build[way_len - 3]) + " to tile " + coord3d_to_string(tiles[way_len - 1]), tiles[0])
+					gui.add_message_at(b_player, " ERROR => build tile " + coord3d_to_string(tiles_build[way_len - 3]) + " to tile " + coord3d_to_string(tiles[way_len - t]), tiles[0])
 					err = null
 				}
 
