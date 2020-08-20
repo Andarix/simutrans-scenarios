@@ -1016,9 +1016,6 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 				}
 			}
 		}
-		if ( fields[0] != start_field ) {
-			err = command_x.build_way(pl, start_field, fields[0], planned_way, true)
-		}
 
 		// check harbour/dock
 		local st_dock = search_station(start_field, wt, 1)
@@ -1046,11 +1043,22 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 			combined_station = true
 		}
 
+		// station not build to start_field
+		local build_connection = 0
+		if ( fields[0] != start_field ) {
+
+			if ( combined_station ) {
+				// build connect tile to dock
+				err = command_x.build_station(pl, start_field, select_station)
+				build_connection = 1
+			}
+		}
+
+
 	 	if ( err == null ) {
 			// build station to tile
 			for ( local i = 0; i < t; i++ ) {
-				local r = square_x(fields[i].x, fields[i].y)
-				local z = r.get_ground_tile()
+				local z = square_x(fields[i].x, fields[i].y).get_ground_tile()
 				local f = tile_x(fields[i].x, fields[i].y, z.z)
 				if ( tile_x(fields[i].x, fields[i].y, fields[i].z).is_bridge() && f.get_slope() > 0 ) {
 					// bridge start field -> build to ground
@@ -1066,6 +1074,18 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 				}
 			}
 		}
+
+		// station not build to start_field
+		if ( fields[0] != start_field ) {
+			if ( combined_station && build_connection == 1 ) {
+				// remove connect tile to dock
+				local tool = command_x(tool_remover)
+				tool.work(our_player, start_field)
+			}
+			// connect way to station
+			err = command_x.build_way(pl, start_field, fields[0], planned_way, true)
+		}
+
 
 		// check station connect factory
 		local st = halt_x.get_halt(fields[0], pl)
@@ -1682,7 +1702,7 @@ function build_double_track(start_field, wt) {
 					gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tr " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 
 				} else if ( diagonal_st == 12 ) {
-					signal = [{coor=coord3d(tiles_build[way_len - 3].x, tiles_build[way_len - 3].y, tiles_build[way_len - 3].z), ribi=1}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=4}]
+					signal = [{coor=coord3d(tiles_build[way_len - 3].x, tiles_build[way_len - 3].y, tiles_build[way_len - 3].z), ribi=4}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=1}]
 					gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tr " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 
 				}
@@ -2150,10 +2170,10 @@ function check_way_line(start, end, wt, l, c) {
 			} else if ( di == 9 && d == 5 ) {
 				d = 1
 			} else if ( ( di == 9 || di == 10 ) && d == 7 ) {
-				//gui.add_message_at(our_player, " * i " + i + " di == 9 || di == 10 ) && d == 7 " + coord3d_to_string(nexttile[i-1]), world.get_time())
+				gui.add_message_at(our_player, " * i " + i + " di == 9 || di == 10 ) && d == 7 " + coord3d_to_string(nexttile[i-1]), world.get_time())
 				// next 1 or 4
 				local t = nexttile[i-1].get_neighbour(wt, 4)
-				//gui.add_message_at(our_player, " *  " + coord3d_to_string(t) + " d " + t.get_way_dirs(wt), world.get_time())
+				gui.add_message_at(our_player, " *  " + coord3d_to_string(t) + " d " + t.get_way_dirs(wt), world.get_time())
 				if ( t.get_way_dirs(wt) == 4 ) {
 					d = 1
 				} else {
