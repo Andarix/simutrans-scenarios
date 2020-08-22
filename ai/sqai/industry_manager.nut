@@ -330,16 +330,18 @@ class industry_manager_t extends manager_t
 			// stations distance
 			local l = abs(start_l.x - end_l.x) + abs(start_l.y - end_l.y)
 			local c = 0
-			if ( l > 80 && l <= 140 ) {
+			if ( l > 50 && l <= 90 ) {
 				c = 1
-			}	else if ( l > 140 && l <= 270 ) {
+			}	else if ( l > 90 && l <= 160 ) {
 				c = 2
-			} else if ( l > 270 && l <= 400 ) {
+			}	else if ( l > 160 && l <= 220 ) {
 				c = 3
-			} else if ( l > 400 && l <= 530 ) {
+			} else if ( l > 220 && l <= 350 ) {
 				c = 4
-			} else if ( l > 530 ) {
+			} else if ( l > 350 && l <= 480 ) {
 				c = 5
+			} else if ( l > 480 ) {
+				c = 6
 			}
 
 
