@@ -203,6 +203,7 @@ class industry_manager_t extends manager_t
 			// come back later
 			return
 		}
+
 		// try to upgrade
 		if (cnv.has_obsolete_vehicles()  &&  link.next_check < world.get_time().ticks) {
 			link.next_check = world.get_time().next_month_ticks
@@ -289,6 +290,7 @@ class industry_manager_t extends manager_t
 				local is_empty = c.get_loading_level() == 0
 				// convoy new? less than 2 months old, and not much transported
 				local d = c.get_traveled_distance()
+
 				local is_new = (d[0] + d[1] == c.get_distance_traveled_total())
 				if (is_new) {
 					local t = c.get_transported_goods();
@@ -320,6 +322,13 @@ class industry_manager_t extends manager_t
 				if (is_empty  &&  is_stopped  &&  cnv_empty_stopped==null) {
 					cnv_empty_stopped = c
 				}
+
+				// stucked road vehicles destroy
+				if ( c.get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && c.get_loading_level() == 0 && c.get_waytype() == wt_road ) {
+					//gui.add_message_at(our_player, "####### check cnv.name " + c.get_name(), world.get_time())
+					c.destroy(our_player)
+				}
+
 			}
 		}
 		dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
