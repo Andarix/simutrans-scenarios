@@ -2121,7 +2121,7 @@ function check_way_line(start, end, wt, l, c) {
 			if ( c == 1 ) {
 				s.append(as - 10 )
 			} else {
-				s.append(as - (as * 0.4).tointeger() - 10 )
+				s.append(as - (as * 0.3).tointeger() )
 			}
 		} else {
 			s.append(s[i-1]+as)
