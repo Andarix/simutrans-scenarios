@@ -509,12 +509,14 @@ function remove_wayline(route, pos, wt) {
 			} else {
 				if ( wt == wt_road ) {
 					local test_way = tile.find_object(mo_way) //.get_desc()
+					local tile_coord = coord3d_to_string(tile)
 					if ( test_way.get_player() == our_player ) {
-						// remone player road from tile
+						// remove player road from tile
+						// not remove public player road from tile
 						tool.work(our_player, tile)
 					}
 				} else {
-					// remone way from tile
+					// remove way from tile
 					tool.work(our_player, tile)
 				}
 			}
@@ -584,23 +586,24 @@ function remove_tile_to_empty(tiles, wt) {
 	local tool = command_x(tool_remover)
 	for ( local i = tiles.len(); i > 0; i-- ) {
 		gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i-1]), tiles[i-1])
+		local tile_remove = 1
+
 		local tiles_r = square_x(tiles[i-1].x, tiles[i-1].y).get_ground_tile()
 		local test_way = tiles_r.find_object(mo_way) //.get_desc()
+		local tile_coord = coord3d_to_string(tiles_r)
 		if ( test_way != null ) {
-			if ( test_way.get_player() == our_player ) {
-				while(true){
-					tool.work(our_player, tiles_r)
-					if (tiles_r.is_empty())
-						break
-				}
-			} else {
+			if ( test_way.get_player() != our_player ) {
+				tile_remove = 0
+			}
+		}
+
+			if ( tile_remove == 1 ) {
 				while(true){
 					tool.work(our_player, tiles_r)
 					if (tiles_r.is_empty())
 						break
 				}
 			}
-		}
 	}
 
 }
@@ -2101,7 +2104,7 @@ function check_way_line(start, end, wt, l, c) {
 	local di = 0
 	local r = 0
 	// distance double ways
-	local as = (l / (c + 1))
+	local as = (l / (c + 1)).tointeger()
 	/*
 	if ( l < 140 ) {
 		as - 25
@@ -2124,7 +2127,7 @@ function check_way_line(start, end, wt, l, c) {
 				s.append(as - (as * 0.3).tointeger() )
 			}
 		} else {
-			s.append(s[i-1]+as)
+			s.append(s[i-1]+as+10)
 		}
 
 
@@ -2729,19 +2732,21 @@ function check_way_line(start, end, wt, l, c) {
 					start_fields.append(nexttile[i-way_len])
 				}*/
 			}
+
 			if ( print_message_box == 2 ) {
 				gui.add_message_at(our_player, "  tile s[" + r + "] " + coord3d_to_string(start_fields[r]), start_fields[r])
 				gui.add_message_at(our_player, "  i " + i + "  r " + r + "  s[" + r + "] " + s[r], world.get_time())
 				gui.add_message_at(our_player, "* " + coord3d_to_string(t), world.get_time())
 			}
+
 			if ( r < c ) {
 				if ( r < s.len() - 1 ) { r++ }
 				if ( i > s[r] ) {
 					s[r] = i + 10
 				}
 			}
-		}
 
+		}
 
 		//gui.add_message_at(our_player, "  tile d " + d + " * " + coord3d_to_string(t), world.get_time())
 	}
@@ -2751,6 +2756,11 @@ function check_way_line(start, end, wt, l, c) {
 				gui.add_message_at(our_player, message_text[j], world.get_time())
 			}
 		}
+
+	if ( sign == c - 1 && c > 2 ) {
+		gui.add_message_at(our_player, (c-1) + " double way found, no build " + c, world.get_time())
+		return true
+	}
 
 	if ( c == 0 ) {
 		return nexttile

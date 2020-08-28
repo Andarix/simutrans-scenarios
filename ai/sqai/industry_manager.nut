@@ -282,6 +282,7 @@ class industry_manager_t extends manager_t
 		local cc_new   = 0
 		local cc_empty = 0
 		local cnv_empty_stopped = null
+		local remove_cnv = 0
 		{
 			local list = line.get_convoy_list()
 			foreach(c in list)
@@ -324,9 +325,10 @@ class industry_manager_t extends manager_t
 				}
 
 				// stucked road vehicles destroy
-				if ( c.get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && c.get_loading_level() == 0 && c.get_waytype() == wt_road ) {
+				if ( c.get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && c.get_loading_level() == 0 && c.get_waytype() == wt_road && (cnv_count - remove_cnv) > 1) {
 					//gui.add_message_at(our_player, "####### check cnv.name " + c.get_name(), world.get_time())
 					c.destroy(our_player)
+					remove_cnv++
 				}
 
 			}
@@ -372,7 +374,11 @@ class industry_manager_t extends manager_t
 					//gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
 
 					local build = false
-					if ( s_fields.len() == c ) {
+					if ( s_fields.len() == c || s_fields.len() == c - 1 ) {
+						if ( s_fields.len() == c - 1 ) {
+							c--
+						}
+
 						for ( local i = 0; i < c; i++ ) {
 							build = build_double_track(s_fields[i], wt_rail)
 							if ( build ) {
