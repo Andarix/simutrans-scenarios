@@ -497,7 +497,7 @@ function remove_wayline(route, pos, wt) {
 			if ( i > 0 ) {
 				local tiles = [7, 11, 13, 14, 15]
 				for ( local k = 0; k < tiles.len(); k++ ) {
-					if ( next_tile.get_way_dirs(wt) == tiles[k] || t_field.get_owner() == 1 ) {
+					if ( next_tile.get_way_dirs(wt) == tiles[k] || t_field.get_owner().nr == 1 ) {
 						test = 1
 					}
 				}
@@ -510,7 +510,7 @@ function remove_wayline(route, pos, wt) {
 				if ( wt == wt_road ) {
 					local test_way = tile.find_object(mo_way) //.get_desc()
 					local tile_coord = coord3d_to_string(tile)
-					if ( test_way.get_player() == our_player ) {
+					if ( test_way.get_owner().nr == our_player_nr ) {
 						// remove player road from tile
 						// not remove public player road from tile
 						tool.work(our_player, tile)
@@ -592,7 +592,7 @@ function remove_tile_to_empty(tiles, wt) {
 		local test_way = tiles_r.find_object(mo_way) //.get_desc()
 		local tile_coord = coord3d_to_string(tiles_r)
 		if ( test_way != null ) {
-			if ( test_way.get_player() != our_player ) {
+			if ( test_way.get_owner().nr != our_player_nr ) {
 				tile_remove = 0
 			}
 		}
