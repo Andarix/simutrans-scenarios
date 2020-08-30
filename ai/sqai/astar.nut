@@ -506,24 +506,23 @@ function remove_wayline(route, pos, wt) {
 			if ( i == 0 && tile.find_object(mo_building) != null ) {
 				// no remove station
 				test = 1
-			} else {
-				if ( wt == wt_road ) {
+			} else if ( wt == wt_road ) {
 					local test_way = tile.find_object(mo_way) //.get_desc()
-					local tile_coord = coord3d_to_string(tile)
+					//local tile_coord = coord3d_to_string(tile)
 					if ( test_way.get_owner().nr == our_player_nr ) {
 						// remove player road from tile
 						// not remove public player road from tile
 						tool.work(our_player, tile)
+					}else {
+						// break public way ( road )
+						test = 1
 					}
-				} else {
-					// remove way from tile
-					tool.work(our_player, tile)
-				}
+			} else {
+				// remove way from tile
+				tool.work(our_player, tile)
 			}
-		}
-		// test crossing and remove
-		t_field = tile.find_object(mo_crossing)
-		if ( t_field != null ) {
+		} else if ( tile.find_object(mo_crossing) != null ) {
+			// test crossing and remove
 			tool.work(our_player, tile)
 		}
 		// break by direction 7, 11, 13, 14, 15 or owner public player next tile
@@ -552,21 +551,39 @@ function remove_wayline(route, pos, wt) {
 				if ( j == 0 && tile.find_object(mo_building) != null ) {
 					// no remove station
 					test = 1
+				} else if ( wt == wt_road ) {
+					local test_way = tile.find_object(mo_way) //.get_desc()
+					//local tile_coord = coord3d_to_string(tile)
+					if ( test_way.get_owner().nr == our_player_nr ) {
+						// remove player road from tile
+						// not remove public player road from tile
+						tool.work(our_player, tile)
+					} else {
+						// break public way ( road )
+						test = 1
+					}
 				} else {
-					// remone way from tile
+					// remove way from tile
 					tool.work(our_player, tile)
 				}
 			}
-			// test crossing and remove
-			t_field = tile.find_object(mo_crossing)
-			if ( t_field != null ) {
-				tool.work(our_player, tile)
+
+			if ( tile.find_object(mo_crossing) != null && wt == wt_rail ) {
+				// test crossing and remove
+				local tool = command_x(tool_remove_way)
+				tool.work(our_player, tile, tile, "" + wt_rail)
+				//tool.work(our_player, tile)
 			}
 			// break by direction 7, 11, 13, 14, 15
 			if ( test == 1 ) { break }
 		}
 	}
 
+	// check tile pos to ewmpty
+	local tile = square_x(route[pos].x, route[pos].y).get_ground_tile()
+	if ( tile.find_object(mo_way) != null && wt == wt_rail ) {
+		tool.work(our_player, tile)
+	}
 
 
 	if ( test == 0 ) {
