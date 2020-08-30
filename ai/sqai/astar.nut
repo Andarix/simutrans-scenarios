@@ -1754,8 +1754,8 @@ function build_double_track(start_field, wt) {
 					gui.add_message_at(b_player, "signals 10 tr " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 
 				} else if ( d == 5 ) {
-					signal = [{coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=4}, {coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=1}]
-					gui.add_message_at(b_player, "signals 5 tr " + coord3d_to_string(tiles[6]) + " & " + coord3d_to_string(tiles_build[1]), world.get_time())
+					signal = [{coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=1}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=4}]
+					gui.add_message_at(b_player, "signals 5 tr " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
 
 				} else if ( diagonal_st == 6 ) {
 					// ribi 6 to 6
@@ -1851,8 +1851,9 @@ function build_double_track(start_field, wt) {
 					if ( settings.get_drive_on_left() ) {
 
 					} else {
-						if ( (tile_x(signal[1].coor.x, signal[1].coor.y, signal[1].coor.z).get_way_dirs(wt) == 11 || tile_x(signal[1].coor.x, signal[1].coor.y, signal[1].coor.z).get_way_dirs(wt) == 13) ) {
-						sig_field = 1
+						local st = tile_x(signal[1].coor.x, signal[1].coor.y, signal[1].coor.z).get_way_dirs(wt)
+						if ( st == 11 || st == 13 || st == 7 || st == 14 ) {
+							sig_field = 1
 						}
 					}
 				}
@@ -1981,8 +1982,8 @@ function build_double_track(start_field, wt) {
 				local sig_1 = tile_x(signal[0].coor.x, signal[0].coor.y, signal[0].coor.z)
 				local sig_2 = tile_x(signal[1].coor.x, signal[1].coor.y, signal[1].coor.z)
 				if ( sig_1.find_object(mo_way) != null && sig_2.find_object(mo_way) != null ) {
-					local tiles = [3, 5, 6, 9, 10, 12]
 					local test = 0
+					/*local tiles = [3, 5, 6, 7, 9, 10, 11, 12]
 					for ( local i = 0; i < tiles.len(); i++ ) {
 						if ( sig_1.get_way_dirs(wt) == tiles[i] ) {
 							test++
@@ -1991,7 +1992,7 @@ function build_double_track(start_field, wt) {
 							test++
 						}
 					}
-					if ( test == 2 ) {
+					if ( test == 2 ) {*/
 						for ( local j=0; j < signal.len(); j++ ) {
 
 							if ( print_message_box == 1 ) {
@@ -2024,7 +2025,7 @@ function build_double_track(start_field, wt) {
 
 						}
 
-					}
+					//}
 				}
 
 		}
@@ -2198,6 +2199,7 @@ function check_way_line(start, end, wt, l, c) {
 		}
 
 		if ( d == 10 || d == 11 || d == 14 ) {
+			gui.add_message_at(our_player, " * i " + i + " d == 10 || d == 11 || d == 14 " + coord3d_to_string(nexttile[i-1]), world.get_time())
 
 	 		if ( (i >= 1 && ( nexttile[i-2].x < nexttile[i-1].x) || reset == 1 ) ) {
 				d = 2
@@ -2207,6 +2209,17 @@ function check_way_line(start, end, wt, l, c) {
 				d = 2
 			} else {
 				d = 8
+			}
+
+			if ( di == 12 && dc == 11 ) {
+				// 2 or 8
+				//gui.add_message_at(our_player, " * di == 12 || dc == 11", world.get_time())
+				local t = nexttile[i-1].get_neighbour(wt, 8)
+				if ( t.get_way_dirs(wt) == 2 ) {
+					d = 2
+				} else {
+					d = 8
+				}
 			}
 
 		} else if ( d == 5 || d == 7 || d == 13 ) {
