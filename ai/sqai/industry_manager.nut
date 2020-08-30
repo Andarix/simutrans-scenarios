@@ -285,7 +285,7 @@ class industry_manager_t extends manager_t
 		local cc_new   = 0
 		local cc_empty = 0
 		local cnv_empty_stopped = null
-		local remove_cnv = 0
+		//local remove_cnv = 0
 		{
 			local list = line.get_convoy_list()
 			foreach(c in list)
@@ -328,7 +328,7 @@ class industry_manager_t extends manager_t
 				}
 
 				// stucked road vehicles destroy
-				if ( c.get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && c.get_loading_level() == 0 && c.get_waytype() == wt_road && cnv_count > 1) {
+				if ( c.get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && c.is_loading() == false && c.get_waytype() == wt_road && cnv_count > 1) {
 					//gui.add_message_at(our_player, "####### destroy stucked road vehicles " + cnv_count, world.get_time())
 					c.destroy(our_player)
 					cnv_count--
@@ -405,7 +405,7 @@ class industry_manager_t extends manager_t
 
 			if ( link.double_ways_count > 0 ) {
 				cnv_count = link.double_ways_count + 1
-				gui.add_message_at(our_player, "###---- set convoy count from link.double_ways_count " + cnv_count, world.get_time())
+				//gui.add_message_at(our_player, "###---- set convoy count from link.double_ways_count " + cnv_count, world.get_time())
 			}
 
 
