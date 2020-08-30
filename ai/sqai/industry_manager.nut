@@ -15,6 +15,9 @@ class industry_link_t
 	state = 0
 	lines = null   // array<line_x>
 
+	double_ways_count = 0 // count of double way build
+	double_ways_build = 0 // double way build: 0 = no ; 1 = yes
+
 	// next check needed if ticks > next_check
 	// state == st_missing: check availability again
 	// state == st_build: check for possible upgrades
@@ -357,7 +360,7 @@ class industry_manager_t extends manager_t
 
 
 			// no signals and double tracks - limit 1 convoy for rail
-			if (cnv.get_waytype() == wt_rail && cnv_count == 1 && c > 0) {
+			if (cnv.get_waytype() == wt_rail && cnv_count == 1 && c > 0 && link.double_ways_build == 0 ) {
 				if ( print_message_box == 1 ) {
 					gui.add_message_at(our_player, "####### cnv.get_waytype() " + cnv.get_waytype() + " cnv.name " + cnv.get_name(), world.get_time())
 					gui.add_message_at(our_player, "####### lenght " + l + " double ways " + c, world.get_time())
@@ -390,12 +393,18 @@ class industry_manager_t extends manager_t
 				}
 
 				if ( cc > 1 ) {
-					cnv_count = cc
+					link.double_ways_count = cc
+					link.double_ways_build = 1
 				} else {
 					return
 				}
 			} else if (cnv.get_waytype() == wt_rail && (cnv_count > c || c == 0) ) {
 				return
+			}
+
+			if ( link.double_ways_count > 0 ) {
+				cnv_count = link.double_ways_count + 2
+				gui.add_message_at(our_player, "###---- set convoy count from link.double_ways_count " + cnv_count, world.get_time())
 			}
 
 
