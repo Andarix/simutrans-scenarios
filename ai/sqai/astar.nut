@@ -2199,7 +2199,7 @@ function check_way_line(start, end, wt, l, c) {
 		}
 
 		if ( d == 10 || d == 11 || d == 14 ) {
-			gui.add_message_at(our_player, " * i " + i + " d == 10 || d == 11 || d == 14 " + coord3d_to_string(nexttile[i-1]), world.get_time())
+			//gui.add_message_at(our_player, " * i " + i + " d == 10 || d == 11 || d == 14 " + coord3d_to_string(nexttile[i-1]), world.get_time())
 
 	 		if ( (i >= 1 && ( nexttile[i-2].x < nexttile[i-1].x) || reset == 1 ) ) {
 				d = 2
