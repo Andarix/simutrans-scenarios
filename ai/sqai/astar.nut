@@ -2257,8 +2257,8 @@ function check_way_line(start, end, wt, l, c) {
 			}
 		} else if ( d == 9 ) {
 			if ( nexttile[i-2].y < nexttile[i-1].y ) {
-					d = 8
-			} else if ( ( di == 13 || di == 7 ) && d == 9 ) {
+				d = 8
+			} else if ( ( di == 13 || di == 7 || di == 15 ) && d == 9 ) {
 				d = 1
 			} else {
 				d = 1
@@ -2269,7 +2269,7 @@ function check_way_line(start, end, wt, l, c) {
 				d = 4
 			} else if ( nexttile[i-2].y > nexttile[i-1].y ) {
 				d = 2
-			} else if ( (di == 5 || di == 9) && d == 6 ) {
+			} else if ( (di == 5 || di == 9 || di == 15 ) && d == 6 ) {
 				d = 2
 			} else if ( di == 13 && d == 6 ) {
 				d = 4
@@ -2284,15 +2284,40 @@ function check_way_line(start, end, wt, l, c) {
 				d = 1
 			}
 		} else if ( d == 15 ) {
-			if ( di == 10 && nexttile[i-2].x < nexttile[i-1].x ) {
+			gui.add_message_at(our_player, " * check d=15 " + coord3d_to_string(nexttile[i-1]) + " d " + d + " i " + i + " dc " + dc + " di " + di, world.get_time())
+			if ( di == 10 ) {
+				if ( nexttile[i-2].x < nexttile[i-1].x ) {
+					// ribi 15 to e from ribi 10
+					d = 2
+				} else {
+					// ribi 15 to w from ribi 10
+					d = 8
+				}
+			} else if ( di == 5 ) {
+				if ( nexttile[i-2].y < nexttile[i-1].y ) {
+					// ribi 15 to s from ribi 5
+					d = 1
+				} else {
+					// ribi 15 to s from ribi 5
+					d = 4
+				}
+			} else if ( di == 6 || di == 9 ) {
+				if ( nexttile[i-2].x < nexttile[i-1].x && nexttile[i-2].y == nexttile[i-1].y ) {
+					// ribi 15 to e from ribi 6
+					d = 2
+				} else if ( nexttile[i-2].x > nexttile[i-1].x && nexttile[i-2].y == nexttile[i-1].y ) {
+					// ribi 15 to w from ribi 9
+					d = 8
+				} else if ( nexttile[i-2].x == nexttile[i-1].x && nexttile[i-2].y > nexttile[i-1].y ) {
+					// ribi 15 to n from ribi 6
+					d = 1
+				} else if ( nexttile[i-2].x == nexttile[i-1].x && nexttile[i-2].y < nexttile[i-1].y ) {
+					// ribi 15 to s from ribi 9
+					d = 4
+				}
+			} else {
+				// default ribi 15 to e
 				d = 2
-			} else {
-				d = 8
-			}
-			if ( di == 5 && nexttile[i-2].y < nexttile[i-1].y ) {
-				d = 1
-			} else {
-				d = 4
 			}
 		}
 
