@@ -446,7 +446,7 @@ class astar_builder extends astar
  */
 function set_marker(pos) {
 	local m_tile = null
-	if ( pos.len() > 0 ) {
+	if (type(pos) == "array") {
 		m_tile = pos[0]
 	} else {
 		m_tile = pos
