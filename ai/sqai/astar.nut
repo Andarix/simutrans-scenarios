@@ -1003,8 +1003,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 			i = 0
 		}
 		for ( i; i < t; i++ ) {
-			local r = square_x(fields[i].x, fields[i].y)
-			local z = r.get_ground_tile()
+			local z = square_x(fields[i].x, fields[i].y).get_ground_tile()
 			local f = tile_x(fields[i].x, fields[i].y, z.z)
 
 			if ( f.is_empty() && ( f.get_slope() > 0 || ref_hight != z.z ) ) {
