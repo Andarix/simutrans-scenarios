@@ -26,7 +26,7 @@ class rail_connector_t extends manager_t
 	// 1 = way
 	// 2 = stations
 	// 3 = depot
-	print_message_box = 0
+	print_message_box = 1
 
 	constructor()
 	{
@@ -74,10 +74,13 @@ class rail_connector_t extends manager_t
 				{
 					sleep()
 					local d = pl.get_current_cash();
+					gui.add_message_at(pl, "c_start.len() " + c_start.len(), world.get_time())
 					local err = construct_rail(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 					if ( print_message_box == 1 && c_start.len()>0  &&  c_end.len()>0) {
 						gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time())
+					} else if ( print_message_box == 1 ) {
+						gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time())
 					}
 					if (err && c_start.len()>0  &&  c_end.len()>0) {
 						print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
@@ -118,8 +121,8 @@ class rail_connector_t extends manager_t
 					local s_src = check_station(pl, c_start, count, wt_rail, planned_station)
 					if ( s_src == false ) {
 						print("Failed to build station at " + coord_to_string(c_start))
-						if ( print_message_box == 2 ) {
-							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_start), world.get_time())
+						if ( print_message_box > 0 ) {
+							gui.add_message_at(pl, "Failed to build rail station at  " + coord3d_to_string(c_start), world.get_time())
 						}
 						remove_wayline(c_route, c_route.len()-1, wt_rail)
 						return error_handler()
@@ -138,15 +141,32 @@ class rail_connector_t extends manager_t
 					local s_dest = check_station(pl, c_end, count, wt_rail, station_select)
 					if ( s_dest == false ) {
 						print("Failed to build station at " + coord_to_string(c_end))
-						if ( print_message_box == 2 ) {
+						if ( print_message_box > 0 ) {
 							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end), world.get_time())
 						}
 						remove_wayline(c_route, c_route.len()-1, wt_rail)
 						remove_tile_to_empty(s_src, wt_rail)
 						return error_handler()
-					}
+					} else {
 
-					// build station c_start and c_end
+						// move c_start and c_end to end from station
+						local t_fields = [1, 2, 4, 8]
+						for ( local i = 0; i < s_src.len(); i++ ) {
+							for ( local j = 0; j < t_fields.len(); j++ ) {
+								gui.add_message_at(our_player, "  check " + coord3d_to_string(s_src[i]), s_src[i])
+								if ( s_src[i].get_way_dirs(wt_rail) == t_fields[j] ) {
+									gui.add_message_at(our_player, "  set c_start to " + coord3d_to_string(s_src[i]), s_src[i])
+									c_start = s_src[i]
+								}
+								gui.add_message_at(our_player, "  check " + coord3d_to_string(s_dest[i]), s_dest[i])
+								if ( s_dest[i].get_way_dirs(wt_rail) == t_fields[j] ) {
+									gui.add_message_at(our_player, "  set c_end to " + coord3d_to_string(s_dest[i]), s_dest[i])
+									c_end = s_dest[i]
+								}
+							}
+						}
+
+					}
 
 					//local
 					if ( finalize ) {
@@ -161,7 +181,7 @@ class rail_connector_t extends manager_t
 
 					if ( print_message_box == 2 ) {
 						//gui.add_message_at(our_player, " ... rotate " + rotate, world.get_time())
-						gui.add_message_at(pl, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time())
+						gui.add_message_at(pl, "Build station on " + coord3d_to_string(c_start) + " and " + coord3d_to_string(c_end), world.get_time())
 					}
 
 					phase ++
