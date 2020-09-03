@@ -186,11 +186,11 @@ class industry_connection_planner_t extends manager_t
 		}
 		cnv_valuator.distance = distance
 
-		if ( print_message_box > 0 ) {
+		if ( print_message_box == 0 ) {
 			gui.add_message_at(our_player, "___________________________ Start plan_simple_connection __________________________", world.get_time())
 			//gui.add_message_at(our_player, "plan way ", world.get_time())
 			local t = tile_x(fsrc.x, fsrc.y, 0)
-			gui.add_message_at(our_player, "Plan link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, t)
+			gui.add_message_at(our_player, "Plan " + wt_name[wt] + " link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, t)
 		}
 
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
@@ -311,14 +311,14 @@ class industry_connection_planner_t extends manager_t
 		if (start) {
 			cn.c_start = [start]
 			print("Connector from " + coord_to_string(start))
+			// mark tile for station
+			//set_marker(cn.c_start)
 		}
 		if (target) {
 			cn.c_end = [target]
 			print("Connector to " + coord_to_string(target))
-			// mark tile for harbour/dock
-			if ( wt == wt_water ) {
-				set_marker(target)
-			}
+			// mark tile for station
+			//set_marker(cn.c_end)
 		}
 
 		r.distance = cnv_valuator.distance

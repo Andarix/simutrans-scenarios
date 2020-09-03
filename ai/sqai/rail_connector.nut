@@ -43,6 +43,9 @@ class rail_connector_t extends manager_t
 		local fs = fsrc.get_tile_list()
 		local fd = fdest.get_tile_list()
 
+		local s_src = null
+		local s_dest = null
+
 		if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
 			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
 			return r_t(RT_TOTAL_FAIL)
@@ -74,7 +77,7 @@ class rail_connector_t extends manager_t
 				{
 					sleep()
 					local d = pl.get_current_cash();
-					gui.add_message_at(pl, "c_start.len() " + c_start.len(), world.get_time())
+					gui.add_message_at(pl, "c_start.len() " + c_start.len() + " - c_end.len() " + c_end.len(), world.get_time())
 					local err = construct_rail(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 
@@ -112,16 +115,16 @@ class rail_connector_t extends manager_t
 						count += 1
 					} while(a > 0)
 
-					if ( print_message_box == 2 ) {
-						gui.add_message_at(our_player, " stations lenght: " + count, world.get_time())
+					if ( print_message_box == 1 ) {
+						gui.add_message_at(our_player, " rail_connector stations lenght: " + count, world.get_time())
 					}
 
 					// check place and build station to c_start
-					local s_src = check_station(pl, c_start, count, wt_rail, planned_station)
+					s_src = check_station(pl, c_start, count, wt_rail, planned_station)
 					if ( s_src == false ) {
 						print("Failed to build station at " + coord_to_string(c_start))
 						if ( print_message_box > 0 ) {
-							gui.add_message_at(pl, "Failed to build rail station at  " + coord3d_to_string(c_start), world.get_time())
+							gui.add_message_at(pl, "Failed to build rail station at s_src " + coord3d_to_string(c_start), world.get_time())
 						}
 						remove_wayline(c_route, c_route.len()-1, wt_rail)
 						return error_handler()
@@ -137,30 +140,36 @@ class rail_connector_t extends manager_t
 						}
 					}
 					// check place and build station to c_end
-					local s_dest = check_station(pl, c_end, count, wt_rail, station_select)
+					s_dest = check_station(pl, c_end, count, wt_rail, station_select)
 					if ( s_dest == false ) {
 						print("Failed to build station at " + coord_to_string(c_end))
 						if ( print_message_box > 0 ) {
-							gui.add_message_at(pl, "Failed to build rail station at  " + coord_to_string(c_end), world.get_time())
+							gui.add_message_at(pl, "Failed to build rail station at s_dest " + coord_to_string(c_end), world.get_time())
 						}
 						remove_wayline(c_route, c_route.len()-1, wt_rail)
 						remove_tile_to_empty(s_src, wt_rail)
 						return error_handler()
-					} else {
+					}
+
+					if ( type(s_src) == "array" && s_src.len() > 0 && type(s_dest) == "array" && s_dest.len() > 0 ) {
 
 						// move c_start and c_end to end from station
 						local t_fields = [1, 2, 4, 8]
 						for ( local i = 0; i < s_src.len(); i++ ) {
 							for ( local j = 0; j < t_fields.len(); j++ ) {
 								gui.add_message_at(our_player, "  check " + coord3d_to_string(s_src[i]), s_src[i])
-								if ( s_src[i].get_way_dirs(wt_rail) == t_fields[j] ) {
-									gui.add_message_at(our_player, "  set c_start to " + coord3d_to_string(s_src[i]), s_src[i])
-									c_start = s_src[i]
+								if ( s_src.find_object(mo_way) != null ) {
+									if ( s_src[i].get_way_dirs(wt_rail) == t_fields[j] ) {
+										gui.add_message_at(our_player, "  set c_start to " + coord3d_to_string(s_src[i]), s_src[i])
+										c_start = s_src[i]
+									}
 								}
 								gui.add_message_at(our_player, "  check " + coord3d_to_string(s_dest[i]), s_dest[i])
-								if ( s_dest[i].get_way_dirs(wt_rail) == t_fields[j] ) {
-									gui.add_message_at(our_player, "  set c_end to " + coord3d_to_string(s_dest[i]), s_dest[i])
-									c_end = s_dest[i]
+								if ( s_src.find_object(mo_way) != null ) {
+									if ( s_dest[i].get_way_dirs(wt_rail) == t_fields[j] ) {
+										gui.add_message_at(our_player, "  set c_end to " + coord3d_to_string(s_dest[i]), s_dest[i])
+										c_end = s_dest[i]
+									}
 								}
 							}
 						}
