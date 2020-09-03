@@ -77,17 +77,16 @@ class rail_connector_t extends manager_t
 					gui.add_message_at(pl, "c_start.len() " + c_start.len(), world.get_time())
 					local err = construct_rail(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
-					if ( print_message_box == 1 && c_start.len()>0  &&  c_end.len()>0) {
-						gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time())
-					} else if ( print_message_box == 1 ) {
-						gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time())
-					}
-					if (err && c_start.len()>0  &&  c_end.len()>0) {
+
+					if (err) { // fail, c_start, c_end still arrays
 						print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
 						return error_handler()
-					} else if (err) {
-						print("Failed to build way from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
-						return error_handler()
+					}
+					else {
+						// success, now c_start, c_end contain the start/end points where something was built
+						if ( print_message_box == 1 ) {
+							gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time())
+						}
 					}
 					phase ++
 				}
