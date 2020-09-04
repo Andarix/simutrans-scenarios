@@ -905,12 +905,12 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 						if ( t_tile.get_way_dirs(wt) == t_fields[j] ) {
 
 							if ( b_tile[0].x == c_start.x && b_tile[0].y == c_start.y ) {
-								gui.add_message_at(our_player, "  set c_start to " + coord3d_to_string(t_tile), t_tile)
+								//gui.add_message_at(our_player, "  set c_start to " + coord3d_to_string(t_tile), t_tile)
 								c_start = t_tile
 							}
 
 							if ( b_tile[0].x == c_end.x && b_tile[0].y == c_end.y ) {
-								gui.add_message_at(our_player, "  set c_end to " + coord3d_to_string(t_tile), t_tile)
+								//gui.add_message_at(our_player, "  set c_end to " + coord3d_to_string(t_tile), t_tile)
 								c_end = t_tile
 							}
 
@@ -1047,7 +1047,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 					do {
 						err = command_x.set_slope(pl, tile_x(f.x, f.y, z.z), 82 )
 						if ( err != null ) { break }
-						z = r.get_ground_tile()
+						z = square_x(fields[i].x, fields[i].y).get_ground_tile()
 					} while(z.z < ref_hight )
 
 				} else if ( z.z >= ref_hight || z.z <= (ref_hight + 1) ) {
@@ -1058,7 +1058,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 					do {
 						err = command_x.set_slope(pl, tile_x(f.x, f.y, z.z), 83 )
 						if ( err != null ) { break }
-						z = r.get_ground_tile()
+						z = square_x(fields[i].x, fields[i].y).get_ground_tile()
 					} while(z.z > ref_hight )
 				}
 				if ( err ) {
