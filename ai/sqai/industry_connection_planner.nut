@@ -186,7 +186,7 @@ class industry_connection_planner_t extends manager_t
 		}
 		cnv_valuator.distance = distance
 
-		if ( print_message_box == 0 ) {
+		if ( print_message_box > 0 ) {
 			gui.add_message_at(our_player, "___________________________ Start plan_simple_connection __________________________", world.get_time())
 			//gui.add_message_at(our_player, "plan way ", world.get_time())
 			local t = tile_x(fsrc.x, fsrc.y, 0)

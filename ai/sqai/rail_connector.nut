@@ -26,7 +26,7 @@ class rail_connector_t extends manager_t
 	// 1 = way
 	// 2 = stations
 	// 3 = depot
-	print_message_box = 1
+	print_message_box = 0
 
 	constructor()
 	{
@@ -77,7 +77,7 @@ class rail_connector_t extends manager_t
 				{
 					sleep()
 					local d = pl.get_current_cash();
-					gui.add_message_at(pl, "c_start.len() " + c_start.len() + " - c_end.len() " + c_end.len(), world.get_time())
+					//gui.add_message_at(pl, "c_start.len() " + c_start.len() + " - c_end.len() " + c_end.len(), world.get_time())
 					local err = construct_rail(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 
@@ -149,31 +149,6 @@ class rail_connector_t extends manager_t
 						remove_wayline(c_route, c_route.len()-1, wt_rail)
 						remove_tile_to_empty(s_src, wt_rail)
 						return error_handler()
-					}
-
-					if ( type(s_src) == "array" && s_src.len() > 0 && type(s_dest) == "array" && s_dest.len() > 0 ) {
-
-						// move c_start and c_end to end from station
-						local t_fields = [1, 2, 4, 8]
-						for ( local i = 0; i < s_src.len(); i++ ) {
-							for ( local j = 0; j < t_fields.len(); j++ ) {
-								gui.add_message_at(our_player, "  check " + coord3d_to_string(s_src[i]), s_src[i])
-								if ( s_src.find_object(mo_way) != null ) {
-									if ( s_src[i].get_way_dirs(wt_rail) == t_fields[j] ) {
-										gui.add_message_at(our_player, "  set c_start to " + coord3d_to_string(s_src[i]), s_src[i])
-										c_start = s_src[i]
-									}
-								}
-								gui.add_message_at(our_player, "  check " + coord3d_to_string(s_dest[i]), s_dest[i])
-								if ( s_src.find_object(mo_way) != null ) {
-									if ( s_dest[i].get_way_dirs(wt_rail) == t_fields[j] ) {
-										gui.add_message_at(our_player, "  set c_end to " + coord3d_to_string(s_dest[i]), s_dest[i])
-										c_end = s_dest[i]
-									}
-								}
-							}
-						}
-
 					}
 
 					//local

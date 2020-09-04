@@ -877,7 +877,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 			// build station
 			if ( b_tile.len() == st_lenght && build == 1) {
 				st_build = expand_station(pl, b_tile, wt, select_station, starts_field)
-				if ( starts_field.x != b_tile[0].x || starts_field.y != b_tile[0].y ) {
+				if ( ( starts_field.x != b_tile[0].x || starts_field.y != b_tile[0].y ) && st_build != false ) {
 					err = command_x.build_way(pl, starts_field, b_tile[0], planned_way, true)
 					// station move then set c_start/c_end new
 					if ( starts_field.x == c_start.x && starts_field.y == c_start.y ) {
@@ -891,6 +891,32 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 				st_build = true
 			} else {
 				b_tile.clear()
+			}
+		}
+
+		// move c_start/c_end to end from station
+		if ( st_build != false ) {
+			local t_fields = [1, 2, 4, 8]
+			for ( local i = 0; i < st_build.len(); i++ ) {
+				for ( local j = 0; j < t_fields.len(); j++ ) {
+					//gui.add_message_at(our_player, "  check " + coord3d_to_string(st_build[i]), st_build[i])
+					local t_tile = tile_x(st_build[i].x, st_build[i].y, st_build[i].z)
+					if ( t_tile.find_object(mo_way) != null ) {
+						if ( t_tile.get_way_dirs(wt) == t_fields[j] ) {
+
+							if ( b_tile[0].x == c_start.x && b_tile[0].y == c_start.y ) {
+								gui.add_message_at(our_player, "  set c_start to " + coord3d_to_string(t_tile), t_tile)
+								c_start = t_tile
+							}
+
+							if ( b_tile[0].x == c_end.x && b_tile[0].y == c_end.y ) {
+								gui.add_message_at(our_player, "  set c_end to " + coord3d_to_string(t_tile), t_tile)
+								c_end = t_tile
+							}
+
+						}
+					}
+				}
 			}
 		}
 
