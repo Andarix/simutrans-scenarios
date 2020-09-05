@@ -503,7 +503,7 @@ function remove_wayline(route, pos, wt) {
 				}
 			}
 
-			if ( i == 0 && tile.find_object(mo_building) != null ) {
+			if ( tile.find_object(mo_building) != null ) {
 				// no remove station
 				test = 1
 			} else if ( wt == wt_road ) {
@@ -548,7 +548,7 @@ function remove_wayline(route, pos, wt) {
 					}
 				}
 
-				if ( j == 0 && tile.find_object(mo_building) != null ) {
+				if ( tile.find_object(mo_building) != null ) {
 					// no remove station
 					test = 1
 				} else if ( wt == wt_road ) {
@@ -581,7 +581,7 @@ function remove_wayline(route, pos, wt) {
 
 	// check tile pos to ewmpty
 	local tile = square_x(route[pos].x, route[pos].y).get_ground_tile()
-	if ( tile.find_object(mo_way) != null && wt == wt_rail ) {
+	if ( tile.find_object(mo_way) != null && wt == wt_rail && test == 0 ) {
 		tool.work(our_player, tile)
 	}
 
