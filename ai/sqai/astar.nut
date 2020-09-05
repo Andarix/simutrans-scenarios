@@ -523,7 +523,9 @@ function remove_wayline(route, pos, wt) {
 			}
 		} else if ( tile.find_object(mo_crossing) != null ) {
 			// test crossing and remove
-			tool.work(our_player, tile)
+			local tool = command_x(tool_remove_way)
+			tool.work(our_player, tile, tile, "" + wt_rail)
+			//tool.work(our_player, tile)
 		}
 		// break by direction 7, 11, 13, 14, 15 or owner public player next tile
 		if ( test == 1 ) { break }
@@ -1708,7 +1710,7 @@ function build_double_track(start_field, wt) {
 							gui.add_message_at(b_player, " ---=> tile down to flat ", world.get_time())
 						}
 						do {
-							err = command_x.set_slope(b_player, build_hight, 83 )
+							err = command_x.set_slope(b_player, build_hight[i], 83 )
 							if ( err != null ) { break }
 							z = square_x(tiles_build[i].x, tiles_build[i].y).get_ground_tile()
 						} while(z.z > ref_hight.z )
@@ -2784,7 +2786,7 @@ function check_way_line(start, end, wt, l, c) {
 
 
 		if ( i >= s[r] && ( fc >= way_len || dfcl >= way_len || dfcr >= way_len ) && start_fields.len() < c) {
-			if ( ( nexttile[i-1].x > nexttile[i].x && fc > 0 ) || ( nexttile[i-1].y > nexttile[i].y && fc > 0 ) || ( nexttile[i-1].y > nexttile[i].y && fc == 0 ) || ( nexttile[i-1].x < nexttile[i].x && fc == 0 ) ) {
+			if ( ( nexttile[i-1].x > nexttile[i].x && fc > 0 && nexttile[i-1].y == nexttile[i].y ) || ( nexttile[i-1].y > nexttile[i].y && fc > 0 ) || ( nexttile[i-1].y > nexttile[i].y && fc == 0 ) || ( nexttile[i-1].x < nexttile[i].x && fc == 0 ) ) {
 				/*
 				 *
 				 *
