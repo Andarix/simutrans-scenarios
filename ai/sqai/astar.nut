@@ -1668,25 +1668,7 @@ function build_double_track(start_field, wt) {
 					gui.add_message_at(b_player, " ---=> ref_hight.get_slope() " + ref_hight.get_slope(), world.get_time())
 				}
 
-				if ( ref_hight.z == build_hight.z && ref_hight.get_slope() == build_hight.get_slope() ) {
-
-					if ( print_message_box == 2 ) {
-						gui.add_message_at(b_player, " ---=> slope tiles == tiles_build * tiles.z == tiles_build.z ", world.get_time())
-					}
-
-				} else if ( build_hight.is_empty() && straight_slope == true ) {
-					// set slope ramp
-					if ( print_message_box == 2 ) {
-					 	gui.add_message_at(b_player, " ---=> terraform slope ramp", world.get_time())
-					 	gui.add_message_at(b_player, " ---=> tiles_build.z " + build_hight.z + " tiles.z " + ref_hight.z, world.get_time())
-					}
-					err = command_x.set_slope(b_player, build_hight, ref_hight.get_slope())
-					if ( err != null ) {
-					 	gui.add_message_at(b_player, " ERROR " + err, world.get_time())
-						err = null
-					}
-
-				} else if ( build_hight.is_empty() && ( build_hight.get_slope() > 0 || ref_hight.z != build_hight.z ) ) {
+				if ( build_hight.is_empty() && ( build_hight.get_slope() > 0 || ref_hight.z != build_hight.z ) ) {
 
 					if ( print_message_box == 2 ) {
 					 	gui.add_message_at(b_player, " ---=> terraform", world.get_time())
@@ -1710,7 +1692,7 @@ function build_double_track(start_field, wt) {
 							gui.add_message_at(b_player, " ---=> tile down to flat ", world.get_time())
 						}
 						do {
-							err = command_x.set_slope(b_player, build_hight[i], 83 )
+							err = command_x.set_slope(b_player, build_hight, 83 )
 							if ( err != null ) { break }
 							z = square_x(tiles_build[i].x, tiles_build[i].y).get_ground_tile()
 						} while(z.z > ref_hight.z )
@@ -1718,7 +1700,29 @@ function build_double_track(start_field, wt) {
 					if ( err ) {
 						return false
 					}
+					build_hight = square_x(tiles_build[i].x, tiles_build[i].y).get_ground_tile()
 				}
+
+				if ( ref_hight.z == build_hight.z && ref_hight.get_slope() == build_hight.get_slope() ) {
+
+					if ( print_message_box == 2 ) {
+						gui.add_message_at(b_player, " ---=> slope tiles == tiles_build * tiles.z == tiles_build.z ", world.get_time())
+					}
+
+				} else if ( build_hight.is_empty() && straight_slope == true ) {
+					// set slope ramp
+					if ( print_message_box == 2 ) {
+					 	gui.add_message_at(b_player, " ---=> terraform slope ramp", world.get_time())
+					 	gui.add_message_at(b_player, " ---=> tiles_build.z " + build_hight.z + " tiles.z " + ref_hight.z, world.get_time())
+					}
+					err = command_x.set_slope(b_player, build_hight, ref_hight.get_slope())
+					if ( err != null ) {
+					 	gui.add_message_at(b_player, " ERROR " + err, world.get_time())
+						err = null
+					}
+				}
+
+
 			}
 		}
 
