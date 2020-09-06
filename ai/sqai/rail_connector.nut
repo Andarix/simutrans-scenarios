@@ -146,7 +146,7 @@ class rail_connector_t extends manager_t
 						if ( print_message_box > 0 ) {
 							gui.add_message_at(pl, "Failed to build rail station at s_dest " + coord_to_string(c_end), world.get_time())
 						}
-						remove_wayline(c_route, c_route.len()-1, wt_rail)
+						remove_wayline(c_route, c_route.len()-1, wt_rail, s_src.len())
 						remove_tile_to_empty(s_src, wt_rail)
 						return error_handler()
 					}

@@ -476,12 +476,15 @@ function remove_field(pos)
  * pos		= last field to build
  * wt			= waytype
  */
-function remove_wayline(route, pos, wt) {
+function remove_wayline(route, pos, wt, st_len = null) {
 	local tool = command_x(tool_remover)
 	//while(tile.find_object(mo_field)) {
 	//	tool.work(our_player, pos)
 	//}
 	local l = 0
+
+	local new_route_s = null
+	local new_route_e = null
 
 	local i = pos
 	local test = 0
@@ -508,7 +511,7 @@ function remove_wayline(route, pos, wt) {
 
 			if ( tile.find_object(mo_building) != null ) {
 				// no remove station
-				if ( l > 6 ) { continue }
+				if ( l < 6 ) { continue }
 				test = 1
 			} else if ( wt == wt_road ) {
 					local test_way = tile.find_object(mo_way) //.get_desc()
@@ -532,12 +535,14 @@ function remove_wayline(route, pos, wt) {
 			//tool.work(our_player, tile)
 		}
 		// break by direction 7, 11, 13, 14, 15 or owner public player next tile
-		if ( test == 1 ) { break }
+		if ( test == 1 ) {
+			new_route_s = i
+			break
+		}
 	}
 
 	if ( test == 1 ) {
 		test = 0
-		l = 0
 		for ( local j = 0; j < i; j++ ) {
 			local tile = square_x(route[j].x, route[j].y).get_ground_tile()
 			local next_tile = null
@@ -557,7 +562,7 @@ function remove_wayline(route, pos, wt) {
 
 				if ( tile.find_object(mo_building) != null ) {
 					// no remove station
-					if ( l > 6 ) { continue }
+					if ( j < 5 ) { continue }
 					test = 1
 				} else if ( wt == wt_road ) {
 					local test_way = tile.find_object(mo_way) //.get_desc()
@@ -583,7 +588,10 @@ function remove_wayline(route, pos, wt) {
 				//tool.work(our_player, tile)
 			}
 			// break by direction 7, 11, 13, 14, 15
-			if ( test == 1 ) { break }
+			if ( test == 1 ) {
+				new_route_e = j
+				break
+			}
 		}
 	}
 
@@ -594,10 +602,19 @@ function remove_wayline(route, pos, wt) {
 	}
 
 
+	local route_status = ""
+	local new_route = []
+	if ( new_route_s != null && new_route_e != null ) {
+		new_route = route.slice(new_route_e, new_route_s)
+		route_status = coord_to_string(new_route[0]) + " to " + coord_to_string(new_route[new_route.len()-1])
+
+	}
+
 	if ( test == 0 ) {
 		gui.add_message_at(our_player, "removed way from " + coord_to_string(route[pos]) + " to " + coord_to_string(route[0]), route[0])
 	} else {
-		gui.add_message_at(our_player, "removed way not all ", route[0])
+		gui.add_message_at(our_player, "removed way not all " + route_status, route[0])
+		optimize_way_line(new_route, wt)
 	}
 
 }
@@ -607,20 +624,22 @@ function remove_wayline(route, pos, wt) {
  * fields	= field list
  * wt			= waytype
  */
-function remove_tile_to_empty(tiles, wt) {
+function remove_tile_to_empty(tiles, wt, t_array = 1) {
 	local tool = command_x(tool_remover)
-	for ( local i = tiles.len(); i > 0; i-- ) {
-		gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i-1]), tiles[i-1])
-		local tile_remove = 1
 
-		local tiles_r = square_x(tiles[i-1].x, tiles[i-1].y).get_ground_tile()
-		local test_way = tiles_r.find_object(mo_way) //.get_desc()
-		local tile_coord = coord3d_to_string(tiles_r)
-		if ( test_way != null ) {
-			if ( test_way.get_owner().nr != our_player_nr ) {
-				tile_remove = 0
+	if ( t_array == 1 ) {
+		for ( local i = tiles.len(); i > 0; i-- ) {
+			gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i-1]), tiles[i-1])
+			local tile_remove = 1
+
+			local tiles_r = square_x(tiles[i-1].x, tiles[i-1].y).get_ground_tile()
+			local test_way = tiles_r.find_object(mo_way) //.get_desc()
+			local tile_coord = coord3d_to_string(tiles_r)
+			if ( test_way != null ) {
+				if ( test_way.get_owner().nr != our_player_nr ) {
+					tile_remove = 0
+				}
 			}
-		}
 
 			if ( tile_remove == 1 ) {
 				while(true){
@@ -629,6 +648,23 @@ function remove_tile_to_empty(tiles, wt) {
 						break
 				}
 			}
+		}
+	} else if ( t_array == 0 ) {
+
+		local tile_remove = 1
+		local test_way = tiles.find_object(mo_way) //.get_desc()
+		if ( test_way != null ) {
+				if ( test_way.get_owner().nr != our_player_nr ) {
+					tile_remove = 0
+				}
+		}
+		if ( tile_remove == 1 ) {
+			while(true){
+				tool.work(our_player, tiles)
+				if (tiles.is_empty())
+					break
+			}
+		}
 	}
 
 }
@@ -2920,20 +2956,20 @@ function optimize_way_line(route, wt) {
 				tile_4 = tile_x(tile_2.x+1, tile_2.y-1, tile_2.z)
 				if ( tile_4.find_object(mo_way) != null ) {
 					tile_4_d = tile_4.get_way_dirs(wt)
-					if ( tile_2_speed >= tile_4.find_object(mo_way).get_speed() && ( d == 9 || d == 12 ) ) {
-						remove_tile_to_empty(tile_4, wt)
+					if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && ( tile_4_d == 9 || tile_4_d == 12 ) ) {
+						remove_tile_to_empty(tile_4, wt, 0)
 					} else if ( d == 9 || d == 12 ) {
-						remove_tile_to_empty(tile_2, wt)
+						remove_tile_to_empty(tile_2, wt, 0)
 					}
 				}
 			} else if ( tile_2_d == 9 || tile_2_d == 12 ) {
 				tile_4 = tile_x(tile_2.x-1, tile_2.y+1, tile_2.z)
 				if ( tile_4.find_object(mo_way) != null ) {
 					tile_4_d = tile_4.get_way_dirs(wt)
-					if ( tile_2_speed >= tile_4.find_object(mo_way).get_speed() && ( d == 3 || d == 6 ) ) {
-						remove_tile_to_empty(tile_4, wt)
+					if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && ( tile_4_d == 3 || tile_4_d == 6 ) ) {
+						remove_tile_to_empty(tile_4, wt, 0)
 					} else if ( d == 3 || d == 6 ) {
-						remove_tile_to_empty(tile_2, wt)
+						remove_tile_to_empty(tile_2, wt, 0)
 					}
 				}
 			}
