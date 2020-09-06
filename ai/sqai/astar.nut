@@ -661,6 +661,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		local st_build = false
 		local err = null
 
+		local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
 		local d = t.get_way_dirs(wt)
 
 		if ( print_message_box == 2 ) {
@@ -672,7 +673,6 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 		// first check direction d, then backwards
 		{
-			local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
 			local step = 1 // if positive go in direction d, otherwise go backwards
 
 			local dc = dir.to_coord(d)
