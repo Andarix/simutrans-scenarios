@@ -481,9 +481,12 @@ function remove_wayline(route, pos, wt) {
 	//while(tile.find_object(mo_field)) {
 	//	tool.work(our_player, pos)
 	//}
+	local l = 0
+
 	local i = pos
 	local test = 0
 	for ( i; i >= 0; i-- ) {
+		l++
 		local tile = square_x(route[i].x, route[i].y).get_ground_tile()
 		local next_tile = null
 		if ( i > 0 ) {
@@ -505,6 +508,7 @@ function remove_wayline(route, pos, wt) {
 
 			if ( tile.find_object(mo_building) != null ) {
 				// no remove station
+				if ( l > 6 ) { continue }
 				test = 1
 			} else if ( wt == wt_road ) {
 					local test_way = tile.find_object(mo_way) //.get_desc()
@@ -533,6 +537,7 @@ function remove_wayline(route, pos, wt) {
 
 	if ( test == 1 ) {
 		test = 0
+		l = 0
 		for ( local j = 0; j < i; j++ ) {
 			local tile = square_x(route[j].x, route[j].y).get_ground_tile()
 			local next_tile = null
@@ -552,6 +557,7 @@ function remove_wayline(route, pos, wt) {
 
 				if ( tile.find_object(mo_building) != null ) {
 					// no remove station
+					if ( l > 6 ) { continue }
 					test = 1
 				} else if ( wt == wt_road ) {
 					local test_way = tile.find_object(mo_way) //.get_desc()
@@ -1316,16 +1322,18 @@ function search_extension(wt) {
 /**
  * search existing depot on range to station
  *
+ *  field_pos	= start field
+ *  wt				= waytype
+ *  range			= search range
+ *
  */
-function search_depot(field_pos, wt) {
+function search_depot(field_pos, wt, range = 10) {
 
 	local list_exists_depot = depot_x.get_depot_list(our_player, wt)
-	// search range
-	local seach_field = 10
 
 	if ( list_exists_depot ) {
-		local tile_min = [field_pos.x - seach_field, field_pos.y - seach_field]
-		local tile_max = [field_pos.x + seach_field, field_pos.y + seach_field]
+		local tile_min = [field_pos.x - range, field_pos.y - range]
+		local tile_max = [field_pos.x + range, field_pos.y + range]
 		local depot_found = null
 
 		foreach(key in list_exists_depot) {
@@ -2270,11 +2278,17 @@ function check_way_line(start, end, wt, l, c) {
 				d = 4
 			} else if ( di == 9 && d == 5 ) {
 				d = 1
-			} else if ( ( di == 9 || di == 10 ) && d == 7 ) {
-				//gui.add_message_at(our_player, " * i " + i + " di == 9 || di == 10 ) && d == 7 " + coord3d_to_string(nexttile[i-1]), world.get_time())
+			} else if ( ( di == 9 || di == 10 || di == 15 ) && ( d == 7 || d == 13 ) ) {
+				//gui.add_message_at(our_player, " * i " + i + " di == 9 || di == 10 || di == 15 ) && ( d == 7 || d == 13 ) " + coord3d_to_string(nexttile[i-1]), world.get_time())
 				// next 1 or 4
 				if ( di == 9 && d == 7 && nexttile[i-1].y < nexttile[i-2].y ) {
 					d = 1
+				} else if ( di == 15 && ( d == 7 || d == 13 ) ) {
+					if ( nexttile[i-1].y > nexttile[i-2].y ) {
+						d = 1
+					} else {
+						d = 4
+					}
 				} else {
 					local t = nexttile[i-1].get_neighbour(wt, 4)
 					//gui.add_message_at(our_player, " *  " + coord3d_to_string(t) + " d " + t.get_way_dirs(wt), world.get_time())
@@ -2285,7 +2299,11 @@ function check_way_line(start, end, wt, l, c) {
 					}
 				}
 			} else {
-				d = 1
+				if ( nexttile[i-1].y < end.y ) {
+					d = 4
+				} else {
+					d = 1
+				}
 			}
 		} else if ( d == 12 ) {
 			if ( nexttile[i-2].x < nexttile[i-1].x ) {
@@ -2322,7 +2340,7 @@ function check_way_line(start, end, wt, l, c) {
 				d = 1
 			}
 		} else if ( d == 15 ) {
-			gui.add_message_at(our_player, " * check d=15 " + coord3d_to_string(nexttile[i-1]) + " d " + d + " i " + i + " dc " + dc + " di " + di, world.get_time())
+			//gui.add_message_at(our_player, " * check d=15 " + coord3d_to_string(nexttile[i-1]) + " d " + d + " i " + i + " dc " + dc + " di " + di, world.get_time())
 			if ( di == 10 ) {
 				if ( nexttile[i-2].x < nexttile[i-1].x ) {
 					// ribi 15 to e from ribi 10
@@ -2339,18 +2357,18 @@ function check_way_line(start, end, wt, l, c) {
 					// ribi 15 to s from ribi 5
 					d = 4
 				}
-			} else if ( di == 6 || di == 9 ) {
+			} else if ( di == 6 || di == 9 || di == 3 || di == 12) {
 				if ( nexttile[i-2].x < nexttile[i-1].x && nexttile[i-2].y == nexttile[i-1].y ) {
-					// ribi 15 to e from ribi 6
+					// ribi 15 to e from ribi 6/3
 					d = 2
 				} else if ( nexttile[i-2].x > nexttile[i-1].x && nexttile[i-2].y == nexttile[i-1].y ) {
-					// ribi 15 to w from ribi 9
+					// ribi 15 to w from ribi 9/12
 					d = 8
 				} else if ( nexttile[i-2].x == nexttile[i-1].x && nexttile[i-2].y > nexttile[i-1].y ) {
-					// ribi 15 to n from ribi 6
+					// ribi 15 to n from ribi 6/3
 					d = 1
 				} else if ( nexttile[i-2].x == nexttile[i-1].x && nexttile[i-2].y < nexttile[i-1].y ) {
-					// ribi 15 to s from ribi 9
+					// ribi 15 to s from ribi 9/12
 					d = 4
 				}
 			} else {
@@ -2870,4 +2888,57 @@ function check_way_line(start, end, wt, l, c) {
 		return start_fields
 	}
 
+}
+
+function optimize_way_line(route, wt) {
+	// remove_tile_to_empty(tiles, wt)
+	for ( local i = 1; i < route.len() - 2; i++ ) {
+		local tile_1 = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
+		local tile_2 = tile_x(route[i].x, route[i].y, route[i].z)
+		local tile_3 = tile_x(route[i+1].x, route[i+1].y, route[i+1].z)
+		local tile_4 = null
+		local tile_1_d = tile_1.get_way_dirs(wt)
+		local tile_2_d = tile_2.get_way_dirs(wt)
+		local tile_3_d = tile_3.get_way_dirs(wt)
+		local tile_4_d = 0
+
+		local tile_2_speed = tile_2.find_object(mo_way).get_desc().get_topspeed()
+
+		// remove diagonal double ways without spacing
+		local tiles = [7, 11, 13, 14, 15]
+		local test = 0
+		for ( local i = 0; i < tiles.len(); i++ ) {
+			if ( tile_1_d == tiles[i] ) {
+				test++
+			}
+			if ( tile_3_d == tiles[i] ) {
+				test++
+			}
+		}
+		if ( test == 2 ) {
+			if ( tile_2_d == 3 || tile_2_d == 6 ) {
+				tile_4 = tile_x(tile_2.x+1, tile_2.y-1, tile_2.z)
+				if ( tile_4.find_object(mo_way) != null ) {
+					tile_4_d = tile_4.get_way_dirs(wt)
+					if ( tile_2_speed >= tile_4.find_object(mo_way).get_speed() && ( d == 9 || d == 12 ) ) {
+						remove_tile_to_empty(tile_4, wt)
+					} else if ( d == 9 || d == 12 ) {
+						remove_tile_to_empty(tile_2, wt)
+					}
+				}
+			} else if ( tile_2_d == 9 || tile_2_d == 12 ) {
+				tile_4 = tile_x(tile_2.x-1, tile_2.y+1, tile_2.z)
+				if ( tile_4.find_object(mo_way) != null ) {
+					tile_4_d = tile_4.get_way_dirs(wt)
+					if ( tile_2_speed >= tile_4.find_object(mo_way).get_speed() && ( d == 3 || d == 6 ) ) {
+						remove_tile_to_empty(tile_4, wt)
+					} else if ( d == 3 || d == 6 ) {
+						remove_tile_to_empty(tile_2, wt)
+					}
+				}
+			}
+		}
+
+
+	}
 }
