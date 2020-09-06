@@ -1093,7 +1093,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 		// check harbour/dock
 		local st_dock = search_station(start_field, wt, 1)
 		if ( fields[0] != start_field ) {
-			local extension = search_extension(wt)
+			local extension = find_extension(wt)
 			if ( extension ) {
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(our_player, "-*---> selectet extension: " + extension.get_name(), world.get_time())
@@ -1171,7 +1171,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), tile)
 				}
-				local extension = search_extension(wt)
+				local extension = find_extension(wt)
 				local new_tile = 0
 				if ( tile.is_empty() ) {
 					err = command_x.build_station(pl, tile, extension)
@@ -1261,11 +1261,11 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 }
 
 /**
-	* search extension building
+	* find extension building tool
 	*
 	*
 	*/
-function search_extension(wt) {
+function find_extension(wt) {
 
 	local print_message_box = 0
 
