@@ -248,7 +248,7 @@ class pontifex
 		local list = bridge_desc_x.get_available_bridges(way.get_waytype())
 		local len = list.len()
 		local way_speed = way.get_topspeed()
-		local bridge_min_len = 12
+		local bridge_min_len = 5
 
 		if (len>0) {
 			bridge = list[0]
