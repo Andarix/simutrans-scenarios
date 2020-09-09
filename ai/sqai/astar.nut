@@ -688,7 +688,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		// print messages box
 		// 1
 		// 2
-		local print_message_box = 0
+		local print_message_box = 2
 
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
@@ -697,8 +697,8 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		local st_build = false
 		local err = null
 
-		local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
-		local d = t.get_way_dirs(wt)
+		//local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
+		local d = tile_x(starts_field.x, starts_field.y, starts_field.z).get_way_dirs(wt)
 
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
@@ -710,6 +710,22 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		// first check direction d, then backwards
 		{
 			local step = 1 // if positive go in direction d, otherwise go backwards
+
+			switch (d) {
+				case 1:
+					d = 4
+					break
+				case 2:
+					d = 8
+					break
+				case 4:
+					d = 1
+					break
+				case 8:
+					d = 2
+					break
+			}
+
 
 			local dc = dir.to_coord(d)
 
