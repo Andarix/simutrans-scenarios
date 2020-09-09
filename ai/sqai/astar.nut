@@ -688,7 +688,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		// print messages box
 		// 1
 		// 2
-		local print_message_box = 2
+		local print_message_box = 0
 
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
@@ -697,8 +697,10 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		local st_build = false
 		local err = null
 
-		//local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
-		local d = tile_x(starts_field.x, starts_field.y, starts_field.z).get_way_dirs(wt)
+		local t = tile_x(starts_field.x, starts_field.y, starts_field.z)
+		local d = t.get_way_dirs(wt)
+		d = dir.backward(d) // now d points outside of the built route
+		// otherwise stations on very short tracks overlap
 
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
@@ -710,22 +712,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		// first check direction d, then backwards
 		{
 			local step = 1 // if positive go in direction d, otherwise go backwards
-
-			switch (d) {
-				case 1:
-					d = 4
-					break
-				case 2:
-					d = 8
-					break
-				case 4:
-					d = 1
-					break
-				case 8:
-					d = 2
-					break
-			}
-
+			local step_end = 0 // (positive) steps to the end of the station
 
 			local dc = dir.to_coord(d)
 
@@ -744,6 +731,10 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 					// increase step: if positive add +1, if negative add -1
 					step = step>0 ? step+1 : step-1
+					// also increase steps to end of station
+					if (step>0) {
+						step_end ++;
+					}
 				}
 				else {
 					if (step < 0) {
@@ -766,10 +757,9 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 			// correct first tile of station
 			// (this will correct c_start/c_end if these are used in the call to this method)
-			if (st_build  &&  step<0) {
-				step++  // (was decreased after the last station tile, correct)
-				starts_field.x += step*dc.x
-				starts_field.y += step*dc.y
+			if (st_build  &&  step_end > 0) {
+				starts_field.x += step_end*dc.x
+				starts_field.y += step_end*dc.y
 				gui.add_message_at(pl, " ---> first tile of station reset : " + coord3d_to_string(starts_field), world.get_time())
 			}
 		}
