@@ -628,11 +628,12 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 	local tool = command_x(tool_remover)
 
 	if ( t_array == 1 ) {
-		for ( local i = tiles.len(); i > 0; i-- ) {
-			gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i-1]), tiles[i-1])
+		// remove array tiles
+		for ( local i = 0; i < tiles.len(); i++ ) {
+			gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i]), tiles[i])
 			local tile_remove = 1
 
-			local tiles_r = square_x(tiles[i-1].x, tiles[i-1].y).get_ground_tile()
+			local tiles_r = square_x(tiles[i].x, tiles[i].y).get_ground_tile()
 			local test_way = tiles_r.find_object(mo_way) //.get_desc()
 			local tile_coord = coord3d_to_string(tiles_r)
 			if ( test_way != null ) {
@@ -650,7 +651,7 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 			}
 		}
 	} else if ( t_array == 0 ) {
-
+		// remove one tile
 		local tile_remove = 1
 		local test_way = tiles.find_object(mo_way) //.get_desc()
 		if ( test_way != null ) {
@@ -796,8 +797,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 	}
 
 	// find z coord
-	local r = square_x(t_tile.x, t_tile.y)
-	z = r.get_ground_tile() //tile_x(t_tile.x, t_tile.y, t_tile.z) //square_x(t_tile.x, t_tile.y).get_ground_tile(t_tile.x, t_tile.y)
+	z = square_x(t_tile.x, t_tile.y).get_ground_tile()
 
 	if ( t_tile.is_empty() && t_tile.get_slope() == 0 && ref_hight == z.z ) {
 		// tile is empty and is flat
@@ -2674,7 +2674,7 @@ function check_way_line(start, end, wt, l, c) {
 				}
 			} else {
 				if ( nexttile[i-way_len-1].get_slope() == 0 ) {
-					if ( ( nexttile[i].get_way_dirs(wt) == 3 || nexttile[i].get_way_dirs(wt) == 12 ) && nexttile[i-way_len].get_slope() == 0 ) {
+					if ( ( nexttile[i-way_len].get_way_dirs(wt) == 3 || nexttile[i-way_len].get_way_dirs(wt) == 12 ) && nexttile[i-way_len].get_slope() == 0 ) {
 						start_fields.append(nexttile[i-way_len])
 						if ( print_message == 1 ) {
 							gui.add_message_at(our_player, " add nexttile[i-way_len] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
