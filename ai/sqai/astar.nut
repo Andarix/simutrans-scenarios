@@ -708,7 +708,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 			gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time())
 		}
 
-		local b_tile = [starts_field] // station fields array
+		local b_tile = [t] // station fields array
 
 		// first check direction d, then backwards
 		{
@@ -2776,4 +2776,18 @@ function optimize_way_line(route, wt) {
 
 
 	}
+}
+
+/*
+ *	destroy line complete
+ *	- destroy convoy
+ *	- remove line
+ *	check shedule/station connections befor
+ *	- destroy stations
+ *	- destroy depot by rail
+ *	- destroy way line
+ */
+function destroy_line(station_field) {
+
+
 }
