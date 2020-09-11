@@ -835,6 +835,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
  * fields = array fields
  * wt = waytype
  * select_station = station object
+ * start_field = c_start or c_end
  */
 function expand_station(pl, fields, wt, select_station, start_field) {
 
@@ -1093,6 +1094,14 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 		return fields
 	}
+}
+
+/*
+ *	tiles = field array
+ *	station_obj = building_desc_x.station
+ */
+function build_station(tiles, station_obj) {
+
 }
 
 /**
@@ -2753,6 +2762,12 @@ function optimize_way_line(route, wt) {
 		if ( test == 2 ) {
 			if ( tile_2_d == 3 || tile_2_d == 6 ) {
 				tile_4 = tile_x(tile_2.x+1, tile_2.y-1, tile_2.z)
+
+				local tile_1_coord = coord3d_to_string(tile_1)
+				local tile_2_coord = coord3d_to_string(tile_2)
+				local tile_3_coord = coord3d_to_string(tile_3)
+				local tile_4_coord = coord3d_to_string(tile_4)
+
 				if ( tile_4.find_object(mo_way) != null ) {
 					tile_4_d = tile_4.get_way_dirs(wt)
 					if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && ( tile_4_d == 9 || tile_4_d == 12 ) ) {
@@ -2763,6 +2778,12 @@ function optimize_way_line(route, wt) {
 				}
 			} else if ( tile_2_d == 9 || tile_2_d == 12 ) {
 				tile_4 = tile_x(tile_2.x-1, tile_2.y+1, tile_2.z)
+
+				local tile_1_coord = coord3d_to_string(tile_1)
+				local tile_2_coord = coord3d_to_string(tile_2)
+				local tile_3_coord = coord3d_to_string(tile_3)
+				local tile_4_coord = coord3d_to_string(tile_4)
+
 				if ( tile_4.find_object(mo_way) != null ) {
 					tile_4_d = tile_4.get_way_dirs(wt)
 					if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && ( tile_4_d == 3 || tile_4_d == 6 ) ) {
