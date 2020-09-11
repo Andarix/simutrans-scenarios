@@ -75,6 +75,8 @@ function start(pl_nr)
 	our_player = player_x(our_player_nr)
 
 	print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
+	// set pause by script error
+	debug.set_pause_on_error(true)
 
 	init_tree()
 }
