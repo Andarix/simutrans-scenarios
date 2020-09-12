@@ -651,10 +651,17 @@ function check_factory_links(f_src, f_dest, good) {
 						}
 					}
 
+					// to do check link by more combined station
+					// test_halt_waytypes(tile) return count waytypes
+					if ( f.len() == 0 ) {
+						local c_station = s[i].get_connections(good_desc_x(good))
+					}
+
 				}
 			}
 
 		}
+
 
 
 		if ( print_message_box == 1 || print_status == 1 ) {

@@ -549,7 +549,6 @@ function remove_wayline(route, pos, wt, st_len = null) {
 			local t_field = tile.find_object(mo_way)
 			// test field has way
 			if ( t_field != null && t_field.get_waytype() == wt ) {
-
 				// test direction: if in  [7, 11, 13, 14, 15] then dir.is_threeway will find this
 				test = dir.is_threeway(next_tile.get_way_dirs(wt))
 
@@ -1064,14 +1063,8 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 					} else {
 						local tile = square_x(fields[0].x, fields[0].y).get_ground_tile()
 						if ( tile.find_object(mo_building) != null ) {
-							local halt_tiles = tile.get_halt().get_tile_list()
-							local test = 0
-							for ( local i = 0; i < halt_tiles.len(); i++ ) {
-								if ( tile.has_way(wt_rail) || tile.has_way(wt_road) || tile.has_way(wt_water) ) {
-									test++
-								}
-							}
-							if ( test == halt_tiles.len() ) {
+							local waytypes = test_halt_waytypes(tile)
+							if ( waytypes > 1 ) {
 								gui.add_message_at(pl, " -#-=> combined station " + coord3d_to_string(start_field), start_field)
 							} else {
 								gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
@@ -1090,12 +1083,25 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 }
 
 /*
- *	tiles = field array
+ *	tiles 			= field array
  *	station_obj = building_desc_x.station
  */
 function build_station(tiles, station_obj) {
 
 }
+
+/**
+	* find object tool
+	*
+	* obj		= object type ( bridge, tunnel )
+	* wt		= waytype
+	* speed	= speed
+	*/
+function find_object(obj, wt, speed) {
+
+
+}
+
 
 /**
 	* find extension building tool
@@ -1975,7 +1981,7 @@ function build_double_track(start_field, wt) {
  *	wt		=	waytype
  *	l			= stations distance
  *	c			= count of double ways
- *
+ *	return_route	= 0 build double ways; 1 no build double ways - return route array
  */
 function check_way_line(start, end, wt, l, c) {
 	/*
@@ -1983,6 +1989,10 @@ function check_way_line(start, end, wt, l, c) {
 	 * 2 = straight
 	 * 3 = diagonal
 	 */
+
+	::debug.set_pause_on_error(true)
+	//debug.pause
+
 	local print_message_box = 1
 	local print_message = 1
 	local message_text = []
@@ -1995,7 +2005,7 @@ function check_way_line(start, end, wt, l, c) {
 	gui.add_message_at(our_player, "length " + l, world.get_time())
 	gui.add_message_at(our_player, "count " + c, world.get_time())
 */
-	local nexttile = [start]
+	local nexttile = [tile_x(start.x, start.y, start.z)]
 	local d = 0
 
 	// count double ways
@@ -2008,35 +2018,30 @@ function check_way_line(start, end, wt, l, c) {
 	local dc = 0
 	local di = 0
 	local r = 0
-	// distance double ways
-	local as = (l / (c + 1)).tointeger()
-	/*
-	if ( l < 140 ) {
-		as - 25
-	} else if ( l >= 140 && l < 400 ) {
-		as - 14
-	} else {
-		as + 20
-	}*/
-	//as = as - ( c * 16 )
-	if ( print_message_box >= 0 ) {
-		gui.add_message_at(our_player, c + " double way search", world.get_time())
-		message_text.append("as " + as + " l " + l + " c " + c)
-	}
 	local s = []
-	for (local i = 0; i < c; i++ ) {
-		if ( i == 0 ) {
-			if ( c == 1 ) {
-				s.append(as - 10 )
-			} else {
-				s.append(as - (as * 0.3).tointeger() )
-			}
-		} else {
-			s.append(s[i-1]+as+10)
+
+	if ( c > 0 ) {
+		// distance double ways
+		local as = (l / (c + 1)).tointeger()
+		//as = as - ( c * 16 )
+		if ( print_message_box >= 0 ) {
+			gui.add_message_at(our_player, c + " double way search", world.get_time())
+			message_text.append("as " + as + " l " + l + " c " + c)
 		}
-
-
-		message_text.append("  s[" + (i) + "] " + s[i])
+			for (local i = 0; i < c; i++ ) {
+			if ( i == 0 ) {
+				if ( c == 1 ) {
+					s.append(as - 10 )
+				} else {
+					s.append(as - (as * 0.3).tointeger() )
+				}
+			} else {
+				s.append(s[i-1]+as+10)
+			}
+			message_text.append("  s[" + (i) + "] " + s[i])
+		}
+	} else {
+		s.append(1)
 	}
 
 	local sign = 0
@@ -2062,12 +2067,14 @@ function check_way_line(start, end, wt, l, c) {
 	local stl = 0
 	local str = 0
 	local dst = 0
-	for ( local i = 1; i <= l; i++ ) {
+	local i = 0
 
+	while ( nexttile[i].x != end.x && nexttile[i].y != end.y ) {
+		i++
 		// check to signal
 		local sig = nexttile[i-1].find_object(mo_signal)
 		//gui.add_message_at(our_player, "find_object(mo_signal) " + sig, nexttile[i-1])
-		if ( sig != null ) {
+		if ( sig != null && c > 0 ) {
 			sign++
 			if ( sign == c ) {
 				gui.add_message_at(our_player, c + " double way found, no build ", world.get_time())
@@ -2706,6 +2713,7 @@ function check_way_line(start, end, wt, l, c) {
 		}
 
 		//gui.add_message_at(our_player, "  tile d " + d + " * " + coord3d_to_string(t), world.get_time())
+
 	}
 
 		if ( print_message == 1 && print_message_box > 0 ) {
@@ -2742,7 +2750,7 @@ function optimize_way_line(route, wt) {
 		local tile_2_speed = tile_2.find_object(mo_way).get_desc().get_topspeed()
 
 		// remove diagonal double ways without spacing
-		if ( dir.is_threeway( tile_1_d)  &&  dir.is_threeway(tile_3_d) ) {
+		if ( dir.is_threeway(tile_1_d)  &&  dir.is_threeway(tile_3_d) ) {
 			if ( tile_2_d == 3 || tile_2_d == 6 ) {
 				tile_4 = tile_x(tile_2.x+1, tile_2.y-1, tile_2.z)
 
@@ -2788,10 +2796,94 @@ function optimize_way_line(route, wt) {
  *	- remove line
  *	check shedule/station connections befor
  *	- destroy stations
- *	- destroy depot by rail
+ *	- destroy depot by rail/ship
  *	- destroy way line
  */
-function destroy_line(station_field) {
+function destroy_line(line_obj) {
+
+	local line_name = line_obj.get_name()
+	local cnv_list = line_obj.get_convoy_list()
+
+	local cnv = null
+	local depot = null
+	local wt = null
+
+	if ( cnv_list.get_count() >= 1 ) {
+		cnv = cnv_list[0]
+		depot = cnv.get_home_depot()
+		wt = cnv.get_waytype()
+
+		// destroy convoy
+		cnv.destroy(our_player)
+
+	}
 
 
+	local start_l = null
+	local end_l = null
+	{
+		local entries = line_obj.get_schedule().entries
+		local entries_count = entries.len()
+		if ( entries.len() >= 2 ) {
+			start_l = tile_x(entries[0].x, entries[0].y, entries[0].z)
+			end_l = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
+		}
+	}
+
+	// destroy line
+	line_obj.destroy(our_player)
+
+	//local wt = start_l.find_object(mo_building)//.get_waytype()
+
+	local start_h = start_l.get_halt()
+	local end_h = end_l.get_halt()
+
+	local start_f = null
+	local end_f = null
+	if ( wt != wt_water ) {
+		start_f = start_h.get_factory_list()
+		end_f = end_h.get_factory_list()
+	}
+
+	local combined_s = test_halt_waytypes(start_l)
+	local combined_e = test_halt_waytypes(end_l)
+
+	local route = check_way_line(start_l, end_l, wt, 0, 0)
+
+
+	gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
+}
+
+/*
+ * check waytypes from halt
+ * tile = one tile from halt
+ * return count waytypes
+ */
+function test_halt_waytypes(tile) {
+	if ( tile.is_water ) {
+		gui.add_message_at(our_player, "halt is water tile " + coord3d_to_string(tile), tile)
+		return 0
+	}
+
+	local halt_tiles = tile.get_halt().get_tile_list()
+	local test_rail = 0
+	local test_road = 0
+	local test_water = 0
+	for ( local i = 0; i < halt_tiles.len(); i++ ) {
+		if ( tile.has_way(wt_rail) ) {
+			test_rail++
+		}
+		if ( tile.has_way(wt_road) ) {
+			test_road++
+		}
+		if ( tile.has_way(wt_water) ) {
+			test_water++
+		}
+	}
+	local test_way = 0
+	if ( test_rail > 0 ) { test_way++ }
+	if ( test_road > 0 ) { test_way++ }
+	if ( test_water > 0 ) { test_way++ }
+
+	return test_way
 }

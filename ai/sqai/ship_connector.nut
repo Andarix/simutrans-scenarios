@@ -114,7 +114,14 @@ class ship_connector_t extends manager_t
 							err = build_harbour(c_harbour_tiles[key], c_start)
 						}
 					}
+
+					// check station connection to factory or combined station
+
+
 					if (err == null) {
+
+						//remove_field(c_end[0])
+
 						key = coord3d_to_key(c_end[0])
 						if (key in c_harbour_tiles) {
 							err = build_harbour(c_harbour_tiles[key], c_end)
@@ -161,7 +168,7 @@ class ship_connector_t extends manager_t
 						gui.add_message_at(pl," ---> depot found : " + depot_found.get_pos(), coord_to_string(depot_found))
 					}
 
-					// build rail to depot
+					// build ship to depot
 					if ( depot_found ) {
 						c_depot = depot_found
 						//local err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
@@ -436,11 +443,16 @@ class ship_connector_t extends manager_t
 		local len = 0
 		local dif = { x=tile.x-water.x, y=tile.y-water.y}
 
-
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(our_player, " --- Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water), world.get_time())
 		}
 		print("Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water) )
+
+		if ( tile.get_halt() && tile.get_halt().get_owner().nr == our_player_nr && tile.find_object(mo_building) && tile.find_object(mo_building).get_desc().get_type()==building_desc_x.station ) {
+			gui.add_message_at(our_player, "Cannot place any harbour at " + coord_to_string(tile) + " station exists", tile)
+			// to do search new field
+
+		}
 
 		if (get_harbour_halt(tile)) {
 			// already there
@@ -453,6 +465,8 @@ class ship_connector_t extends manager_t
 				case 0: {
 					err = "Cannot place harbour here"
 					gui.add_message_at(our_player, "Cannot place any harbour at " + coord_to_string(tile), tile)
+					// no build dock on station tile destroy exists way line
+					// to do
 					break
 				}
 				case 1: {

@@ -146,6 +146,7 @@ class rail_connector_t extends manager_t
 						if ( print_message_box > 0 ) {
 							gui.add_message_at(pl, "Failed to build rail station at s_dest " + coord_to_string(c_end), world.get_time())
 						}
+
 						remove_wayline(c_route, c_route.len()-1, wt_rail, s_src.len())
 						remove_tile_to_empty(s_src, wt_rail)
 						return error_handler()
@@ -281,10 +282,10 @@ class rail_connector_t extends manager_t
 		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
-		local cs = c_start
-		local ce = c_end
-		/*
-		if (c_start.len()>0  &&  c_end.len()>0) {
+		local cs = tile_x(c_start.x, c_start.y, c_start.z)
+		local ce = tile_x(c_end.x, c_end.y, c_end.z)
+
+		/*if (c_start.len()>0  &&  c_end.len()>0) {
 			local cs = c_start[0]
 			local ce = c_end[0]
 		}*/
