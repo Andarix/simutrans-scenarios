@@ -927,7 +927,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 		// check harbour/dock
 		local st_dock = search_station(start_field, wt, 1)
-		if ( fields[0] != start_field ) {
+		if ( !equal_coord3d( fields[0], start_field) ) {
 			local extension = find_extension(wt)
 			if ( extension ) {
 				if ( print_message_box == 2 ) {
@@ -953,7 +953,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 		// station not build to start_field
 		local build_connection = 0
-		if ( fields[0] != start_field ) {
+		if ( !equal_coord3d( fields[0], start_field) ) {
 
 			if ( combined_station ) {
 				// build connect tile to dock
@@ -985,7 +985,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 		}
 
 		// station not build to start_field
-		if ( fields[0] != start_field ) {
+		if ( !equal_coord3d( fields[0], start_field) ) {
 			if ( combined_station && build_connection == 1 ) {
 				// remove connect tile to dock
 				local tool = command_x(tool_remover)
