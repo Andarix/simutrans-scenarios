@@ -501,11 +501,8 @@ function remove_wayline(route, pos, wt, st_len = null) {
 			// test direction next tile
 			// break by direction 7, 11, 13, 14, 15
 			if ( i > 0 ) {
-				local tiles = [7, 11, 13, 14, 15]
-				for ( local k = 0; k < tiles.len(); k++ ) {
-					if ( next_tile.get_way_dirs(wt) == tiles[k] || t_field.get_owner().nr == 1 ) {
-						test = 1
-					}
+				if (dir.is_threeway(next_tile.get_way_dirs(wt))  ||  t_field.get_owner().nr == 1) {
+					test = 1
 				}
 			}
 
@@ -552,13 +549,9 @@ function remove_wayline(route, pos, wt, st_len = null) {
 			local t_field = tile.find_object(mo_way)
 			// test field has way
 			if ( t_field != null && t_field.get_waytype() == wt ) {
-				// test direction
-				local tiles = [7, 11, 13, 14, 15]
-				for ( local k = 0; k < tiles.len(); k++ ) {
-					if ( next_tile.get_way_dirs(wt) == tiles[k] ) {
-						test = 1
-					}
-				}
+
+				// test direction: if in  [7, 11, 13, 14, 15] then dir.is_threeway will find this
+				test = dir.is_threeway(next_tile.get_way_dirs(wt))
 
 				if ( tile.find_object(mo_building) != null ) {
 					// no remove station
@@ -928,7 +921,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 		// check harbour/dock
 		local st_dock = search_station(start_field, wt, 1)
-		if ( fields[0] != start_field ) {
+		if ( !equal_coord3d( fields[0], start_field) ) {
 			local extension = find_extension(wt)
 			if ( extension ) {
 				if ( print_message_box == 2 ) {
@@ -954,7 +947,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 		// station not build to start_field
 		local build_connection = 0
-		if ( fields[0] != start_field ) {
+		if ( !equal_coord3d( fields[0], start_field) ) {
 
 			if ( combined_station ) {
 				// build connect tile to dock
@@ -986,7 +979,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 		}
 
 		// station not build to start_field
-		if ( fields[0] != start_field ) {
+		if ( !equal_coord3d( fields[0], start_field) ) {
 			if ( combined_station && build_connection == 1 ) {
 				// remove connect tile to dock
 				local tool = command_x(tool_remover)
@@ -2749,17 +2742,7 @@ function optimize_way_line(route, wt) {
 		local tile_2_speed = tile_2.find_object(mo_way).get_desc().get_topspeed()
 
 		// remove diagonal double ways without spacing
-		local tiles = [7, 11, 13, 14, 15]
-		local test = 0
-		for ( local i = 0; i < tiles.len(); i++ ) {
-			if ( tile_1_d == tiles[i] ) {
-				test++
-			}
-			if ( tile_3_d == tiles[i] ) {
-				test++
-			}
-		}
-		if ( test == 2 ) {
+		if ( dir.is_threeway( tile_1_d)  &&  dir.is_threeway(tile_3_d) ) {
 			if ( tile_2_d == 3 || tile_2_d == 6 ) {
 				tile_4 = tile_x(tile_2.x+1, tile_2.y-1, tile_2.z)
 

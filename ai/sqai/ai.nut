@@ -172,6 +172,17 @@ function coord3d_to_key(c)
 	return ("coord3d_" + c.x + "_" + c.y + "_" + c.z).toalnum();
 }
 
+function coord_to_key(c)
+{
+	return ("coord_" + c.x + "_" + c.y).toalnum();
+}
+
+function equal_coord3d(a,b)
+{
+	return a.x == b.x  &&  a.y == b.y  &&  a.z == b.z
+}
+
+
 function is_cash_available(cost /* in 1/100 cr */)
 {
 	//gui.add_message_at(our_player, " ***** cash : " + our_player.get_current_cash(), world.get_time())
