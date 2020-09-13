@@ -1099,7 +1099,47 @@ function build_station(tiles, station_obj) {
 	*/
 function find_object(obj, wt, speed) {
 
+	local list = null
+	switch(obj) {
+		case "bridge":
+			list = bridge_desc_x.get_available_bridges(wt)
+			break
+		case "tunnel":
+			list = tunnel_desc_x.get_available_tunnels(wt)
+			break
+	}
 
+	local len = list.len()
+	local way_speed = speed
+	local min_len = 5
+
+	local obj_desc = null
+
+	if (len>0) {
+		obj_desc = list[0]
+
+		for(local i=1; i<len; i++) {
+			local b = list[i]
+			local o = 1
+			if ( obj == "bridge" && ( b.get_max_length() > min_len || b.get_max_length() == 0 ) ) {
+				o = 0
+			}
+			if ( o == 1 ) {
+				if (obj_desc.get_topspeed() < speed) {
+					if (b.get_topspeed() > obj_desc.get_topspeed()) {
+						obj_desc = b
+					}
+				}
+				else {
+					if (speed < b.get_topspeed() && b.get_topspeed() < obj_desc.get_topspeed()) {
+						obj_desc = b
+					}
+				}
+			}
+		}
+	}
+
+	return obj_desc
 }
 
 
@@ -2737,6 +2777,13 @@ function check_way_line(start, end, wt, l, c) {
 
 function optimize_way_line(route, wt) {
 	// remove_tile_to_empty(tiles, wt)
+	gui.add_message_at(our_player, " optimize_way_line(route, wt) ", world.get_time())
+	::debug.pause()
+
+	local speed = tile_x(route[0].x, route[0].y, route[0].z).find_object(mo_way).get_desc().get_topspeed()
+	local bridge_obj = find_object("bridge", wt, speed)
+	local tunnel_obj = find_object("tunnel", wt, speed)
+
 	for ( local i = 1; i < route.len() - 2; i++ ) {
 		local tile_1 = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
 		local tile_2 = tile_x(route[i].x, route[i].y, route[i].z)
@@ -2786,6 +2833,44 @@ function optimize_way_line(route, wt) {
 			}
 		}
 
+		if ( tile_1.z == tile_2.z ) {
+			// slope down - slope up -> bridge
+			gui.add_message_at(our_player, " tile_1 " + tile_1.get_slope() + " tile_2 " + tile_2.get_slope() + " tile_3 " + tile_3.get_slope() + " - " + coord3d_to_string(tile_1), tile_1)
+			if ( (tile_1.get_slope() == 12 && tile_2.get_slope() == 28) || (tile_1.get_slope() == 72 && tile_2.get_slope() == 36) ) {
+				remove_tile_to_empty(tile_2, wt, 0)
+				command_x.build_bridge_at(our_player, tile_1, bridge_obj)
+			}
+			// slope up - slope down -> tunnel
+			if ( (tile_1.get_slope() == 28 && tile_2.get_slope() == 12) || (tile_1.get_slope() == 36 && tile_2.get_slope() == 72) ) {
+				local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
+				remove_tile_to_empty(tile_2, wt, 0)
+				//local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
+				remove_tile_to_empty(tile_1, wt, 0)
+				// terraform down
+				command_x.set_slope(b_player, tile_1, 83 )
+				command_x.set_slope(b_player, tile_2, 83 )
+				local way_obj = tile_4.find_object(mo_way).get_desc()
+				command_x.build_way(b_player, tile_4, tile_3, way_obj, true)
+			}
+			if ( tile_1.get_slope() == 72 && tile_2.get_slope() == 8 ) {
+				//remove_tile_to_empty(tile_2, wt, 0)
+				//local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
+			}
+		}
+
+		if ( tile_1.z == tile_2.z == tile_3.z ) {
+			// slope down - flate - slope up -> bridge
+			if ( (tile_1.get_slope() == 4 && tile_3.get_slope() == 36) || (tile_1.get_slope() == 8 && tile_3.get_slope() == 72) ) {
+				remove_tile_to_empty(tile_2, wt, 0)
+				local err = command_x.build_bridge_at(our_player, tile_1, bridge_obj)
+			}
+			// slope up - flate - slope down -> tunnel
+			if ( (tile_1.get_slope() == 36 && tile_3.get_slope() == 4) || (tile_1.get_slope() == 72 && tile_3.get_slope() == 8) ) {
+				remove_tile_to_empty(tile_2, wt, 0)
+				//local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
+			}
+		}
+
 
 	}
 }
@@ -2801,49 +2886,54 @@ function optimize_way_line(route, wt) {
  */
 function destroy_line(line_obj) {
 
+	::debug.set_pause_on_error(true)
+
 	local line_name = line_obj.get_name()
 	local cnv_list = line_obj.get_convoy_list()
+	local cnv_count = cnv_list.get_count()
+	local wt = line_obj.get_waytype()
 
 	local cnv = null
 	local depot = null
-	local wt = null
 
-	if ( cnv_list.get_count() >= 1 ) {
+	if ( cnv_count >= 1 ) {
 		cnv = cnv_list[0]
-		depot = cnv.get_home_depot()
-		wt = cnv.get_waytype()
-
+		depot = tile_x(cnv.get_home_depot().x, cnv.get_home_depot().y, cnv.get_home_depot().z)
 		// destroy convoy
 		cnv.destroy(our_player)
 
 	}
 
-
 	local start_l = null
 	local end_l = null
+	local start_h = null
+	local end_h = null
 	{
 		local entries = line_obj.get_schedule().entries
 		local entries_count = entries.len()
 		if ( entries.len() >= 2 ) {
-			start_l = tile_x(entries[0].x, entries[0].y, entries[0].z)
-			end_l = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
+			start_h = entries[0].get_halt(our_player).get_tile_list()
+			end_h = entries[entries.len()-1].get_halt(our_player).get_tile_list()
 		}
 	}
+
+	start_l = tile_x(start_h[0].x, start_h[0].y, start_h[0].z)
+	end_l = tile_x(end_h[0].x, end_h[0].y, end_h[0].z)
+	start_h = start_l.get_halt()
+	end_h = end_l.get_halt()
 
 	// destroy line
 	line_obj.destroy(our_player)
 
 	//local wt = start_l.find_object(mo_building)//.get_waytype()
 
-	local start_h = start_l.get_halt()
-	local end_h = end_l.get_halt()
 
 	local start_f = null
 	local end_f = null
-	if ( wt != wt_water ) {
+	//if ( wt != wt_water ) {
 		start_f = start_h.get_factory_list()
 		end_f = end_h.get_factory_list()
-	}
+	//}
 
 	local combined_s = test_halt_waytypes(start_l)
 	local combined_e = test_halt_waytypes(end_l)

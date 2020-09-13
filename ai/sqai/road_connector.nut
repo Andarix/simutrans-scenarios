@@ -221,6 +221,10 @@ class road_connector_t extends manager_t
 					return r_t(RT_PARTIAL_SUCCESS)
 				}
 			case 9: // build station extension
+				{
+					// optimize way line save in c_route
+					optimize_way_line(c_route, wt_rail)
+				}
 		}
 
 		if (finalize) {
