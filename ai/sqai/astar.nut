@@ -2896,13 +2896,13 @@ function destroy_line(line_obj) {
 	local cnv = null
 	local depot = null
 
-	if ( cnv_count >= 1 ) {
-		cnv = cnv_list[0]
+	foreach(cnv in cnv_list) {
 		depot = tile_x(cnv.get_home_depot().x, cnv.get_home_depot().y, cnv.get_home_depot().z)
-		// destroy convoy
+		// mark convoy for destroying
 		cnv.destroy(our_player)
-
 	}
+	// sleep - convoys are destroyed when simulation continues
+	sleep()
 
 	local start_l = null
 	local end_l = null
