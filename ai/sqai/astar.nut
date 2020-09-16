@@ -213,6 +213,76 @@ class astar
 	}
 }
 
+/**
+ * Class to search a route along existing ways.
+ */
+class astar_route_finder extends astar
+{
+	wt = wt_all
+
+	constructor(wt_)
+	{
+		base.constructor()
+		wt = wt_
+		if ( [wt_all, wt_invalid, wt_water].find(wt) ) {
+			throw("Using this waytype is going to be inefficient. Use at own risk.")
+		}
+	}
+
+	function process_node(cnode)
+	{
+		local from = tile_x(cnode.x, cnode.y, cnode.z)
+		local back = dir.backward(cnode.dir)
+		// allowed directions
+		local dirs = from.get_way_dirs_masked(wt)
+
+		for(local d = 1; d<16; d*=2) {
+			// do not go backwards, only along existing ways
+			if ( d == back  ||  ( (dirs & d) == 0) ) {
+				continue
+			}
+
+			local to = from.get_neighbour(wt, d)
+			if (to) {
+				if (!is_closed(to)) {
+					// estimate moving cost
+					local move = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
+					local dist   = estimate_distance(to)
+					local cost   = cnode.cost + move
+					local weight = cost + dist
+					local node = ab_node(to, cnode, cost, dist, d)
+
+					add_to_open(node, weight)
+				}
+			}
+		}
+	}
+
+	// start and end have to be arrays of objects with 3d-coordinates
+	function search_route(start, end)
+	{
+		prepare_search()
+		foreach (e in end) {
+			targets.append(e);
+		}
+		compute_bounding_box()
+
+		foreach (s in start)
+		{
+			local dist = estimate_distance(s)
+			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
+		}
+
+		search()
+
+		if (route.len() > 0) {
+			return { start = route[route.len()-1], end = route[0], routes = route }
+		}
+		print("No route found")
+		return { err =  "No route" }
+	}
+}
+
 class ab_node extends ::astar_node
 {
 	dir = 0   // direction to reach this node
@@ -2040,6 +2110,36 @@ function check_way_line(start, end, wt, l, c) {
 	if ( print_message_box > 0 ) {
 		gui.add_message_at(our_player, " ### check_way_line ### " + coord3d_to_string(start), start)
 	}
+
+	if (wt == wt_rail) {
+		local asf = astar_route_finder(wt)
+		local result = asf.search_route([start], [end])
+		// result is contains routes-array or error message
+		// route is backward from end to start
+
+		if ("err" in result) {
+			gui.add_message_at(our_player, " ### no route found: " + result.err, start)
+		}
+		else {
+			gui.add_message_at(our_player, " ### route found: length =  " +  result.routes.len(), start)
+			// route found, mark tiles
+			local marked = {}
+			foreach(node in result.routes) {
+				local tile = tile_x(node.x, node.y, node.z)
+				try {
+					tile.mark();
+					marked.append(tile)
+				} catch(ev) {}
+			}
+			::debug.pause()
+			::sleep()
+			// unmark if game is unpaused again
+			foreach(tile in marked) {
+				tile.unmark();
+			}
+		}
+	}
+
 /*
 	gui.add_message_at(our_player, "end line " + coord3d_to_string(end), end)
 	gui.add_message_at(our_player, "length " + l, world.get_time())
