@@ -657,7 +657,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
 		}
 	}
 
-	// check tile pos to ewmpty
+	// check tile pos to empty
 	local tile = square_x(route[pos].x, route[pos].y).get_ground_tile()
 	if ( tile.find_object(mo_way) != null && wt == wt_rail && test == 0 ) {
 		tool.work(our_player, tile)
@@ -692,7 +692,6 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 	if ( t_array == 1 ) {
 		// remove array tiles
 		for ( local i = 0; i < tiles.len(); i++ ) {
-			gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i]), tiles[i])
 			local tile_remove = 1
 
 			local tiles_r = square_x(tiles[i].x, tiles[i].y).get_ground_tile()
@@ -705,6 +704,7 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 			}
 
 			if ( tile_remove == 1 ) {
+				gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i]), tiles[i])
 				while(true){
 					tool.work(our_player, tiles_r)
 					if (tiles_r.is_empty())
@@ -716,17 +716,22 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 		// remove one tile
 		local tile_remove = 1
 		local test_way = tiles.find_object(mo_way) //.get_desc()
+		gui.add_message_at(our_player, "test way tile " + tiles.find_object(mo_way), tiles)
 		if ( test_way != null ) {
 				if ( test_way.get_owner().nr != our_player_nr ) {
 					tile_remove = 0
 				}
 		}
 		if ( tile_remove == 1 ) {
+			gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles), tiles)
 			while(true){
 				tool.work(our_player, tiles)
 				if (tiles.is_empty())
 					break
 			}
+			return true
+		} else {
+			return false
 		}
 	}
 
@@ -736,11 +741,11 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
  * function for check station lenght
  *
  * pl = player
- * starts_field = tile station from plan_simple_connection
- * st_lenght = stations fields count
- * wt = waytype
+ * starts_field 	= tile station from plan_simple_connection
+ * st_lenght 			= stations fields count
+ * wt 						= waytype
  * select_station = station object
- * build = 0 -> test ; 1 -> build
+ * build 					= 0 -> test ; 1 -> build
  *
  * returns false (something failed) or array of station tiles (success)
  * in case of success, the value of starts_field maybe changed
@@ -841,10 +846,10 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 /**
  * test fields station
- * pl				= player
- * t_tile		= field to test
- * wt				= waytype
- * rotate		= northsouth ( 5 ) or eastwest ( 10 )
+ * pl					= player
+ * t_tile			= field to test
+ * wt					= waytype
+ * rotate			= northsouth ( 5 ) or eastwest ( 10 )
  * ref_hight	= z from start field
  */
 function test_field(pl, t_tile, wt, rotate, ref_hight) {
@@ -893,11 +898,11 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 
 /**
  * function expand station()
- * pl = player
- * fields = array fields
- * wt = waytype
+ * pl 						= player
+ * fields 				= array fields
+ * wt 						= waytype
  * select_station = station object
- * start_field = c_start or c_end
+ * start_field 		= c_start or c_end
  */
 function expand_station(pl, fields, wt, select_station, start_field) {
 
@@ -2091,7 +2096,7 @@ function build_double_track(start_field, wt) {
  *	wt		=	waytype
  *	l			= stations distance
  *	c			= count of double ways
- *	return_route	= 0 build double ways; 1 no build double ways - return route array
+ *	c=0 -> no build double ways - return route array
  */
 function check_way_line(start, end, wt, l, c) {
 	/*
@@ -2876,9 +2881,9 @@ function check_way_line(start, end, wt, l, c) {
 }
 
 function optimize_way_line(route, wt) {
-	// remove_tile_to_empty(tiles, wt)
+
 	gui.add_message_at(our_player, " optimize_way_line(route, wt) ", world.get_time())
-	::debug.pause()
+	//::debug.pause()
 
 	local speed = tile_x(route[0].x, route[0].y, route[0].z).find_object(mo_way).get_desc().get_topspeed()
 	local bridge_obj = find_object("bridge", wt, speed)
@@ -2894,12 +2899,14 @@ function optimize_way_line(route, wt) {
 		local tile_3_d = tile_3.get_way_dirs(wt)
 		local tile_4_d = 0
 
-		local tile_2_speed = tile_2.find_object(mo_way).get_desc().get_topspeed()
+		local tile_2_speed = 0
 
 		// remove diagonal double ways without spacing
 		if ( dir.is_threeway(tile_1_d)  &&  dir.is_threeway(tile_3_d) ) {
 			if ( tile_2_d == 3 || tile_2_d == 6 ) {
 				tile_4 = tile_x(tile_2.x+1, tile_2.y-1, tile_2.z)
+
+				tile_2_speed = tile_2.find_object(mo_way).get_desc().get_topspeed()
 
 				local tile_1_coord = coord3d_to_string(tile_1)
 				local tile_2_coord = coord3d_to_string(tile_2)
@@ -2933,24 +2940,33 @@ function optimize_way_line(route, wt) {
 			}
 		}
 
-		if ( tile_1.z == tile_2.z ) {
+		::debug.pause()
+
+		if ( tile_1.z == tile_2.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true ) ) {
 			// slope down - slope up -> bridge
-			gui.add_message_at(our_player, " tile_1 " + tile_1.get_slope() + " tile_2 " + tile_2.get_slope() + " tile_3 " + tile_3.get_slope() + " - " + coord3d_to_string(tile_1), tile_1)
-			if ( (tile_1.get_slope() == 12 && tile_2.get_slope() == 28) || (tile_1.get_slope() == 72 && tile_2.get_slope() == 36) ) {
-				remove_tile_to_empty(tile_2, wt, 0)
-				command_x.build_bridge_at(our_player, tile_1, bridge_obj)
+			if ( tile_1.get_slope() > 0 || tile_2.get_slope() > 0 || tile_3.get_slope() > 0 ) {
+				//gui.add_message_at(our_player, " tile_1 " + tile_1.get_slope() + " tile_2 " + tile_2.get_slope() + " tile_3 " + tile_3.get_slope() + " - " + coord3d_to_string(tile_1), tile_1)
+			}
+			if ( (tile_1.get_slope() == 12 && tile_2.get_slope() == 28) || (tile_1.get_slope() == 4 && tile_2.get_slope() == 36) ) {
+				local txt = coord3d_to_string(tile_1)
+				local err = remove_tile_to_empty(tile_2, wt, 0)
+				if ( err ) {
+					err = null
+					err = command_x.build_bridge(our_player, tile_1, tile_2, bridge_obj)
+				}
 			}
 			// slope up - slope down -> tunnel
-			if ( (tile_1.get_slope() == 28 && tile_2.get_slope() == 12) || (tile_1.get_slope() == 36 && tile_2.get_slope() == 72) ) {
+			if ( (tile_1.get_slope() == 28 && tile_2.get_slope() == 12) || (tile_1.get_slope() == 36 && tile_2.get_slope() == 4) ) {
 				local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
+				local txt = coord3d_to_string(tile_1)
 				remove_tile_to_empty(tile_2, wt, 0)
 				//local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
 				remove_tile_to_empty(tile_1, wt, 0)
 				// terraform down
-				command_x.set_slope(b_player, tile_1, 83 )
-				command_x.set_slope(b_player, tile_2, 83 )
+				command_x.set_slope(our_player, tile_1, 83 )
+				command_x.set_slope(our_player, tile_2, 83 )
 				local way_obj = tile_4.find_object(mo_way).get_desc()
-				command_x.build_way(b_player, tile_4, tile_3, way_obj, true)
+				command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
 			}
 			if ( tile_1.get_slope() == 72 && tile_2.get_slope() == 8 ) {
 				//remove_tile_to_empty(tile_2, wt, 0)
@@ -2958,15 +2974,17 @@ function optimize_way_line(route, wt) {
 			}
 		}
 
-		if ( tile_1.z == tile_2.z == tile_3.z ) {
+		if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true && tile_3.is_bridge() != true ) ) {
 			// slope down - flate - slope up -> bridge
 			if ( (tile_1.get_slope() == 4 && tile_3.get_slope() == 36) || (tile_1.get_slope() == 8 && tile_3.get_slope() == 72) ) {
+				local txt = coord3d_to_string(tile_1)
 				remove_tile_to_empty(tile_2, wt, 0)
 				local err = command_x.build_bridge_at(our_player, tile_1, bridge_obj)
 			}
 			// slope up - flate - slope down -> tunnel
 			if ( (tile_1.get_slope() == 36 && tile_3.get_slope() == 4) || (tile_1.get_slope() == 72 && tile_3.get_slope() == 8) ) {
-				remove_tile_to_empty(tile_2, wt, 0)
+				local txt = coord3d_to_string(tile_1)
+				//remove_tile_to_empty(tile_2, wt, 0)
 				//local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
 			}
 		}
@@ -3011,34 +3029,69 @@ function destroy_line(line_obj) {
 	{
 		local entries = line_obj.get_schedule().entries
 		local entries_count = entries.len()
-		if ( entries.len() >= 2 ) {
-			start_h = entries[0].get_halt(our_player).get_tile_list()
-			end_h = entries[entries.len()-1].get_halt(our_player).get_tile_list()
+
+		if ( wt == wt_water ) {
+			if ( entries.len() >= 2 ) {
+				start_h = entries[0].get_halt(our_player)
+				end_h = entries[entries.len()-1].get_halt(our_player)
+				local t = start_h.get_tile_list()
+				start_l = tile_x(t[0].x, t[0].y, t[0].z)
+				t = end_h.get_tile_list()
+				end_l = tile_x(t[0].x, t[0].y, t[0].z)
+			}
+		} else {
+			if ( entries.len() >= 2 ) {
+				start_l = tile_x(entries[0].x, entries[0].y, entries[0].z)
+				end_l = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
+				start_h = start_l.get_halt()
+				end_h = end_l.get_halt()
+			}
+		}
+
+	}
+/*
+	// halt tile line wt
+		for ( local i = 0; i < start_h.len() - 1; i++ ) {
+			if ( tile_x(start_h[i].x, start_h[i].y, start_h[i].z).get_waytype() == wt ) {
+				start_l = tile_x(start_h[i].x, start_h[i].y, start_h[i].z)
+				break
+			}
+		}
+		for ( local i = 0; i < end_h.len() - 1; i++ ) {
+			if ( tile_x(end_h[i].x, end_h[i].y, end_h[i].z).get_waytype() == wt ) {
+				end_l = tile_x(end_h[i].x, end_h[i].y, end_h[i].z)
+				break
+			}
+		}
+	/*	foreach(end_l in end_h) {
+		if ( tile_x(end_l.x, end_l.y, end_l.z).get_waytype() == wt ) {
+			end_l = tile_x(end_l.x, end_l.y, end_l.z)
+			break
 		}
 	}
+	//start_l = tile_x(start_h[0].x, start_h[0].y, start_h[0].z)
+	//end_l = tile_x(end_h[0].x, end_h[0].y, end_h[0].z)
 
-	start_l = tile_x(start_h[0].x, start_h[0].y, start_h[0].z)
-	end_l = tile_x(end_h[0].x, end_h[0].y, end_h[0].z)
-	start_h = start_l.get_halt()
-	end_h = end_l.get_halt()
+*/
+		// destroy line
+		line_obj.destroy(our_player)
 
-	// destroy line
-	line_obj.destroy(our_player)
-
-	//local wt = start_l.find_object(mo_building)//.get_waytype()
+		//local wt = start_l.find_object(mo_building)//.get_waytype()
 
 
-	local start_f = null
-	local end_f = null
-	//if ( wt != wt_water ) {
+		local start_f = null
+		local end_f = null
+		//if ( wt != wt_water ) {
 		start_f = start_h.get_factory_list()
 		end_f = end_h.get_factory_list()
-	//}
+		//}
 
-	local combined_s = test_halt_waytypes(start_l)
-	local combined_e = test_halt_waytypes(end_l)
+		local combined_s = test_halt_waytypes(start_l)
+		local combined_e = test_halt_waytypes(end_l)
 
-	local route = check_way_line(start_l, end_l, wt, 0, 0)
+	if ( wt != wt_water ) {
+		local route = check_way_line(start_l, end_l, wt, 0, 0)
+	}
 
 
 	gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
