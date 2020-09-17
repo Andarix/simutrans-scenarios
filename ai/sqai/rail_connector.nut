@@ -200,7 +200,10 @@ class rail_connector_t extends manager_t
 						c_depot = depot_found
 						local err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 					} else {
-						local i = c_route.len() - 10
+						local i = 0
+						if ( c_route.len() > 10 ) {
+							i = c_route.len() - 10
+						}
 						local err = construct_rail_to_depot(pl, c_route[i], planned_way) //c_start
 						if (err) {
 							print("Failed to build depot access from " + coord_to_string(c_start))
