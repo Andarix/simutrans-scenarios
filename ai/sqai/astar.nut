@@ -2140,7 +2140,7 @@ function check_way_line(start, end, wt, l, c) {
 					marked.append(tile)
 				} catch(ev) {}
 			}
-			::debug.pause()
+			//::debug.pause()
 			::sleep()
 			// unmark if game is unpaused again
 			foreach(tile in marked) {
@@ -2721,7 +2721,7 @@ function optimize_way_line(route, wt) {
 			}
 		}
 
-		::debug.pause()
+		//::debug.pause()
 
 		if ( tile_1.z == tile_2.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true ) ) {
 			// slope down - slope up -> bridge
