@@ -2116,7 +2116,9 @@ function check_way_line(start, end, wt, l, c) {
 		gui.add_message_at(our_player, " ### check_way_line ### " + coord3d_to_string(start), start)
 	}
 
-	if (wt == wt_rail) {
+	local nexttile = [] //[tile_x(start.x, start.y, start.z)]
+
+	//if (wt == wt_rail) {
 		local asf = astar_route_finder(wt)
 		local result = asf.search_route([start], [end])
 		// result is contains routes-array or error message
@@ -2124,6 +2126,7 @@ function check_way_line(start, end, wt, l, c) {
 
 		if ("err" in result) {
 			gui.add_message_at(our_player, " ### no route found: " + result.err, start)
+			return false
 		}
 		else {
 			gui.add_message_at(our_player, " ### route found: length =  " +  result.routes.len(), start)
@@ -2131,6 +2134,7 @@ function check_way_line(start, end, wt, l, c) {
 			local marked = {}
 			foreach(node in result.routes) {
 				local tile = tile_x(node.x, node.y, node.z)
+				nexttile.append(tile)
 				try {
 					tile.mark();
 					marked.append(tile)
@@ -2143,14 +2147,14 @@ function check_way_line(start, end, wt, l, c) {
 				tile.unmark();
 			}
 		}
-	}
+	//}
 
 /*
 	gui.add_message_at(our_player, "end line " + coord3d_to_string(end), end)
 	gui.add_message_at(our_player, "length " + l, world.get_time())
 	gui.add_message_at(our_player, "count " + c, world.get_time())
 */
-	local nexttile = [tile_x(start.x, start.y, start.z)]
+	nexttile.reverse()
 	local d = 0
 
 	// count double ways
@@ -2192,29 +2196,12 @@ function check_way_line(start, end, wt, l, c) {
 	local sign = 0
 	local reset = 0
 
-	d = start.get_way_dirs(wt)
-
-	if ( d == 10 ) {
-		if ( start.x < end.x ) {
-			d = 2
-		} else {
-			d = 8
-		}
-	} else if ( d == 5 ) {
-		if ( start.y < end.y ) {
-			d = 4
-		} else {
-			d = 1
-		}
-	}
-
-
 	local stl = 0
 	local str = 0
 	local dst = 0
 	local i = 0
 
-	while ( nexttile[i].x != end.x && nexttile[i].y != end.y ) {
+	while ( i < nexttile.len() - 1 ) {
 		i++
 		// check to signal
 		local sig = nexttile[i-1].find_object(mo_signal)
@@ -2237,174 +2224,6 @@ function check_way_line(start, end, wt, l, c) {
 			st_tile = nexttile[i-1].find_object(mo_building)
 		}
 
-		if ( d == 10 || d == 11 || d == 14 ) {
-			//gui.add_message_at(our_player, " * i " + i + " d == 10 || d == 11 || d == 14 " + coord3d_to_string(nexttile[i-1]), world.get_time())
-
-	 		if ( (i >= 1 && ( nexttile[i-2].x < nexttile[i-1].x) || reset == 1 ) ) {
-				d = 2
-			} else if ( di == 10 && d == 11 ) {
-				d = 1
-			} else if ( di == 5 && d == 14 ) {
-				d = 2
-			} else {
-				d = 8
-			}
-
-			if ( di == 12 && dc == 11 ) {
-				// 2 or 8
-				//gui.add_message_at(our_player, " * di == 12 || dc == 11", world.get_time())
-				local t = nexttile[i-1].get_neighbour(wt, 8)
-				if ( t.get_way_dirs(wt) == 2 ) {
-					d = 2
-				} else {
-					d = 8
-				}
-			}
-
-		} else if ( d == 5 || d == 7 || d == 13 ) {
-			//gui.add_message_at(our_player, " * i " + i + " d == 5 || d == 7 || d == 13 " + coord3d_to_string(nexttile[i-1]), world.get_time())
-			if ( (i >= 1 && ( nexttile[i-2].y < nexttile[i-1].y) || reset == 1 ) ) {
-				d = 4
-			} else if ( di == 9 && d == 5 ) {
-				d = 1
-			} else if ( ( di == 9 || di == 10 || di == 15 ) && ( d == 7 || d == 13 ) ) {
-				//gui.add_message_at(our_player, " * i " + i + " di == 9 || di == 10 || di == 15 ) && ( d == 7 || d == 13 ) " + coord3d_to_string(nexttile[i-1]), world.get_time())
-				// next 1 or 4
-				if ( di == 9 && d == 7 && nexttile[i-1].y < nexttile[i-2].y ) {
-					d = 1
-				} else if ( di == 15 && ( d == 7 || d == 13 ) ) {
-					if ( nexttile[i-1].y > nexttile[i-2].y ) {
-						d = 1
-					} else {
-						d = 4
-					}
-				} else {
-					local t = nexttile[i-1].get_neighbour(wt, 4)
-					//gui.add_message_at(our_player, " *  " + coord3d_to_string(t) + " d " + t.get_way_dirs(wt), world.get_time())
-					if ( t.get_way_dirs(wt) == 4 ) {
-						d = 1
-					} else {
-						d = 4
-					}
-				}
-			} else {
-				if ( nexttile[i-1].y < end.y ) {
-					d = 4
-				} else {
-					d = 1
-				}
-			}
-		} else if ( d == 12 ) {
-			if ( nexttile[i-2].x < nexttile[i-1].x ) {
-				d = 4
-			} else {
-				d = 8
-			}
-		} else if ( d == 9 ) {
-			if ( nexttile[i-2].y < nexttile[i-1].y ) {
-				d = 8
-			} else if ( ( di == 13 || di == 7 || di == 15 ) && d == 9 ) {
-				d = 1
-			} else {
-				d = 1
-			}
-
-		} else if ( d == 6 ) {
-			if ( nexttile[i-2].x > nexttile[i-1].x ) {
-				d = 4
-			} else if ( nexttile[i-2].y > nexttile[i-1].y ) {
-				d = 2
-			} else if ( (di == 5 || di == 9 || di == 15 ) && d == 6 ) {
-				d = 2
-			} else if ( di == 13 && d == 6 ) {
-				d = 4
-			} else {
-				d = 8
-			}
-
-		} else if ( d == 3 ) {
-			if ( nexttile[i-2].y < nexttile[i-1].y ) {
-				d = 2
-			} else {
-				d = 1
-			}
-		} else if ( d == 15 ) {
-			//gui.add_message_at(our_player, " * check d=15 " + coord3d_to_string(nexttile[i-1]) + " d " + d + " i " + i + " dc " + dc + " di " + di, world.get_time())
-			if ( di == 10 ) {
-				if ( nexttile[i-2].x < nexttile[i-1].x ) {
-					// ribi 15 to e from ribi 10
-					d = 2
-				} else {
-					// ribi 15 to w from ribi 10
-					d = 8
-				}
-			} else if ( di == 5 ) {
-				if ( nexttile[i-2].y < nexttile[i-1].y ) {
-					// ribi 15 to s from ribi 5
-					d = 1
-				} else {
-					// ribi 15 to s from ribi 5
-					d = 4
-				}
-			} else if ( di == 6 || di == 9 || di == 3 || di == 12) {
-				if ( nexttile[i-2].x < nexttile[i-1].x && nexttile[i-2].y == nexttile[i-1].y ) {
-					// ribi 15 to e from ribi 6/3
-					d = 2
-				} else if ( nexttile[i-2].x > nexttile[i-1].x && nexttile[i-2].y == nexttile[i-1].y ) {
-					// ribi 15 to w from ribi 9/12
-					d = 8
-				} else if ( nexttile[i-2].x == nexttile[i-1].x && nexttile[i-2].y > nexttile[i-1].y ) {
-					// ribi 15 to n from ribi 6/3
-					d = 1
-				} else if ( nexttile[i-2].x == nexttile[i-1].x && nexttile[i-2].y < nexttile[i-1].y ) {
-					// ribi 15 to s from ribi 9/12
-					d = 4
-				}
-			} else {
-				// default ribi 15 to e
-				d = 2
-			}
-		}
-
-
-		//gui.add_message_at(our_player, " * " + coord3d_to_string(nexttile[i-1]) + " d " + d + " i " + i + " dc " + dc + " di " + di, world.get_time())
-		local t = nexttile[i-1].get_neighbour(wt, d)
-		if ( t == null && print_message_box == 4 ) {
-			gui.add_message_at(our_player, " next field pos " + t, world.get_time())
-		} else if ( print_message_box == 4 ) {
-			gui.add_message_at(our_player, " next field pos " + coord3d_to_string(t), world.get_time())
-		}
-
-		local test = null
-		local test_d = t.get_way_dirs(wt)
-		if ( wt == wt_rail && ( test_d == 1 || test_d == 2 || test_d == 4 || test_d == 8 ) ) {
-			test = t.find_object(mo_depot_rail)
-		}
-
-		if ( i < 6 && print_message_box == 5 ) {
-			gui.add_message_at(our_player, " tile * " + coord3d_to_string(t) + " dc " + dc + " di " + di + " d " + d, t)
-		}
-
-		if ( test == null ) {
-			d = t.get_way_dirs(wt)
-		} else {
-			if ( nexttile[i-1].get_way_dirs(wt) == 11 && nexttile[i-2].get_way_dirs(wt) == 10 ) {
-				d = 1
-			} else if ( nexttile[i-1].get_way_dirs(wt) == 14 && nexttile[i-2].get_way_dirs(wt) == 10 ) {
-				d = 4
-			} else if ( nexttile[i-1].get_way_dirs(wt) == 7 && nexttile[i-2].get_way_dirs(wt) == 5 ) {
-				d = 2
-			} else if ( nexttile[i-1].get_way_dirs(wt) == 7 && nexttile[i-2].get_way_dirs(wt) == 10 ) {
-				d = 1
-			} else if ( nexttile[i-1].get_way_dirs(wt) == 13 && nexttile[i-2].get_way_dirs(wt) == 5 ) {
-				d = 8
-			}
-			//gui.add_message_at(our_player, " * tile * " + coord3d_to_string(nexttile[i-1]) + " d " + d, nexttile[i-1])
-			t = nexttile[i-1].get_neighbour(wt, d)
-			d = t.get_way_dirs(wt)
-		}
-
-
 		// len from double track
 		local way_len = 8
 		if ( d == 6 || d == 9 ) {
@@ -2413,47 +2232,7 @@ function check_way_line(start, end, wt, l, c) {
 			way_len = 9
 		}
 
-		// ribi 7, 11, 13, 14
-		if ( dc == 7 && ( d == 1 || d == 4 ) ) {
-			d = 2
-			t = nexttile[i-1].get_neighbour(wt, d)
-			d = t.get_way_dirs(wt)
-		} else if ( dc == 13 && ( d == 1 || d == 4 ) ) {
-			d = 8
-			t = nexttile[i-1].get_neighbour(wt, d)
-			d = t.get_way_dirs(wt)
-		} else if ( dc == 11 && ( d == 2 || d == 8 ) ) {
-			d = 1
-			t = nexttile[i-1].get_neighbour(wt, d)
-			d = t.get_way_dirs(wt)
-		} else if ( di != 5 && dc == 14 && ( d == 2 || d == 8 ) ) {
-			d = 4
-			t = nexttile[i-1].get_neighbour(wt, d)
-			d = t.get_way_dirs(wt)
-		}
-		// reset by wrong direction
-		// end from way
-		if ( i > 1 && i < 5 && dc == 10 && ( d == 2 || d == 8 ) ) { //nexttile[0].x == t.x && nexttile[0].y == t.y && nexttile[0].z == t.z ) {
-			nexttile.clear()
-			l = l + i - 1
-			i = 0
-			reset = 1
-			if ( print_message_box == 1 ) {
-				gui.add_message_at(our_player, "*#* nexttile reset - t " + coord3d_to_string(t), world.get_time())
-			}
-		} else if ( i > 1 && i < 5 && dc == 5 && ( d == 1 || d == 4 ) ) { //nexttile[0].x == t.x && nexttile[0].y == t.y && nexttile[0].z == t.z ) {
-			nexttile.clear()
-			l = l + i - 1
-			i = 0
-			reset = 1
-			if ( print_message_box == 1 ) {
-				gui.add_message_at(our_player, "*#* nexttile reset - t " + coord3d_to_string(t), world.get_time())
-			}
-		} else {
-			reset = 0
-		}
-
-		nexttile.append(t)
+		local t = nexttile[i]
 
 		// diagonal start ribi
 		if ( ( dc == 5 && d == 6 ) || ( dc == 5 && d == 9 ) ) {
@@ -2828,7 +2607,7 @@ function check_way_line(start, end, wt, l, c) {
 				}
 			} else {
 				if ( nexttile[i-way_len-1].get_slope() == 0 ) {
-					if ( ( nexttile[i-way_len].get_way_dirs(wt) == 3 || nexttile[i-way_len].get_way_dirs(wt) == 12 ) && nexttile[i-way_len].get_slope() == 0 ) {
+					if ( ( nexttile[i-way_len].get_way_dirs(wt) == 3 || nexttile[i-way_len].get_way_dirs(wt) == 12 ) && nexttile[i-way_len].get_slope() == 0 && fc == 0 ) {
 						start_fields.append(nexttile[i-way_len])
 						if ( print_message == 1 ) {
 							gui.add_message_at(our_player, " add nexttile[i-way_len] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
@@ -2888,6 +2667,8 @@ function optimize_way_line(route, wt) {
 	local speed = tile_x(route[0].x, route[0].y, route[0].z).find_object(mo_way).get_desc().get_topspeed()
 	local bridge_obj = find_object("bridge", wt, speed)
 	local tunnel_obj = find_object("tunnel", wt, speed)
+
+	gui.add_message_at(our_player, " found bridge " + bridge_obj.get_name() + " tunnel " + tunnel_obj.get_name(), world.get_time())
 
 	for ( local i = 1; i < route.len() - 2; i++ ) {
 		local tile_1 = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
@@ -3090,7 +2871,8 @@ function destroy_line(line_obj) {
 		local combined_e = test_halt_waytypes(end_l)
 
 	if ( wt != wt_water ) {
-		local route = check_way_line(start_l, end_l, wt, 0, 0)
+		local asf = astar_route_finder(wt)
+		local result = asf.search_route([start], [end])
 	}
 
 
