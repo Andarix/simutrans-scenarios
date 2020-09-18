@@ -1196,7 +1196,7 @@ function find_object(obj, wt, speed) {
 		for(local i=1; i<len; i++) {
 			local b = list[i]
 			local o = 1
-			if ( obj == "bridge" && ( b.get_max_length() > min_len || b.get_max_length() == 0 ) ) {
+			if ( obj == "bridge" && b.get_max_length() < min_len ) {
 				o = 0
 			}
 			if ( o == 1 ) {
@@ -2146,6 +2146,7 @@ function check_way_line(start, end, wt, l, c) {
 			foreach(tile in marked) {
 				tile.unmark();
 			}
+			::sleep()
 		}
 	//}
 
@@ -2872,7 +2873,7 @@ function destroy_line(line_obj) {
 
 	if ( wt != wt_water ) {
 		local asf = astar_route_finder(wt)
-		local result = asf.search_route([start], [end])
+		local result = asf.search_route(start_l, end_l)
 	}
 
 
