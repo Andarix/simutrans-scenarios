@@ -1185,7 +1185,7 @@ function find_object(obj, wt, speed) {
 	}
 
 	local len = list.len()
-	local way_speed = speed
+	local max_speed = 120
 	local min_len = 5
 
 	local obj_desc = null
@@ -1206,7 +1206,7 @@ function find_object(obj, wt, speed) {
 					}
 				}
 				else {
-					if (speed < b.get_topspeed() && b.get_topspeed() < obj_desc.get_topspeed()) {
+					if (speed < b.get_topspeed() && max_speed > b.get_topspeed() && b.get_topspeed() > obj_desc.get_topspeed()) {
 						obj_desc = b
 					}
 				}
@@ -2126,7 +2126,7 @@ function check_way_line(start, end, wt, l, c) {
 
 		if ("err" in result) {
 			gui.add_message_at(our_player, " ### no route found: " + result.err, start)
-			return false
+			return nexttile
 		}
 		else {
 			gui.add_message_at(our_player, " ### route found: length =  " +  result.routes.len(), start)
@@ -2721,7 +2721,7 @@ function optimize_way_line(route, wt) {
 			}
 		}
 
-		//::debug.pause()
+		::debug.pause()
 
 		if ( tile_1.z == tile_2.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true ) ) {
 			// slope down - slope up -> bridge
