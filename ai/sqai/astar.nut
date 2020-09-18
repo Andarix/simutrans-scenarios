@@ -2234,6 +2234,7 @@ function check_way_line(start, end, wt, l, c) {
 		}
 
 		local t = nexttile[i]
+		d = nexttile[i].get_way_dirs(wt)
 
 		// diagonal start ribi
 		if ( ( dc == 5 && d == 6 ) || ( dc == 5 && d == 9 ) ) {
