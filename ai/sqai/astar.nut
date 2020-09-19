@@ -2877,6 +2877,7 @@ function destroy_line(line_obj) {
 		//::debug.pause()
 		// destroy line
 		line_obj.destroy(our_player)
+		//industry_manager.access_link(fsrc, fdest, freight).remove_line(c_line)
 		sleep()
 
 		local start_f = null

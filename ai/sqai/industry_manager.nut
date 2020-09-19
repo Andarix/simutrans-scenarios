@@ -41,6 +41,10 @@ class industry_link_t
 	{
 		lines.append(l)
 	}
+	function remove_line(l)
+	{
+		lines.remove(l)
+	}
 	function _save()
 	{
 		return ::saveinstance("industry_link_t", this)
@@ -175,8 +179,9 @@ class industry_manager_t extends manager_t
 		// iterate through all lines
 		foreach(line in link.lines) {
 			if ( line.is_valid() ) {
-				//gui.add_message_at(our_player, "####### line.is_valid() " + line.is_valid(), world.get_time())
 				check_link_line(link, line)
+			} else {
+				gui.add_message_at(our_player, "####### invalid line " + line.get_name(), world.get_time())
 			}
 		}
 	}
@@ -190,6 +195,7 @@ class industry_manager_t extends manager_t
 		local  print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
+		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
 		// find convoy
 		local cnv = null
 		local cnv_count = 0
@@ -209,10 +215,10 @@ class industry_manager_t extends manager_t
 			local profit_count = line.get_profit()
 			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
 			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
-				if ( cnv.get_distance_traveled_total() > 3 ) {
+				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_loading_level() == 0 ) {
 					destroy_line(line)
 				} else {
-					gui.add_message_at(our_player, "return cnv/line new", world.get_time())
+					gui.add_message_at(our_player, "return cnv/line new ", world.get_time())
 				}
 				return
 			}
