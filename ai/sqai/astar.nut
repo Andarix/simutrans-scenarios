@@ -2913,7 +2913,7 @@ function destroy_line(line_obj) {
 			//nexttile.append(tile)
 			// check route to treeways
 			// one treeway ( depot ) then no split line way
-			if ( dir.is_threeway(tile) ) {
+			if ( dir.is_threeway(tile.get_way_dirs(wt)) ) {
 				treeways++
 			}
 		}
