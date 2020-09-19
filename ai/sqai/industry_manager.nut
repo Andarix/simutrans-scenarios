@@ -177,11 +177,12 @@ class industry_manager_t extends manager_t
 		}
 
 		// iterate through all lines
-		foreach(line in link.lines) {
+		foreach(index, line in link.lines) {
 			if ( line.is_valid() ) {
 				check_link_line(link, line)
 			} else {
-				gui.add_message_at(our_player, "####### invalid line " + line.get_name(), world.get_time())
+				gui.add_message_at(our_player, "####### invalid line " + line, world.get_time())
+				link.lines.remove(index)
 			}
 		}
 	}
