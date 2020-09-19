@@ -2877,6 +2877,7 @@ function destroy_line(line_obj) {
 		//::debug.pause()
 		// destroy line
 		line_obj.destroy(our_player)
+		sleep()
 
 		local start_f = null
 		local end_f = null
