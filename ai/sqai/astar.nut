@@ -2931,21 +2931,25 @@ function test_halt_waytypes(tile) {
 	}
 
 	local halt_tiles = tile.get_halt().get_tile_list()
-	gui.add_message_at(our_player, "halt has tiles " + halt_tiles.len(), tile)
+	//gui.add_message_at(our_player, "halt has tiles " + halt_tiles.len(), tile)
 
 	local test_rail = 0
 	local test_road = 0
 	local test_water = 0
 	for ( local i = 0; i < halt_tiles.len(); i++ ) {
-		local building = tile.find_object(mo_building).get_desc()
-		if ( building.get_waytype() == wt_rail ) {
-			test_rail++
-		}
-		if ( building.get_waytype() == wt_road ) {
-			test_road++
-		}
-		if ( building.get_waytype() == wt_water ) {
-			test_water++
+		local building = halt_tiles[i].find_object(mo_building).get_desc()
+		if ( building ) {
+			switch (building.get_waytype()) {
+				case wt_rail:
+					test_rail++
+					break
+				case wt_road:
+					test_road++
+					break
+				case wt_water:
+					test_water++
+					break
+			}
 		}
 	}
 	local test_way = 0
