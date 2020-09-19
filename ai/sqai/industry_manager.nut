@@ -205,10 +205,15 @@ class industry_manager_t extends manager_t
 		}
 
 		if ( line.get_owner().nr == our_player.nr ) {
-			// non profit in 5 months then destroy line
+			// non profit in 5 months then destroy line //cnv.get_distance_traveled_total() > 3 &&
 			local profit_count = line.get_profit()
-			if ( cnv.get_distance_traveled_total() > 3 && profit_count[4] <= 0 && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
-				destroy_line(line)
+			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
+			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
+				if ( cnv.get_distance_traveled_total() > 3 ) {
+					destroy_line(line)
+				} else {
+					gui.add_message_at(our_player, "return cnv/line new", world.get_time())
+				}
 				return
 			}
 		}

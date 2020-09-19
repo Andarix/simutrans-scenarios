@@ -2141,12 +2141,12 @@ function check_way_line(start, end, wt, l, c) {
 				} catch(ev) {}
 			}
 			//::debug.pause()
-			::sleep()
+			sleep()
 			// unmark if game is unpaused again
 			foreach(tile in marked) {
 				tile.unmark();
 			}
-			::sleep()
+			sleep()
 		}
 	//}
 
@@ -2822,7 +2822,9 @@ function optimize_way_line(route, wt) {
  */
 function destroy_line(line_obj) {
 
-	::debug.set_pause_on_error(false)
+	::debug.set_pause_on_error(true)
+
+	gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
 
 	local line_name = line_obj.get_name()
 	local cnv_list = line_obj.get_convoy_list()
@@ -2835,6 +2837,10 @@ function destroy_line(line_obj) {
 	foreach(cnv in cnv_list) {
 		depot = tile_x(cnv.get_home_depot().x, cnv.get_home_depot().y, cnv.get_home_depot().z)
 		// mark convoy for destroying
+		if ( cnv.get_distance_traveled_total() < 3 ) {
+			gui.add_message_at(our_player, "return cnv/line new", world.get_time())
+			return
+		}
 		cnv.destroy(our_player)
 	}
 	// sleep - convoys are destroyed when simulation continues
@@ -2868,9 +2874,9 @@ function destroy_line(line_obj) {
 
 	}
 		gui.add_message_at(our_player, "  " + line_obj.get_name(), world.get_time())
-		::debug.pause()
+		//::debug.pause()
 		// destroy line
-		//line_obj.destroy(our_player)
+		line_obj.destroy(our_player)
 
 		local start_f = null
 		local end_f = null
@@ -2895,9 +2901,31 @@ function destroy_line(line_obj) {
 	gui.add_message_at(our_player, " combined station s waytypes = " + combined_s, start_l)
 	gui.add_message_at(our_player, " combined station e waytypes = " + combined_e, end_l)
 
+	// check line way
+	local wayline = null
+	local treeways = 0
 	if ( wt != wt_water ) {
 		local asf = astar_route_finder(wt)
-		local result = asf.search_route([start_l], [end_l])
+		wayline = asf.search_route([start_l], [end_l])
+
+		foreach(node in wayline.routes) {
+			local tile = tile_x(node.x, node.y, node.z)
+			//nexttile.append(tile)
+			// check route to treeways
+			// one treeway ( depot ) then no split line way
+			if ( dir.is_threeway(tile) ) {
+				treeways++
+			}
+		}
+	}
+
+	// remove rail line way by single halt and no more treeways
+	if ( treeways == 1 && combined_s == 1 && combined_e == 1 && wt == wt_rail ) {
+		// remove depot
+		remove_tile_to_empty(depot, wt, 0)
+		// remove line way
+		local tool = command_x(tool_remove_way)
+		tool.work(our_player, start_l, end_l, "" + wt_rail)
 	}
 
 
