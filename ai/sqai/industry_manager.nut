@@ -207,7 +207,7 @@ class industry_manager_t extends manager_t
 		if ( line.get_owner().nr == our_player.nr ) {
 			// non profit in 5 months then destroy line
 			local profit_count = line.get_profit()
-			if ( ( profit_count[4] < 0 || profit_count[4] == 0 ) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
+			if ( cnv.get_distance_traveled_total() > 3 && profit_count[4] <= 0 && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
 				destroy_line(line)
 				return
 			}

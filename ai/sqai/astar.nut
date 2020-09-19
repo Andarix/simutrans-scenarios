@@ -2822,7 +2822,7 @@ function optimize_way_line(route, wt) {
  */
 function destroy_line(line_obj) {
 
-	::debug.set_pause_on_error(true)
+	::debug.set_pause_on_error(false)
 
 	local line_name = line_obj.get_name()
 	local cnv_list = line_obj.get_convoy_list()
@@ -2867,35 +2867,10 @@ function destroy_line(line_obj) {
 		}
 
 	}
-/*
-	// halt tile line wt
-		for ( local i = 0; i < start_h.len() - 1; i++ ) {
-			if ( tile_x(start_h[i].x, start_h[i].y, start_h[i].z).get_waytype() == wt ) {
-				start_l = tile_x(start_h[i].x, start_h[i].y, start_h[i].z)
-				break
-			}
-		}
-		for ( local i = 0; i < end_h.len() - 1; i++ ) {
-			if ( tile_x(end_h[i].x, end_h[i].y, end_h[i].z).get_waytype() == wt ) {
-				end_l = tile_x(end_h[i].x, end_h[i].y, end_h[i].z)
-				break
-			}
-		}
-	/*	foreach(end_l in end_h) {
-		if ( tile_x(end_l.x, end_l.y, end_l.z).get_waytype() == wt ) {
-			end_l = tile_x(end_l.x, end_l.y, end_l.z)
-			break
-		}
-	}
-	//start_l = tile_x(start_h[0].x, start_h[0].y, start_h[0].z)
-	//end_l = tile_x(end_h[0].x, end_h[0].y, end_h[0].z)
-
-*/
+		gui.add_message_at(our_player, "  " + line_obj.get_name(), world.get_time())
+		::debug.pause()
 		// destroy line
-		line_obj.destroy(our_player)
-
-		//local wt = start_l.find_object(mo_building)//.get_waytype()
-
+		//line_obj.destroy(our_player)
 
 		local start_f = null
 		local end_f = null
@@ -2903,6 +2878,16 @@ function destroy_line(line_obj) {
 		start_f = start_h.get_factory_list()
 		end_f = end_h.get_factory_list()
 		//}
+		if ( start_f.len() > 0 ) {
+			gui.add_message_at(our_player, " factory start " + start_f[0].get_name(), world.get_time())
+		} else {
+			gui.add_message_at(our_player, " not connect factory start ", world.get_time())
+		}
+		if ( end_f.len() > 0 ) {
+			gui.add_message_at(our_player, " factory end " + end_f[0].get_name(), world.get_time())
+		} else {
+			gui.add_message_at(our_player, " not connect factory end ", world.get_time())
+		}
 
 		local combined_s = test_halt_waytypes(start_l)
 		local combined_e = test_halt_waytypes(end_l)
@@ -2912,7 +2897,7 @@ function destroy_line(line_obj) {
 
 	if ( wt != wt_water ) {
 		local asf = astar_route_finder(wt)
-		local result = asf.search_route(start_l, end_l)
+		local result = asf.search_route([start_l], [end_l])
 	}
 
 
