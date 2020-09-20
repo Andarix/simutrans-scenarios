@@ -219,7 +219,7 @@ class industry_manager_t extends manager_t
 				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_loading_level() == 0 ) {
 					destroy_line(line)
 				} else {
-					gui.add_message_at(our_player, "return cnv/line new ", world.get_time())
+					//gui.add_message_at(our_player, "return cnv/line new " + line.get_name(), world.get_time())
 				}
 				return
 			}
