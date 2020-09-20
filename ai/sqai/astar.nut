@@ -2135,18 +2135,20 @@ function check_way_line(start, end, wt, l, c) {
 			foreach(node in result.routes) {
 				local tile = tile_x(node.x, node.y, node.z)
 				nexttile.append(tile)
+				/*
 				try {
 					tile.mark();
 					marked.append(tile)
-				} catch(ev) {}
+				} catch(ev) {}*/
 			}
 			//::debug.pause()
 			sleep()
 			// unmark if game is unpaused again
+			/*
 			foreach(tile in marked) {
 				tile.unmark();
 			}
-			sleep()
+			sleep()*/
 		}
 	//}
 
