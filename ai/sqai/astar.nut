@@ -3000,6 +3000,10 @@ function destroy_line(line_obj) {
 
 	// remove road line
 	if ( wt == wt_water ) {
+		local tool = command_x(tool_remover)
+
+		// remove depot
+		tool.work(our_player, depot)
 
 		// remove way line and station by 0 lines connected
 		start_line_count = start_h.get_line_list().get_count()
@@ -3012,14 +3016,14 @@ function destroy_line(line_obj) {
 				for ( local i = 0; i < t.len(); i++ ) {
 					local k = t[i].find_object(mo_building).get_desc().get_waytype()
 					if ( k == wt_road ) {
-						local tool = command_x(tool_remover)
 						tool.work(our_player, t[i])
 						break
 					} else if ( k == wt_rail ) {
-						local tool = command_x(tool_remover)
 						tool.work(our_player, t[i])
 					}
 				}
+				t = start_h.get_tile_list()
+				tool.work(our_player, t[0])
 			}
 		}
 
@@ -3030,11 +3034,9 @@ function destroy_line(line_obj) {
 				for ( local i = 0; i < t.len(); i++ ) {
 					local k = t[i].find_object(mo_building).get_desc().get_waytype()
 					if ( k == wt_road ) {
-						local tool = command_x(tool_remover)
 						tool.work(our_player, t[i])
 						break
 					} else if ( k == wt_rail ) {
-						local tool = command_x(tool_remover)
 						tool.work(our_player, t[i])
 					}
 				}
@@ -3083,4 +3085,16 @@ function test_halt_waytypes(tile) {
 	if ( test_water > 0 ) { test_way++ }
 
 	return test_way
+}
+
+/*
+ * check depot as home for other vehicles
+ * tile = depot coord
+ * wt		= waytype
+ *
+ * return: true = no vehicles; false = other vehicles
+ */
+function check_home_depot(tile, wt) {
+
+
 }
