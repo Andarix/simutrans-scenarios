@@ -179,6 +179,7 @@ class industry_manager_t extends manager_t
 		// iterate through all lines
 		foreach(index, line in link.lines) {
 			if ( line.is_valid() ) {
+				//gui.add_message_at(our_player, "####### valid line " + line.get_name(), world.get_time())
 				check_link_line(link, line)
 			} else {
 				gui.add_message_at(our_player, "####### invalid line " + line, world.get_time())
@@ -216,7 +217,7 @@ class industry_manager_t extends manager_t
 			local profit_count = line.get_profit()
 			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
 			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
-				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_loading_level() == 0 ) {
+				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_distance_traveled_total() < 25 && cnv.get_loading_level() == 0 ) {
 					destroy_line(line)
 				} else {
 					//gui.add_message_at(our_player, "return cnv/line new " + line.get_name(), world.get_time())
