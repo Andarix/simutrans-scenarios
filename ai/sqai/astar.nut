@@ -2948,7 +2948,9 @@ function destroy_line(line_obj) {
 	// remove rail line way by single halt and no more treeways
 	if ( treeways == 1 && combined_s == 1 && combined_e == 1 && wt == wt_rail ) {
 		// remove depot
-		remove_tile_to_empty(depot, wt, 0)
+		if ( check_home_depot(depot, wt) ) {
+			remove_tile_to_empty(depot, wt, 0)
+		}
 		// remove line way
 		local tool = command_x(tool_remove_way)
 		tool.work(our_player, start_l, end_l, "" + wt_rail)
@@ -2958,7 +2960,9 @@ function destroy_line(line_obj) {
 	if ( wt == wt_road ) {
 		// remove depot not other road stations in range
 		// to do check other stations
-		remove_tile_to_empty(depot, wt, 0)
+		if ( check_home_depot(depot, wt) ) {
+			remove_tile_to_empty(depot, wt, 0)
+		}
 
 		// remove way line and station by 0 lines connected
 		start_line_count = start_h.get_line_list().get_count()
@@ -3005,7 +3009,9 @@ function destroy_line(line_obj) {
 		local tool = command_x(tool_remover)
 
 		// remove depot
-		tool.work(our_player, depot)
+		if ( check_home_depot(depot, wt) ) {
+			tool.work(our_player, depot)
+		}
 
 		// remove way line and station by 0 lines connected
 		start_line_count = start_h.get_line_list().get_count()
@@ -3098,5 +3104,15 @@ function test_halt_waytypes(tile) {
  */
 function check_home_depot(tile, wt) {
 
+	// load vehicle list
+	local list = []
+
+	foreach(cnv in list) {
+		if ( tile.x == cnv.get_home_depot().x && tile.y == cnv.get_home_depot().y && tile.z == cnv.get_home_depot().z ) {
+			return false
+		}
+	}
+
+	return true
 
 }
