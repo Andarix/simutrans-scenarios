@@ -2866,11 +2866,11 @@ function destroy_line(line_obj) {
 	}
 	gui.add_message_at(our_player, "  " + line_obj.get_name(), world.get_time())
 
-	local combined_s = test_halt_waytypes(start_l)
-	local combined_e = test_halt_waytypes(end_l)
-
 	local start_line_count = start_h.get_line_list().get_count()
 	local end_line_count = 0
+
+	local combined_s = test_halt_waytypes(start_l)
+	local combined_e = test_halt_waytypes(end_l)
 
 	foreach(cnv in cnv_list) {
 		depot = tile_x(cnv.get_home_depot().x, cnv.get_home_depot().y, cnv.get_home_depot().z)
@@ -2888,11 +2888,14 @@ function destroy_line(line_obj) {
 	// sleep - convoys are destroyed when simulation continues
 	sleep()
 
-		//::debug.pause()
-		// destroy line
-		line_obj.destroy(our_player)
-		//industry_manager.access_link(fsrc, fdest, freight).remove_line(c_line)
-		sleep()
+	//::debug.pause()
+	// destroy line
+	line_obj.destroy(our_player)
+	//industry_manager.access_link(fsrc, fdest, freight).remove_line(c_line)
+	sleep()
+
+	start_line_count = start_h.get_line_list().get_count()
+	end_line_count = end_h.get_line_list().get_count()
 
 		local start_f = null
 		local end_f = null
@@ -2922,6 +2925,7 @@ function destroy_line(line_obj) {
 	local treeway_tile_e = null
 
 	if ( wt != wt_water ) {
+		//gui.add_message_at(our_player, " search way line ", world.get_time())
 		local asf = astar_route_finder(wt)
 		wayline = asf.search_route([start_l], [end_l])
 
@@ -2945,15 +2949,55 @@ function destroy_line(line_obj) {
 		}
 	}
 
-	// remove rail line way by single halt and no more treeways
-	if ( treeways == 1 && combined_s == 1 && combined_e == 1 && wt == wt_rail ) {
-		// remove depot
-		if ( check_home_depot(depot, wt) ) {
-			remove_tile_to_empty(depot, wt, 0)
-		}
-		// remove line way
+	if ( wt == wt_rail ) {
+		local remove_all = 0
+		gui.add_message_at(our_player, " remove wt_rail line ", world.get_time())
+		// remove combined station ( rail - water ) on start
 		local tool = command_x(tool_remove_way)
-		tool.work(our_player, start_l, end_l, "" + wt_rail)
+		if ( start_line_count == 0 ) {
+			// remove combined waytype halt water - not road
+			if ( combined_s > 1 ) {
+				local t = start_h.get_tile_list()
+				for ( local i = 0; i < t.len(); i++ ) {
+					local k = t[i].find_object(mo_building).get_desc().get_waytype()
+					gui.add_message_at(our_player, " station tile " + i + " waytype " + k, world.get_time())
+					if ( k == wt_water ) {
+						local tool = command_x(tool_remover)
+						tool.work(our_player, t[i])
+						combined_s = 1
+						break
+					}
+				}
+			}
+
+			if ( treeways == 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && end_line_count == 0 ) {
+				// remove all
+				remove_all = 1
+			}
+
+			// remove way from start to first treeway
+			if ( treeways > 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && remove_all == 0 ) {
+				// remove station and way to next treeway
+				tool.work(our_player, start_l, treeway_tile_s, "" + wt_rail)
+			}
+			// remove way from end to first treeway
+			if ( treeways > 1 && combined_s == 1 && combined_e == 1 && end_line_count == 0 && remove_all == 0 ) {
+				// remove station and way to next treeway
+				tool.work(our_player, end_l, treeway_tile_e, "" + wt_rail)
+			}
+		}
+
+		// remove rail line way by single halt and no more treeways
+		if ( ( treeways == 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && end_line_count == 0) || remove_all == 1 ) {
+			// remove depot
+			if ( check_home_depot(depot, wt) ) {
+				remove_tile_to_empty(depot, wt, 0)
+			}
+			// remove line way
+			local tool = command_x(tool_remove_way)
+			tool.work(our_player, start_l, end_l, "" + wt_rail)
+		}
+
 	}
 
 	// remove road line
