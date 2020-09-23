@@ -2252,7 +2252,7 @@ function check_way_line(start, end, wt, l, c) {
 		}
 
 		local st = 0
-		if ( dst == 0 && fc == 0 && ( t.get_slope() > 0 || t.is_bridge() ) ) {
+		if ( dst == 0 && fc == 0 && ( t.get_slope() > 0 || t.is_bridge() || t.has_two_ways() ) ) {
 			// check slope to start field for double way
 			//gui.add_message_at(our_player, " ### check first tile " + coord3d_to_string(t), t)
 			st = 1
@@ -2616,12 +2616,19 @@ function check_way_line(start, end, wt, l, c) {
 					fc = 0
 				}
 			} else if ( nexttile[i-1].x < nexttile[i].x && fc > 0 && nexttile[i-2].y == nexttile[i].y ) {
+				if ( nexttile[i-way_len].get_slope() == 0 ) {
 					start_fields.append(nexttile[i-way_len])
-					stl = 0
-					str = 0
 					if ( print_message == 1 ) {
 						gui.add_message_at(our_player, " add nexttile[i-way_len] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
 					}
+				} else {
+					start_fields.append(nexttile[i-way_len+1])
+					if ( print_message == 1 ) {
+						gui.add_message_at(our_player, " add nexttile[i-way_len+1] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
+					}
+				}
+					stl = 0
+					str = 0
 			} else {
 					if ( ( nexttile[i-way_len].get_way_dirs(wt) == 3 || nexttile[i-way_len].get_way_dirs(wt) == 12 ) && nexttile[i-way_len].get_slope() == 0 && fc == 0 ) {
 						start_fields.append(nexttile[i-way_len])
