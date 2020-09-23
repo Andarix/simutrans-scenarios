@@ -715,7 +715,8 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 	} else if ( t_array == 0 ) {
 		// remove one tile
 		local tile_remove = 1
-		local test_way = tiles.find_object(mo_way) //.get_desc()
+		local tiles_r = tile_x(tiles.x, tiles.y, tiles.z)
+		local test_way = tiles_r.find_object(mo_way) //.get_desc()
 		gui.add_message_at(our_player, "test way tile " + tiles.find_object(mo_way), tiles)
 		if ( test_way != null ) {
 				if ( test_way.get_owner().nr != our_player_nr ) {
@@ -725,8 +726,8 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 		if ( tile_remove == 1 ) {
 			gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles), tiles)
 			while(true){
-				tool.work(our_player, tiles)
-				if (tiles.is_empty())
+				tool.work(our_player, tiles_r)
+				if (tiles_r.is_empty())
 					break
 			}
 			return true
@@ -2751,7 +2752,7 @@ function optimize_way_line(route, wt) {
 		local build_bridge = 0
 		local build_tunnel = 0
 
-		if ( tile_1.z == tile_2.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true ) ) {
+		if ( tile_1.z == tile_2.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true ) && ( tile_1.is_tunnel() != true && tile_2.is_tunnel() != true ) ) {
 			if ( tile_1.get_slope() > 0 || tile_2.get_slope() > 0 || tile_3.get_slope() > 0 ) {
 				//gui.add_message_at(our_player, " tile_1 " + tile_1.get_slope() + " tile_2 " + tile_2.get_slope() + " tile_3 " + tile_3.get_slope() + " - " + coord3d_to_string(tile_1), tile_1)
 				local txt = coord3d_to_string(tile_1)
@@ -2770,9 +2771,7 @@ function optimize_way_line(route, wt) {
 				build_bridge = 1
 			}
 
-		}
-
-		if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true && tile_3.is_bridge() != true ) ) {
+		} else if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true && tile_3.is_bridge() != true ) ) {
 			// slope down - flate - slope up -> bridge
 			// slope up - flate - slope down -> tunnel ( build_tunnel = 2 )
 			if ( (tile_1.get_slope() == 4 && tile_3.get_slope() == 36 && tile_1.y < tile_3.y) || (tile_1.get_slope() == 36 && tile_3.get_slope() == 4 && tile_1.y > tile_3.y)  ) {
@@ -2796,8 +2795,11 @@ function optimize_way_line(route, wt) {
 				remove_tile_to_empty(tile_2, wt, 0)
 				remove_tile_to_empty(tile_1, wt, 0)
 				// terraform down
-				command_x.set_slope(our_player, tile_1, 83 )
-				command_x.set_slope(our_player, tile_2, 83 )
+				local err = command_x.set_slope(our_player, tile_1, 83 )
+				::debug.pause()
+				err = null
+				err = command_x.set_slope(our_player, tile_2, 83 )
+				::debug.pause()
 				local way_obj = tile_4.find_object(mo_way).get_desc()
 				command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
 			} else if ( build_tunnel == 2 ) {
@@ -2955,6 +2957,8 @@ function destroy_line(line_obj) {
 			}
 		}
 	}
+
+	// world.get_convoy_list()
 
 	if ( wt == wt_rail ) {
 		local remove_all = 0
