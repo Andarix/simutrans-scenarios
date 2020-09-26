@@ -724,7 +724,7 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 				}
 		}
 		if ( tile_remove == 1 ) {
-			gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles), tiles)
+			gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles_r), tiles)
 			while(true){
 				tool.work(our_player, tiles_r)
 				if (tiles_r.is_empty())
@@ -2252,13 +2252,13 @@ function check_way_line(start, end, wt, l, c) {
 			dst = 0
 		}
 
-		local st = 0
+		local st = 0 // st == 1 no field for double way
 		if ( dst == 0 && fc == 0 && ( t.get_slope() > 0 || t.is_bridge() || t.has_two_ways() ) ) {
-			// check slope to start field for double way
+			// check slope, bridge and crossing to start field for double way
 			//gui.add_message_at(our_player, " ### check first tile " + coord3d_to_string(t), t)
 			st = 1
-		} else if ( t.is_bridge() ) {
-			// check bridge
+		} else if ( t.is_bridge() || t.has_two_ways() ) {
+			// check bridge and crossing
 			//gui.add_message_at(our_player, " ### check bridge " + coord3d_to_string(t), t)
 			st = 1
 		} else if ( t.get_way_dirs(wt) == 10 ) {
@@ -2424,6 +2424,8 @@ function check_way_line(start, end, wt, l, c) {
 					}
 				}
 			}
+			// end straight way
+			fc = 0
 		} else if ( dst > 0 && t.get_way_dirs(wt) == 3 || t.get_way_dirs(wt) == 12 ) {
 			if ( print_message_box == 4 && i >= s[0] && i < (s[0] + way_len) && str == 0 && stl == 0 ) { //
 				gui.add_message_at(our_player, " # test 3/12 " + coord3d_to_string(t), t)
@@ -2536,11 +2538,15 @@ function check_way_line(start, end, wt, l, c) {
 
 				}
 			}
-
+			// end straight way
+			fc = 0
 		}
 
+		if ( i >= s[r] && print_message_box == 2 ) {
+				gui.add_message_at(our_player, "*  st " + st + "  dst " + dst + "  stl " + stl + " str " + str + " fc " + fc + " * " + coord3d_to_string(t), t)
+		}
 
-		if ( dst == 0 && dc == d && i >= s[r] && !t.has_two_ways() && st == 0 ) {
+		if ( dst == 0 && dc == d && i >= s[r] && st == 0 ) {
 			if ( print_message_box == 2 ) {
 				gui.add_message_at(our_player, "  stl " + stl + " str " + str + " fc " + fc + " * " + coord3d_to_string(t), t)
 			}
@@ -2598,6 +2604,15 @@ function check_way_line(start, end, wt, l, c) {
 						gui.add_message_at(our_player, " add nexttile[i] id = " + i + " " + coord3d_to_string(t), t)
 					}
 					start_fields.append(nexttile[i])
+					stl = 0
+					str = 0
+					fc = 0
+				} else if ( nexttile[i+1].get_slope() == 0 ) {
+					// plan start tile has slope then next tile
+					if ( print_message == 1 ) {
+						gui.add_message_at(our_player, " add nexttile[i+1] id = " + (i+1) + " " + coord3d_to_string(nexttile[i+1]), nexttile[i+1])
+					}
+					start_fields.append(nexttile[i+1])
 					stl = 0
 					str = 0
 					fc = 0
@@ -2792,14 +2807,20 @@ function optimize_way_line(route, wt) {
 			if ( build_tunnel == 1 ) {
 				local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
 				local txt = coord3d_to_string(tile_1)
-				remove_tile_to_empty(tile_2, wt, 0)
-				remove_tile_to_empty(tile_1, wt, 0)
-				// terraform down
-				local err = command_x.set_slope(our_player, tile_1, 83 )
-				::debug.pause()
+				local err = remove_tile_to_empty(tile_2, wt, 0)
+					gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
 				err = null
-				err = command_x.set_slope(our_player, tile_2, 83 )
-				::debug.pause()
+				err = remove_tile_to_empty(tile_1, wt, 0)
+					gui.add_message_at(our_player, " remove tile_1: " + err, world.get_time())
+				err = null
+				// terraform down
+				err = command_x.set_slope(our_player, tile_1, 83)
+					gui.add_message_at(our_player, " terraform tile_1: " + err, world.get_time())
+					::debug.pause()
+				err = null
+				err = command_x.set_slope(our_player, tile_2, 83)
+					gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
+					::debug.pause()
 				local way_obj = tile_4.find_object(mo_way).get_desc()
 				command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
 			} else if ( build_tunnel == 2 ) {
