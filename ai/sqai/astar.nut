@@ -2795,7 +2795,7 @@ function optimize_way_line(route, wt) {
 				build_bridge = 1
 			}
 
-		} else if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true && tile_3.is_bridge() != true ) ) {
+		} else if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() == false && tile_2.is_bridge() == false && tile_3.is_bridge() == false ) ) {
 			// slope down - flate - slope up -> bridge
 			// slope up - flate - slope down -> tunnel ( build_tunnel = 2 )
 			if ( (tile_1.get_slope() == 4 && tile_3.get_slope() == 36 && tile_1.y < tile_3.y) || (tile_1.get_slope() == 36 && tile_3.get_slope() == 4 && tile_1.y > tile_3.y)  ) {
