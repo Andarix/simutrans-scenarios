@@ -2842,10 +2842,10 @@ function optimize_way_line(route, wt) {
 			// slope down - slope up -> bridge
 			if ( build_bridge == 1 ) {
 				local err = remove_tile_to_empty(tile_2, wt, 0)
-				if ( err ) {
-					err = null
-					err = command_x.build_bridge(our_player, tile_1, tile_2, bridge_obj)
-				}
+					gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
+				err = null
+				err = command_x.build_bridge(our_player, tile_1, tile_2, bridge_obj)
+					gui.add_message_at(our_player, " build bridge: " + err, world.get_time())
 			}
 
 
