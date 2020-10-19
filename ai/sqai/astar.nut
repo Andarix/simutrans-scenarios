@@ -2775,6 +2775,7 @@ function optimize_way_line(route, wt) {
 
 		local build_bridge = 0
 		local build_tunnel = 0
+		local build_tile = null
 
 		if ( tile_1.z == tile_2.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true ) && ( tile_1.is_tunnel() != true && tile_2.is_tunnel() != true ) ) {
 			if ( tile_1.get_slope() > 0 || tile_2.get_slope() > 0 || tile_3.get_slope() > 0 ) {
@@ -2795,6 +2796,8 @@ function optimize_way_line(route, wt) {
 				build_bridge = 1
 			}
 
+				build_tile = tile_2
+
 		} else if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() == false && tile_2.is_bridge() == false && tile_3.is_bridge() == false ) ) {
 			// slope down - flate - slope up -> bridge
 			// slope up - flate - slope down -> tunnel ( build_tunnel = 2 )
@@ -2807,6 +2810,8 @@ function optimize_way_line(route, wt) {
 			} else if ( (tile_1.get_slope() == 12 && tile_3.get_slope() == 28 && tile_1.x > tile_3.x) || (tile_1.get_slope() == 28 && tile_3.get_slope() == 12 && tile_1.x < tile_3.x) ) {
 				build_bridge = 1
 			}
+
+			build_tile = tile_3
 
 		}
 
@@ -2844,7 +2849,7 @@ function optimize_way_line(route, wt) {
 				local err = remove_tile_to_empty(tile_2, wt, 0)
 					gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
 				err = null
-				err = command_x.build_bridge(our_player, tile_1, tile_2, bridge_obj)
+				err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
 					gui.add_message_at(our_player, " build bridge: " + err, world.get_time())
 			}
 
