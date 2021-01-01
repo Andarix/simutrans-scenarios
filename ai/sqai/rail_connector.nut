@@ -315,7 +315,9 @@ class rail_connector_t extends manager_t
 				f_name[1] = "station"
 			}
 		}
-		gui.add_message_at(pl, pl.get_name() + " build rail line from " + f_name[0] + " (" + coord_to_string(cs) + ") to " + f_name[1] + " (" + coord_to_string(ce) + ")", c_start)
+		local msgtext = format(translate("%s build rail line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(cs), f_name[1], coord_to_string(ce))
+		//gui.add_message_at(pl, pl.get_name() + " build rail line from " + f_name[0] + " (" + coord_to_string(cs) + ") to " + f_name[1] + " (" + coord_to_string(ce) + ")", c_start)
+		gui.add_message_at(pl, msgtext, c_start)
 
 		return r_t(RT_TOTAL_SUCCESS)
 	}
