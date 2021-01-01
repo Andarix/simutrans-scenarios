@@ -704,7 +704,7 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 			}
 
 			if ( tile_remove == 1 ) {
-				gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i]), tiles[i])
+				//gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i]), tiles[i])
 				while(true){
 					tool.work(our_player, tiles_r)
 					if (tiles_r.is_empty())
@@ -717,14 +717,14 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 		local tile_remove = 1
 		local tiles_r = tile_x(tiles.x, tiles.y, tiles.z)
 		local test_way = tiles_r.find_object(mo_way) //.get_desc()
-		gui.add_message_at(our_player, "test way tile " + tiles.find_object(mo_way), tiles)
+		//gui.add_message_at(our_player, "test way tile " + tiles.find_object(mo_way), tiles)
 		if ( test_way != null ) {
 				if ( test_way.get_owner().nr != our_player_nr ) {
 					tile_remove = 0
 				}
 		}
 		if ( tile_remove == 1 ) {
-			gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles_r), tiles)
+			//gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles_r), tiles)
 			while(true){
 				tool.work(our_player, tiles_r)
 				if (tiles_r.is_empty())
@@ -1344,9 +1344,9 @@ function build_double_track(start_field, wt) {
 	// 1
 	// 2 - terraform
 	// 3 - double track diagonal
-	local print_message_box = 1
+	local print_message_box = 0
 
-	if ( print_message_box > 0 ) {
+	if ( print_message_box >= 0 ) {
 		gui.add_message_at(our_player, " ### build_double_track ### " + coord3d_to_string(start_field), start_field)
 	}
 
@@ -2109,8 +2109,8 @@ function check_way_line(start, end, wt, l, c) {
 	::debug.set_pause_on_error(true)
 	//debug.pause
 
-	local print_message_box = 1
-	local print_message = 1
+	local print_message_box = 0
+	local print_message = 0
 	local message_text = []
 
 	if ( print_message_box > 0 ) {
@@ -2177,7 +2177,7 @@ function check_way_line(start, end, wt, l, c) {
 		// distance double ways
 		local as = (l / (c + 1)).tointeger()
 		//as = as - ( c * 16 )
-		if ( print_message_box >= 0 ) {
+		if ( print_message_box > 0 ) {
 			gui.add_message_at(our_player, c + " double way search", world.get_time())
 			message_text.append("as " + as + " l " + l + " c " + c)
 		}
@@ -2822,18 +2822,18 @@ function optimize_way_line(route, wt) {
 				local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
 				local txt = coord3d_to_string(tile_1)
 				local err = remove_tile_to_empty(tile_2, wt, 0)
-					gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
+					//gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
 				err = null
 				err = remove_tile_to_empty(tile_1, wt, 0)
-					gui.add_message_at(our_player, " remove tile_1: " + err, world.get_time())
+					//gui.add_message_at(our_player, " remove tile_1: " + err, world.get_time())
 				err = null
 				// terraform down
 				err = command_x.set_slope(our_player, tile_1, 83)
-					gui.add_message_at(our_player, " terraform tile_1: " + err, world.get_time())
+					//gui.add_message_at(our_player, " terraform tile_1: " + err, world.get_time())
 					//::debug.pause()
 				err = null
 				err = command_x.set_slope(our_player, tile_2, 83)
-					gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
+					//gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
 					//::debug.pause()
 				local way_obj = tile_4.find_object(mo_way).get_desc()
 				command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
@@ -2847,7 +2847,7 @@ function optimize_way_line(route, wt) {
 			// slope down - slope up -> bridge
 			if ( build_bridge == 1 ) {
 				local err = remove_tile_to_empty(tile_2, wt, 0)
-					gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
+					//gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
 				err = null
 				err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
 					gui.add_message_at(our_player, " build bridge: " + err, world.get_time())
