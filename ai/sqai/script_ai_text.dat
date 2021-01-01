@@ -1,0 +1,12 @@
+obj=script_ai_text
+name=%s build road line from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=%s build ship line from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=%s build rail line from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=
+-
