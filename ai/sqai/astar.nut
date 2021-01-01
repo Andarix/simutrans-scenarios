@@ -408,6 +408,8 @@ class astar_builder extends astar
 					local len = 1
 					local max_len = bridger.bridge.get_max_length()
 
+					local bridge_cost = bridger.bridge.get_cost()/100
+
 					do {
 						local to = bridger.find_end(from, d, len)
 						if (to.x < 0  ||  is_closed(to)) {
@@ -415,7 +417,14 @@ class astar_builder extends astar
 						}
 						local bridge_len = abs(from.x-to.x) + abs(from.y-to.y)
 
-						local move = bridge_len * cost_straight  * 3  /*extra bridge penalty */;
+						// long bridges bad
+						local bridge_factor = 3
+						if ( bridge_len > 10 ) {
+							bridge_factor = 5
+						} else if ( bridge_len > 5 ) {
+							bridge_factor = 4
+						}
+						local move = bridge_len * cost_straight  * bridge_factor  /*extra bridge penalty */;
 						// set distance to 1 if at a target tile
 						local dist = max(estimate_distance(to), 1)
 
@@ -493,10 +502,20 @@ class astar_builder extends astar
 					}
 				}
 				else if (route[i-1].flag == 1) {
-					err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
-					if (err) {
-						gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
-						remove_wayline(route, (i - 1), way.get_waytype())
+					// plan build bridge
+
+					// check ground under bridge
+					// check_ground() return true build bridge
+					// check_ground() return false no build bridge
+					local build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
+
+					if ( build_bridge ) {
+						err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
+						if (err) {
+							gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+							remove_wayline(route, (i - 1), way.get_waytype())
+						}
+
 					}
 				}
 				if (err) {
@@ -507,6 +526,91 @@ class astar_builder extends astar
 		}
 		print("No route found")
 		return { err =  "No route" }
+	}
+}
+
+/*
+ * check ground under bridges
+ *
+ *
+ */
+function check_ground(pos_s, pos_e, way) {
+	//gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + coord_to_string(pos_s), world.get_time())
+
+	local check_x = 0
+	local check_y = 0
+	local f_count = 0
+	local t_tile = []
+	if ( pos_s.x == pos_e.x ) {
+		check_x = 0
+		check_y = 1
+		if ( pos_s.y > pos_e.y ) {
+			f_count = pos_s.y - pos_e.y - 1
+			local t = tile_x(pos_e.x + check_x, pos_e.y + check_y, pos_e.z)
+			t_tile.append(t)
+		} else {
+			f_count = pos_e.y - pos_s.y - 1
+			local t = tile_x(pos_s.x + check_x, pos_s.y + check_y, pos_s.z)
+			t_tile.append(t)
+		}
+		//gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- pos_s.x == pos_e.x -> " + coord_to_string(t_tile[0]), t_tile[0])
+	} else if ( pos_s.y == pos_e.y ) {
+		check_x = 1
+		check_y = 0
+		if ( pos_s.x > pos_e.x ) {
+			f_count = pos_s.x - pos_e.x - 1
+			local t = tile_x(pos_e.x + check_x, pos_e.y + check_y, pos_e.z)
+			t_tile.append(t)
+		} else {
+			f_count = pos_e.x - pos_s.x - 1
+			local t = tile_x(pos_s.x + check_x, pos_s.y + check_y, pos_s.z)
+			t_tile.append(t)
+		}
+		//gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- pos_s.y == pos_e.y -> " + coord_to_string(t_tile[0]), t_tile[0])
+	}
+
+	for ( local i = 1; i < f_count; i++ ) {
+		local t = tile_x(t_tile[i-1].x + check_x, t_tile[i-1].y + check_y, t_tile[i-1].z)
+		t_tile.append(t)
+	}
+
+
+	if ( tile_x(pos_s.x, pos_s.y, pos_s.z).get_slope() == 0 && tile_x(pos_e.x, pos_e.y, pos_e.z).get_slope() == 0 && pos_s.z == pos_e.z ) {
+		local z = null
+		local terraform_tiles = []
+		local err = null
+		for ( local i = 0; i < f_count; i++ ) {
+			// find z coord
+			z = square_x(t_tile[i].x, t_tile[i].y).get_ground_tile()
+			if ( !z.is_empty() || !z.is_ground() ) {
+				//gui.add_message_at(our_player, "check_ground - !z.is_empty() || !z.is_ground() " + coord_to_string(z), z)
+				return true
+			} else if ( (pos_s.z-2) <= z.z && z.get_slope() > 0 ) {
+				terraform_tiles.append(z)
+			}
+		}
+
+		if ( terraform_tiles.len() > 0 && terraform_tiles.len() < 5 ) {
+			for ( local i = 0; i < terraform_tiles.len(); i++ ) {
+				local f = null
+				do {
+					f = square_x(terraform_tiles[i].x, terraform_tiles[i].y).get_ground_tile()
+					err = command_x.set_slope(our_player, f, 82)
+					if ( err != null ) { return false }
+					f = square_x(terraform_tiles[i].x, terraform_tiles[i].y).get_ground_tile()
+				} while(f.z < pos_s.z )
+			}
+
+			err = command_x.build_way(our_player, tile_x(pos_s.x, pos_s.y, pos_s.z), tile_x(pos_e.x, pos_e.y, pos_e.z), way, true)
+			if ( err != null ) { return true }
+			return false
+
+		} else {
+			return false
+		}
+
+	} else {
+		return true
 	}
 }
 
@@ -829,7 +933,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 			if (st_build  &&  step_end > 0) {
 				starts_field.x += step_end*dc.x
 				starts_field.y += step_end*dc.y
-				gui.add_message_at(pl, " ---> first tile of station reset : " + coord3d_to_string(starts_field), world.get_time())
+				gui.add_message_at(pl, " ---> first tile of station reset : " + coord3d_to_string(starts_field), starts_field)
 			}
 		}
 
@@ -1736,40 +1840,40 @@ function build_double_track(start_field, wt) {
 			if ( settings.get_drive_on_left() ) {
 				if ( d == 10 ) {
 					signal = [{coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=8}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=2}]
-					gui.add_message_at(b_player, "settings.get_drive_on_left() signals 10 tr " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
+					//gui.add_message_at(b_player, "settings.get_drive_on_left() signals 10 tr " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
 
 				} else if ( d == 5 ) {
 					signal = [{coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=4}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=1}]
-					gui.add_message_at(b_player, "settings.get_drive_on_left() signals 5 tr " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
+					//gui.add_message_at(b_player, "settings.get_drive_on_left() signals 5 tr " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 
 				} else if ( diagonal_st == 6 ) {
 					// ribi 6 to 6
 					signal = [{coor=coord3d(tiles_build[0].x, tiles_build[0].y, tiles_build[0].z), ribi=2}, {coor=coord3d(tiles[way_len - 2].x, tiles[way_len - 2].y, tiles[way_len - 2].z), ribi=8}]
-					gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tr " + coord3d_to_string(tiles_build[0]) + " & " + coord3d_to_string(tiles[way_len - 2]), world.get_time())
+					//gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tr " + coord3d_to_string(tiles_build[0]) + " & " + coord3d_to_string(tiles[way_len - 2]), world.get_time())
 
 				} else if ( diagonal_st == 12 ) {
 					signal = [{coor=coord3d(tiles_build[way_len - 3].x, tiles_build[way_len - 3].y, tiles_build[way_len - 3].z), ribi=4}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=1}]
-					gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tr " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
+					//gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tr " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 
 				}
 			}
 			else {
 				if ( d == 10 ) {
 					signal = [{coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=2}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=8}]
-					gui.add_message_at(b_player, "signals 10 tr " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
+					//gui.add_message_at(b_player, "signals 10 tr " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 
 				} else if ( d == 5 ) {
 					signal = [{coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=1}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=4}]
-					gui.add_message_at(b_player, "signals 5 tr " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
+					//gui.add_message_at(b_player, "signals 5 tr " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
 
 				} else if ( diagonal_st == 6 ) {
 					// ribi 6 to 6
 					signal = [{coor=coord3d(tiles_build[way_len - 3].x, tiles_build[way_len - 3].y, tiles_build[way_len - 3].z), ribi=4}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=1}]
-					gui.add_message_at(b_player, "signals diagonal tr " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
+					//gui.add_message_at(b_player, "signals diagonal tr " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 				} else if ( diagonal_st == 12 ) {
 					// ribi 12 to 12
 					signal = [{coor=coord3d(tiles_build[0].x, tiles_build[0].y, tiles_build[0].z), ribi=8}, {coor=coord3d(tiles[way_len - 2].x, tiles[way_len - 2].y, tiles[way_len - 2].z), ribi=2}]
-					gui.add_message_at(b_player, "signals diagonal tr " + coord3d_to_string(tiles_build[0]) + " & " + coord3d_to_string(tiles[way_len - 2]), world.get_time())
+					//gui.add_message_at(b_player, "signals diagonal tr " + coord3d_to_string(tiles_build[0]) + " & " + coord3d_to_string(tiles[way_len - 2]), world.get_time())
 
 				}
 			}
@@ -1781,38 +1885,38 @@ function build_double_track(start_field, wt) {
 			if ( settings.get_drive_on_left() ) {
 				if (  d == 10 ) {
 					signal = [{coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=2}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=8}]
-					gui.add_message_at(b_player, "settings.get_drive_on_left() signals 10 tl " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
+					//gui.add_message_at(b_player, "settings.get_drive_on_left() signals 10 tl " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 
 				} else if ( d == 5 ) {
 					signal = [{coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=1}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=4}]
-					gui.add_message_at(b_player, "settings.get_drive_on_left() signals 5 tl " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
+					//gui.add_message_at(b_player, "settings.get_drive_on_left() signals 5 tl " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
 				} else if ( diagonal_st == 9 ) {
 					// ribi 9 to 9
 					signal = [{coor=coord3d(tiles_build[way_len - 3].x, tiles_build[way_len - 3].y, tiles_build[way_len - 3].z), ribi=8}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=2}]
-					gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tl " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[2]), world.get_time())
+					//gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tl " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[2]), world.get_time())
 				} else if ( diagonal_st == 3 ) {
 					// ribi 3 to 3
 					signal = [{coor=coord3d(tiles_build[0].x, tiles_build[0].y, tiles_build[0].z), ribi=1}, {coor=coord3d(tiles[way_len - 2].x, tiles[way_len - 2].y, tiles[way_len - 2].z), ribi=4}]
-					gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tl " + coord3d_to_string(tiles_build[0]) + " & " + coord3d_to_string(tiles[way_len - 2]), world.get_time())
+					//gui.add_message_at(b_player, "settings.get_drive_on_left() signals diagonal tl " + coord3d_to_string(tiles_build[0]) + " & " + coord3d_to_string(tiles[way_len - 2]), world.get_time())
 
 				}
 			}
 			else {
 				if (  d == 10 ) {
 					signal = [{coor=coord3d(tiles_build[1].x, tiles_build[1].y, tiles_build[1].z), ribi=8}, {coor=coord3d(tiles[6].x, tiles[6].y, tiles[6].z), ribi=2}]
-					gui.add_message_at(b_player, "signals 10 tl " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
+					//gui.add_message_at(b_player, "signals 10 tl " + coord3d_to_string(tiles_build[1]) + " & " + coord3d_to_string(tiles[6]), world.get_time())
 
 				} else if ( d == 5 ) {
 					signal = [{coor=coord3d(tiles_build[6].x, tiles_build[6].y, tiles_build[6].z), ribi=4}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=1}]
-					gui.add_message_at(b_player, "signals 5 tl " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
+					//gui.add_message_at(b_player, "signals 5 tl " + coord3d_to_string(tiles_build[6]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 				} else if ( diagonal_st == 9 ) {
 					// ribi 9 to 9
 					signal = [{coor=coord3d(tiles_build[0].x, tiles_build[0].y, tiles_build[0].z), ribi=1}, {coor=coord3d(tiles[way_len - 2].x, tiles[way_len - 2].y, tiles[way_len - 2].z), ribi=4}]
-					gui.add_message_at(b_player, "signals diagonal tl " + coord3d_to_string(tiles_build[0]) + " & " + coord3d_to_string(tiles[way_len - 1]), world.get_time())
+					//gui.add_message_at(b_player, "signals diagonal tl " + coord3d_to_string(tiles_build[0]) + " & " + coord3d_to_string(tiles[way_len - 1]), world.get_time())
 				} else if ( diagonal_st == 3 ) {
 					// ribi 3 to 3
 					signal = [{coor=coord3d(tiles_build[way_len - 3].x, tiles_build[way_len - 3].y, tiles_build[way_len - 3].z), ribi=2}, {coor=coord3d(tiles[1].x, tiles[1].y, tiles[1].z), ribi=8}]
-					gui.add_message_at(b_player, "signals diagonal tl " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
+					//gui.add_message_at(b_player, "signals diagonal tl " + coord3d_to_string(tiles_build[way_len - 3]) + " & " + coord3d_to_string(tiles[1]), world.get_time())
 
 				}
 			}
@@ -2152,6 +2256,9 @@ function check_way_line(start, end, wt, l, c) {
 			sleep()*/
 		}
 	//}
+
+	// optimize way line befor build double ways
+	optimize_way_line(nexttile, wt)
 
 /*
 	gui.add_message_at(our_player, "end line " + coord3d_to_string(end), end)
