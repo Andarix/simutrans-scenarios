@@ -2290,7 +2290,7 @@ function check_way_line(start, end, wt, l, c) {
 	//}
 
 	// optimize way line befor build double ways
-	optimize_way_line(nexttile, wt)
+	//optimize_way_line(nexttile, wt)
 
 /*
 	gui.add_message_at(our_player, "end line " + coord3d_to_string(end), end)

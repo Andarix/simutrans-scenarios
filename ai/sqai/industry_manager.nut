@@ -227,6 +227,31 @@ class industry_manager_t extends manager_t
 		}
 
 
+		if (our_player.get_current_cash() > 5000000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
+			local nexttile = [] //[tile_x(start.x, start.y, start.z)]
+
+			local asf = astar_route_finder(cnv.get_waytype())
+			local result = asf.search_route([start], [end])
+			// result is contains routes-array or error message
+			// route is backward from end to start
+
+			if ("err" in result) {
+				gui.add_message_at(our_player, " ### no route found: " + result.err, start)
+				return nexttile
+			}
+			else {
+				gui.add_message_at(our_player, " ### route found: length =  " +  result.routes.len(), start)
+				// route found, mark tiles
+				foreach(node in result.routes) {
+					local tile = tile_x(node.x, node.y, node.z)
+					nexttile.append(tile)
+				}
+				sleep()
+			}
+			// optimize way line befor build double ways
+			optimize_way_line(nexttile, cnv.get_waytype())
+		}
+
 		if (cnv.is_withdrawn()) {
 			// come back later
 			return
