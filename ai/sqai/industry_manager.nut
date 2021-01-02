@@ -404,10 +404,31 @@ class industry_manager_t extends manager_t
 					}
 				}
 
+
+				/*
+				 * calculate build cost
+				 *
+				 */
+				local build_double_ways = false
+				if ( s_fields != true ) {
+					local obj_sign = find_signal("is_signal", wt)
+					local way_obj = s_fields[i].find_object(mo_way).get_desc()
+
+					local build_cost = s_fields.len()*(obj_sign.get_cost()*2)
+					build_cost += s_fields.len()*(way_obj.get_cost()*8)
+
+					// terraform factor
+					build_cost = build_cost*10
+					if ( build_cost < our_player.get_current_cash() ) {
+						build_double_ways = true
+					}
+
+				}
+
 				//gui.add_message_at(our_player, "####### s_fields " + s_fields, world.get_time())
 				if ( s_fields == true ) {
 					cc += c
-				} else {
+				} else if ( build_double_ways == true ) {
 					//gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
 
 					local build = false

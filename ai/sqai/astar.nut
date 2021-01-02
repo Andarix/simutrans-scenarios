@@ -1293,6 +1293,25 @@ function build_station(tiles, station_obj) {
 }
 
 /**
+  * find signal tool
+	*
+	* sig_type	= signal type (is_signal, is_presignal ... )
+	* wt				= waytype
+	*/
+function find_signal(sig_type, wt) {
+
+	local list = sign_desc_x.get_available_signs(wt)
+	local obj_sign = null
+	foreach(o in list) {
+		if (o.is_signal() && sig_type == "is_signal") {
+			obj_sign = o
+			return o
+		}
+	}
+
+}
+
+/**
 	* find object tool
 	*
 	* obj		= object type ( bridge, tunnel )
@@ -2098,17 +2117,8 @@ function build_double_track(start_field, wt) {
 		// build signals
 		if ( diagonal_st == 0 ) {
 				// build signals
-				local list = sign_desc_x.get_available_signs(wt)
-				local obj_sign = null
-				foreach(o in list) {
-					if ( print_message_box == 2 ) {
-						gui.add_message_at(b_player, "signals " + o.get_name(), start_field)
-					}
-					if (o.is_signal()) {
-						obj_sign = o
-						break
-					}
-				}
+				// select signal tool
+				local obj_sign = find_signal("is_signal", wt)
 
 				local sig_1 = tile_x(signal[0].coor.x, signal[0].coor.y, signal[0].coor.z)
 				local sig_2 = tile_x(signal[1].coor.x, signal[1].coor.y, signal[1].coor.z)
