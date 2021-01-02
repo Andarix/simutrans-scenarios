@@ -240,7 +240,7 @@ class industry_manager_t extends manager_t
 				return nexttile
 			}
 			else {
-				gui.add_message_at(our_player, " ### route found: length =  " +  result.routes.len(), start)
+				//gui.add_message_at(our_player, " ### route found: length =  " +  result.routes.len(), start)
 				// route found, mark tiles
 				foreach(node in result.routes) {
 					local tile = tile_x(node.x, node.y, node.z)
@@ -421,9 +421,9 @@ class industry_manager_t extends manager_t
 				local s_fields = check_way_line(start_l, end_l, cnv.get_waytype(), l, c)
 				local cc = 1
 
-				gui.add_message_at(our_player, "####### type(s_fields) " + type(s_fields), world.get_time())
+				//gui.add_message_at(our_player, "####### type(s_fields) " + type(s_fields), world.get_time())
 				if ( type(s_fields) == "array" ) {
-					gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
+					//gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
 					if ( s_fields.len() == 0 ) {
 						s_fields = check_way_line(end_l, start_l, cnv.get_waytype(), l, c)
 					}
@@ -455,6 +455,7 @@ class industry_manager_t extends manager_t
 					cc += c
 				} else if ( build_double_ways == true ) {
 					//gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
+					local count_build = 0
 
 					local build = false
 					if ( s_fields.len() == c || s_fields.len() == c - 1 ) {
@@ -466,10 +467,17 @@ class industry_manager_t extends manager_t
 							build = build_double_track(s_fields[i], wt_rail)
 							if ( build ) {
 								cc++
+								count_build++
 								build = false
 							}
 						}
 					}
+
+					if (count_build > 0 ) {
+						local msgtext = format(translate("%s extends the route from %s (%s) to %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
+						gui.add_message_at(our_player, msgtext, start_l)
+					}
+
 				}
 
 				if ( cc > 1 ) {
@@ -578,6 +586,10 @@ class industry_manager_t extends manager_t
 					gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
 					gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
 				}
+
+				local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
+				gui.add_message_at(our_player, msgtext, world.get_time())
+
 			}
 		}
 
@@ -591,6 +603,9 @@ class industry_manager_t extends manager_t
 				gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
 				gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time())
 			}
+
+			local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
+			gui.add_message_at(our_player, msgtext, world.get_time())
 		}
 		dbgprint("")
 

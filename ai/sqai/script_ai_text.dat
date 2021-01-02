@@ -8,5 +8,14 @@ obj=script_ai_text
 name=%s build rail line from %s (%s) to %s (%s)
 -
 obj=script_ai_text
-name=
+name=%s optimize way line from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=%s extends the route from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=%s build additional convoy to line: %s
+-
+obj=script_ai_text
+name=%s removes convoys from line: %s
 -

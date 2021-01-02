@@ -240,13 +240,13 @@ class industry_connection_planner_t extends manager_t
 		}
 
 		local planned_bridge = { cost = 0, montly_cost = 0 }
-		if (wt != wt_water) {
+		if (wt != wt_water && wt != wt_air) {
 			/* plan build route */
 			local p_start = ::finder.find_station_place(fsrc, fdest)
 			local p_end   = ::finder.find_station_place(fdest, p_start, true)
 			local calc_route = test_route(our_player, p_start, p_end, planned_way)
-			gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens, world.get_time())
-			gui.add_message_at(our_player, "distance " + distance, world.get_time())
+			//gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens, world.get_time())
+			//gui.add_message_at(our_player, "distance " + distance, world.get_time())
 			//if ( cnv_valuator.distance < calc_route.routes.len() ) {
 				cnv_valuator.distance = calc_route.routes.len()
 			//}
