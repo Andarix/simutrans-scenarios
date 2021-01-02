@@ -408,8 +408,6 @@ class astar_builder extends astar
 					local len = 1
 					local max_len = bridger.bridge.get_max_length()
 
-					local bridge_cost = bridger.bridge.get_cost()/100
-
 					do {
 						local to = bridger.find_end(from, d, len)
 						if (to.x < 0  ||  is_closed(to)) {
@@ -419,11 +417,12 @@ class astar_builder extends astar
 
 						// long bridges bad
 						local bridge_factor = 3
-						if ( bridge_len > 10 ) {
+						/*
+						if ( bridge_len > 15 ) {
 							bridge_factor = 5
-						} else if ( bridge_len > 5 ) {
+						} else if ( bridge_len > 8 ) {
 							bridge_factor = 4
-						}
+						}*/
 						local move = bridge_len * cost_straight  * bridge_factor  /*extra bridge penalty */;
 						// set distance to 1 if at a target tile
 						local dist = max(estimate_distance(to), 1)
@@ -441,7 +440,7 @@ class astar_builder extends astar
 		}
 	}
 
-	function search_route(start, end)
+	function search_route(start, end, build_route = 1)
 	{
 		prepare_search()
 		foreach (e in end) {
@@ -456,6 +455,8 @@ class astar_builder extends astar
 		}
 
 		search()
+
+		local bridge_tiles = 0
 
 		if (route.len() > 0) {
 			remove_field( route[0] )
@@ -480,49 +481,70 @@ class astar_builder extends astar
 				// build
 				if (route[i-1].flag == 0) {
 					if ( way.get_waytype() == wt_road ) {
-						err = command_x.build_road(our_player, route[i-1], route[i], way, true, true)
-						if (err) {
-							gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
-							remove_wayline(route, (i - 1), way.get_waytype())
+						if ( build_route == 1 ) {
+							err = command_x.build_road(our_player, route[i-1], route[i], way, true, true)
+							if (err) {
+								gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+								remove_wayline(route, (i - 1), way.get_waytype())
+							}
+
 						}
 
 					} else {
-						if ( settings.get_pay_for_total_distance_mode == 2 ) {
-							err = command_x.build_way(our_player, route[i-1], route[i], way, true)
-						} else {
-							err = command_x.build_way(our_player, route[i-1], route[i], way, false)
-						}
-						if (err) {
-							gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
-							// remove way
-							// route[0] to route[i]
-							//err = command_x.remove_way(our_player, route[0], route[i])
-							remove_wayline(route, (i - 1), way.get_waytype())
+						if ( build_route == 1 ) {
+							if ( settings.get_pay_for_total_distance_mode == 2 ) {
+								err = command_x.build_way(our_player, route[i-1], route[i], way, true)
+							} else {
+								err = command_x.build_way(our_player, route[i-1], route[i], way, false)
+							}
+							if (err) {
+								gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+								// remove way
+								// route[0] to route[i]
+								//err = command_x.remove_way(our_player, route[0], route[i])
+								remove_wayline(route, (i - 1), way.get_waytype())
+							}
+
 						}
 					}
 				}
 				else if (route[i-1].flag == 1) {
 					// plan build bridge
+					if ( build_route == 1 ) {
+						// check ground under bridge
+						// check_ground() return true build bridge
+						// check_ground() return false no build bridge
+						local build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
 
-					// check ground under bridge
-					// check_ground() return true build bridge
-					// check_ground() return false no build bridge
-					local build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
-
-					if ( build_bridge ) {
-						err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
-						if (err) {
-							gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
-							remove_wayline(route, (i - 1), way.get_waytype())
+						if ( build_bridge ) {
+							err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
+							if (err) {
+								gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+								remove_wayline(route, (i - 1), way.get_waytype())
+							}
 						}
 
+					} else if ( build_route == 0 ) {
+						if ( route[i-1].x == route[i].x ) {
+							if ( route[i-1].y > route[i].y ) {
+								bridge_tiles += (route[i-1].y - route[i].y + 1)
+							} else {
+								bridge_tiles += (route[i].y - route[i-1].y + 1)
+							}
+						} else if ( route[i-1].y == route[i].y ) {
+              if ( route[i-1].x > route[i].x ) {
+                bridge_tiles += (route[i-1].x - route[i].x + 1)
+              } else {
+                bridge_tiles += (route[i].x - route[i-1].x + 1)
+              }
+						}
 					}
 				}
 				if (err) {
 					return { err =  err }
 				}
 			}
-			return { start = route[route.len()-1], end = route[0], routes = route }
+			return { start = route[route.len()-1], end = route[0], routes = route, bridge_lens = bridge_tiles, bridge_obj = bridger.bridge }
 		}
 		print("No route found")
 		return { err =  "No route" }
@@ -1639,7 +1661,7 @@ function build_double_track(start_field, wt) {
 	if ( ( ( tiles_build_r.len() == way_len || tiles_build_l.len() == way_len ) && diagonal_st == 0 ) || ( ( tiles_build_r.len() == (way_len-2) || tiles_build_l.len() == (way_len-2) ) && diagonal_st > 0 ) ) {
 		if ( diagonal_st == 0 ) {
 			// test straight way
-			gui.add_message_at(b_player, " -- slope test straight way ", world.get_time())
+			//gui.add_message_at(b_player, " -- slope test straight way ", world.get_time())
 
 			if ( tiles_build_r.len() == way_len ) {
 				for ( local i = 0; i < way_len; i++ ) {
@@ -1657,7 +1679,7 @@ function build_double_track(start_field, wt) {
 			}
 		} else if ( diagonal_st == 6 || diagonal_st == 9 || diagonal_st == 3 || diagonal_st == 12 ) {
 			// test diagonal way
-			gui.add_message_at(b_player, " -- slope test diagonal way ", world.get_time())
+			//gui.add_message_at(b_player, " -- slope test diagonal way ", world.get_time())
 
 			if ( tiles_build_r.len() == way_len - 2 ) {
 				for ( local i = 0; i < way_len - 2; i++ ) {

@@ -239,6 +239,21 @@ class industry_connection_planner_t extends manager_t
 			planned_way = best_way
 		}
 
+		local planned_bridge = { cost = 0, montly_cost = 0 }
+		if (wt != wt_water) {
+			/* plan build route */
+			local p_start = ::finder.find_station_place(fsrc, fdest)
+			local p_end   = ::finder.find_station_place(fdest, p_start, true)
+			local calc_route = test_route(our_player, p_start, p_end, planned_way)
+			gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens, world.get_time())
+			gui.add_message_at(our_player, "distance " + distance, world.get_time())
+			//if ( cnv_valuator.distance < calc_route.routes.len() ) {
+				cnv_valuator.distance = calc_route.routes.len()
+			//}
+			planned_bridge.cost = calc_route.bridge_lens * calc_route.bridge_obj.get_cost()
+			planned_bridge.montly_cost = calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance()
+		}
+
 		// valuate again with best way
 		r.gain_per_m = cnv_valuator.valuate_monthly_transport(planned_convoy)
 
@@ -332,7 +347,7 @@ class industry_connection_planner_t extends manager_t
 		} while(a > 0)
 
 		// build cost for way, stations and depot
-		local build_cost = r.distance * planned_way.get_cost() + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost()
+		local build_cost = r.distance * planned_way.get_cost() + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost() + planned_bridge.cost
 		// build cost / 13 months
 		//build_cost = build_cost / 13
 
@@ -474,7 +489,7 @@ class industry_connection_planner_t extends manager_t
 
 		// successfull - complete report
 		r.cost_fix     = build_cost
-		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance()
+		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + planned_bridge.montly_cost
 		r.gain_per_m  -= r.cost_monthly
 
 		// successfull - complete report
@@ -579,6 +594,28 @@ class industry_connection_planner_t extends manager_t
 		return best_station
 	}
 
+	/*
+	 *
+	 *
+	 */
+	function test_route(pl, starts, ends, way)
+	{
+		local as = astar_builder()
+		as.builder = way_planner_x(pl)
+		as.way = way
+		as.builder.set_build_types(way)
+		as.bridger = pontifex(pl, way)
+		if (as.bridger.bridge == null) {
+			as.bridger = null
+		}
+
+		local res = as.search_route(starts, ends, 0)
+
+		if ("err" in res) {
+			return res.err
+		}
+		return res
+	}
 }
 
 /**
