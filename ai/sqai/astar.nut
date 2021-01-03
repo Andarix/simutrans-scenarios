@@ -830,7 +830,7 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 			}
 
 			if ( tile_remove == 1 ) {
-				gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i]), tiles[i])
+				//gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i]), tiles[i])
 				while(true){
 					tool.work(our_player, tiles_r)
 					if (tiles_r.is_empty())
