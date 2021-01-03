@@ -91,35 +91,35 @@ class rail_connector_t extends manager_t
 						local s = calc_route.routes.len()-3
 						t_start = calc_route.routes.slice(s)
 						t_start.reverse()
+						t_start.append(tile_x(c_start[0].x, c_start[0].y, c_start[0].z))
 						t_end = calc_route.routes.slice(0, 3)
+						t_end.append(tile_x(c_end[0].x, c_end[0].y, c_end[0].z))
 						// stations lenght
 						local a = planned_convoy.length
 						do {
 							a -= 16
 							st_lenght += 1
 						} while(a > 0)
-						err = command_x.build_way(pl, t_start[0], t_start[2], planned_way, true)
+						err = command_x.build_way(pl, t_start[0], t_start[1], planned_way, true)
+						err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
 						if ( err == null ) {
 							err = check_station(pl, t_start[0], st_lenght, wt_rail, planned_station, 0)
 							if ( err == true ) {
 								// station start ok
-								err = command_x.build_way(pl, t_end[0], t_end[2], planned_way, true)
+								err = command_x.build_way(pl, t_end[0], t_end[1], planned_way, true)
+								err = command_x.build_way(pl, t_end[1], t_end[2], planned_way, true)
 								if ( err == null ) {
 									err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
 									if ( err == true ) {
 										// station end ok
 										// remove track -> error by build
 										remove_tile_to_empty(t_start, wt_rail, 1)
-										remove_tile_to_empty(c_start[0], wt_rail, 0)
 										remove_tile_to_empty(t_end, wt_rail, 1)
-										remove_tile_to_empty(c_end[0], wt_rail, 0)
 									} else {
 										// failed station place end
 										// remove start and end
 										remove_tile_to_empty(t_start, wt_rail, 1)
-										remove_tile_to_empty(c_start[0], wt_rail, 0)
 										remove_tile_to_empty(t_end, wt_rail, 1)
-										remove_tile_to_empty(c_end[0], wt_rail, 0)
 										return error_handler()
 									}
 								} else {
@@ -129,13 +129,11 @@ class rail_connector_t extends manager_t
 								// failed station place start
 								// remove start
 								remove_tile_to_empty(t_start, wt_rail, 1)
-								remove_tile_to_empty(c_start[0], wt_rail, 0)
 								return error_handler()
 							}
 						} else {
 							// remove start
 							remove_tile_to_empty(t_start, wt_rail, 1)
-							remove_tile_to_empty(c_start[0], wt_rail, 0)
 						}
 						gui.add_message_at(pl, "plan station start " + t_start[2] + " - plan station end " + t_end[0], t_start[2])
 					}
@@ -146,9 +144,7 @@ class rail_connector_t extends manager_t
 					cost_monthly = (cost_monthly/100)+pl.get_maintenance()[0]
 					if ( (pl.get_cash()[0]-build_cost) < (cost_monthly*4) ) {
 						remove_tile_to_empty(t_start, wt_rail, 1)
-						remove_tile_to_empty(c_start[0], wt_rail, 0)
 						remove_tile_to_empty(t_end, wt_rail, 1)
-						remove_tile_to_empty(c_end[0], wt_rail, 0)
 						gui.add_message_at(pl, "Way construction cost to height", world.get_time())
 						gui.add_message_at(pl, "cash: " + pl.get_cash()[0] + " build cost: " + build_cost, world.get_time())
 						return error_handler()
