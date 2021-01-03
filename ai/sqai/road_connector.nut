@@ -85,8 +85,8 @@ class road_connector_t extends manager_t
 					build_cost = build_cost/100
 					cost_monthly = (cost_monthly/100)+pl.get_maintenance()[0]
 					if ( (pl.get_cash()[0]-build_cost) < (cost_monthly*4) ) {
-						gui.add_message_at(pl, "Way construction cost to height", world.get_time())
-						gui.add_message_at(pl, "cash: " + pl.get_cash()[0] + " build cost: " + build_cost, world.get_time())
+						//gui.add_message_at(pl, "Way construction cost to height", world.get_time())
+						//gui.add_message_at(pl, "cash: " + pl.get_cash()[0] + " build cost: " + build_cost, world.get_time())
 						return error_handler()
 					}
 

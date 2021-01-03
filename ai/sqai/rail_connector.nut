@@ -135,7 +135,7 @@ class rail_connector_t extends manager_t
 							// remove start
 							remove_tile_to_empty(t_start, wt_rail, 1)
 						}
-						gui.add_message_at(pl, "plan station start " + t_start[2] + " - plan station end " + t_end[0], t_start[2])
+						//gui.add_message_at(pl, "plan station start " + t_start[2] + " - plan station end " + t_end[0], t_start[2])
 					}
 
 					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + ((st_lenght*2)*planned_station.get_cost()) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
@@ -145,8 +145,8 @@ class rail_connector_t extends manager_t
 					if ( (pl.get_cash()[0]-build_cost) < (cost_monthly*4) ) {
 						remove_tile_to_empty(t_start, wt_rail, 1)
 						remove_tile_to_empty(t_end, wt_rail, 1)
-						gui.add_message_at(pl, "Way construction cost to height", world.get_time())
-						gui.add_message_at(pl, "cash: " + pl.get_cash()[0] + " build cost: " + build_cost, world.get_time())
+						//gui.add_message_at(pl, "Way construction cost to height", world.get_time())
+						//gui.add_message_at(pl, "cash: " + pl.get_cash()[0] + " build cost: " + build_cost, world.get_time())
 						return error_handler()
 					}
 
