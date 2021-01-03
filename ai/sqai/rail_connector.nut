@@ -136,8 +136,10 @@ class rail_connector_t extends manager_t
 					}
 
 					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + ((st_lenght*2)*planned_station.get_cost()) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
+					local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
 					build_cost = build_cost/100
-					if ( (pl.get_cash()[0]-build_cost) < (build_cost/100*25) ) {
+					cost_monthly = (cost_monthly/100)+pl.get_maintenance()[0]
+					if ( (pl.get_cash()[0]-build_cost) < (cost_monthly*4) ) {
 						remove_tile_to_empty(t_start, wt_rail, 1)
 						remove_tile_to_empty(c_start[0], wt_rail, 0)
 						remove_tile_to_empty(t_end, wt_rail, 1)

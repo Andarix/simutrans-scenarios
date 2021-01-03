@@ -505,7 +505,7 @@ class industry_connection_planner_t extends manager_t
 		}
 
 		// successfull - complete report
-		r.cost_fix     = build_cost/100
+		r.cost_fix     = build_cost
 		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + planned_bridge.montly_cost
 		r.gain_per_m  -= r.cost_monthly
 
