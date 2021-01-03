@@ -91,9 +91,9 @@ class rail_connector_t extends manager_t
 						local s = calc_route.routes.len()-3
 						t_start = calc_route.routes.slice(s)
 						t_start.reverse()
-						t_start.append(tile_x(c_start[0].x, c_start[0].y, c_start[0].z))
+						//t_start.append(tile_x(c_start[0].x, c_start[0].y, c_start[0].z))
 						t_end = calc_route.routes.slice(0, 3)
-						t_end.append(tile_x(c_end[0].x, c_end[0].y, c_end[0].z))
+						//t_end.append(tile_x(c_end[0].x, c_end[0].y, c_end[0].z))
 						// stations lenght
 						local a = planned_convoy.length
 						do {

@@ -952,7 +952,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 			// correct first tile of station
 			// (this will correct c_start/c_end if these are used in the call to this method)
-			if (st_build  &&  step_end > 0) {
+			if (st_build  &&  step_end > 0 && build == 1) {
 				starts_field.x += step_end*dc.x
 				starts_field.y += step_end*dc.y
 				//gui.add_message_at(pl, " ---> first tile of station reset : " + coord3d_to_string(starts_field), starts_field)
