@@ -76,13 +76,87 @@ class rail_connector_t extends manager_t
 			case 1: // build way
 				{
 					sleep()
-					local d = pl.get_current_cash();
+					local t_start = []
+					local t_end = []
+					local st_lenght = 0
+					local d = pl.get_cash()[0]
+					local err = null
+					// check place stations
+					local calc_route = test_route(our_player, c_start, c_end, planned_way)
+					//gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens, world.get_time())
+					//gui.add_message_at(our_player, "distance " + distance, world.get_time())
+					if ( calc_route == "No route" ) {
+						return error_handler()
+					} else {
+						local s = calc_route.routes.len()-3
+						t_start = calc_route.routes.slice(s)
+						t_start.reverse()
+						t_end = calc_route.routes.slice(0, 3)
+						// stations lenght
+						local a = planned_convoy.length
+						do {
+							a -= 16
+							st_lenght += 1
+						} while(a > 0)
+						err = command_x.build_way(pl, t_start[0], t_start[2], planned_way, true)
+						if ( err == null ) {
+							err = check_station(pl, t_start[0], st_lenght, wt_rail, planned_station, 0)
+							if ( err == true ) {
+								// station start ok
+								err = command_x.build_way(pl, t_end[0], t_end[2], planned_way, true)
+								if ( err == null ) {
+									err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
+									if ( err == true ) {
+										// station end ok
+									} else {
+										// failed station place end
+										// remove start and end
+										remove_tile_to_empty(t_start, wt_rail, 1)
+										remove_tile_to_empty(c_start[0], wt_rail, 0)
+										remove_tile_to_empty(t_end, wt_rail, 1)
+										remove_tile_to_empty(c_end[0], wt_rail, 0)
+										return error_handler()
+									}
+								} else {
+									// remove start and end
+								}
+							} else {
+								// failed station place start
+								// remove start
+								remove_tile_to_empty(t_start, wt_rail, 1)
+								remove_tile_to_empty(c_start[0], wt_rail, 0)
+								return error_handler()
+							}
+						} else {
+							// remove start
+							remove_tile_to_empty(t_start, wt_rail, 1)
+							remove_tile_to_empty(c_start[0], wt_rail, 0)
+						}
+						gui.add_message_at(pl, "plan station start " + t_start[2] + " - plan station end " + t_end[0], t_start[2])
+					}
+
+					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + ((st_lenght*2)*planned_station.get_cost()) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
+					build_cost = build_cost/100
+					if ( (pl.get_cash()[0]-build_cost) < (build_cost/100*25) ) {
+						remove_tile_to_empty(t_start, wt_rail, 1)
+						remove_tile_to_empty(c_start[0], wt_rail, 0)
+						remove_tile_to_empty(t_end, wt_rail, 1)
+						remove_tile_to_empty(c_end[0], wt_rail, 0)
+						gui.add_message_at(pl, "Way construction cost to height", world.get_time())
+						gui.add_message_at(pl, "cash: " + pl.get_cash()[0] + " build cost: " + build_cost, world.get_time())
+						return error_handler()
+					}
+
 					//gui.add_message_at(pl, "c_start.len() " + c_start.len() + " - c_end.len() " + c_end.len(), world.get_time())
-					local err = construct_rail(pl, c_start, c_end, planned_way )
+					err = construct_rail(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 
 					if (err) { // fail, c_start, c_end still arrays
 						print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
+						remove_tile_to_empty(t_start, wt_rail, 1)
+						remove_tile_to_empty(c_start[0], wt_rail, 0)
+						remove_tile_to_empty(t_end, wt_rail, 1)
+						remove_tile_to_empty(c_end[0], wt_rail, 0)
 						return error_handler()
 					}
 					else {

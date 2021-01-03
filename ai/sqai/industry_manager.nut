@@ -226,7 +226,7 @@ class industry_manager_t extends manager_t
 			}
 		}
 
-
+		sleep()
 		if (our_player.get_current_cash() > 5000000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			local nexttile = [] //[tile_x(start.x, start.y, start.z)]
 

@@ -417,10 +417,10 @@ class astar_builder extends astar
 
 						// long bridges bad
 						local bridge_factor = 3
-						/*
-						if ( bridge_len > 15 ) {
-							bridge_factor = 5
-						} else if ( bridge_len > 8 ) {
+
+						if ( bridge_len > 20 ) {
+							bridge_factor = 4
+						}/* else if ( bridge_len > 8 ) {
 							bridge_factor = 4
 						}*/
 						local move = bridge_len * cost_straight  * bridge_factor  /*extra bridge penalty */;

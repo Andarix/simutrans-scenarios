@@ -248,11 +248,12 @@ class industry_connection_planner_t extends manager_t
 			//gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens, world.get_time())
 			//gui.add_message_at(our_player, "distance " + distance, world.get_time())
 			if ( calc_route == "No route" ) {
-				return r_t(RT_TOTAL_FAIL)
-			}
+				//
+			} else {
 				cnv_valuator.distance = calc_route.routes.len() + calc_route.bridge_lens
-			planned_bridge.cost = calc_route.bridge_lens * calc_route.bridge_obj.get_cost()
-			planned_bridge.montly_cost = calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance()
+				planned_bridge.cost = calc_route.bridge_lens * calc_route.bridge_obj.get_cost()
+				planned_bridge.montly_cost = calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance()
+			}
 		}
 
 		// valuate again with best way
@@ -504,15 +505,16 @@ class industry_connection_planner_t extends manager_t
 		}
 
 		// successfull - complete report
-		r.cost_fix     = build_cost
+		r.cost_fix     = build_cost/100
 		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + planned_bridge.montly_cost
 		r.gain_per_m  -= r.cost_monthly
 
+		sleep()
 		// capital check
-		local cash = our_player.get_current_cash() - r.cost_fix
+		local cash = our_player.get_cash()[0] - r.cost_fix
 		local m = r.cost_fix/100*cash_buffer
 		if ( (cash-m) < 0 ) {
-			r.points -= 20
+			r.points -= 50
 		}
 
 
@@ -618,6 +620,8 @@ class industry_connection_planner_t extends manager_t
 		return best_station
 	}
 
+}
+
 	/*
 	 *
 	 *
@@ -640,7 +644,6 @@ class industry_connection_planner_t extends manager_t
 		}
 		return res
 	}
-}
 
 /**
 	* check links factory src to factory dest
