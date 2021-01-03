@@ -226,7 +226,7 @@ class road_connector_t extends manager_t
 					if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
 						// tile c_start ans c_end have station
 						if (our_player.get_current_cash() > 5000000) {
-							optimize_way_line(c_route, wt_road)
+							//optimize_way_line(c_route, wt_road)
 						}
 					}
 				}

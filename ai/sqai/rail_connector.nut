@@ -108,6 +108,11 @@ class rail_connector_t extends manager_t
 									err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
 									if ( err == true ) {
 										// station end ok
+										// remove track -> error by build
+										remove_tile_to_empty(t_start, wt_rail, 1)
+										remove_tile_to_empty(c_start[0], wt_rail, 0)
+										remove_tile_to_empty(t_end, wt_rail, 1)
+										remove_tile_to_empty(c_end[0], wt_rail, 0)
 									} else {
 										// failed station place end
 										// remove start and end
@@ -136,7 +141,7 @@ class rail_connector_t extends manager_t
 					}
 
 					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + ((st_lenght*2)*planned_station.get_cost()) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
-					local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
+					local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + ((st_lenght*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
 					build_cost = build_cost/100
 					cost_monthly = (cost_monthly/100)+pl.get_maintenance()[0]
 					if ( (pl.get_cash()[0]-build_cost) < (cost_monthly*4) ) {
@@ -155,10 +160,6 @@ class rail_connector_t extends manager_t
 
 					if (err) { // fail, c_start, c_end still arrays
 						print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
-						remove_tile_to_empty(t_start, wt_rail, 1)
-						remove_tile_to_empty(c_start[0], wt_rail, 0)
-						remove_tile_to_empty(t_end, wt_rail, 1)
-						remove_tile_to_empty(c_end[0], wt_rail, 0)
 						return error_handler()
 					}
 					else {

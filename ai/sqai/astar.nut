@@ -802,7 +802,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
 		gui.add_message_at(our_player, "removed way from " + coord_to_string(route[pos]) + " to " + coord_to_string(route[0]), route[0])
 	} else {
 		gui.add_message_at(our_player, "removed way not all " + route_status, route[0])
-		optimize_way_line(new_route, wt)
+		//optimize_way_line(new_route, wt)
 	}
 
 }
@@ -3010,8 +3010,11 @@ function optimize_way_line(route, wt) {
 	}
 
 	if (count_build > 0 ) {
-		local cs = route[route.len()-1]
-		local ce = route[0]
+		local cs = tile_x(route[route.len()-1].x, route[route.len()-1].y, route[route.len()-1].z)//route[route.len()]
+		local ce = tile_x(route[0].x, route[0].y, route[0].z)//route[0]
+
+		local cs_coord = coord_to_string(cs)
+		local ce_coord = coord_to_string(ce)
 
 		local msgtext = format(translate("%s optimize way line from %s (%s) to %s (%s)"), our_player.get_name(), cs.get_halt().get_name(), coord_to_string(cs), ce.get_halt().get_name(), coord_to_string(ce))
 		gui.add_message_at(our_player, msgtext, cs)
