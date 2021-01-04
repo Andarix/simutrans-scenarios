@@ -83,7 +83,7 @@ class rail_connector_t extends manager_t
 					local err = null
 					// check place stations
 					local calc_route = test_route(our_player, c_start, c_end, planned_way)
-					//gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens, world.get_time())
+					gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
 					//gui.add_message_at(our_player, "distance " + distance, world.get_time())
 					if ( calc_route == "No route" ) {
 						return error_handler()
@@ -141,8 +141,12 @@ class rail_connector_t extends manager_t
 					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + ((st_lenght*2)*planned_station.get_cost()) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
 					local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + ((st_lenght*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
 					build_cost = build_cost/100
-					cost_monthly = (cost_monthly/100)+pl.get_maintenance()[0]
-					if ( (pl.get_cash()[0]-build_cost) < (cost_monthly*4) ) {
+					build_cost = build_cost + (calc_route.tiles_tree * 300)
+					cost_monthly = (cost_monthly/100)+(pl.get_current_maintenance()/100)
+					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + cost_monthly, world.get_time())
+					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " maintenance: " + pl.get_current_maintenance(), world.get_time())
+
+					if ( (pl.get_current_cash()-build_cost) < (cost_monthly*4) ) {
 						remove_tile_to_empty(t_start, wt_rail, 1)
 						remove_tile_to_empty(t_end, wt_rail, 1)
 						//gui.add_message_at(pl, "Way construction cost to height", world.get_time())
