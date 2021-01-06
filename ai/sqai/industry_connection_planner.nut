@@ -363,6 +363,20 @@ class industry_connection_planner_t extends manager_t
 		// build cost / 13 months
 		//build_cost = build_cost / 13
 
+		if ( wt == wt_rail ) {
+			// terraform cost
+			local terraform_cost = 0
+			try {
+  			terraform_cost = command_x.slope_get_price()
+			}
+			catch(ev) {
+				// hat nicht funktioniert
+				terraform_cost = 7500
+			}
+			build_cost += count*terraform_cost
+
+		}
+
 		local conv_capacity = planned_convoy.capacity
 		local input_convoy = freight_input/conv_capacity
 		local output_convoy = freight_output/conv_capacity
@@ -521,7 +535,7 @@ class industry_connection_planner_t extends manager_t
 
 		sleep()
 		// capital check
-		local cash = our_player.get_cash()[0] - r.cost_fix
+		local cash = our_player.get_current_cash() - r.cost_fix
 		local m = r.cost_fix/100*cash_buffer
 		if ( (cash-m) < 0 ) {
 			r.points -= 50

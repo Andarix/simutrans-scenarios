@@ -540,7 +540,7 @@ class astar_builder extends astar
 						local build_bridge = true
 						// check whether the ground can be adjusted and no bridge is necessary
 						// bridge len <= 4 tiles
-						if ( bridge_tiles <= 4 ) {
+						if ( bridge_tiles < 5 ) {
 							build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
 						}
 
