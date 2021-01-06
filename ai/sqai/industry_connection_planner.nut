@@ -254,7 +254,15 @@ class industry_connection_planner_t extends manager_t
 				cnv_valuator.distance = calc_route.routes.len() + calc_route.bridge_lens
 				planned_bridge.cost = calc_route.bridge_lens * calc_route.bridge_obj.get_cost()
 				planned_bridge.montly_cost = calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance()
-				tree_cost = calc_route.tiles_tree * 300
+				// tree_desc_x.get_price() -> Simutrans r9528+
+				try {
+  				tree_cost = calc_route.tiles_tree * tree_desc_x.get_price()
+				}
+				catch(ev) {
+					// hat nicht funktioniert
+					tree_cost = calc_route.tiles_tree * 300
+				}
+				//tree_cost = calc_route.tiles_tree * 300
 			}
 		}
 
