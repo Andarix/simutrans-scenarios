@@ -227,7 +227,7 @@ class industry_manager_t extends manager_t
 		}
 
 		sleep()
-		if (our_player.get_current_cash() > 5000000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
+		if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			local nexttile = [] //[tile_x(start.x, start.y, start.z)]
 
 			local asf = astar_route_finder(cnv.get_waytype())
@@ -444,7 +444,7 @@ class industry_manager_t extends manager_t
 
 					// terraform factor
 					build_cost = build_cost*10
-					if ( build_cost < our_player.get_current_cash() ) {
+					if ( build_cost/100 < our_player.get_current_cash() ) {
 						build_double_ways = true
 					}
 
