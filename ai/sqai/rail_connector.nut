@@ -356,9 +356,19 @@ class rail_connector_t extends manager_t
 					// optimize way line save in c_route
 					if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
 						// tile c_start ans c_end have station
-						if (our_player.get_current_cash() > 5000000) {
-							optimize_way_line(c_route, wt_rail)
+						if (our_player.get_current_cash() > 50000) {
+							//optimize_way_line(c_route, wt_rail)
 						}
+
+						// rename line
+						local line_name = c_line.get_name()
+						local str_search = ") " + translate("Line")
+						local st_names = c_line.get_schedule().entries
+						if ( line_name.find(str_search) != null ) {
+							local new_name = translate("Train") + " " + translate(freight) + " " + st_names[0].get_halt(pl).get_name() + " - " + st_names[1].get_halt(pl).get_name()
+							c_line.set_name(new_name)
+						}
+
 					}
 				}
 
