@@ -88,7 +88,7 @@ class rail_connector_t extends manager_t
 					if ( calc_route == "No route" ) {
 						return error_handler()
 					} else {
-						gui.add_message_at(our_player, "calc route " + coord_to_string(c_start) +  " to " + coord_to_string(c_end) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+						gui.add_message_at(our_player, "calc route " + coord_to_string(c_start[0]) +  " to " + coord_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
 						local s = calc_route.routes.len()-3
 						t_start = calc_route.routes.slice(s)
 						t_start.reverse()
