@@ -515,11 +515,34 @@ class astar_builder extends astar
 				}
 				else if (route[i-1].flag == 1) {
 					// plan build bridge
+
+					//
+						if ( route[i-1].x == route[i].x ) {
+							if ( route[i-1].y > route[i].y ) {
+								bridge_tiles += (route[i-1].y - route[i].y + 1)
+							} else {
+								bridge_tiles += (route[i].y - route[i-1].y + 1)
+							}
+						} else if ( route[i-1].y == route[i].y ) {
+							if ( route[i-1].x > route[i].x ) {
+								bridge_tiles += (route[i-1].x - route[i].x + 1)
+							} else {
+								bridge_tiles += (route[i].x - route[i-1].x + 1)
+							}
+						}
+
+
 					if ( build_route == 1 ) {
 						// check ground under bridge
 						// check_ground() return true build bridge
 						// check_ground() return false no build bridge
-						local build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
+
+						local build_bridge = true
+						// check whether the ground can be adjusted and no bridge is necessary
+						// bridge len <= 4 tiles
+						if ( bridge_tiles <= 4 ) {
+							build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
+						}
 
 						if ( build_bridge ) {
 							err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
@@ -530,19 +553,6 @@ class astar_builder extends astar
 						}
 
 					} else if ( build_route == 0 ) {
-						if ( route[i-1].x == route[i].x ) {
-							if ( route[i-1].y > route[i].y ) {
-								bridge_tiles += (route[i-1].y - route[i].y + 1)
-							} else {
-								bridge_tiles += (route[i].y - route[i-1].y + 1)
-							}
-						} else if ( route[i-1].y == route[i].y ) {
-              if ( route[i-1].x > route[i].x ) {
-                bridge_tiles += (route[i-1].x - route[i].x + 1)
-              } else {
-                bridge_tiles += (route[i].x - route[i-1].x + 1)
-              }
-						}
 					}
 				}
 				if (err) {
@@ -1298,7 +1308,7 @@ function build_station(tiles, station_obj) {
 }
 
 /**
-  * find signal tool
+	* find signal tool
 	*
 	* sig_type	= signal type (is_signal, is_presignal ... )
 	* wt				= waytype
