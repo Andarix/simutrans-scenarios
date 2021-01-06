@@ -224,7 +224,7 @@ class astar_route_finder extends astar
 	{
 		base.constructor()
 		wt = wt_
-		if ( [wt_all, wt_invalid, wt_water].find(wt) ) {
+		if ( [wt_all, wt_invalid, wt_water, wt_air].find(wt) ) {
 			throw("Using this waytype is going to be inefficient. Use at own risk.")
 		}
 	}

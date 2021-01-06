@@ -230,6 +230,14 @@ class industry_manager_t extends manager_t
 		if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			local nexttile = [] //[tile_x(start.x, start.y, start.z)]
 
+			local entries = cnv.get_schedule().entries
+			local start = null
+			local end = null
+			if ( entries.len() >= 2 ) {
+				start = tile_x(entries[0].x, entries[0].y, entries[0].z)
+				end = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
+			}
+
 			local asf = astar_route_finder(cnv.get_waytype())
 			local result = asf.search_route([start], [end])
 			// result is contains routes-array or error message

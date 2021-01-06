@@ -44,7 +44,7 @@ class road_connector_t extends manager_t
 		local fd = fdest.get_tile_list()
 
 		if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
-			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
+			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord3d_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord3d_to_string(fd[0]) + ") to many links", world.get_time())
 			return r_t(RT_TOTAL_FAIL)
 		}
 
@@ -79,15 +79,15 @@ class road_connector_t extends manager_t
 					if ( calc_route == "No route" ) {
 						return error_handler()
 					}
-					gui.add_message_at(our_player, "calc route " + coord_to_string(c_start[0]) +  " to " + coord_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+					gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
 
 					sleep()
 					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + (planned_station.get_cost()*2) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
 					local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + (planned_station.get_maintenance()*2) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
 					build_cost = build_cost/100
 					build_cost = build_cost + (calc_route.tiles_tree * 300)
-					cost_monthly = ((cost_monthly/100)+(pl.get_current_maintenance()/100))
-					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + cost_monthly, world.get_time())
+					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + cost_monthly/100, world.get_time())
+					cost_monthly = ((cost_monthly/100)+(pl.get_current_maintenance()))
 					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " maintenance: " + pl.get_current_maintenance(), world.get_time())
 
 					sleep()
