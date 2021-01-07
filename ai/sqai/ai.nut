@@ -112,7 +112,7 @@ function init_tree()
 	}
 
 	if (!("station_manager" in persistent)) {
-		persistent.station_manager <- freight_station_manager_t()
+		persistent.station_manager <- freight_station_manager_t(1)
 	}
 }
 
