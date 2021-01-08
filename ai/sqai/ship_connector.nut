@@ -225,7 +225,7 @@ class ship_connector_t extends manager_t
 					c.p_depot  = depot_x(c_depot.x, c_depot.y, c_depot.z)
 					c.p_line   = c_line
 					c.p_convoy = planned_convoy
-					c.p_count  = min(planned_convoy.nr_convoys, 3)
+					c.p_count  = min(planned_convoy.nr_convoys, 1) // 1 ship to begin
 					append_child(c)
 
 					local toc = get_ops_total();
