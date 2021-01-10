@@ -370,7 +370,7 @@ class industry_connection_planner_t extends manager_t
 			// terraform cost
 			local terraform_cost = 0
 			try {
-  			terraform_cost = command_x.slope_get_price(82)
+  			terraform_cost = command_x.slope_get_price(82)/100
 			}
 			catch(ev) {
 				// hat nicht funktioniert

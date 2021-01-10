@@ -150,7 +150,7 @@ class rail_connector_t extends manager_t
 					gui.add_message_at(pl, "terraform cost: " + command_x.slope_get_price(82), world.get_time())
 
 					// terraform cost
-  				local terraform_cost = command_x.slope_get_price(82)
+  				local terraform_cost = command_x.slope_get_price(82)/100
 					build_cost += st_lenght*terraform_cost
 
 					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + (cost_monthly/100), world.get_time())
