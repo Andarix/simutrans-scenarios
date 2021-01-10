@@ -244,8 +244,18 @@ class industry_connection_planner_t extends manager_t
 		if (wt != wt_water && wt != wt_air) {
 			/* plan build route */
 			local p_start = ::finder.find_station_place(fsrc, fdest)
-			local p_end   = ::finder.find_station_place(fdest, p_start, true)
-			local calc_route = test_route(our_player, p_start, p_end, planned_way)
+			local p_end   = null
+			local calc_route = null
+			if ( p_start.len() == 0 ) {
+				calc_route = "No route"
+			} else {
+				p_end   = ::finder.find_station_place(fdest, p_start, true)
+				if ( p_end.len() == 0 ) {
+					calc_route = "No route"
+				} else {
+					calc_route = test_route(our_player, p_start, p_end, planned_way)
+				}
+			}
 			//gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens, world.get_time())
 			//gui.add_message_at(our_player, "distance " + distance, world.get_time())
 			if ( calc_route == "No route" ) {
@@ -359,7 +369,7 @@ class industry_connection_planner_t extends manager_t
 		} while(a > 0)
 
 		// build cost for way, stations and depot
-		local build_cost = (r.distance * planned_way.get_cost()) + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost() + planned_bridge.cost + tree_cost
+		local build_cost = ((r.distance * planned_way.get_cost()) + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost() + planned_bridge.cost)/100 + tree_cost
 		// build cost / 13 months
 		//build_cost = build_cost / 13
 

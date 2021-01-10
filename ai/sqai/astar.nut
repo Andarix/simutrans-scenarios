@@ -442,6 +442,12 @@ class astar_builder extends astar
 
 	function search_route(start, end, build_route = 1)
 	{
+
+		if ( start.len() > 0 || end.len() > 0 ) {
+			gui.add_message_at(our_player, " *** invalid tile : start or end ", world.get_time())
+			return { err =  "No route" }
+		}
+
 		prepare_search()
 		foreach (e in end) {
 			targets.append(e);
@@ -3274,7 +3280,7 @@ function destroy_line(line_obj) {
 		}
 	}
 
-	// remove road line
+	// remove water line
 	if ( wt == wt_water ) {
 		local tool = command_x(tool_remover)
 
