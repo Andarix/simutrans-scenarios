@@ -157,11 +157,11 @@ class rail_connector_t extends manager_t
 					build_cost += st_lenght*terraform_cost
 
 					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + cost_monthly/100, world.get_time())
-					cost_monthly = (cost_monthly/100)+(pl.get_current_maintenance())
-					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " maintenance: " + pl.get_current_maintenance(), world.get_time())
+					cost_monthly = (cost_monthly/100)-pl.get_maintenance()[0]
+					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " current_maintenance(): " + pl.get_current_maintenance() + " get_maintenance()[0]: " + (-pl.get_maintenance()[0]), world.get_time())
 
 					sleep()
-					if ( (pl.get_current_cash()-build_cost) < (cost_monthly*4)+15000 ) {
+					if ( (pl.get_current_cash()-build_cost) < (cost_monthly*4)+5000 ) {
 						remove_tile_to_empty(t_start, wt_rail, 1)
 						remove_tile_to_empty(t_end, wt_rail, 1)
 						gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
