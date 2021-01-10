@@ -85,13 +85,18 @@ class road_connector_t extends manager_t
 					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + (planned_station.get_cost()*2) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
 					local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + (planned_station.get_maintenance()*2) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
 					build_cost = build_cost/100
-					build_cost = build_cost + (calc_route.tiles_tree * 300)
-					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + cost_monthly/100, world.get_time())
-					cost_monthly = ((cost_monthly/100)-pl.get_current_maintenance())
-					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " maintenance: " + pl.get_current_maintenance(), world.get_time())
+
+					build_cost = build_cost + (calc_route.tiles_tree * (tree_desc_x.get_price()/100))
+
+					gui.add_message_at(pl, "tree remove cost: " + tree_desc_x.get_price(), world.get_time())
+
+					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + (cost_monthly/100), world.get_time())
+					cost_monthly = (cost_monthly/100)+(pl.get_current_maintenance()/100)
+					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " maintenance: " + (pl.get_current_maintenance()/100), world.get_time())
+					gui.add_message_at(pl, " montly cost new: " + cost_monthly, world.get_time())
 
 					sleep()
-					if ( (pl.get_current_cash()-build_cost) < (cost_monthly*4)+15000 ) {
+					if ( (pl.get_current_cash()-build_cost) < (cost_monthly*4) ) {
 						gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
 						return error_handler()
 					}

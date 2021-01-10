@@ -265,14 +265,7 @@ class industry_connection_planner_t extends manager_t
 				planned_bridge.cost = calc_route.bridge_lens * calc_route.bridge_obj.get_cost()
 				planned_bridge.montly_cost = calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance()
 				// tree_desc_x.get_price() -> Simutrans r9528+
-				try {
-  				tree_cost = calc_route.tiles_tree * tree_desc_x.get_price()
-				}
-				catch(ev) {
-					// hat nicht funktioniert
-					tree_cost = calc_route.tiles_tree * 300
-				}
-				//tree_cost = calc_route.tiles_tree * 300
+  			tree_cost = calc_route.tiles_tree * tree_desc_x.get_price()
 			}
 		}
 
@@ -377,7 +370,7 @@ class industry_connection_planner_t extends manager_t
 			// terraform cost
 			local terraform_cost = 0
 			try {
-  			terraform_cost = command_x.slope_get_price()
+  			terraform_cost = command_x.slope_get_price(82)
 			}
 			catch(ev) {
 				// hat nicht funktioniert
