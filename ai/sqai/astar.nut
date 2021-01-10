@@ -443,7 +443,7 @@ class astar_builder extends astar
 	function search_route(start, end, build_route = 1)
 	{
 
-		if ( start.len() > 0 || end.len() > 0 ) {
+		if ( start.len() == 0 || end.len() == 0 ) {
 			gui.add_message_at(our_player, " *** invalid tile : start or end ", world.get_time())
 			return { err =  "No route" }
 		}
