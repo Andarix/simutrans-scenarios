@@ -239,7 +239,7 @@ class industry_connection_planner_t extends manager_t
 			planned_way = best_way
 		}
 
-		local planned_bridge = { cost = 0, montly_cost = 0 }
+		local planned_bridge = { cost = 0, montly_cost = 0, tiles = 0 }
 		local tree_cost = 0 // cost remove tree
 		if (wt != wt_water && wt != wt_air) {
 			/* plan build route */
@@ -264,6 +264,7 @@ class industry_connection_planner_t extends manager_t
 				cnv_valuator.distance = calc_route.routes.len() + calc_route.bridge_lens
 				planned_bridge.cost = calc_route.bridge_lens * calc_route.bridge_obj.get_cost()
 				planned_bridge.montly_cost = calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance()
+				planned_bridge.tiles = calc_route.bridge_lens
 				// tree_desc_x.get_price() -> Simutrans r9528+
   			tree_cost = calc_route.tiles_tree * tree_desc_x.get_price()
 			}
@@ -445,6 +446,7 @@ class industry_connection_planner_t extends manager_t
 						r.points += 20
 						cash_buffer = 10
 					}
+					if ( planned_bridge.tiles > 30 ) { r.points -= 15 }
 			    break
 				case wt_road:
 					if ( f_dist_long < r.distance ) {
@@ -454,6 +456,7 @@ class industry_connection_planner_t extends manager_t
 						r.points -= 10
 						cash_buffer = 20
 					}
+					if ( planned_bridge.tiles > 15 ) { r.points -= 15 }
 			    break
 				case wt_water:
 					if ( f_dist_long < r.distance ) {
@@ -477,6 +480,7 @@ class industry_connection_planner_t extends manager_t
 						r.points -= 10
 						cash_buffer = 10
 					}
+					if ( planned_bridge.tiles > 30 ) { r.points -= 15 }
 			    break
 				case wt_road:
 					if ( f_dist_short < r.distance ) {
@@ -486,6 +490,7 @@ class industry_connection_planner_t extends manager_t
 						r.points += 10
 						cash_buffer = 10
 					}
+					if ( planned_bridge.tiles > 15 ) { r.points -= 15 }
 			    break
 				case wt_water:
 					if ( f_dist_short < r.distance ) {
@@ -497,6 +502,17 @@ class industry_connection_planner_t extends manager_t
 					}
 			    break
 			}
+		}
+
+		// middle distance
+		if  ( r.distance > 120 && r.distance < 350 ) {
+			switch (wt) {
+				case wt_rail:
+					if ( planned_bridge.tiles > 30 ) { r.points -= 15 }
+			    break
+				case wt_road:
+					if ( planned_bridge.tiles > 15 ) { r.points -= 15 }
+			    break
 		}
 
 		// freight weight
