@@ -155,7 +155,7 @@ class rail_connector_t extends manager_t
 
 					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + (cost_monthly/100), world.get_time())
 					cost_monthly = (cost_monthly/100)+(pl.get_current_maintenance()/100)
-					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " current_maintenance(): " + (-pl.get_current_maintenance()) + " get_maintenance()[0]: " + (-pl.get_maintenance()[0]), world.get_time())
+					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " current_maintenance(): " + pl.get_current_maintenance() + " get_maintenance()[0]: " + (-pl.get_maintenance()[0]), world.get_time())
 					gui.add_message_at(pl, " montly cost new: " + cost_monthly, world.get_time())
 
 					sleep()
