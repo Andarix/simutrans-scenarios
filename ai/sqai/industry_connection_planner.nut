@@ -513,6 +513,7 @@ class industry_connection_planner_t extends manager_t
 				case wt_road:
 					if ( planned_bridge.tiles > 15 ) { r.points -= 15 }
 			    break
+			}
 		}
 
 		// freight weight
