@@ -450,9 +450,13 @@ class industry_manager_t extends manager_t
 					local build_cost = s_fields.len()*(obj_sign.get_cost()*2)
 					build_cost += s_fields.len()*(way_obj.get_cost()*8)
 
-					// terraform factor
-					build_cost = build_cost*10
-					if ( build_cost/100 < our_player.get_current_cash() ) {
+					// terraform 4 fields
+					build_cost = build_cost+(command_x.slope_get_price(82)*4)
+
+					// count double ways
+					build_cost = build_cost*c
+
+					if ( build_cost/100 < (our_player.get_current_cash()+(pl.get_current_maintenance()/100*5) ) {
 						build_double_ways = true
 					}
 
