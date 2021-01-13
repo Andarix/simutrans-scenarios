@@ -443,7 +443,7 @@ class industry_manager_t extends manager_t
 				 *
 				 */
 				local build_double_ways = false
-				if ( s_fields != true ) {
+				if ( s_fields != true && c > 0 && s_fields.len() > 0 ) {
 					local obj_sign = find_signal("is_signal", cnv.get_waytype())
 					local way_obj = s_fields[0].find_object(mo_way).get_desc()
 
@@ -456,7 +456,7 @@ class industry_manager_t extends manager_t
 					// count double ways
 					build_cost = build_cost*c
 
-					if ( build_cost/100 < (our_player.get_current_cash()+(pl.get_current_maintenance()/100*5) ) {
+					if ( build_cost/100 < (our_player.get_current_cash()+(our_player.get_current_maintenance()/100*5)) ) {
 						build_double_ways = true
 					}
 
