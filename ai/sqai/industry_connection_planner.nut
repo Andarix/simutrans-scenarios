@@ -435,6 +435,16 @@ class industry_connection_planner_t extends manager_t
 		// cash buffer up to first ingestion - %
 		local cash_buffer = 0
 
+		//gui.add_message_at(our_player, "-- world.get_time().year " + world.get_time().year, world.get_time())
+
+		// lower bridges for year 1920
+		local bridge_year_factor = 1
+		if ( world.get_time().year < 1920 ) {
+			if ( wt == wt_road ) {
+				bridge_year_factor = 3
+			}
+		}
+
     // higt distance
 		if  ( r.distance > 350 ) {
 			switch (wt) {
@@ -446,7 +456,9 @@ class industry_connection_planner_t extends manager_t
 						r.points += 20
 						cash_buffer = 10
 					}
-					if ( planned_bridge.tiles > 30 ) { r.points -= 15 }
+					if ( planned_bridge.tiles > 30 ) {
+						r.points -= (15*bridge_year_factor)
+					}
 			    break
 				case wt_road:
 					if ( f_dist_long < r.distance ) {
@@ -456,7 +468,9 @@ class industry_connection_planner_t extends manager_t
 						r.points -= 10
 						cash_buffer = 20
 					}
-					if ( planned_bridge.tiles > 15 ) { r.points -= 15 }
+					if ( planned_bridge.tiles > 15 ) {
+						r.points -= (15*bridge_year_factor)
+					}
 			    break
 				case wt_water:
 					if ( f_dist_long < r.distance ) {
@@ -480,7 +494,9 @@ class industry_connection_planner_t extends manager_t
 						r.points -= 10
 						cash_buffer = 10
 					}
-					if ( planned_bridge.tiles > 30 ) { r.points -= 15 }
+					if ( planned_bridge.tiles > 30 ) {
+						r.points -= (15*bridge_year_factor)
+					}
 			    break
 				case wt_road:
 					if ( f_dist_short < r.distance ) {
@@ -490,7 +506,9 @@ class industry_connection_planner_t extends manager_t
 						r.points += 10
 						cash_buffer = 10
 					}
-					if ( planned_bridge.tiles > 15 ) { r.points -= 15 }
+					if ( planned_bridge.tiles > 15 ) {
+						r.points -= (15*bridge_year_factor)
+					}
 			    break
 				case wt_water:
 					if ( f_dist_short < r.distance ) {
@@ -508,10 +526,14 @@ class industry_connection_planner_t extends manager_t
 		if  ( r.distance > 120 && r.distance < 350 ) {
 			switch (wt) {
 				case wt_rail:
-					if ( planned_bridge.tiles > 30 ) { r.points -= 15 }
+					if ( planned_bridge.tiles > 30 ) {
+						r.points -= (15*bridge_year_factor)
+					}
 			    break
 				case wt_road:
-					if ( planned_bridge.tiles > 15 ) { r.points -= 15 }
+					if ( planned_bridge.tiles > 15 ) {
+						r.points -= (15*bridge_year_factor)
+					}
 			    break
 			}
 		}
