@@ -17,6 +17,8 @@ class industry_link_t
 
 	double_ways_count = 0 // count of double way build
 	double_ways_build = 0 // double way build: 0 = no ; 1 = yes
+	optimize_way_line = 0 // is way line optimize: 0 = no ; 1 = yes
+	destroy_line_month = null // test month save
 
 	// next check needed if ticks > next_check
 	// state == st_missing: check availability again
@@ -217,8 +219,11 @@ class industry_manager_t extends manager_t
 			local profit_count = line.get_profit()
 			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
 			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
-				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_distance_traveled_total() < 25 && cnv.get_loading_level() == 0 ) {
-					destroy_line(line)
+				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_distance_traveled_total() < 25 && cnv.get_loading_level() == 0 && link.destroy_line_month != world.get_time().month ) {
+					local erreg = destroy_line(line)
+					if ( erreg == false ) {
+						link.destroy_line_month = world.get_time().month
+					}
 				} else {
 					//gui.add_message_at(our_player, "return cnv/line new " + line.get_name(), world.get_time())
 				}
@@ -256,8 +261,16 @@ class industry_manager_t extends manager_t
 				}
 				sleep()
 			}
-			// optimize way line befor build double ways
-			optimize_way_line(nexttile, cnv.get_waytype())
+
+
+
+			if ( link.optimize_way_line == 0 ) {
+				// optimize way line befor build double ways
+				optimize_way_line(nexttile, cnv.get_waytype())
+				link.optimize_way_line = 1
+			} else {
+
+			}
 		}
 
 		if (cnv.is_withdrawn()) {

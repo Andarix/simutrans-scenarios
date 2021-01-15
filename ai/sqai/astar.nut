@@ -3111,7 +3111,7 @@ function destroy_line(line_obj) {
 		}
 		if ( wt != wt_water && combined_s > 1 && start_line_count > 1 ) {
 			gui.add_message_at(our_player, "return start combined station, more lines ", world.get_time())
-			return
+			return false
 		}
 		cnv.destroy(our_player)
 	}
