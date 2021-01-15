@@ -241,11 +241,11 @@ class industry_connection_planner_t extends manager_t
 
 		local planned_bridge = { cost = 0, montly_cost = 0, tiles = 0 }
 		local tree_cost = 0 // cost remove tree
+		local calc_route = null
 		if (wt != wt_water && wt != wt_air) {
 			/* plan build route */
 			local p_start = ::finder.find_station_place(fsrc, fdest)
 			local p_end   = null
-			local calc_route = null
 			if ( p_start.len() == 0 ) {
 				calc_route = "No route"
 			} else {
@@ -363,7 +363,7 @@ class industry_connection_planner_t extends manager_t
 		} while(a > 0)
 
 		// build cost for way, stations and depot
-		local build_cost = ((r.distance * planned_way.get_cost()) + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost() + planned_bridge.cost)/100 + tree_cost
+		local build_cost = ((r.distance * planned_way.get_cost()) + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost() + planned_bridge.cost)/100 + (tree_cost/100*2)
 		// build cost / 13 months
 		//build_cost = build_cost / 13
 
@@ -437,7 +437,7 @@ class industry_connection_planner_t extends manager_t
 
 		//gui.add_message_at(our_player, "-- world.get_time().year " + world.get_time().year, world.get_time())
 
-		// lower bridges for year 1920
+		// lower share of bridges year ago
 		local bridge_year_factor = 1
 		if ( world.get_time().year < 1920 ) {
 			if ( wt == wt_road ) {
@@ -457,7 +457,7 @@ class industry_connection_planner_t extends manager_t
 						cash_buffer = 10
 					}
 					if ( planned_bridge.tiles > 30 ) {
-						r.points -= (15*bridge_year_factor)
+						r.points -= (25*bridge_year_factor)
 					}
 			    break
 				case wt_road:
@@ -469,7 +469,7 @@ class industry_connection_planner_t extends manager_t
 						cash_buffer = 20
 					}
 					if ( planned_bridge.tiles > 15 ) {
-						r.points -= (15*bridge_year_factor)
+						r.points -= (32*bridge_year_factor)
 					}
 			    break
 				case wt_water:
@@ -495,7 +495,7 @@ class industry_connection_planner_t extends manager_t
 						cash_buffer = 10
 					}
 					if ( planned_bridge.tiles > 30 ) {
-						r.points -= (15*bridge_year_factor)
+						r.points -= (25*bridge_year_factor)
 					}
 			    break
 				case wt_road:
@@ -507,7 +507,7 @@ class industry_connection_planner_t extends manager_t
 						cash_buffer = 10
 					}
 					if ( planned_bridge.tiles > 15 ) {
-						r.points -= (15*bridge_year_factor)
+						r.points -= (32*bridge_year_factor)
 					}
 			    break
 				case wt_water:
@@ -578,12 +578,34 @@ class industry_connection_planner_t extends manager_t
 		sleep()
 		// capital check
 		local cash = our_player.get_current_cash() - r.cost_fix
+
+		if ( calc_route != null && calc_route != "No route" ) {
+			// if combined station from ship
+			local t = calc_route.routes[calc_route.routes.len()-1]
+			local st_dock = search_station(t, wt_water, 1)
+			if ( st_dock ) {
+				local st = halt_x.get_halt(st_dock[0], our_player)
+				if ( st ) {
+					local fl_st = st.get_factory_list()
+					if ( fl_st.len() == 0 ) {
+						cash = our_player.get_current_net_wealth() - r.cost_fix
+						//gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + get_current_net_wealth(), world.get_time())
+					} else {
+
+					}
+				}
+			}
+		}
+
 		local m = r.cost_fix/100*cash_buffer
 		if ( (cash-m) < 0 ) {
 			r.points -= 50
 		}
 
-
+/*		gui.add_message_at(our_player, "Plan " + wt_name[wt] + " link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
+		if ( calc_route != null && calc_route != "No route" ) { gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time()) }
+		gui.add_message_at(our_player, " * Report: link points = " + r.points, world.get_time())
+*/
 		// successfull - complete report
 		r.action = cn
 

@@ -79,7 +79,7 @@ class road_connector_t extends manager_t
 					if ( calc_route == "No route" ) {
 						return error_handler()
 					}
-					gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+					//gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
 
 					sleep()
 					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + (planned_station.get_cost()*2) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
@@ -96,7 +96,23 @@ class road_connector_t extends manager_t
 					//gui.add_message_at(pl, " montly cost new: " + cost_monthly, world.get_time())
 
 					sleep()
-					if ( (pl.get_current_cash()-build_cost) < (cost_monthly*4) ) {
+					// if combined station from ship
+					local cash = pl.get_current_cash()
+					local st_dock = search_station(calc_route.routes[calc_route.routes.len()-1], wt_water, 1)
+					if ( st_dock ) {
+						local st = halt_x.get_halt(st_dock[0], our_player)
+						if ( st ) {
+							local fl_st = st.get_factory_list()
+							if ( fl_st.len() == 0 ) {
+								cash = our_player.get_current_net_wealth() - r.cost_fix
+								//gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + our_player.get_current_net_wealth(), world.get_time())
+							} else {
+
+							}
+						}
+					}
+
+					if ( (cash-build_cost) < (cost_monthly*4) ) {
 						//gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
 						return error_handler()
 					}

@@ -899,7 +899,7 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
  * in case of success, the value of starts_field maybe changed
  *
  */
-function check_station(pl, starts_field, st_lenght, wt, select_station, build = 1){
+function check_station(pl, starts_field, st_lenght, wt, select_station, build = 1) {
 
 		// print messages box
 		// 1
