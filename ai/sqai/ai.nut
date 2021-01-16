@@ -155,11 +155,18 @@ function step()
 	if (s._step > s._next_construction_step) {
 		local r = factorysearcher.get_report()
 
+
 		if (r   &&  r.action) {
 			print("New report: expected construction cost: " + (r.cost_fix / 100.0))
 			tree.append_child(r.action)
+		} else {
+			if ( r && r.action && r.retire_time < world.get_time() ) {
+				gui.add_message_at(our_player, "####### report out of time ", world.get_time())
+				return r_t(RT_SUCCESS)
+			}
 		}
 		s._next_construction_step += 1 + (s._step % 3)
+
 	}
 }
 

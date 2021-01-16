@@ -602,6 +602,9 @@ class industry_connection_planner_t extends manager_t
 			r.points -= 50
 		}
 
+		// set retire time for report
+		r.retire_time = world.get_time().next_month_ticks - 1
+
 /*		gui.add_message_at(our_player, "Plan " + wt_name[wt] + " link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
 		if ( calc_route != null && calc_route != "No route" ) { gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time()) }
 		gui.add_message_at(our_player, " * Report: link points = " + r.points, world.get_time())
