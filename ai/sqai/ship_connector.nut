@@ -189,7 +189,7 @@ class ship_connector_t extends manager_t
 								//gui.add_message_at(pl, "tile_halt.get_halt() " + coord_to_string(depot_tiles[i]) + " " + tile_halt.get_halt(player_x(1)), depot_tiles[i])
 							}
 
-							if ( depot_tiles[i].is_water() && tile_halt == null ) { //
+							if ( depot_tiles[i].is_water() && tile_halt == null && depot_tiles[i].get_objects().get_count()==0 ) { //
 								c_depot = depot_tiles[i]
 								//gui.add_message_at(pl, "depot tile " + coord_to_string(c_depot), c_depot)
 								break
