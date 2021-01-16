@@ -132,8 +132,10 @@ class report_t
 	//
 	distance = 0
 	points = 0
-	// retire objects
+	// retire plan
 	retire_time = null
+	// retire objects
+	retire_obj = null
 
 	function merge_report(r)
 	{
