@@ -3119,10 +3119,17 @@ function destroy_line(line_obj) {
 	// sleep - convoys are destroyed when simulation continues
 	sleep()
 
-	//::debug.pause()
-	// destroy line
-	line_obj.destroy(our_player)
-	//industry_manager.access_link(fsrc, fdest, freight).remove_line(c_line)
+	// check convoy count
+	cnv_list = line_obj.get_convoy_list()
+	if ( cnv_list.get_count() == 0 ) {
+		//::debug.pause()
+		// destroy line
+		line_obj.destroy(our_player)
+		//industry_manager.access_link(fsrc, fdest, freight).remove_line(c_line)
+	} else {
+		gui.add_message_at(our_player, " --> ERROR not all convoys delete from line ", world.get_time())
+	}
+
 	sleep()
 
 	start_line_count = start_h.get_line_list().get_count()
