@@ -401,6 +401,8 @@ class industry_manager_t extends manager_t
 				// stucked road vehicles destroy
 				if ( c.get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && c.is_loading() == false && c.get_waytype() == wt_road && cnv_count > 1) {
 					//gui.add_message_at(our_player, "####### destroy stucked road vehicles " + cnv_count, world.get_time())
+					local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
+					gui.add_message_at(our_player, msgtext, world.get_time())
 					c.destroy(our_player)
 					cnv_count--
 					//remove_cnv++
