@@ -162,7 +162,7 @@ function step()
 		} else {
 			if ( r && r.action && r.retire_time < world.get_time() ) {
 				gui.add_message_at(our_player, "####### report out of time ", world.get_time())
-				return r_t(RT_SUCCESS)
+				return r_t(RT_TOTAL_FAIL)
 			}
 		}
 		s._next_construction_step += 1 + (s._step % 3)
