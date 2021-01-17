@@ -624,15 +624,18 @@ class industry_manager_t extends manager_t
 			// freight, lots of empty and of stopped vehicles
 			// -> something is blocked, maybe we block our own supply?
 			// delete one convoy
-			cnv_empty_stopped.destroy(our_player)
-			dbgprint("==> destroy empty convoy")
-			if ( print_message_box == 1 ) {
-				gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-				gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time())
-			}
+			if ( cnv_empty_stopped.is_valid ) {
+				cnv_empty_stopped.destroy(our_player)
+				dbgprint("==> destroy empty convoy")
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
+					gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time())
+				}
 
-			local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
-			gui.add_message_at(our_player, msgtext, world.get_time())
+				local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
+				gui.add_message_at(our_player, msgtext, world.get_time())
+
+			}
 		}
 		dbgprint("")
 
