@@ -176,7 +176,7 @@ class ship_connector_t extends manager_t
 						// depot already existing ?
 
 						local depot_tiles = []
-						local tile_range = 5
+						local tile_range = 4
 						depot_tiles.append(tile_x(c_start[0].x-tile_range, c_start[0].y-tile_range, c_start[0].z))
 						depot_tiles.append(tile_x(c_start[0].x+tile_range, c_start[0].y-tile_range, c_start[0].z))
 						depot_tiles.append(tile_x(c_start[0].x-tile_range, c_start[0].y+tile_range, c_start[0].z))
