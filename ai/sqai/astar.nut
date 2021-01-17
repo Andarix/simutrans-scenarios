@@ -626,10 +626,11 @@ function check_ground(pos_s, pos_e, way) {
 			// find z coord
 			z = square_x(t_tile[i].x, t_tile[i].y).get_ground_tile()
 			if ( !z.is_empty() || !z.is_ground() ) {
-				//gui.add_message_at(our_player, "check_ground - !z.is_empty() || !z.is_ground() " + coord_to_string(z), z)
+				gui.add_message_at(our_player, "check_ground - !z.is_empty() || !z.is_ground() " + coord_to_string(z), z)
 				return true
 			} else if ( (pos_s.z-2) <= z.z && z.get_slope() > 0 ) {
 				terraform_tiles.append(z)
+				gui.add_message_at(our_player, "check_ground - terraform_tiles.append(z) " + coord_to_string(z), z)
 			}
 		}
 
