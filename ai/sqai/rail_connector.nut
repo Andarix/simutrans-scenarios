@@ -85,7 +85,7 @@ class rail_connector_t extends manager_t
 					// test route for calculate cost
 					local calc_route = test_route(our_player, c_start, c_end, planned_way)
 					//gui.add_message_at(our_player, "distance " + distance, world.get_time())
-					if ( calc_route == "No route" || calc_route.len() < 7 ) {
+					if ( calc_route == "No route" || calc_route.routes.len() < 7 ) {
 						return error_handler()
 					} else {
 						//gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
