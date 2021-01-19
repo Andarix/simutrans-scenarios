@@ -164,6 +164,12 @@ function step()
 				gui.add_message_at(our_player, "####### report out of time ", world.get_time())
 				return r_t(RT_TOTAL_FAIL)
 			}
+			if ( r && r.action && r.retire_obj.year <= world.get_time().year ) {
+				if ( r.retire_obj.month <= world.get_time().month ) {
+					gui.add_message_at(our_player, "####### object out of time ", world.get_time())
+					return r_t(RT_TOTAL_FAIL)
+				}
+			}
 		}
 		s._next_construction_step += 1 + (s._step % 3)
 
