@@ -215,18 +215,20 @@ class industry_connection_planner_t extends manager_t
 			local best = null
 
 			foreach(way in way_list) {
-				cnv_valuator.way_maintenance = way.get_maintenance()
-				cnv_valuator.way_max_speed   = way.get_topspeed()
+				if ( !way.is_retired(worl.time() ) {
+					cnv_valuator.way_maintenance = way.get_maintenance()
+					cnv_valuator.way_max_speed   = way.get_topspeed()
 
-				local test = cnv_valuator.valuate_monthly_transport(planned_convoy)
-				if (best == null  ||  test > best) {
-					best = test
-					// max track speed 160
-					if (cnv_valuator.way_max_speed < 161 && wt == wt_rail ) {
-						best_way = way
-					}
-					else {
-						best_way = way
+					local test = cnv_valuator.valuate_monthly_transport(planned_convoy)
+					if (best == null  ||  test > best) {
+						best = test
+						// max track speed 160
+						if (cnv_valuator.way_max_speed < 161 && wt == wt_rail ) {
+							best_way = way
+						}
+						else {
+							best_way = way
+						}
 					}
 				}
 			}
