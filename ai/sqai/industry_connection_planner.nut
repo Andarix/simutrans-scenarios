@@ -215,7 +215,7 @@ class industry_connection_planner_t extends manager_t
 			local best = null
 
 			foreach(way in way_list) {
-				if ( !way.is_retired(worl.time() ) {
+				if ( !way.is_retired(world.time()) ) {
 					cnv_valuator.way_maintenance = way.get_maintenance()
 					cnv_valuator.way_max_speed   = way.get_topspeed()
 
