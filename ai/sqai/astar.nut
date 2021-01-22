@@ -1350,6 +1350,9 @@ function find_object(obj, wt, speed) {
 		case "tunnel":
 			list = tunnel_desc_x.get_available_tunnels(wt)
 			break
+		case "way":
+			list = way_desc_x.get_available_ways(wt, st_flat)
+			break
 	}
 
 	local len = list.len()
@@ -1361,24 +1364,28 @@ function find_object(obj, wt, speed) {
 	if (len>0) {
 		obj_desc = list[0]
 
-		for(local i=1; i<len; i++) {
-			local b = list[i]
-			local o = 1
-			if ( obj == "bridge" && b.get_max_length() < min_len ) {
-				o = 0
-			}
-			if ( o == 1 ) {
-				if (obj_desc.get_topspeed() < speed) {
-					if (b.get_topspeed() > obj_desc.get_topspeed()) {
-						obj_desc = b
+		if ( !way.is_retired(world.get_time()) ) {
+			for(local i=1; i<len; i++) {
+				local b = list[i]
+				local o = 1
+				if ( obj == "bridge" && b.get_max_length() < min_len ) {
+					o = 0
+				}
+
+				if ( o == 1 ) {
+					if (obj_desc.get_topspeed() < speed) {
+						if (b.get_topspeed() > obj_desc.get_topspeed()) {
+							obj_desc = b
+						}
+					}
+					else {
+						if (speed < b.get_topspeed() && max_speed > b.get_topspeed() && b.get_topspeed() > obj_desc.get_topspeed()) {
+							obj_desc = b
+						}
 					}
 				}
-				else {
-					if (speed < b.get_topspeed() && max_speed > b.get_topspeed() && b.get_topspeed() > obj_desc.get_topspeed()) {
-						obj_desc = b
-					}
-				}
 			}
+
 		}
 	}
 
@@ -2999,6 +3006,9 @@ function optimize_way_line(route, wt) {
 					//gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
 					//::debug.pause()
 				local way_obj = tile_4.find_object(mo_way).get_desc()
+				if ( way_obj.is_retired(world.get_time()) ) {
+					wac_obj = find_object("way", wt, speed)
+				}
 				err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
 				if (err != null ) {
 					gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
