@@ -1364,11 +1364,14 @@ function find_object(obj, wt, speed) {
 	if (len>0) {
 		obj_desc = list[0]
 
-		if ( !way.is_retired(world.get_time()) ) {
 			for(local i=1; i<len; i++) {
 				local b = list[i]
 				local o = 1
 				if ( obj == "bridge" && b.get_max_length() < min_len ) {
+					o = 0
+				}
+
+				if ( obj == "way" && obj_desc.is_retired(world.get_time()) ) {
 					o = 0
 				}
 
@@ -1384,9 +1387,8 @@ function find_object(obj, wt, speed) {
 						}
 					}
 				}
-			}
 
-		}
+			}
 	}
 
 	return obj_desc
