@@ -79,7 +79,7 @@ class rail_connector_t extends manager_t
 					local t_start = []
 					local t_end = []
 					local st_lenght = 0
-					local d = pl.get_cash()[0]
+					local d = pl.get_current_cash()
 					local err = null
 
 					// test route for calculate cost
@@ -101,6 +101,7 @@ class rail_connector_t extends manager_t
 							a -= 16
 							st_lenght += 1
 						} while(a > 0)
+						local text = planned_way
 						err = command_x.build_way(pl, t_start[0], t_start[1], planned_way, true)
 						err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
 						if ( err == null ) {

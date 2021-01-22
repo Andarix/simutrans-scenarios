@@ -3174,7 +3174,7 @@ function destroy_line(line_obj) {
 	local treeway_tile_s = null
 	local treeway_tile_e = null
 
-	if ( wt != wt_water ) {
+	if ( wt != wt_water && wt != wt_air ) {
 		//gui.add_message_at(our_player, " search way line ", world.get_time())
 		local asf = astar_route_finder(wt)
 		wayline = asf.search_route([start_l], [end_l])

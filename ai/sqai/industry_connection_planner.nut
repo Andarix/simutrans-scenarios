@@ -445,6 +445,10 @@ class industry_connection_planner_t extends manager_t
 			if ( wt == wt_road ) {
 				bridge_year_factor = 3
 			}
+		} else if ( world.get_time().year < 1930 ) {
+			if ( wt == wt_road ) {
+				bridge_year_factor = 2
+			}
 		}
 
     // higt distance
@@ -483,6 +487,12 @@ class industry_connection_planner_t extends manager_t
 						cash_buffer = 20
 					}
 			    break
+			}
+
+			if ( r.distance > 450 ) {
+				r.points -= 10
+			} else if ( r.distance > 550 ) {
+				r.points -= 20
 			}
 		}
 		// low distance
