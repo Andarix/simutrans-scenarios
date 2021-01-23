@@ -520,6 +520,8 @@ class industry_manager_t extends manager_t
 			if ( link.double_ways_count > 0 ) {
 				cnv_count = link.double_ways_count + 1
 				//gui.add_message_at(our_player, "###---- set convoy count from link.double_ways_count " + cnv_count, world.get_time())
+			} else {
+				cnv_count = 1
 			}
 
 
@@ -551,7 +553,7 @@ class industry_manager_t extends manager_t
 				cnv_valuator.max_cnvs = 200
 				// no signals and double tracks - limit 1 convoy for rail
 				if (wt == wt_rail) {
-					cnv_valuator.max_cnvs = 1
+					cnv_valuator.max_cnvs = cnv_count
 				}
 
 				// through schedule to estimate distance
