@@ -624,7 +624,7 @@ class industry_manager_t extends manager_t
 			// freight, lots of empty and of stopped vehicles
 			// -> something is blocked, maybe we block our own supply?
 			// delete one convoy
-			if ( cnv_empty_stopped.is_valid ) {
+			if ( cnv_empty_stopped.is_valid() ) {
 				cnv_empty_stopped.destroy(our_player)
 				dbgprint("==> destroy empty convoy")
 				if ( print_message_box == 1 ) {
