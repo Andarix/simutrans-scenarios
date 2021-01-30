@@ -418,6 +418,9 @@ class industry_manager_t extends manager_t
 			// stations distance
 			local l = abs(start_l.x - end_l.x) + abs(start_l.y - end_l.y)
 			local c = 0
+			local t = l % 80
+			//gui.add_message_at(our_player, "#### way len " + l + " % 80 = " + (l % 80), world.get_time())
+			//gui.add_message_at(our_player, "#### way len " + l + " / 80 = " + (l / 80), world.get_time())
 			if ( l > 50 && l <= 90 ) {
 				c = 1
 			}	else if ( l > 90 && l <= 160 ) {
@@ -426,10 +429,10 @@ class industry_manager_t extends manager_t
 				c = 3
 			} else if ( l > 220 && l <= 350 ) {
 				c = 4
-			} else if ( l > 350 && l <= 480 ) {
+			} else if ( l > 350 && l < 480 ) {
 				c = 5
-			} else if ( l > 480 ) {
-				c = 6
+			} else if ( l >= 480 ) {
+				c = (l / 80)
 			}
 
 
