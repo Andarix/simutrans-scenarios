@@ -249,7 +249,7 @@ class industry_manager_t extends manager_t
 			// route is backward from end to start
 
 			if ("err" in result) {
-				gui.add_message_at(our_player, " ### no route found: " + result.err, start)
+				//gui.add_message_at(our_player, " ### no route found: " + result.err, start)
 				return nexttile
 			}
 			else {
