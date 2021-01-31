@@ -488,6 +488,12 @@ class factorysearcher_t extends manager_t
 	}
 }
 
+/*
+ *	check factory chain befor build link
+ *
+ *	return false 	= no build link
+ *	return true 	= build link
+ */
 function check_factory_link_line(f_src, f_dest, t_good) {
 
 	local good_list_in = [];
