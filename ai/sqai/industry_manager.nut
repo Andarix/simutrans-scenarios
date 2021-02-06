@@ -232,6 +232,8 @@ class industry_manager_t extends manager_t
 		}
 
 		sleep()
+		if ( !cnv.is_valid() ) { return }
+
 		if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			local nexttile = [] //[tile_x(start.x, start.y, start.z)]
 
@@ -520,13 +522,7 @@ class industry_manager_t extends manager_t
 				return
 			}
 
-			if ( link.double_ways_count > 0 ) {
-				cnv_count = link.double_ways_count + 1
-				//gui.add_message_at(our_player, "###---- set convoy count from link.double_ways_count " + cnv_count, world.get_time())
-			} else {
-				cnv_count = 1
-			}
-
+			cnv_count = link.double_ways_count + 1
 
 			if (gain_per_m > 0) {
 				// directly append
@@ -704,6 +700,10 @@ class industry_manager_t extends manager_t
 		cnv_valuator.freight  = link.freight.get_name()
 		cnv_valuator.volume   = transported
 		cnv_valuator.max_cnvs = 200
+		// no signals and double tracks - limit 1 convoy for rail
+		if (wt == wt_rail) {
+			cnv_valuator.max_cnvs = link.double_ways_count + 1
+		}
 		cnv_valuator.distance = dist
 
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
@@ -735,7 +735,11 @@ class industry_manager_t extends manager_t
 		c.p_depot    = depot_x(depot.x, depot.y, depot.z)
 		c.p_line     = line
 		c.p_convoy   = planned_convoy
-		c.p_count    = min(planned_convoy.nr_convoys, 3)
+		if ( wt == wt_rail || wt == wt_water ) {
+			c.p_count    = min(planned_convoy.nr_convoys, 1)
+		} else {
+			c.p_count    = min(planned_convoy.nr_convoys, 3)
+		}
 		c.p_withdraw = true
 		append_child(c)
 		return true
