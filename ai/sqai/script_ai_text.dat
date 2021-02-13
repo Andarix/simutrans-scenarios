@@ -19,3 +19,6 @@ name=%s build additional convoy to line: %s
 obj=script_ai_text
 name=%s removes convoys from line: %s
 -
+obj=script_ai_text
+name=%d convoys of the line %s were retired
+-

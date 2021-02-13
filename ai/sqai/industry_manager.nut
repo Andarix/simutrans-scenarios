@@ -203,15 +203,49 @@ class industry_manager_t extends manager_t
 		// find convoy
 		local cnv = null
 		local cnv_count = 0
+		local slow_convoys = []
 		{
 			local list = line.get_convoy_list()
 			cnv_count = list.get_count()
 			if (cnv_count == 0) {
 				// 0 convoy destroy line
-				if ( line.get_owner().nr == our_player.nr ) { destroy_line(line) }
+				if ( line.get_owner().nr == our_player.nr ) {
+					destroy_line(line)
+					sleep()
+				}
 				return
 			}
 			cnv = list[0]
+			// check speed from convoys
+			local a = convoy_max_speed(list[0])
+			local max_speed = 0
+			local speed_count = 1
+			for ( local i = 1; i < cnv_count; i++ ) {
+				local s = convoy_max_speed(list[i])
+				if ( a == s ) {
+					speed_count++
+				} else if ( a < s && max_speed == 0 ) {
+					max_speed = s
+				}
+			}
+			if ( speed_count < cnv_count ) {
+				// update convoys
+				local k = 0
+				for ( local i = 0; i < cnv_count; i++ ) {
+					if ( convoy_max_speed(list[i]) < max_speed && list[i].is_withdrawn() == false ) {
+						list[i].toggle_withdraw(our_player)
+						k++
+					}
+				}
+				if ( k > 0 ) {
+					local msgtext = format(translate("%d convoys of the line %s were retired"), k, line.get_name())
+					gui.add_message_at(our_player, msgtext, world.get_time())
+
+					return
+
+				}
+			}
+			// toggle_withdraw(our_player)
 		}
 
 		if ( line.get_owner().nr == our_player.nr ) {
@@ -769,4 +803,25 @@ class industry_manager_t extends manager_t
 		return ::saveinstance("industry_manager_t", this)
 	}
 
+}
+
+function convoy_max_speed(cnv) {
+	// convoy_x::calc_max_speed	(	integer power, integer weight, integer speed_limit )
+
+	local pwr = 0
+	local weight = 0
+	local m_speed = 500
+
+	local veh_list = cnv.get_vehicles()
+
+	for (local i = 0; i < veh_list.len(); i++) {
+		pwr += veh_list[i].get_power()
+		weight += veh_list[i].get_weight() + (veh_list[i].get_capacity()*veh_list[i].get_freight().get_weight_per_unit())
+		if ( m_speed > veh_list[i].get_topspeed() ) {
+			m_speed = veh_list[i].get_topspeed()
+		}
+	}
+
+	local a = cnv.calc_max_speed(pwr, weight, m_speed)
+	return a
 }
