@@ -309,7 +309,7 @@ class industry_manager_t extends manager_t
 			}
 		}
 
-		if (cnv.is_withdrawn()) {
+		if (cnv.is_valid() && cnv.is_withdrawn()) {
 			// come back later
 			return
 		}
