@@ -215,7 +215,11 @@ class industry_manager_t extends manager_t
 				}
 				return
 			}
-			cnv = list[0]
+			for ( local i = 0; i < cnv_count; i++ ) {
+				if ( !list[i].is_withdrawn() ) {
+					cnv = list[i]
+				}
+			}
 			// check speed from convoys
 			local a = convoy_max_speed(list[0])
 			local max_speed = 0
@@ -232,7 +236,7 @@ class industry_manager_t extends manager_t
 				// update convoys
 				local k = 0
 				for ( local i = 0; i < cnv_count; i++ ) {
-					if ( convoy_max_speed(list[i]) < max_speed && list[i].is_withdrawn() == false ) {
+					if ( convoy_max_speed(list[i]) < max_speed && !list[i].is_withdrawn() ) {
 						list[i].toggle_withdraw(our_player)
 						k++
 					}
