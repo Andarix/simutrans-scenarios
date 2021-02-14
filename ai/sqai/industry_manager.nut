@@ -218,6 +218,7 @@ class industry_manager_t extends manager_t
 			for ( local i = 0; i < cnv_count; i++ ) {
 				if ( !list[i].is_withdrawn() ) {
 					cnv = list[i]
+					break
 				}
 			}
 			// check speed from convoys
