@@ -224,6 +224,14 @@ class industry_manager_t extends manager_t
 			}
 			// check speed from convoys
 			local a = convoy_max_speed(list[0])
+			local cnv_retired = []
+
+			// check cnv is retired
+			if ( convoy_is_retired(list[0]) && !list[0].is_withdrawn() ) {
+				//gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
+				cnv_retired.append(list[0])
+			}
+
 			local speed_count = 1
 			for ( local i = 1; i < cnv_count; i++ ) {
 				local s = convoy_max_speed(list[i])
@@ -233,11 +241,16 @@ class industry_manager_t extends manager_t
 				} else if ( a < s && cnv_max_speed == 0 ) {
 					cnv_max_speed = s
 				}
+				// check cnv is retired
+				if ( convoy_is_retired(list[i]) && !list[i].is_withdrawn() ) {
+					//gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
+					cnv_retired.append(list[i])
+				}
 			}
 			//gui.add_message_at(our_player, " max speed " + cnv_max_speed, world.get_time())
 
 			if ( speed_count < cnv_count ) {
-				// update convoys
+				// update convoys - retire slower convoys
 				local k = 0
 				for ( local i = 0; i < cnv_count; i++ ) {
 					if ( convoy_max_speed(list[i]) < cnv_max_speed && !list[i].is_withdrawn() ) {
@@ -254,6 +267,25 @@ class industry_manager_t extends manager_t
 				}
 			}
 
+			if ( cnv_retired.len() > 0 && cnv_retired.len() < cnv_count ) {
+				// update convoys - retire retired convoys
+				local k = 0
+				for ( local i = 0; i < cnv_retired.len(); i++ ) {
+					if ( !cnv_retired[i].is_withdrawn() ) {
+						cnv_retired[i].toggle_withdraw(our_player)
+						k++
+					}
+				}
+				if ( k > 0 ) {
+					local msgtext = format(translate("%d convoys of the line %s were retired"), k, line.get_name())
+					gui.add_message_at(our_player, msgtext, world.get_time())
+
+					return
+
+				}
+			} else {
+				// create new convoy before retire retired convoy
+			}
 		}
 
 		if ( line.get_owner().nr == our_player.nr ) {
@@ -884,4 +916,16 @@ function convoy_max_speed(cnv) {
 
 	local a = cnv.calc_max_speed(pwr, weight, m_speed)
 	return a
+}
+
+function convoy_is_retired(cnv) {
+
+	local veh_list = cnv.get_vehicles()
+
+	for (local i = 0; i < veh_list.len(); i++) {
+		if ( veh_list[i].is_retired(world.get_time()) ) {
+			return true
+		}
+	}
+
 }
