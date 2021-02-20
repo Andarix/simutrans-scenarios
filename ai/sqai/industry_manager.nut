@@ -20,6 +20,7 @@ class industry_link_t
 	optimize_way_line		= 0 // is way line optimize: 0 = no ; 1 = yes
 	destroy_line_month	= null // test month save
 	line_way_speed			= 0 // save way speed for line
+	build_line					= 0 // create line
 
 	// next check needed if ticks > next_check
 	// state == st_missing: check availability again
@@ -196,6 +197,11 @@ class industry_manager_t extends manager_t
 	 */
 	function check_link_line(link, line)
 	{
+
+		// set first run as line build time
+		if ( link.build_line == 0 ) {
+  		link.build_line = world.get_time()
+		}
 
 		local  print_message_box = 0
 
