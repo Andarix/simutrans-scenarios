@@ -15,10 +15,11 @@ class industry_link_t
 	state = 0
 	lines = null   // array<line_x>
 
-	double_ways_count = 0 // count of double way build
-	double_ways_build = 0 // double way build: 0 = no ; 1 = yes
-	optimize_way_line = 0 // is way line optimize: 0 = no ; 1 = yes
-	destroy_line_month = null // test month save
+	double_ways_count		= 0 // count of double way build
+	double_ways_build		= 0 // double way build: 0 = no ; 1 = yes
+	optimize_way_line		= 0 // is way line optimize: 0 = no ; 1 = yes
+	destroy_line_month	= null // test month save
+	line_way_speed			= 0 // save way speed for line
 
 	// next check needed if ticks > next_check
 	// state == st_missing: check availability again
@@ -203,7 +204,7 @@ class industry_manager_t extends manager_t
 		// find convoy
 		local cnv = null
 		local cnv_count = 0
-		local slow_convoys = []
+		local cnv_max_speed = 0
 		{
 			local list = line.get_convoy_list()
 			cnv_count = list.get_count()
@@ -223,21 +224,23 @@ class industry_manager_t extends manager_t
 			}
 			// check speed from convoys
 			local a = convoy_max_speed(list[0])
-			local max_speed = 0
 			local speed_count = 1
 			for ( local i = 1; i < cnv_count; i++ ) {
 				local s = convoy_max_speed(list[i])
+
 				if ( a == s ) {
 					speed_count++
-				} else if ( a < s && max_speed == 0 ) {
-					max_speed = s
+				} else if ( a < s && cnv_max_speed == 0 ) {
+					cnv_max_speed = s
 				}
 			}
+			//gui.add_message_at(our_player, " max speed " + cnv_max_speed, world.get_time())
+
 			if ( speed_count < cnv_count ) {
 				// update convoys
 				local k = 0
 				for ( local i = 0; i < cnv_count; i++ ) {
-					if ( convoy_max_speed(list[i]) < max_speed && !list[i].is_withdrawn() ) {
+					if ( convoy_max_speed(list[i]) < cnv_max_speed && !list[i].is_withdrawn() ) {
 						list[i].toggle_withdraw(our_player)
 						k++
 					}
@@ -250,7 +253,7 @@ class industry_manager_t extends manager_t
 
 				}
 			}
-			// toggle_withdraw(our_player)
+
 		}
 
 		if ( line.get_owner().nr == our_player.nr ) {
@@ -273,9 +276,9 @@ class industry_manager_t extends manager_t
 		sleep()
 		if ( !cnv.is_valid() ) { return }
 
-		if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
-			local nexttile = [] //[tile_x(start.x, start.y, start.z)]
-
+		// find route
+		local nexttile = []
+		if (cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			local entries = cnv.get_schedule().entries
 			local start = null
 			local end = null
@@ -302,9 +305,10 @@ class industry_manager_t extends manager_t
 				}
 				sleep()
 			}
+		}
 
 
-
+		if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			if ( link.optimize_way_line == 0 ) {
 				// optimize way line befor build double ways
 				optimize_way_line(nexttile, cnv.get_waytype())
@@ -312,6 +316,51 @@ class industry_manager_t extends manager_t
 			} else {
 
 			}
+		}
+
+		// way speed
+		if ( cnv_max_speed > link.line_way_speed && nexttile.len() > 3 ) {
+
+			local way_speed = 500
+			local upgrade_tiles = 0
+			for ( local i = 0; i < nexttile.len(); i++ ) {
+				local tile_way = tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z).find_object(mo_way)
+				if ( (tile_way.get_owner().nr == our_player_nr || tile_way.get_owner().nr == 1) ) {
+					upgrade_tiles++
+					if ( tile_way.get_desc().get_topspeed() < way_speed ) {
+						way_speed = tile_way.get_desc().get_topspeed()
+					}
+				}
+
+			}
+			link.line_way_speed = way_speed
+			//gui.add_message_at(our_player, way_speed + " way speed line " + line.get_name(), world.get_time())
+			//gui.add_message_at(our_player, upgrade_tiles + " possible tiles for upgrading ", world.get_time())
+			//gui.add_message_at(our_player, " cnv max speed " + cnv_max_speed, world.get_time())
+
+			// upgrade way
+			local way_obj = find_object("way", cnv.get_waytype(), cnv_max_speed)
+			//gui.add_message_at(our_player, " way max speed " + way_obj.get_topspeed(), world.get_time())
+
+			if ( cnv_max_speed >= way_obj.get_topspeed() ) {
+				local costs = (upgrade_tiles*way_obj.get_cost())/100
+				if ( our_player.get_current_cash() > costs ) {
+					for ( local i = 1; i < nexttile.len(); i++ ) {
+						local tile_way_1 = tile_x(nexttile[i-1].x, nexttile[i-1].y, nexttile[i-1].z)
+						local tile_way_2 = tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z)
+						if ( (tile_way_2.find_object(mo_way).get_owner().nr == our_player_nr || tile_way_2.find_object(mo_way).get_owner().nr == 1) && tile_way_2.find_object(mo_way).get_desc().get_topspeed() < way_obj.get_topspeed() ) {
+							command_x.build_way(our_player, tile_way_1, tile_way_2, way_obj, true)
+						}
+					}
+				}
+
+				local msgtext = format(translate("%s extends the route from %s (%s) to %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
+				gui.add_message_at(our_player, msgtext, start_l)
+				//gui.add_message_at(our_player, " upgrade way ", world.get_time())
+
+				link.line_way_speed = way_obj.get_topspeed()
+			}
+
 		}
 
 		if (cnv.is_valid() && cnv.is_withdrawn()) {
@@ -453,8 +502,9 @@ class industry_manager_t extends manager_t
 			if ( message_show > 0 ) {
 				local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
 				gui.add_message_at(our_player, msgtext, world.get_time())
-				message_show = 0
+				return true
 			}
+
 		}
 		dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
 		dbgprint("")
@@ -563,7 +613,7 @@ class industry_manager_t extends manager_t
 					return
 				}
 			} else if (cnv.get_waytype() == wt_rail && (cnv_count > c || c == 0) ) {
-				return
+				return null
 			}
 
 			cnv_count = link.double_ways_count + 1
@@ -603,6 +653,11 @@ class industry_manager_t extends manager_t
 				local dist = 0
 				local entries = cnv.get_schedule().entries
 				dist = abs(entries[0].x - entries[1].x) + abs(entries[0].y - entries[1].y)
+
+				if (wt == wt_road && dist > 40) {
+					cnv_valuator.max_cnvs = dist - 20
+				}
+
 				// add 10% from distance
 				dist += dist / 100 * 10
 
@@ -661,7 +716,7 @@ class industry_manager_t extends manager_t
 
 				local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
 				gui.add_message_at(our_player, msgtext, world.get_time())
-
+				return true
 			}
 		}
 

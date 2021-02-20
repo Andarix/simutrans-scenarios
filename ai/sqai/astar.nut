@@ -1376,16 +1376,16 @@ function find_object(obj, wt, speed) {
 				}
 
 				if ( o == 1 ) {
-					if (obj_desc.get_topspeed() < speed) {
-						if (b.get_topspeed() > obj_desc.get_topspeed()) {
+					if (obj_desc.get_topspeed() <= speed) {
+						if (b.get_topspeed() > obj_desc.get_topspeed() && b.get_topspeed() <= speed ) {
 							obj_desc = b
 						}
 					}
-					else {
+					/*else {
 						if (speed < b.get_topspeed() && max_speed > b.get_topspeed() && b.get_topspeed() > obj_desc.get_topspeed()) {
 							obj_desc = b
 						}
-					}
+					}*/
 				}
 
 			}
