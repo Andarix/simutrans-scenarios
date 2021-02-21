@@ -638,7 +638,7 @@ class industry_connection_planner_t extends manager_t
 		gui.add_message_at(our_player, txt_message, world.get_time())
 */
 		// retire station
-		local min_retire = planned_station.retire_obj.raw
+		local min_retire = planned_station.get_retire_date().raw
 		// retire way
 		if ( ( wt != wt_water && wt != wt_air ) && planned_way.get_retire_date().raw < min_retire ) {
 			min_retire = planned_way.get_retire_date().raw
