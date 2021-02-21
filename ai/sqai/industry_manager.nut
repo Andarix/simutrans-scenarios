@@ -291,6 +291,8 @@ class industry_manager_t extends manager_t
 				}
 			} else {
 				// create new convoy before retire retired convoy
+				//upgrade_link_line(link, line)
+				//return
 			}
 		}
 
@@ -378,10 +380,10 @@ class industry_manager_t extends manager_t
 
 			// upgrade way
 			local way_obj = find_object("way", cnv.get_waytype(), cnv_max_speed)
-			//gui.add_message_at(our_player, " way max speed " + way_obj.get_topspeed(), world.get_time())
+			//gui.add_message_at(our_player, " way max speed new " + way_obj.get_topspeed(), world.get_time())
 
-			if ( cnv_max_speed >= way_obj.get_topspeed() ) {
-				local costs = (upgrade_tiles*way_obj.get_cost())/100
+			if ( cnv_max_speed >= way_speed ) {
+				local costs = (upgrade_tiles*(way_obj.get_cost()/100))
 				if ( our_player.get_current_cash() > costs ) {
 					for ( local i = 1; i < nexttile.len(); i++ ) {
 						local tile_way_1 = tile_x(nexttile[i-1].x, nexttile[i-1].y, nexttile[i-1].z)
@@ -391,6 +393,9 @@ class industry_manager_t extends manager_t
 						}
 					}
 				}
+
+				local start_l = nexttile[nexttile.len()-1]
+				local end_l = nexttile[0]
 
 				local msgtext = format(translate("%s extends the route from %s (%s) to %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
 				gui.add_message_at(our_player, msgtext, start_l)
@@ -758,6 +763,11 @@ class industry_manager_t extends manager_t
 			}
 		}
 
+		// check for new vehicles
+		//if (  ) {
+
+		//}
+
 		if (!freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped) {
 			// freight, lots of empty and of stopped vehicles
 			// -> something is blocked, maybe we block our own supply?
@@ -785,6 +795,7 @@ class industry_manager_t extends manager_t
 	 */
 	function upgrade_link_line(link, line)
 	{
+		gui.add_message_at(our_player, "### upgrade_link_line " + line.get_name(), world.get_time())
 		// find convoy
 		local cnv = null
 		{
