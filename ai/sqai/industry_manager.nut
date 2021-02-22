@@ -233,7 +233,7 @@ class industry_manager_t extends manager_t
 			local cnv_retired = []
 
 			// check cnv is retired
-			if ( convoy_is_retired(list[0]) && !list[0].is_withdrawn() ) {
+			if ( list[0].has_obsolete_vehicles() && !list[0].is_withdrawn() ) {
 				//gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
 				cnv_retired.append(list[0])
 			}
@@ -248,7 +248,7 @@ class industry_manager_t extends manager_t
 					cnv_max_speed = s
 				}
 				// check cnv is retired
-				if ( convoy_is_retired(list[i]) && !list[i].is_withdrawn() ) {
+				if ( list[i].has_obsolete_vehicles() && !list[i].is_withdrawn() ) {
 					//gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
 					cnv_retired.append(list[i])
 				}
@@ -289,10 +289,11 @@ class industry_manager_t extends manager_t
 					return
 
 				}
-			} else {
+			} else if ( cnv_retired.len() == 1 && cnv_retired.len() == cnv_count ) {
+				//gui.add_message_at(our_player, "*** cnv_upgrade = 1 -> line " + line.get_name(), world.get_time())
 				// create new convoy before retire retired convoy
-				//upgrade_link_line(link, line)
-				//return
+				upgrade_link_line(link, line)
+				return
 			}
 		}
 
@@ -412,14 +413,15 @@ class industry_manager_t extends manager_t
 		}
 
 		// try to upgrade
-		if (cnv.has_obsolete_vehicles()  &&  link.next_check < world.get_time().ticks) {
+/*		if (cnv.has_obsolete_vehicles() &&  link.next_check < world.get_time().ticks) {
 			link.next_check = world.get_time().next_month_ticks
 			if (upgrade_link_line(link, line)) {
 				// update successful
+				gui.add_message_at(our_player, "*** upgrade_link_line -> line " + line.get_name(), world.get_time())
 				return
 			}
 		}
-
+*/
 		local lf = link.freight
 		// capacity of convoy
 		local capacity = 0
@@ -763,11 +765,6 @@ class industry_manager_t extends manager_t
 			}
 		}
 
-		// check for new vehicles
-		//if (  ) {
-
-		//}
-
 		if (!freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped) {
 			// freight, lots of empty and of stopped vehicles
 			// -> something is blocked, maybe we block our own supply?
@@ -834,7 +831,7 @@ class industry_manager_t extends manager_t
 			}
 		}
 
-		local wt = wt
+		//local wt = wt
 		// TODO do something smarter
 		prototyper.min_speed  = 1
 		prototyper.max_vehicles = get_max_convoi_length(wt)
