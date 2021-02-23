@@ -203,6 +203,8 @@ class industry_manager_t extends manager_t
   		link.build_line = world.get_time()
 		}
 
+		//
+
 		local  print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
@@ -249,7 +251,7 @@ class industry_manager_t extends manager_t
 				}
 				// check cnv is retired
 				if ( list[i].has_obsolete_vehicles() && !list[i].is_withdrawn() ) {
-					//gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
+					gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
 					cnv_retired.append(list[i])
 				}
 			}
@@ -376,14 +378,14 @@ class industry_manager_t extends manager_t
 			}
 			link.line_way_speed = way_speed
 			//gui.add_message_at(our_player, way_speed + " way speed line " + line.get_name(), world.get_time())
-			//gui.add_message_at(our_player, upgrade_tiles + " possible tiles for upgrading ", world.get_time())
+			gui.add_message_at(our_player, upgrade_tiles + " possible tiles for upgrading ", world.get_time())
 			//gui.add_message_at(our_player, " cnv max speed " + cnv_max_speed, world.get_time())
 
 			// upgrade way
 			local way_obj = find_object("way", cnv.get_waytype(), cnv_max_speed)
 			//gui.add_message_at(our_player, " way max speed new " + way_obj.get_topspeed(), world.get_time())
 
-			if ( cnv_max_speed >= way_speed ) {
+			if ( cnv_max_speed >= way_speed && upgrade_tiles > 2 ) {
 				local costs = (upgrade_tiles*(way_obj.get_cost()/100))
 				if ( our_player.get_current_cash() > costs ) {
 					for ( local i = 1; i < nexttile.len(); i++ ) {
@@ -402,6 +404,9 @@ class industry_manager_t extends manager_t
 				gui.add_message_at(our_player, msgtext, start_l)
 				//gui.add_message_at(our_player, " upgrade way ", world.get_time())
 
+				link.line_way_speed = way_obj.get_topspeed()
+			} else {
+				// set new way speed by not upgrade way
 				link.line_way_speed = way_obj.get_topspeed()
 			}
 
