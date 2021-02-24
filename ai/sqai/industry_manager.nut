@@ -232,6 +232,7 @@ class industry_manager_t extends manager_t
 			}
 			// check speed from convoys
 			local a = convoy_max_speed(list[0])
+			cnv_max_speed = a
 			local cnv_retired = []
 
 			// check cnv is retired
@@ -246,7 +247,7 @@ class industry_manager_t extends manager_t
 
 				if ( a == s ) {
 					speed_count++
-				} else if ( a < s && cnv_max_speed == 0 ) {
+				} else if ( a < s ) {
 					cnv_max_speed = s
 				}
 				// check cnv is retired
@@ -336,7 +337,7 @@ class industry_manager_t extends manager_t
 			// route is backward from end to start
 
 			if ("err" in result) {
-				//gui.add_message_at(our_player, " ### no route found: " + result.err, start)
+				gui.add_message_at(our_player, " ### no route found: " + result.err, start)
 				return nexttile
 			}
 			else {
@@ -362,6 +363,8 @@ class industry_manager_t extends manager_t
 		}
 
 		// way speed
+		//gui.add_message_at(our_player, " -##- " + link.line_way_speed + " old speed save line " + line.get_name(), world.get_time())
+		//gui.add_message_at(our_player, " cnv max speed " + cnv_max_speed, world.get_time())
 		if ( cnv_max_speed > link.line_way_speed && nexttile.len() > 3 ) {
 
 			local way_speed = 500
@@ -377,13 +380,13 @@ class industry_manager_t extends manager_t
 
 			}
 			link.line_way_speed = way_speed
-			//gui.add_message_at(our_player, way_speed + " way speed line " + line.get_name(), world.get_time())
+			gui.add_message_at(our_player, way_speed + " way speed line " + line.get_name(), world.get_time())
 			gui.add_message_at(our_player, upgrade_tiles + " possible tiles for upgrading ", world.get_time())
 			//gui.add_message_at(our_player, " cnv max speed " + cnv_max_speed, world.get_time())
 
 			// upgrade way
 			local way_obj = find_object("way", cnv.get_waytype(), cnv_max_speed)
-			//gui.add_message_at(our_player, " way max speed new " + way_obj.get_topspeed(), world.get_time())
+			gui.add_message_at(our_player, " way max speed new " + way_obj.get_topspeed(), world.get_time())
 
 			if ( cnv_max_speed >= way_speed && upgrade_tiles > 2 ) {
 				local costs = (upgrade_tiles*(way_obj.get_cost()/100))
