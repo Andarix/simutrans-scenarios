@@ -331,6 +331,8 @@ class industry_manager_t extends manager_t
 				end = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
 			}
 
+
+
 			local asf = astar_route_finder(cnv.get_waytype())
 			local result = asf.search_route([start], [end])
 			// result is contains routes-array or error message
@@ -338,6 +340,8 @@ class industry_manager_t extends manager_t
 
 			if ("err" in result) {
 				gui.add_message_at(our_player, " ### no route found: " + result.err, start)
+				gui.add_message_at(our_player, " ### line: " + line.get_name(), world.get_time())
+				gui.add_message_at(our_player, " ### start: " + coord_to_string(start) + " ### end: " + coord_to_string(end), start)
 				return nexttile
 			}
 			else {

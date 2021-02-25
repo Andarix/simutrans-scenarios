@@ -1355,14 +1355,22 @@ function find_object(obj, wt, speed) {
 			break
 	}
 
+
+
 	local len = list.len()
-	local max_speed = 120
+	for(local i=0; i<len; i++) {
+		gui.add_message_at(our_player,i + " obj " + list[i].get_name() + " speed " + list[i].get_topspeed(), world.get_time())
+	}
+
+
+	local max_speed = 160
 	local min_len = 5
 
 	local obj_desc = null
 
 	if (len>0) {
 		obj_desc = list[0]
+		//gui.add_message_at(our_player,"0  obj_desc " + obj_desc.get_name(), world.get_time())
 
 			for(local i=1; i<len; i++) {
 				local b = list[i]
@@ -1377,10 +1385,12 @@ function find_object(obj, wt, speed) {
 
 				if ( o == 1 ) {
 					if (obj_desc.get_topspeed() <= speed) {
-						if (b.get_topspeed() > obj_desc.get_topspeed() && b.get_topspeed() <= speed ) {
+						if ( b.get_topspeed() > obj_desc.get_topspeed() && b.get_topspeed() <= speed ) {
 							obj_desc = b
+							if ( obj_desc.get_topspeed() == speed ) { break }
 						} else {
 							obj_desc = b
+							//gui.add_message_at(our_player, i + " break obj_desc " + obj_desc.get_name(), world.get_time())
 							break
 						}
 					}
