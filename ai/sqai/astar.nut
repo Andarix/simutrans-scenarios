@@ -1355,13 +1355,32 @@ function find_object(obj, wt, speed) {
 			break
 	}
 
-
-
 	local len = list.len()
-	for(local i=0; i<len; i++) {
-		gui.add_message_at(our_player,i + " obj " + list[i].get_name() + " speed " + list[i].get_topspeed(), world.get_time())
-	}
 
+	// sort objects by speed
+	{
+		local obj_list = []
+		for(local i=0; i<len; i++) {
+			obj_list.append(list[i].get_topspeed())
+		}
+		obj_list.sort()
+
+		local sort_obj_list = []
+
+		for(local i=0; i<len; i++) {
+			//gui.add_message_at(our_player,i + " obj " + obj_list[i] , world.get_time())
+			for (local j=0; j<len; j++) {
+				if ( obj_list[i] == list[j].get_topspeed() ) {
+					sort_obj_list.append(list[j])
+				}
+			}
+		}
+		list.clear()
+		list = sort_obj_list.slice(0)
+		/*for(local i=0; i<len; i++) {
+			gui.add_message_at(our_player,i + " obj " + list[i].get_name() + " speed " + list[i].get_topspeed(), world.get_time())
+		}*/
+	}
 
 	local max_speed = 160
 	local min_len = 5
