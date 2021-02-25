@@ -322,6 +322,7 @@ class industry_manager_t extends manager_t
 
 		// find route
 		local nexttile = []
+		local nexttile_r = []
 		if (cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			local entries = cnv.get_schedule().entries
 			local start = null
@@ -341,7 +342,7 @@ class industry_manager_t extends manager_t
 			if ("err" in result) {
 				gui.add_message_at(our_player, " ### no route found: " + result.err, start)
 				gui.add_message_at(our_player, " ### line: " + line.get_name(), world.get_time())
-				gui.add_message_at(our_player, " ### start: " + coord_to_string(start) + " ### end: " + coord_to_string(end), start)
+				gui.add_message_at(our_player, " ### start: " + coord3d_to_string(start) + " ### end: " + coord_to_string(end), start)
 				return nexttile
 			}
 			else {
@@ -352,6 +353,21 @@ class industry_manager_t extends manager_t
 					nexttile.append(tile)
 				}
 				sleep()
+			}
+
+			if ( cnv.get_waytype() == wt_rail && link.double_ways_build > 0 ) {
+				// return way for upgrade double ways
+				result = asf.search_route([end], [start])
+				if ("err" in result) {
+
+				}
+				else {
+					foreach(node in result.routes) {
+						local tile = tile_x(node.x, node.y, node.z)
+						nexttile_r.append(tile)
+					}
+					sleep()
+				}
 			}
 		}
 
@@ -381,8 +397,20 @@ class industry_manager_t extends manager_t
 						way_speed = tile_way.get_desc().get_topspeed()
 					}
 				}
-
 			}
+			// check double ways by rail
+			if ( cnv.get_waytype() == wt_rail && link.double_ways_build > 0 ) {
+				for ( local i = 0; i < nexttile_r.len(); i++ ) {
+					local tile_way = tile_x(nexttile_r[i].x, nexttile_r[i].y, nexttile_r[i].z).find_object(mo_way)
+					if ( tile_way.get_owner().nr == our_player_nr ) {
+						//upgrade_tiles++
+						if ( tile_way.get_desc().get_topspeed() < way_speed ) {
+							way_speed = tile_way.get_desc().get_topspeed()
+						}
+					}
+				}
+			}
+
 			link.line_way_speed = way_speed
 			gui.add_message_at(our_player, way_speed + " way speed line " + line.get_name(), world.get_time())
 			gui.add_message_at(our_player, upgrade_tiles + " possible tiles for upgrading ", world.get_time())
@@ -394,12 +422,25 @@ class industry_manager_t extends manager_t
 
 			if ( cnv_max_speed >= way_speed && upgrade_tiles > 2 ) {
 				local costs = (upgrade_tiles*(way_obj.get_cost()/100))
+				if ( cnv.get_waytype() == wt_rail && link.double_ways_build > 0 ) {
+					costs += link.double_ways_count*8*(way_obj.get_cost()/100)
+				}
 				if ( our_player.get_current_cash() > costs ) {
 					for ( local i = 1; i < nexttile.len(); i++ ) {
 						local tile_way_1 = tile_x(nexttile[i-1].x, nexttile[i-1].y, nexttile[i-1].z)
 						local tile_way_2 = tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z)
 						if ( (tile_way_2.find_object(mo_way).get_owner().nr == our_player_nr || tile_way_2.find_object(mo_way).get_owner().nr == 1) && tile_way_2.find_object(mo_way).get_desc().get_topspeed() < way_obj.get_topspeed() ) {
 							command_x.build_way(our_player, tile_way_1, tile_way_2, way_obj, true)
+						}
+					}
+					// built double ways by rail
+					if ( cnv.get_waytype() == wt_rail && link.double_ways_build > 0 ) {
+						for ( local i = 1; i < nexttile_r.len(); i++ ) {
+							local tile_way_1 = tile_x(nexttile_r[i-1].x, nexttile_r[i-1].y, nexttile_r[i-1].z)
+							local tile_way_2 = tile_x(nexttile_r[i].x, nexttile_r[i].y, nexttile_r[i].z)
+							if ( (tile_way_2.find_object(mo_way).get_owner().nr == our_player_nr || tile_way_2.find_object(mo_way).get_owner().nr == 1) && tile_way_2.find_object(mo_way).get_desc().get_topspeed() < way_obj.get_topspeed() ) {
+								command_x.build_way(our_player, tile_way_1, tile_way_2, way_obj, true)
+							}
 						}
 					}
 				}
