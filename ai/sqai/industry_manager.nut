@@ -147,6 +147,14 @@ class industry_manager_t extends manager_t
 			link_iterator = null
 			return r_t(RT_SUCCESS);
 		}
+
+		// check all 10 years ( year xxx0 ) in april
+		local yt = world.get_time().year.tostring()
+  	if ( yt.slice(-1) == "0" && world.get_time().month == 3 ) {
+			gui.add_message_at(our_player, "####### year check " + yt, world.get_time())
+			::debug.pause()
+		}
+
 		return r_t(RT_PARTIAL_SUCCESS);
 	}
 
@@ -418,13 +426,13 @@ class industry_manager_t extends manager_t
 			}
 
 			link.line_way_speed = way_speed
-			gui.add_message_at(our_player, way_speed + " way speed line " + line.get_name(), world.get_time())
-			gui.add_message_at(our_player, upgrade_tiles + " possible tiles for upgrading ", world.get_time())
+			//gui.add_message_at(our_player, way_speed + " way speed line " + line.get_name(), world.get_time())
+			//gui.add_message_at(our_player, upgrade_tiles + " possible tiles for upgrading ", world.get_time())
 			//gui.add_message_at(our_player, " cnv max speed " + cnv_max_speed, world.get_time())
 
 			// upgrade way
 			local way_obj = find_object("way", cnv.get_waytype(), cnv_max_speed)
-			gui.add_message_at(our_player, " way max speed new " + way_obj.get_topspeed(), world.get_time())
+			//gui.add_message_at(our_player, " way max speed new " + way_obj.get_topspeed(), world.get_time())
 
 			if ( cnv_max_speed >= way_speed && upgrade_tiles > 2 ) {
 				local costs = (upgrade_tiles*(way_obj.get_cost()/100))

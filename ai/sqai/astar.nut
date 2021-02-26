@@ -227,6 +227,7 @@ class astar_route_finder extends astar
 		if ( [wt_all, wt_invalid, wt_water, wt_air].find(wt) ) {
 			throw("Using this waytype is going to be inefficient. Use at own risk.")
 		}
+		cost_curve = cost_straight
 	}
 
 	function process_node(cnode)
@@ -249,7 +250,7 @@ class astar_route_finder extends astar
 					local move = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
 					local dist   = estimate_distance(to)
 					local cost   = cnode.cost + move
-					local weight = cost + dist
+					local weight = cost //+ dist
 					local node = ab_node(to, cnode, cost, dist, d)
 
 					add_to_open(node, weight)
@@ -1555,6 +1556,9 @@ function build_double_track(start_field, wt) {
 
 	//local way_list = way_desc_x.get_available_ways(wt, st_flat)
 	local way_obj = start_field.find_object(mo_way).get_desc() //way_list[0]
+	if ( !way_obj.is_available(world.get_time()) ) {
+		way_obj = find_object("way", wt, way_obj.get_topspeed())
+	}
 
 	local b_player = our_player //way_obj.get_owner()
 
