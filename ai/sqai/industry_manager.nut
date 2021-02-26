@@ -151,8 +151,8 @@ class industry_manager_t extends manager_t
 		// check all 10 years ( year xxx0 ) in april
 		local yt = world.get_time().year.tostring()
   	if ( yt.slice(-1) == "0" && world.get_time().month == 3 ) {
-			gui.add_message_at(our_player, "####### year check " + yt, world.get_time())
-			::debug.pause()
+			//gui.add_message_at(our_player, "####### year check " + yt, world.get_time())
+			//::debug.pause()
 		}
 
 		return r_t(RT_PARTIAL_SUCCESS);
