@@ -1409,7 +1409,7 @@ function find_object(obj, wt, speed) {
 							obj_desc = b
 							if ( obj_desc.get_topspeed() == speed ) { break }
 						} else {
-							if ( obj_desc.get_topspeed() > speed ) { break }
+							if ( obj_desc.get_topspeed() >= speed ) { break }
 							obj_desc = b
 							//gui.add_message_at(our_player, i + " break obj_desc " + obj_desc.get_name(), world.get_time())
 							break
