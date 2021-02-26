@@ -390,21 +390,27 @@ class industry_manager_t extends manager_t
 			local way_speed = 500
 			local upgrade_tiles = 0
 			for ( local i = 0; i < nexttile.len(); i++ ) {
-				local tile_way = tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z).find_object(mo_way)
-				if ( (tile_way.get_owner().nr == our_player_nr || tile_way.get_owner().nr == 1) ) {
+				local tile = tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z)
+				local tile_way = tile.find_object(mo_way)
+
+				if ( (tile_way.get_owner().nr == our_player_nr || tile_way.get_owner().nr == 1) && ( !tile.has_two_ways() && !tile.is_bridge() ) ) {
 					upgrade_tiles++
 					if ( tile_way.get_desc().get_topspeed() < way_speed ) {
 						way_speed = tile_way.get_desc().get_topspeed()
 					}
+						if ( tile_way.get_desc().get_topspeed() == 45 ) {
+							gui.add_message_at(our_player, way_speed + " way speed tile " + coord3d_to_string(tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z)), tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z))
+						}
 				}
 			}
 			// check double ways by rail
 			if ( cnv.get_waytype() == wt_rail && link.double_ways_build > 0 ) {
 				for ( local i = 0; i < nexttile_r.len(); i++ ) {
-					local tile_way = tile_x(nexttile_r[i].x, nexttile_r[i].y, nexttile_r[i].z).find_object(mo_way)
+					local tile = tile_x(nexttile_r[i].x, nexttile_r[i].y, nexttile_r[i].z)
+					local tile_way = tile.find_object(mo_way)
 					if ( tile_way.get_owner().nr == our_player_nr ) {
 						//upgrade_tiles++
-						if ( tile_way.get_desc().get_topspeed() < way_speed ) {
+						if ( tile_way.get_desc().get_topspeed() < way_speed && ( !tile.has_two_ways() && !tile.is_bridge() ) ) {
 							way_speed = tile_way.get_desc().get_topspeed()
 						}
 					}
