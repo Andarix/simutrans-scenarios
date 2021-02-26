@@ -271,7 +271,7 @@ class astar_route_finder extends astar
 		foreach (s in start)
 		{
 			local dist = estimate_distance(s)
-			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
+			add_to_open(ab_node(s, null, 1, dist+1, 0, 0), dist+1)
 		}
 
 		search()
@@ -458,7 +458,7 @@ class astar_builder extends astar
 		foreach (s in start)
 		{
 			local dist = estimate_distance(s)
-			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
+			add_to_open(ab_node(s, null, 1, dist+1, 0, 0), dist+1)
 		}
 
 		search()
