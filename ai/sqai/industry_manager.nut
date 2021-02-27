@@ -149,13 +149,6 @@ class industry_manager_t extends manager_t
 			return r_t(RT_SUCCESS);
 		}
 
-		// check all 10 years ( year xxx0 ) in april
-		local yt = world.get_time().year.tostring()
-  	if ( yt.slice(-1) == "0" && world.get_time().month == 3 ) {
-			//gui.add_message_at(our_player, "####### year check " + yt, world.get_time())
-			//::debug.pause()
-		}
-
 		return r_t(RT_PARTIAL_SUCCESS);
 	}
 
@@ -199,6 +192,49 @@ class industry_manager_t extends manager_t
 				link.lines.remove(index)
 			}
 		}
+
+		// check all 10 years ( year xxx0 )
+		local yt = world.get_time().year.tostring()
+		// Zeitfenster am Monatsanfang um Daueraufruf zu vermeiden im Monat
+		local mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 3500
+
+  	if ( yt.slice(-1) == "0" && world.get_time().month == 3 && mnt_ticks > world.get_time().ticks ) {
+			// in april
+			//gui.add_message_at(our_player, "####### year check " + yt, world.get_time())
+				check_pl_lines()
+			//::debug.pause()
+		}
+
+	}
+
+	/**
+	  *
+		*
+		*
+		*/
+	function check_pl_lines() {
+		local line_list = player_x(our_player.nr).get_line_list()
+
+		local line_ai_count = 0
+		foreach(link in link_list) {
+			foreach(index, line in link.lines) {
+				if ( line.get_owner().nr == our_player.nr ) {
+					line_ai_count++
+				}
+			}
+		}
+
+		//gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
+
+		if ( line_list.get_count() > line_ai_count ) {
+			//foreach(line in line_list) {
+				//gui.add_message_at(player_x(our_player.nr), "####### line check " + line.get_name(), world.get_time())
+
+			//}
+			gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### line check: not all listet in ai lines ", world.get_time())
+			gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
+		}
+
 	}
 
 	/**
@@ -750,7 +786,30 @@ class industry_manager_t extends manager_t
 				prototyper.min_speed = 1
 
 				prototyper.max_vehicles = get_max_convoi_length(wt)
-				prototyper.max_length = prototyper.max_vehicles * 8
+
+				local station_count = 0
+				if ( wt == wt_rail ) {
+					for ( local i = 0; i < 5; i++ ) {
+						if ( nexttile[i].find_object(mo_building) ) {
+							station_count++
+						}
+					}
+					prototyper.max_length = station_count
+					gui.add_message_at(our_player, "###---- check stations field : " + station_count, nexttile[0])
+					if ( station_count < 6 ) {
+						// check expand station
+						// built cnv to new length end expand station befor create cnv
+						for ( station_count; station_count < 6; station_count++ ) {
+							if ( nexttile[station_count-1].get_way_dirs(wt) != nexttile[station_count].get_way_dirs(wt) && nexttile[nexttile.len()-station_count-2].get_way_dirs(wt) != nexttile[nexttile.len()-station_count-1].get_way_dirs(wt) ) {
+								break
+							}
+						}
+						gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
+					}
+//					prototyper.max_length = station_count
+				} else {
+					prototyper.max_length = prototyper.max_vehicles * 8
+				}
 
 				local cnv_valuator = valuator_simple_t()
 				cnv_valuator.wt = wt
