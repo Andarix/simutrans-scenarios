@@ -200,7 +200,8 @@ class road_connector_t extends manager_t
 						err = command_x.build_road(pl, starts_field, c_depot, planned_way, false, true)
 						//err = construct_road(our_player, station_to_depot, c_depot, planned_way)
 					} else {
-						local i = c_route.len() - 5
+						local i = c_route.len()-1
+						if ( i > 4 ) { i -= 4 }
 						local err = construct_road_to_depot(pl, c_route[i], planned_way) //c_start
 						if (err) {
 							print("Failed to build depot access from " + coord_to_string(c_start))
