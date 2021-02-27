@@ -21,6 +21,7 @@ class industry_link_t
 	destroy_line_month	= null // test month save
 	line_way_speed			= 0 // save way speed for line
 	build_line					= 0 // create line
+	next_vehicle_check  = 0 // save ticks for next vehicle check
 
 	// next check needed if ticks > next_check
 	// state == st_missing: check availability again
@@ -243,7 +244,7 @@ class industry_manager_t extends manager_t
 			cnv_max_speed = a
 			local cnv_retired = []
 
-			// check cnv is retired
+			// check cnv is retired first cnv
 			if ( list[0].has_obsolete_vehicles() && !list[0].is_withdrawn() ) {
 				//gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
 				cnv_retired.append(list[0])
@@ -258,7 +259,7 @@ class industry_manager_t extends manager_t
 				} else if ( a < s ) {
 					cnv_max_speed = s
 				}
-				// check cnv is retired
+				// check cnv is retired all cnv
 				if ( list[i].has_obsolete_vehicles() && !list[i].is_withdrawn() ) {
 					gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
 					cnv_retired.append(list[i])
@@ -351,7 +352,7 @@ class industry_manager_t extends manager_t
 				gui.add_message_at(our_player, " ### no route found: " + result.err, start)
 				gui.add_message_at(our_player, " ### line: " + line.get_name(), world.get_time())
 				gui.add_message_at(our_player, " ### start: " + coord3d_to_string(start) + " ### end: " + coord_to_string(end), start)
-				return nexttile
+				return //nexttile
 			}
 			else {
 				//gui.add_message_at(our_player, " ### route found: length =  " +  result.routes.len(), start)
@@ -730,7 +731,7 @@ class industry_manager_t extends manager_t
 
 			cnv_count = link.double_ways_count + 1
 
-			if (gain_per_m > 0) {
+			if (gain_per_m > 0 && link.next_vehicle_check < world.get_time().ticks ) {
 				// directly append
 				// TODO put into report
 				local proto = cnv_proto_t.from_convoy(cnv, lf)
@@ -828,11 +829,15 @@ class industry_manager_t extends manager_t
 
 				local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
 				gui.add_message_at(our_player, msgtext, world.get_time())
+
+				// save ticks for next check
+				link.next_vehicle_check = world.get_time().next_month_ticks
+
 				return true
 			}
 		}
 
-		if (!freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped) {
+		if (!freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped && link.next_vehicle_check < world.get_time().ticks ) {
 			// freight, lots of empty and of stopped vehicles
 			// -> something is blocked, maybe we block our own supply?
 			// delete one convoy
@@ -846,6 +851,9 @@ class industry_manager_t extends manager_t
 
 				local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
 				gui.add_message_at(our_player, msgtext, world.get_time())
+
+				// save ticks for next check
+				link.next_vehicle_check = world.get_time().next_month_ticks
 
 			}
 		}
