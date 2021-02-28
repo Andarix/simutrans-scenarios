@@ -787,6 +787,7 @@ class industry_manager_t extends manager_t
 
 				prototyper.max_vehicles = get_max_convoi_length(wt)
 
+				local expand_station = []
 				local station_count = 0
 				if ( wt == wt_rail ) {
 					for ( local i = 0; i < 5; i++ ) {
@@ -794,19 +795,27 @@ class industry_manager_t extends manager_t
 							station_count++
 						}
 					}
-					prototyper.max_length = station_count
+					//prototyper.max_length = station_count
 					gui.add_message_at(our_player, "###---- check stations field : " + station_count, nexttile[0])
 					if ( station_count < 6 ) {
 						// check expand station
 						// built cnv to new length end expand station befor create cnv
 						for ( station_count; station_count < 6; station_count++ ) {
-							if ( nexttile[station_count-1].get_way_dirs(wt) != nexttile[station_count].get_way_dirs(wt) && nexttile[nexttile.len()-station_count-2].get_way_dirs(wt) != nexttile[nexttile.len()-station_count-1].get_way_dirs(wt) ) {
+							//gui.add_message_at(our_player, "###---- nexttile[station_count-1] : " + coord3d_to_string(nexttile[station_count-1]) + " - " + nexttile[station_count-1].get_way_dirs(wt), nexttile[0])
+							//gui.add_message_at(our_player, "###---- nexttile[station_count] : " + coord3d_to_string(nexttile[station_count]) + " - " + nexttile[station_count].get_way_dirs(wt), nexttile[0])
+							//gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-2] : " + coord3d_to_string(nexttile[nexttile.len()-station_count-1]) + " - " + nexttile[nexttile.len()-station_count-1].get_way_dirs(wt), nexttile[0])
+							//gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-1] : " + coord3d_to_string(nexttile[nexttile.len()-station_count]) + " - " + nexttile[nexttile.len()-station_count].get_way_dirs(wt), nexttile[0])
+							if ( nexttile[station_count-1].get_way_dirs(wt) != nexttile[station_count].get_way_dirs(wt) || nexttile[nexttile.len()-station_count-1].get_way_dirs(wt) != nexttile[nexttile.len()-station_count].get_way_dirs(wt) ) {
+								//station_count--
 								break
+							} else {
+								expand_station.append(nexttile[station_count])
+								expand_station.append(nexttile[nexttile.len()-station_count])
 							}
 						}
 						gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
 					}
-//					prototyper.max_length = station_count
+					prototyper.max_length = station_count
 				} else {
 					prototyper.max_length = prototyper.max_vehicles * 8
 				}
@@ -873,6 +882,7 @@ class industry_manager_t extends manager_t
 					return false
 				}
 
+
 				local c = vehicle_constructor_t()
 
 				c.p_depot  = depot_x(depot.x, depot.y, depot.z)
@@ -884,6 +894,25 @@ class industry_manager_t extends manager_t
 				if ( print_message_box == 1 ) {
 					gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
 					gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
+				}
+
+				if ( wt == wt_rail && expand_station.len() > 0 ) {
+					// expand station
+					local k = c.get_tile_length()
+					local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
+
+					if ( k == 4 && expand_station.len() == 4 ) {
+						// expand station to 4 tiles
+						for ( local i = 0; i < 2; i++ ) {
+							command_x.build_station(our_player, expand_station[i], station_list[0])
+						}
+					} else if ( k == 5 && expand_station.len() > 2 ) {
+						// expand station to 5 tiles
+						for ( local i = 0; i < expand_station.len(); i++ ) {
+							command_x.build_station(our_player, expand_station[i], station_list[0])
+						}
+					}
+
 				}
 
 				local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
