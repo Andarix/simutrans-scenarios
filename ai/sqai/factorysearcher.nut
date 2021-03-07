@@ -630,7 +630,7 @@ function check_factory_link_line(f_src, f_dest, t_good) {
 		}
 	}
 
-	gui.add_message_at(our_player, " return " + o, world.get_time())
+	//gui.add_message_at(our_player, "check_factory_link_line() return " + o, world.get_time())
 	return o
 
 
