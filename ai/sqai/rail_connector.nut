@@ -139,7 +139,7 @@ class rail_connector_t extends manager_t
 											}
 										}
 
-										if ( a > 0 ) {
+										if ( a == 0 ) {
 											// remove start by not exists stations
 											tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
 										}
