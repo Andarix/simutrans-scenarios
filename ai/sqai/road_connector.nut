@@ -44,11 +44,12 @@ class road_connector_t extends manager_t
 		local fd = fdest.get_tile_list()
 
 		if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
-			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
+			//gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
 			return r_t(RT_TOTAL_FAIL) //
 		} else {
-			gui.add_message_at(pl, "check line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") " + freight, world.get_time())
-			if ( !check_factory_link_line(fsrc, fdest, freight) ) {
+			//gui.add_message_at(pl, "check line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") " + freight, world.get_time())
+			local st_dock = search_station(c_start, wt_water, 1)
+			if ( !check_factory_link_line(fsrc, fdest, freight) && !st_dock ) {
 				return r_t(RT_TOTAL_FAIL)
 			}
 		}
@@ -120,6 +121,10 @@ class road_connector_t extends manager_t
 					if ( (cash-build_cost) < (cost_monthly*4) ) {
 						//gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
 						return error_handler()
+					}
+
+					if ( !planned_way.is_available(world.get_time()) ) {
+						planned_way = find_object("way", wt_road, planned_way.get_topspeed())
 					}
 
 					local err = construct_road(pl, c_start, c_end, planned_way )
