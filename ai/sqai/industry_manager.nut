@@ -297,7 +297,7 @@ class industry_manager_t extends manager_t
 				}
 				// check cnv is retired all cnv
 				if ( list[i].has_obsolete_vehicles() && !list[i].is_withdrawn() ) {
-					gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
+					//gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
 					cnv_retired.append(list[i])
 				}
 			}
@@ -319,6 +319,10 @@ class industry_manager_t extends manager_t
 					return
 
 				}
+			} else if ( cnv_count == cnv_retired.len() ) {
+				// all cnv retired
+				upgrade_link_line(link, line)
+				return
 			}
 
 			if ( cnv_retired.len() > 0 && cnv_retired.len() < cnv_count ) {
@@ -797,10 +801,10 @@ class industry_manager_t extends manager_t
 					}
 					//prototyper.max_length = station_count
 					gui.add_message_at(our_player, "###---- check stations field : " + station_count, nexttile[0])
-					if ( station_count < 6 ) {
+					if ( station_count < 5 ) {
 						// check expand station
 						// built cnv to new length end expand station befor create cnv
-						for ( station_count; station_count < 6; station_count++ ) {
+						for ( station_count; station_count < 5; station_count++ ) {
 							//gui.add_message_at(our_player, "###---- nexttile[station_count-1] : " + coord3d_to_string(nexttile[station_count-1]) + " - " + nexttile[station_count-1].get_way_dirs(wt), nexttile[0])
 							//gui.add_message_at(our_player, "###---- nexttile[station_count] : " + coord3d_to_string(nexttile[station_count]) + " - " + nexttile[station_count].get_way_dirs(wt), nexttile[0])
 							//gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-2] : " + coord3d_to_string(nexttile[nexttile.len()-station_count-1]) + " - " + nexttile[nexttile.len()-station_count-1].get_way_dirs(wt), nexttile[0])
@@ -897,16 +901,24 @@ class industry_manager_t extends manager_t
 				}
 
 				if ( wt == wt_rail && expand_station.len() > 0 ) {
+					// tiles for convoy
+					local a = c.p_convoy.length
+					local st_lenght = 0
+						do {
+							a -= 16
+							st_lenght += 1
+						} while(a > 0)
+
 					// expand station
-					local k = c.get_tile_length()
+					//local k = c.p_convoy.get_tile_length()
 					local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
 
-					if ( k == 4 && expand_station.len() == 4 ) {
+					if ( st_lenght == 4 && expand_station.len() == 4 ) {
 						// expand station to 4 tiles
 						for ( local i = 0; i < 2; i++ ) {
 							command_x.build_station(our_player, expand_station[i], station_list[0])
 						}
-					} else if ( k == 5 && expand_station.len() > 2 ) {
+					} else if ( st_lenght == 5 && expand_station.len() > 2 ) {
 						// expand station to 5 tiles
 						for ( local i = 0; i < expand_station.len(); i++ ) {
 							command_x.build_station(our_player, expand_station[i], station_list[0])
@@ -1050,6 +1062,7 @@ class industry_manager_t extends manager_t
 		}
 		c.p_withdraw = true
 		append_child(c)
+
 		return true
 	}
 
