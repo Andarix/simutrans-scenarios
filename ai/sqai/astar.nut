@@ -492,7 +492,7 @@ class astar_builder extends astar
 						if ( build_route == 1 ) {
 							err = command_x.build_road(our_player, route[i-1], route[i], way, true, true)
 							if (err) {
-								gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+								//gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 								remove_wayline(route, (i - 1), way.get_waytype())
 							}
 
@@ -506,7 +506,7 @@ class astar_builder extends astar
 								err = command_x.build_way(our_player, route[i-1], route[i], way, false)
 							}
 							if (err) {
-								gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+								//gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 								// remove way
 								// route[0] to route[i]
 								//err = command_x.remove_way(our_player, route[0], route[i])
@@ -554,7 +554,7 @@ class astar_builder extends astar
 						if ( build_bridge ) {
 							err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
 							if (err) {
-								gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+								//gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 								remove_wayline(route, (i - 1), way.get_waytype())
 							}
 						}
@@ -822,9 +822,9 @@ function remove_wayline(route, pos, wt, st_len = null) {
 	}
 
 	if ( test == 0 ) {
-		gui.add_message_at(our_player, "removed way from " + coord_to_string(route[pos]) + " to " + coord_to_string(route[0]), route[0])
+		//gui.add_message_at(our_player, "removed way from " + coord_to_string(route[pos]) + " to " + coord_to_string(route[0]), route[0])
 	} else {
-		gui.add_message_at(our_player, "removed way not all " + route_status, route[0])
+		//gui.add_message_at(our_player, "removed way not all " + route_status, route[0])
 		//optimize_way_line(new_route, wt)
 	}
 
@@ -890,7 +890,7 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 /**
  * function for check station lenght
  *
- * pl = player
+ * pl 						= player
  * starts_field 	= tile station from plan_simple_connection
  * st_lenght 			= stations fields count
  * wt 						= waytype
@@ -939,6 +939,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 				local b1_tile = tile_x(starts_field.x + step * dc.x, starts_field.y + step * dc.y, starts_field.z)
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
+					gui.add_message_at(pl, " ---=> dir.double(d) : " + dir.double(d), world.get_time())
 				}
 
 				if ( test_field(pl, b1_tile, wt, dir.double(d), starts_field.z) && b_tile.len() < st_lenght ) {
@@ -984,11 +985,12 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 		if ( st_build == false ) {
 			// move station
-			if ( print_message_box == 2 ) {
+			if ( print_message_box == 0 ) {
 				gui.add_message_at(pl, " *#* ERROR => expand station failed", world.get_time())
 				gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
 				gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time())
 			}
+			::debug.pause()
 		}
 
 		return st_build
@@ -1024,13 +1026,13 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 			}
 			return true
 		}
-	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.get_slope() == 0 && !t_tile.is_bridge() ) {
+	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && dir.double(t_tile.get_way_dirs(wt)) == rotate && t_tile.get_slope() == 0 && !t_tile.is_bridge() ) {
 		// tile has single way and is flat - no bridge ramp
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " ---=> tile has single way and is flat ", world.get_time())
 		}
 		return true
-	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && t_tile.get_way_dirs(wt) == rotate && t_tile.get_slope() > 0 && t_tile.is_bridge() ) {
+	} else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && dir.double(t_tile.get_way_dirs(wt)) == rotate && t_tile.get_slope() > 0 && t_tile.is_bridge() ) {
 		// tile has single way and has bridge start
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " ---=> tile has single way and is bridge ", world.get_time())
@@ -1519,6 +1521,8 @@ function search_depot(field_pos, wt, range = 10) {
  *
  */
 function search_station(field_pos, wt, range) {
+
+		if ( field_pos == null || type(field_pos) == "array" ) { return false }
 
 		local tile_min = [field_pos.x - range, field_pos.y - range]
 		local tile_max = [field_pos.x + range, field_pos.y + range]
