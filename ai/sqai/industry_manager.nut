@@ -809,7 +809,10 @@ class industry_manager_t extends manager_t
 							//gui.add_message_at(our_player, "###---- nexttile[station_count] : " + coord3d_to_string(nexttile[station_count]) + " - " + nexttile[station_count].get_way_dirs(wt), nexttile[0])
 							//gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-2] : " + coord3d_to_string(nexttile[nexttile.len()-station_count-1]) + " - " + nexttile[nexttile.len()-station_count-1].get_way_dirs(wt), nexttile[0])
 							//gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-1] : " + coord3d_to_string(nexttile[nexttile.len()-station_count]) + " - " + nexttile[nexttile.len()-station_count].get_way_dirs(wt), nexttile[0])
-							if ( nexttile[station_count-1].get_way_dirs(wt) != nexttile[station_count].get_way_dirs(wt) || nexttile[nexttile.len()-station_count-1].get_way_dirs(wt) != nexttile[nexttile.len()-station_count].get_way_dirs(wt) ) {
+							if ( nexttile[station_count-1].get_way_dirs(wt) != nexttile[station_count].get_way_dirs(wt) ||
+									nexttile[nexttile.len()-station_count-1].get_way_dirs(wt) != nexttile[nexttile.len()-station_count].get_way_dirs(wt) ||
+									(nexttile[station_count].is_bridge() && nexttile[station_count].z == square_x(nexttile[station_count].x, nexttile[station_count].y).get_ground_tile().z) ||
+									(nexttile[nexttile.len()-station_count-1].is_bridge() && nexttile[nexttile.len()-station_count-1].z == square_x(nexttile[station_count].x, nexttile[nexttile.len()-station_count-1].y).get_ground_tile().z) ) {
 								//station_count--
 								break
 							} else {
