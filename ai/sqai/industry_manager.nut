@@ -801,10 +801,10 @@ class industry_manager_t extends manager_t
 					}
 					//prototyper.max_length = station_count
 					gui.add_message_at(our_player, "###---- check stations field : " + station_count, nexttile[0])
-					if ( station_count < 5 ) {
+					if ( station_count < 6 ) {
 						// check expand station
 						// built cnv to new length end expand station befor create cnv
-						for ( station_count; station_count < 5; station_count++ ) {
+						for ( station_count; station_count < 6; station_count++ ) {
 							//gui.add_message_at(our_player, "###---- nexttile[station_count-1] : " + coord3d_to_string(nexttile[station_count-1]) + " - " + nexttile[station_count-1].get_way_dirs(wt), nexttile[0])
 							//gui.add_message_at(our_player, "###---- nexttile[station_count] : " + coord3d_to_string(nexttile[station_count]) + " - " + nexttile[station_count].get_way_dirs(wt), nexttile[0])
 							//gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-2] : " + coord3d_to_string(nexttile[nexttile.len()-station_count-1]) + " - " + nexttile[nexttile.len()-station_count-1].get_way_dirs(wt), nexttile[0])
@@ -869,7 +869,7 @@ class industry_manager_t extends manager_t
 
 				for (local i=0; i<stations_list.len(); i++) {
 					local c = tile_x(stations_list[i].x, stations_list[i].y, stations_list[i].z)
-					depot = search_depot(c, wt)
+					depot = search_depot(c, wt, (10+station_count))
 					if ( depot != null && depot != false ) {
 						if ( print_message_box == 1 ) {
 							gui.add_message_at(our_player, "####--> station " + coord_to_string(c), c)
@@ -883,6 +883,8 @@ class industry_manager_t extends manager_t
 
 				}
 				if ( depot == null || depot == false ) {
+					//depot = cnv.get_home_depot()
+					gui.add_message_at(our_player, "##-ERROR-##--> not depot found", world.get_time())
 					return false
 				}
 
