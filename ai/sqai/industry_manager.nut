@@ -264,7 +264,7 @@ class industry_manager_t extends manager_t
 			if (cnv_count == 0) {
 				// 0 convoy destroy line
 				if ( line.get_owner().nr == our_player.nr ) {
-					destroy_line(line)
+					destroy_line(line, link.freight)
 					sleep()
 				}
 				return
@@ -355,7 +355,7 @@ class industry_manager_t extends manager_t
 			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
 			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
 				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_distance_traveled_total() < 25 && cnv.get_loading_level() == 0 && link.destroy_line_month != world.get_time().month ) {
-					local erreg = destroy_line(line)
+					local erreg = destroy_line(line, link.freight)
 					if ( erreg == false ) {
 						link.destroy_line_month = world.get_time().month
 					}
@@ -534,7 +534,7 @@ class industry_manager_t extends manager_t
 		// capacity of convoy
 		local capacity = 0
 		{
- 			local lf = link.freight
+ 			//local lf = link.freight
 			foreach(v in cnv.get_vehicles()) {
 				local f = v.get_freight()
 				if (lf.is_interchangeable(f)) {

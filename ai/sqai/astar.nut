@@ -3101,7 +3101,7 @@ function optimize_way_line(route, wt) {
  *	- destroy depot by rail/ship
  *	- destroy way line
  */
-function destroy_line(line_obj) {
+function destroy_line(line_obj, good) {
 
 	::debug.set_pause_on_error(true)
 
@@ -3151,6 +3151,55 @@ function destroy_line(line_obj) {
 	local combined_s = test_halt_waytypes(start_l)
 	local combined_e = test_halt_waytypes(end_l)
 
+	start_line_count = start_h.get_line_list().get_count()
+	end_line_count = end_h.get_line_list().get_count()
+
+		local start_f = null
+		local end_f = null
+		//if ( wt != wt_water ) {
+		start_f = start_h.get_factory_list()
+		end_f = end_h.get_factory_list()
+		//}
+		if ( start_f.len() > 0 ) {
+			gui.add_message_at(our_player, " factory start " + start_f[0].get_name(), world.get_time())
+		} else {
+			gui.add_message_at(our_player, " not connect factory start ", world.get_time())
+		}
+		if ( end_f.len() > 0 ) {
+			gui.add_message_at(our_player, " factory end " + end_f[0].get_name(), world.get_time())
+		} else {
+			gui.add_message_at(our_player, " not connect factory end ", world.get_time())
+		}
+
+		// check links
+		if ( check_factory_links(start_f[0], end_f[0], good.get_name()) == 1 ) {
+
+			local good_list_in = [];
+			local g_count_in = 0
+			foreach(good, islot in start_f[0].input) {
+
+				// test for in-storage or in-transit goods
+				local st = islot.get_storage()
+				local it = islot.get_in_transit()
+				//gui.add_message_at(our_player, "### " + fab.get_name() + " ## " + good + " ## get_storage() " + st[0] + " get_in_transit() " + it[0], world.get_time())
+				if (st[0] + st[1] + it[0] + it[1] > 0) {
+					// something stored/in-transit in last and current month
+					// no need to search for more supply
+					good_list_in.append({ g = good, t = 1 })
+					g_count_in++
+				} else {
+					good_list_in.append({ g = good, t = 0 })
+				}
+			}
+
+			if (good_list_in.len() == g_count_in ) {
+				gui.add_message_at(our_player, "### last line connect factorys - stored/in-transit all goods > 0 factory start", world.get_time())
+				// something stored/in-transit in last and current month
+				// no need to search for more supply
+				return false
+			}
+		}
+
 	foreach(cnv in cnv_list) {
 		depot = tile_x(cnv.get_home_depot().x, cnv.get_home_depot().y, cnv.get_home_depot().z)
 		// mark convoy for destroying
@@ -3180,25 +3229,6 @@ function destroy_line(line_obj) {
 
 	sleep()
 
-	start_line_count = start_h.get_line_list().get_count()
-	end_line_count = end_h.get_line_list().get_count()
-
-		local start_f = null
-		local end_f = null
-		//if ( wt != wt_water ) {
-		start_f = start_h.get_factory_list()
-		end_f = end_h.get_factory_list()
-		//}
-		if ( start_f.len() > 0 ) {
-			gui.add_message_at(our_player, " factory start " + start_f[0].get_name(), world.get_time())
-		} else {
-			gui.add_message_at(our_player, " not connect factory start ", world.get_time())
-		}
-		if ( end_f.len() > 0 ) {
-			gui.add_message_at(our_player, " factory end " + end_f[0].get_name(), world.get_time())
-		} else {
-			gui.add_message_at(our_player, " not connect factory end ", world.get_time())
-		}
 
 	gui.add_message_at(our_player, " combined station s waytypes = " + combined_s, start_l)
 	gui.add_message_at(our_player, " combined station e waytypes = " + combined_e, end_l)
