@@ -268,19 +268,69 @@ class industry_manager_t extends manager_t
 				local freight = ""
 				if ( f_src.len() == 1 && f_dest.len() == 1 ) {
 					// list output goods
-					local good_list_out = [];
+					local good_list_out = []
 					foreach(good, islot in f_src[0].output) {
 						good_list_out.append(good)
 					}
 					if ( good_list_out.len() == 1 ) {
+						// one good output
 						freight = good_list_out[0]
-					}
-				}
+					} else {
+						// more output goods - check good to f_dest
+						local good_list_in = []
+						foreach(good, islot in f_dest[0].input) {
+							good_list_in.append(good)
+						}
+						// todo more goods check
 
+					}
+
+				} else if ( f_src.len() == 0 || f_dest.len() == 0 ) {
+					// combined line
+					if ( f_src.len() == 0 && f_dest.len() == 1 ) {
+						local connect_lines = st_names[0].get_halt(our_player).get_line_list()
+						local cline_list = []
+						foreach(line in connect_lines) {
+							if ( line.get_name() != line_name ) {
+								cline_list.append(line)
+							}
+						}
+						if ( cline_list.len() == 1 ) {
+							local cline_st_names = cline_list[0].get_schedule().entries
+							f_src	= cline_st_names[0].get_halt(our_player).get_factory_list()
+							if ( f_src.len() == 1 ) {
+								local good_list_out = []
+								foreach(good, islot in f_src[0].output) {
+									good_list_out.append(good)
+								}
+								if ( good_list_out.len() == 1 ) {
+									// one good output
+									freight = good_list_out[0]
+								} else {
+									// more output goods - check good to f_dest
+									good_list_in.clear()
+									foreach(good, islot in f_dest[0].input) {
+										good_list_in.append(good)
+									}
+									// todo more goods check
+								}
+							}
+						}
+
+
+					}
+
+
+				}// todo check by more factorys
+
+				// rename standard line name '(x) Line'
 				if ( line_name.find(str_search) != null && freight != "" ) {
 					local new_name = translate(wt_name[ai_lines_missing[i].get_waytype()]) + " " + translate(freight) + " " + st_names[0].get_halt(our_player).get_name() + " - " + st_names[st_names.len()-1].get_halt(our_player).get_name()
 					ai_lines_missing[i].set_name(new_name)
+				}
 
+				if ( freight != "" ) {
+					//missing line add ai line list
 					industry_manager.set_link_state(f_src[0], f_dest[0], freight, industry_link_t.st_built)
 					industry_manager.access_link(f_src[0], f_dest[0], freight).append_line(ai_lines_missing[i])
 				}
