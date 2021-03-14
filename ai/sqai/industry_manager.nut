@@ -214,26 +214,89 @@ class industry_manager_t extends manager_t
 		*/
 	function check_pl_lines() {
 		local line_list = player_x(our_player.nr).get_line_list()
+/*
+		f_src = s
+		f_dest = d
+		freight = good_desc_x(f)
+*/
+
+		local pl_lines = []
 
 		local line_ai_count = 0
 		foreach(link in link_list) {
+			//gui.add_message_at(player_x(our_player.nr), " ####### link check: f_src " + link.f_src.get_name() + " f_dest " + link.f_dest.get_name() + " freight " + link.freight.get_name(), world.get_time())
+
 			foreach(index, line in link.lines) {
+				//gui.add_message_at(player_x(our_player.nr), "####### line check " + line.get_name(), world.get_time())
 				if ( line.get_owner().nr == our_player.nr ) {
 					line_ai_count++
+					pl_lines.append(line)
 				}
 			}
 		}
 
+		local ai_lines_missing = []
+		if ( pl_lines.len() > 0 ) {
+			foreach(line in line_list) {
+				local c = 0
+				for ( local i = 0; i < pl_lines.len(); i++ ) {
+					if ( line.get_name() == pl_lines[i].get_name() ) {
+						c = 1
+						break
+					}
+				}
+				if ( c == 0 ) {
+					ai_lines_missing.append(line)
+				}
+			}
+		}
+		//::debug.pause()
 		//gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
 
+		//
 		if ( line_list.get_count() > line_ai_count ) {
-			//foreach(line in line_list) {
-				//gui.add_message_at(player_x(our_player.nr), "####### line check " + line.get_name(), world.get_time())
+			for ( local i = 0; i < ai_lines_missing.len(); i++ ) {
+				// rename line
+				local line_name		= ai_lines_missing[i].get_name()
+				local str_search	= ") " + translate("Line")
+				local st_names		= ai_lines_missing[i].get_schedule().entries
+				local wt_name			= ["", "road", "Train", "Ship"]
 
-			//}
+     		local f_src		= st_names[0].get_halt(our_player).get_factory_list()
+     		local f_dest	= st_names[st_names.len()-1].get_halt(our_player).get_factory_list()
+
+				local freight = ""
+				if ( f_src.len() == 1 && f_dest.len() == 1 ) {
+					// list output goods
+					local good_list_out = [];
+					foreach(good, islot in f_src[0].output) {
+						good_list_out.append(good)
+					}
+					if ( good_list_out.len() == 1 ) {
+						freight = good_list_out[0]
+					}
+				}
+
+				if ( line_name.find(str_search) != null && freight != "" ) {
+					local new_name = translate(wt_name[ai_lines_missing[i].get_waytype()]) + " " + translate(freight) + " " + st_names[0].get_halt(our_player).get_name() + " - " + st_names[st_names.len()-1].get_halt(our_player).get_name()
+					ai_lines_missing[i].set_name(new_name)
+
+					industry_manager.set_link_state(f_src[0], f_dest[0], freight, industry_link_t.st_built)
+					industry_manager.access_link(f_src[0], f_dest[0], freight).append_line(ai_lines_missing[i])
+				}
+
+			}
+		}
+
+		if ( line_list.get_count() > line_ai_count ) {
 			gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### line check: not all listet in ai lines ", world.get_time())
 			gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
+			for ( local i = 0; i < ai_lines_missing.len(); i++ ) {
+				gui.add_message_at(player_x(our_player.nr), "####### line missing " + ai_lines_missing[i].get_name(), world.get_time())
+			}
 		}
+
+
 
 	}
 
