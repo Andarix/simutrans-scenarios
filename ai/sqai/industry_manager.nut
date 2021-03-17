@@ -308,7 +308,7 @@ class industry_manager_t extends manager_t
 									freight = good_list_out[0]
 								} else {
 									// more output goods - check good to f_dest
-									good_list_in.clear()
+									local good_list_in = []
 									foreach(good, islot in f_dest[0].input) {
 										good_list_in.append(good)
 									}
