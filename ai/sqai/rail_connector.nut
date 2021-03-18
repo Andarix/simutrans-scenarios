@@ -157,12 +157,21 @@ class rail_connector_t extends manager_t
 											//tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
 										}
 										// remove end
+										a = 0
 										for ( local i = 0; i < t_end.len(); i++ ) {
-											if ( !dir.is_threeway(tile_x(t_end[i].x, t_end[i].y, t_end[i].z).get_way_dirs(wt_rail)) ) {
-												remove_tile_to_empty(t_end[i], wt_rail, 0)
+											if ( tile_x(t_end[i].x, t_end[i].y, t_end[i].z).find_object(mo_building) == null ) {
+												a++
 											}
 										}
-										//tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
+
+										if ( a == 0 ) {
+											for ( local i = 0; i < t_end.len(); i++ ) {
+												if ( !dir.is_threeway(tile_x(t_end[i].x, t_end[i].y, t_end[i].z).get_way_dirs(wt_rail)) ) {
+													remove_tile_to_empty(t_end[i], wt_rail, 0)
+												}
+											}
+											//tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
+										}
 										return error_handler()
 									}
 								} else {
