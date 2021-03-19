@@ -159,7 +159,7 @@ class rail_connector_t extends manager_t
 										// remove end
 										a = 0
 										for ( local i = 0; i < t_end.len(); i++ ) {
-											if ( tile_x(t_end[i].x, t_end[i].y, t_end[i].z).find_object(mo_building) == null ) {
+											if ( tile_x(t_end[i].x, t_end[i].y, t_end[i].z).find_object(mo_building) != null ) {
 												a++
 											}
 										}
