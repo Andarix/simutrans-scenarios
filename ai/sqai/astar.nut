@@ -1003,8 +1003,10 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
  * wt					= waytype
  * rotate			= northsouth ( 5 ) or eastwest ( 10 )
  * ref_hight	= z from start field
+ * way_exists	= 0 -> field expand new station
+ *							1 -> field has way for expand exists station
  */
-function test_field(pl, t_tile, wt, rotate, ref_hight) {
+function test_field(pl, t_tile, wt, rotate, ref_hight, way_exists = 0) {
 
 	local print_message_box = 0
 	local err = null
@@ -1018,7 +1020,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 	// find z coord
 	z = square_x(t_tile.x, t_tile.y).get_ground_tile()
 
-	if ( t_tile.is_empty() && t_tile.get_slope() == 0 && ref_hight == z.z ) {
+	if ( t_tile.is_empty() && t_tile.get_slope() == 0 && ref_hight == z.z && way_exists == 0 ) {
 		// tile is empty and is flat
 		if ( t_tile.is_ground() ) {
 			if ( print_message_box == 2 ) {
@@ -1038,7 +1040,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight) {
 			gui.add_message_at(pl, " ---=> tile has single way and is bridge ", world.get_time())
 		}
 		return true
-	} else if ( t_tile.is_empty() && ( t_tile.get_slope() > 0 || ref_hight != z.z ) ) {
+	} else if ( t_tile.is_empty() && ( t_tile.get_slope() > 0 || ref_hight != z.z ) && way_exists == 0 ) {
 		// terraform
 		// return true and terraform befor build station
 		return true
