@@ -435,7 +435,7 @@ class industry_manager_t extends manager_t
 					}
 				}
 				if ( k > 0 ) {
-					local msgtext = format(translate("vehicles of the line %s were retired"), k, line.get_name())
+					local msgtext = format(translate("vehicles of the line %s were retired"), line.get_name())
 					gui.add_message_at(our_player, msgtext, world.get_time())
 
 					return
@@ -957,8 +957,9 @@ class industry_manager_t extends manager_t
 					prototyper.max_length = prototyper.max_vehicles * 8
 				}
 
-				if ( wt == wt_road ) {
-					check_good_quantity(start_l, end_l, lf, line)
+				if ( wt == wt_road && check_good_quantity(start_l, end_l, lf, line) ) {
+					link.next_vehicle_check = world.get_time().next_month_ticks
+					return true
 				}
 
 				local cnv_valuator = valuator_simple_t()
@@ -1284,12 +1285,12 @@ function check_good_quantity(start_l, end_l, good, line) {
 				local good_src = start_l.get_halt().get_freight_to_halt(good, end_l.get_halt())
 				local max_storage = islot.max_storage
 
-				gui.add_message_at(our_player, "*** good halt src " + good_src + " " + line.get_name(), world.get_time())
-				gui.add_message_at(our_player, "*** islot.good " + translate(islot.good) + " factory " + f_dest[0].get_name() + " input storage [" + max_storage + "]", world.get_time())
+				//gui.add_message_at(our_player, "*** good halt src " + good_src + " " + line.get_name(), world.get_time())
+				//gui.add_message_at(our_player, "*** islot.good " + translate(islot.good) + " factory " + f_dest[0].get_name() + " input storage [" + max_storage + "]", world.get_time())
 
 				if (st[0] + it[0] > max_storage) {
 					gui.add_message_at(our_player, "*** good quantity [" + (st[0] + it[0]) + "] > factory " + f_dest[0].get_name() + " input storage [" + max_storage + "] " + line.get_name(), world.get_time())
-					return false
+					return true
 
 				}
 			}
@@ -1298,5 +1299,5 @@ function check_good_quantity(start_l, end_l, good, line) {
 
 	}
 
-
+	return false
 }
