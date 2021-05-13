@@ -3174,7 +3174,7 @@ function destroy_line(line_obj, good) {
 		}
 
 		// check links
-		if ( check_factory_links(start_f[0], end_f[0], good.get_name()) == 1 ) {
+		if ( combined_s == 0 && combined_e == 0 && check_factory_links(start_f[0], end_f[0], good.get_name()) == 1 ) {
 
 			local good_list_in = [];
 			local g_count_in = 0
@@ -3211,6 +3211,10 @@ function destroy_line(line_obj, good) {
 		}
 		if ( wt != wt_water && combined_s > 1 && start_line_count > 1 ) {
 			gui.add_message_at(our_player, "return start combined station, more lines ", world.get_time())
+			return false
+		}
+		if ( wt == wt_water && combined_e > 1 && end_line_count > 1 ) {
+			gui.add_message_at(our_player, "return end combined station, more lines ", world.get_time())
 			return false
 		}
 		cnv.destroy(our_player)
