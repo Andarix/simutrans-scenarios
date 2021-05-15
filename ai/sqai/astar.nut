@@ -697,10 +697,13 @@ function remove_field(pos)
  */
 function remove_wayline(route, pos, wt, st_len = null) {
 	local tool = command_x(tool_remover)
+	local toolr = command_x(tool_remove_way)
 	//while(tile.find_object(mo_field)) {
 	//	tool.work(our_player, pos)
 	//}
 	local l = 0
+
+	::debug.set_pause_on_error(true)
 
 	local new_route_s = null
 	local new_route_e = null
@@ -719,9 +722,12 @@ function remove_wayline(route, pos, wt, st_len = null) {
 		if ( t_field != null && t_field.get_waytype() == wt ) {
 			// test direction next tile
 			// break by direction 7, 11, 13, 14, 15
+
 			if ( i > 0 ) {
 				if (dir.is_threeway(next_tile.get_way_dirs(wt))  ||  t_field.get_owner().nr == 1) {
 					test = 1
+					//gui.add_message_at(our_player, "dir.is_threeway(next_tile.get_way_dirs(wt) " + dir.is_threeway(next_tile.get_way_dirs(wt)), next_tile)
+					//::debug.pause()
 				}
 			}
 
@@ -740,26 +746,33 @@ function remove_wayline(route, pos, wt, st_len = null) {
 						// break public way ( road )
 						test = 1
 					}
-			} else {
+			} else { // if ( test == 0 ) {
 				// remove way from tile
 				tool.work(our_player, tile)
 			}
+		/*} else if ( wt == wt_rail && dir.is_threeway(tile.get_way_dirs(wt)) ) {
+			gui.add_message_at(our_player, "dir.is_threeway(next_tile.get_way_dirs(wt) " + dir.is_threeway(next_tile.get_way_dirs(wt)), next_tile)
+			test = 1
+			*/
+			// no remove tile
 		} else if ( tile.find_object(mo_crossing) != null ) {
 			// test crossing and remove
-			local tool = command_x(tool_remove_way)
-			tool.work(our_player, tile, tile, "" + wt_rail)
+			toolr.work(our_player, tile, tile, "" + wt_rail)
 			//tool.work(our_player, tile)
 		}
 		// break by direction 7, 11, 13, 14, 15 or owner public player next tile
 		if ( test == 1 ) {
-			new_route_s = i
+			//::debug.pause()
+			new_route_s = i - 1
+			i--
 			break
 		}
 	}
 
 	if ( test == 1 ) {
-		test = 0
+		//test = 0
 		for ( local j = 0; j < i; j++ ) {
+			test = 1
 			local tile = square_x(route[j].x, route[j].y).get_ground_tile()
 			local next_tile = null
 			if ( j < i ) {
@@ -769,12 +782,12 @@ function remove_wayline(route, pos, wt, st_len = null) {
 			// test field has way
 			if ( t_field != null && t_field.get_waytype() == wt ) {
 				// test direction: if in  [7, 11, 13, 14, 15] then dir.is_threeway will find this
-				test = dir.is_threeway(next_tile.get_way_dirs(wt))
+				//test = dir.is_threeway(next_tile.get_way_dirs(wt))
 
 				if ( tile.find_object(mo_building) != null ) {
 					// no remove station
-					if ( j < 5 ) { continue }
-					test = 1
+					if ( j < 6 ) { continue }
+					test += 1
 				} else if ( wt == wt_road ) {
 					local test_way = tile.find_object(mo_way) //.get_desc()
 					//local tile_coord = coord3d_to_string(tile)
@@ -784,8 +797,12 @@ function remove_wayline(route, pos, wt, st_len = null) {
 						tool.work(our_player, tile)
 					} else {
 						// break public way ( road )
-						test = 1
+						test += 1
 					}
+				/*} else if ( wt == wt_rail && dir.is_threeway(tile.get_way_dirs(wt)) ) {
+					test += 1
+					::debug.pause()*/
+					// no remove tile
 				} else {
 					// remove way from tile
 					tool.work(our_player, tile)
@@ -793,14 +810,15 @@ function remove_wayline(route, pos, wt, st_len = null) {
 			}
 
 			if ( tile.find_object(mo_crossing) != null && wt == wt_rail ) {
+				//::debug.pause()
 				// test crossing and remove
-				local tool = command_x(tool_remove_way)
-				tool.work(our_player, tile, tile, "" + wt_rail)
+				toolr.work(our_player, tile, tile, "" + wt_rail)
 				//tool.work(our_player, tile)
 			}
 			// break by direction 7, 11, 13, 14, 15
-			if ( test == 1 ) {
-				new_route_e = j
+			if ( test >= 2 ) {
+				//::debug.pause()
+				new_route_e = j + 1
 				break
 			}
 		}
@@ -987,10 +1005,10 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 			// move station
 			if ( print_message_box == 0 ) {
 				gui.add_message_at(pl, " *#* ERROR => expand station failed", world.get_time())
-				gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), world.get_time())
+				gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), starts_field)
 				gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time())
 			}
-			::debug.pause()
+			//::debug.pause()
 		}
 
 		return st_build
