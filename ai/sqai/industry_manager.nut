@@ -977,8 +977,11 @@ class industry_manager_t extends manager_t
 				local entries = cnv.get_schedule().entries
 				dist = abs(entries[0].x - entries[1].x) + abs(entries[0].y - entries[1].y)
 
-				if (wt == wt_road && dist > 40) {
-					cnv_valuator.max_cnvs = dist - 20
+				if (wt == wt_road ) {
+					if ( dist <= 50) { cnv_valuator.max_cnvs = dist/3 }
+					else if ( dist > 50 && dist <= 250 ) { cnv_valuator.max_cnvs = dist/2 }
+					//else if ( dist > 250 ) { cnv_valuator.max_cnvs = dist - 50 }
+					gui.add_message_at(our_player, "### line : " + line.get_name() + " dist: " + dist + " cnv max: " + cnv_valuator.max_cnvs, world.get_time())
 				}
 
 				// add 10% from distance
@@ -1288,7 +1291,7 @@ function check_good_quantity(start_l, end_l, good, line) {
 				//gui.add_message_at(our_player, "*** good halt src " + good_src + " " + line.get_name(), world.get_time())
 				//gui.add_message_at(our_player, "*** islot.good " + translate(islot.good) + " factory " + f_dest[0].get_name() + " input storage [" + max_storage + "]", world.get_time())
 
-				if (st[0] + it[0] > max_storage && (max_storage/5) < st[0]) {
+				if ( (st[0] + it[0] > max_storage && (max_storage/5) < st[0]) || it[0] > max_storage ) {
 					gui.add_message_at(our_player, "*** good quantity [" + (st[0] + it[0]) + "] > factory " + f_dest[0].get_name() + " input storage [" + max_storage + "] " + line.get_name(), world.get_time())
 					return true
 
