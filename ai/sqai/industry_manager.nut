@@ -367,10 +367,32 @@ class industry_manager_t extends manager_t
 
 		dbgprint("Check line " + line.get_name())
 		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+
+
+		if ( line.get_owner().nr == our_player.nr ) {
+			// non profit in 5 months then destroy line //cnv.get_distance_traveled_total() > 3 &&
+			local profit_count = line.get_profit()
+			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
+			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
+				if ( link.destroy_line_month != world.get_time().month ) {//line.get_traveled_distance() > 1 && line.get_traveled_distance() < 25 && line.get_loading_level() == 0 &&
+					local erreg = destroy_line(line, link.freight)
+					if ( erreg == false ) {
+						link.destroy_line_month = world.get_time().month
+					}
+				} else {
+					//gui.add_message_at(our_player, "return cnv/line new " + line.get_name(), world.get_time())
+				}
+				return
+			}
+		}
+
+
 		// find convoy
 		local cnv = null
 		local cnv_count = 0
 		local cnv_max_speed = 0
+		local cnv_retired = []
+		local new_cnv_add_line = false
 		{
 			local list = line.get_convoy_list()
 			cnv_count = list.get_count()
@@ -391,7 +413,6 @@ class industry_manager_t extends manager_t
 			// check speed from convoys
 			local a = convoy_max_speed(list[0])
 			cnv_max_speed = a
-			local cnv_retired = []
 
 			// check cnv is retired first cnv
 			if ( list[0].has_obsolete_vehicles() && !list[0].is_withdrawn() ) {
@@ -400,7 +421,6 @@ class industry_manager_t extends manager_t
 			}
 
 			local veh_count_line = line.get_convoy_count()
-			local new_cnv_add_line = false
 			if ( veh_count_line[0] > veh_count_line[1] ) {
 				// not remove cnv from line by add cnv this month
 				new_cnv_add_line = true
@@ -443,7 +463,7 @@ class industry_manager_t extends manager_t
 				}
 			} else if ( cnv_count == cnv_retired.len() ) {
 				// all cnv retired
-				upgrade_link_line(link, line)
+				upgrade_link_line(link, line, cnv_max_speed)
 				return
 			}
 
@@ -466,30 +486,14 @@ class industry_manager_t extends manager_t
 			} else if ( cnv_retired.len() == 1 && cnv_retired.len() == cnv_count ) {
 				//gui.add_message_at(our_player, "*** cnv_upgrade = 1 -> line " + line.get_name(), world.get_time())
 				// create new convoy before retire retired convoy
-				upgrade_link_line(link, line)
+				upgrade_link_line(link, line, cnv_max_speed)
 				return
 			}
 		}
 
-		if ( line.get_owner().nr == our_player.nr ) {
-			// non profit in 5 months then destroy line //cnv.get_distance_traveled_total() > 3 &&
-			local profit_count = line.get_profit()
-			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
-			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
-				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_distance_traveled_total() < 25 && cnv.get_loading_level() == 0 && link.destroy_line_month != world.get_time().month ) {
-					local erreg = destroy_line(line, link.freight)
-					if ( erreg == false ) {
-						link.destroy_line_month = world.get_time().month
-					}
-				} else {
-					//gui.add_message_at(our_player, "return cnv/line new " + line.get_name(), world.get_time())
-				}
-				return
-			}
-		}
 
 		sleep()
-		if ( !cnv.is_valid() ) { return }
+		if ( cnv == null || !cnv.is_valid() ) { return }
 
 		// find route
 		local nexttile = []
@@ -1088,7 +1092,7 @@ class industry_manager_t extends manager_t
 			//gui.add_message_at(our_player, "####### cnv new this month ", world.get_time())
 		} //!new_cnv_add_line  &&
 */
-		if ( !freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped && link.next_vehicle_check < world.get_time().ticks ) {
+		if ( !freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped && link.next_vehicle_check < world.get_time().ticks && !new_cnv_add_line ) {
 			// freight, lots of empty and of stopped vehicles
 			// -> something is blocked, maybe we block our own supply?
 			// delete one convoy
@@ -1116,9 +1120,10 @@ class industry_manager_t extends manager_t
 	 * Upgrade: plan a new convoy type with the prototyper, then
 	 * sell existing convoys, create new ones.
 	 */
-	function upgrade_link_line(link, line)
+	function upgrade_link_line(link, line, cnv_speed)
 	{
 		gui.add_message_at(our_player, "### upgrade_link_line " + line.get_name(), world.get_time())
+		//gui.add_message_at(our_player, "### cnv_speed " + cnv_speed, world.get_time())
 		// find convoy
 		local cnv = null
 		{
@@ -1159,7 +1164,14 @@ class industry_manager_t extends manager_t
 
 		//local wt = wt
 		// TODO do something smarter
-		prototyper.min_speed  = 1
+		local proto_speed = cnv_speed - 25
+		if ( proto_speed >= 100 ) { proto_speed = 60 }
+		if ( proto_speed < 1 ) {
+			prototyper.min_speed = 1
+		} else {
+			prototyper.min_speed = proto_speed
+		}
+
 		prototyper.max_vehicles = get_max_convoi_length(wt)
 		prototyper.max_length = 1
 		if (wt == wt_water) {
@@ -1213,6 +1225,9 @@ class industry_manager_t extends manager_t
 		}
 		c.p_withdraw = true
 		append_child(c)
+
+		// save ticks for next check
+		link.next_vehicle_check = world.get_time().next_month_ticks
 
 		return true
 	}
