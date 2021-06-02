@@ -855,6 +855,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
  */
 function remove_tile_to_empty(tiles, wt, t_array = 1) {
 	local tool = command_x(tool_remover)
+	local toolr = command_x(tool_remove_way)
 
 	if ( t_array == 1 ) {
 		// remove array tiles
@@ -863,19 +864,28 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 
 			local tiles_r = square_x(tiles[i].x, tiles[i].y).get_ground_tile()
 			local test_way = tiles_r.find_object(mo_way) //.get_desc()
+			local crossing_tile = tiles_r.find_object(mo_crossing)
 			local tile_coord = coord3d_to_string(tiles_r)
 			if ( test_way != null ) {
-				if ( test_way.get_owner().nr != our_player_nr ) {
+				if ( test_way.get_owner().nr != our_player_nr && crossing_tile == null ) {
 					tile_remove = 0
 				}
 			}
 
 			if ( tile_remove == 1 ) {
 				//gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i]), tiles[i])
-				while(true){
-					tool.work(our_player, tiles_r)
-					if (tiles_r.is_empty())
-						break
+				if ( crossing_tile != null && wt == wt_rail ) {
+					//::debug.pause()
+					// test crossing and remove
+					toolr.work(our_player, tiles_r, tiles_r, "" + wt_rail)
+					//tool.work(our_player, tile)
+				} else {
+					while(true){
+						tool.work(our_player, tiles_r)
+						if (tiles_r.is_empty())
+							break
+					}
+				//}
 				}
 			}
 		}
@@ -3290,11 +3300,9 @@ function destroy_line(line_obj, good) {
 				// check route to treeways
 				// one treeway ( depot ) then no split line way
 				if ( dir.is_threeway(tile.get_way_dirs(wt)) ) {
-					treeways++
-					if ( i == 0 ) {
+					if ( treeways == 0 ) {
 						treeway_tile_e = tile
 						treeway_tile_s = tile
-						i++
 					} else {
 						//
 						if ( !(depot == false) && !(depot == null) ) {
@@ -3305,19 +3313,19 @@ function destroy_line(line_obj, good) {
 							}
 						} else {
 							treeway_tile_s = tile
-							if ( sig_tile == 1 ) {
-								double_way_tiles.append(treeway_tile_s)
-								sig_tile = 0
-							}
 						}
 
 					}
+					treeways++
 				}
 				// test signals by rail
 				if ( tile.find_object(mo_signal) != null && wt == wt_rail ) {
 					double_way_tiles.append(treeway_tile_s)
 					sig_tile = 1
 					double_ways++
+				}else if ( dir.is_threeway(tile.get_way_dirs(wt)) && sig_tile == 1 ) {
+					double_way_tiles.append(tile)
+					sig_tile = 0
 				}
 			}
 		}
