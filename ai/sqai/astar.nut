@@ -3497,6 +3497,7 @@ function destroy_line(line_obj, good) {
 		}
 	}
 	gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
+	return true
 }
 
 /*

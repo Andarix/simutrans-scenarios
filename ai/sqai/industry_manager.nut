@@ -378,7 +378,7 @@ class industry_manager_t extends manager_t
 					local erreg = destroy_line(line, link.freight)
 					if ( erreg == false ) {
 						link.destroy_line_month = world.get_time().month
-					} else {
+					} else if ( erreg == true ) {
 						return
 					}
 				} else {
