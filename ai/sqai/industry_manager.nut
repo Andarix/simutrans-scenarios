@@ -366,9 +366,9 @@ class industry_manager_t extends manager_t
 		local  print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
-		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+		gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
 
-
+		local line_new = 0
 		if ( line.get_owner().nr == our_player.nr ) {
 			// non profit in 5 months then destroy line //cnv.get_distance_traveled_total() > 3 &&
 			local profit_count = line.get_profit()
@@ -378,11 +378,13 @@ class industry_manager_t extends manager_t
 					local erreg = destroy_line(line, link.freight)
 					if ( erreg == false ) {
 						link.destroy_line_month = world.get_time().month
+					} else {
+						return
 					}
 				} else {
 					//gui.add_message_at(our_player, "return cnv/line new " + line.get_name(), world.get_time())
 				}
-				return
+				line_new = 1
 			}
 		}
 
@@ -393,6 +395,7 @@ class industry_manager_t extends manager_t
 		local cnv_max_speed = 0
 		local cnv_retired = []
 		local new_cnv_add_line = false
+		local stucked_cnv = []
 		{
 			local list = line.get_convoy_list()
 			cnv_count = list.get_count()
@@ -405,11 +408,32 @@ class industry_manager_t extends manager_t
 				return
 			}
 			for ( local i = 0; i < cnv_count; i++ ) {
-				if ( !list[i].is_withdrawn() ) {
+				if ( !list[i].is_withdrawn() && cnv == null ) {
 					cnv = list[i]
-					break
+				}
+				// stucked road vehicles destroy
+				local d = list[i].get_traveled_distance()
+				if ( list[i].get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && list[i].is_loading() == false && list[i].get_waytype() == wt_road && cnv_count > 1 && list[i].get_loading_level() == 0) {
+					//gui.add_message_at(our_player, "####### destroy stucked road vehicles " + cnv_count, world.get_time())
+					stucked_cnv.append(list[i])
+					//remove_cnv++
 				}
 			}
+
+			// stucked vehicle remove, not last vehicle
+			if ( stucked_cnv.len() > 0 ) {
+				local j = stucked_cnv.len()
+				if ( cnv_count == j ) { j-- }
+				for ( local i = 0; i < j; i++ ) {
+					stucked_cnv[i].destroy(our_player)
+				}
+				sleep()
+				list = line.get_convoy_list()
+				cnv_count = list.get_count()
+			}
+
+			if ( line_new == 1 ) { return }
+
 			// check speed from convoys
 			local a = convoy_max_speed(list[0])
 			cnv_max_speed = a
@@ -767,7 +791,7 @@ class industry_manager_t extends manager_t
 				if (is_empty  &&  is_stopped  &&  cnv_empty_stopped==null) {
 					cnv_empty_stopped = c
 				}
-
+				/*
 				// stucked road vehicles destroy
 				if ( c.get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && c.is_loading() == false && c.get_waytype() == wt_road && cnv_count > 1) {
 					//gui.add_message_at(our_player, "####### destroy stucked road vehicles " + cnv_count, world.get_time())
@@ -775,7 +799,7 @@ class industry_manager_t extends manager_t
 					cnv_count--
 					message_show++
 					//remove_cnv++
-				}
+				}*/
 			}
 
 			if ( message_show > 0 ) {
