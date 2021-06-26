@@ -3,6 +3,25 @@
  */
 
 /**
+ * Class to store lines plus extra data.
+ * Derived from line_x, so it inherits all the methods from line_x.
+ */
+class my_line_t extends line_x
+{
+	dings_bums = 0 // extra data, you can put more such variables here.
+
+	constructor(line /* line_x */)
+	{
+		base.constructor(line.id)
+		// never change id !
+	}
+	function _save()
+	{
+		return ::saveinstance("my_line_t", this)
+	}
+}
+
+/**
  * A link is a connection between two factories.
  * Save its state here.
  */
@@ -44,7 +63,7 @@ class industry_link_t
 
 	function append_line(l)
 	{
-		lines.append(l)
+		lines.append(my_line_t(l))
 	}
 	function remove_line(l)
 	{
@@ -58,6 +77,14 @@ class industry_link_t
 	function _save()
 	{
 		return ::saveinstance("industry_link_t", this)
+	}
+	// upgrade elements in lines array from line_x to my_line_t
+	function update_lines()
+	{
+		if (lines.len() > 0  &&  lines[0].getclass() == line_x) {
+			local map_to_my_line_t = function(line) { return my_line_t(line); }
+			lines.apply(map_to_my_line_t)
+		}
 	}
 }
 
