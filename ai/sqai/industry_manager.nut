@@ -48,7 +48,12 @@ class industry_link_t
 	}
 	function remove_line(l)
 	{
-		lines.remove(l)
+		foreach(idx, line in lines) {
+			if (line.id == l.id) {
+				lines.remove(idx)
+				break
+			}
+		}
 	}
 	function _save()
 	{
