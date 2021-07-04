@@ -1254,7 +1254,7 @@ class industry_manager_t extends manager_t
 		cnv_valuator.max_cnvs = 200
 		// no signals and double tracks - limit 1 convoy for rail
 		if (wt == wt_rail) {
-			cnv_valuator.max_cnvs = link.double_ways_count + 1
+			cnv_valuator.max_cnvs = line.double_ways_count + 1
 		}
 		cnv_valuator.distance = dist
 
