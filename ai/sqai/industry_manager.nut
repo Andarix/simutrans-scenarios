@@ -419,7 +419,7 @@ class industry_manager_t extends manager_t
 			local profit_count = line.get_profit()
 			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
 			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
-				if ( line.destroy_line_month != world.get_time().month ) {//line.get_traveled_distance() > 1 && line.get_traveled_distance() < 25 && line.get_loading_level() == 0 &&
+				if ( line.destroy_line_month != world.get_time().month && check_factory_links(link.f_src, link.f_dest, link.freight.get_name()) > 1 ) {//line.get_traveled_distance() > 1 && line.get_traveled_distance() < 25 && line.get_loading_level() == 0 &&
 					local erreg = destroy_line(line, link.freight)
 					if ( erreg == false ) {
 						line.destroy_line_month = world.get_time().month
