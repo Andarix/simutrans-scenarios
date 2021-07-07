@@ -523,18 +523,24 @@ class astar_builder extends astar
 				else if (route[i-1].flag == 1) {
 					// plan build bridge
 
+					local b_tiles = 0
+
 					//
 						if ( route[i-1].x == route[i].x ) {
 							if ( route[i-1].y > route[i].y ) {
-								bridge_tiles += (route[i-1].y - route[i].y + 1)
+								b_tiles = (route[i-1].y - route[i].y + 1)
+								bridge_tiles += b_tiles
 							} else {
-								bridge_tiles += (route[i].y - route[i-1].y + 1)
+								b_tiles = (route[i].y - route[i-1].y + 1)
+								bridge_tiles += b_tiles
 							}
 						} else if ( route[i-1].y == route[i].y ) {
 							if ( route[i-1].x > route[i].x ) {
-								bridge_tiles += (route[i-1].x - route[i].x + 1)
+								b_tiles = (route[i-1].x - route[i].x + 1)
+								bridge_tiles += b_tiles
 							} else {
-								bridge_tiles += (route[i].x - route[i-1].x + 1)
+								b_tiles = (route[i].x - route[i-1].x + 1)
+								bridge_tiles += b_tiles
 							}
 						}
 
@@ -547,7 +553,7 @@ class astar_builder extends astar
 						local build_bridge = true
 						// check whether the ground can be adjusted and no bridge is necessary
 						// bridge len <= 4 tiles
-						if ( bridge_tiles < 5 ) {
+						if ( b_tiles < 5 ) {
 							build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
 							gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + build_bridge, route[i-1])
 						}
@@ -562,6 +568,7 @@ class astar_builder extends astar
 
 					} else if ( build_route == 0 ) {
 					}
+
 				}
 				if (err) {
 					return { err =  err }
