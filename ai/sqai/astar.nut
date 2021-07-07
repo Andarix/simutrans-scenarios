@@ -555,7 +555,7 @@ class astar_builder extends astar
 						// bridge len <= 4 tiles
 						if ( b_tiles < 5 ) {
 							build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
-							gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + build_bridge, route[i-1])
+							//gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + build_bridge, route[i-1])
 						}
 
 						if ( build_bridge ) {
@@ -640,19 +640,19 @@ function check_ground(pos_s, pos_e, way) {
 			local tile_groundobj = z.find_object(mo_groundobj)
 			local tile_moving_object = z.find_object(mo_moving_object)
 
-				gui.add_message_at(our_player, "check_ground bridge - tile_tree = " + tile_tree + " || tile_groundobj = " + tile_groundobj + " tile_moving_object = " + tile_moving_object, z)
+				//gui.add_message_at(our_player, "check_ground bridge - tile_tree = " + tile_tree + " || tile_groundobj = " + tile_groundobj + " tile_moving_object = " + tile_moving_object, z)
 
 			if ( !z.is_ground() ) {
 				// tile is water
 				return true
 			} else if ( ( !z.is_empty() && !( tile_tree != null || tile_groundobj != null || tile_moving_object != null ) ) ) {
 				// tiles not free -> build bridge
-				gui.add_message_at(our_player, "check_ground bridge - !z.is_empty() = " + !z.is_empty() + " || !z.is_ground() = " + !z.is_ground() + " tile = " + coord_to_string(z), z)
+				//gui.add_message_at(our_player, "check_ground bridge - !z.is_empty() = " + !z.is_empty() + " || !z.is_ground() = " + !z.is_ground() + " tile = " + coord_to_string(z), z)
 				return true
 			} else if ( ((pos_s.z-2) == z.z || (pos_s.z-1) == z.z) && z.get_slope() > 0 ) {
 				// tiles free no build bridges -> terraform
 				terraform_tiles.append(z)
-				gui.add_message_at(our_player, "check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
+				//gui.add_message_at(our_player, "check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
 			}
 		}
 
