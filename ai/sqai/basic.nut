@@ -187,7 +187,7 @@ class manager_t extends node_seq_t
 		world.get_time().ticks_per_month
 		world.get_time().next_month_ticks
 		*/ //our_player.nr == 2 &&
-		if ( world.get_time().ticks > ( world.get_time().next_month_ticks - world.get_time().ticks_per_month ) && world.get_time().ticks < ( world.get_time().next_month_ticks - world.get_time().ticks_per_month + 3700 ) ) {
+		if ( world.get_time().ticks > ( world.get_time().next_month_ticks - world.get_time().ticks_per_month ) && world.get_time().ticks < ( world.get_time().next_month_ticks - world.get_time().ticks_per_month + 4000 ) ) {
 				//local operating_profit = our_player.get_operating_profit()
 				//local net_wealth = our_player.get_net_wealth()
 				//gui.add_message_at(our_player, our_player.get_name() + " - last month: operating profit " + operating_profit[1] + " net wealth " + net_wealth[1], world.get_time())
