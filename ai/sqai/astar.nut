@@ -3592,7 +3592,7 @@ function check_home_depot(tile, wt) {
  *
  */
 function check_stations_connections() {
-	gui.add_message_at(our_player, "####### check_stations_connections()" , world.get_time())
+	//gui.add_message_at(our_player, "####### check_stations_connections()" , world.get_time())
 
 	::debug.set_pause_on_error(true)
 
@@ -3616,20 +3616,37 @@ function check_stations_connections() {
 		local halt_lines = halt.get_line_list()
 		local halt_cnv = halt.get_convoy_list()
 
+		//if ( halt_lines.get_count() == 1 ) { gui.add_message_at(our_player, "####### halt_lines[0]: " + halt_lines[0].get_name(), world.get_time()) }
+
 		//local tool = command_x(tool_remover)
 
 		if ( halt_lines.get_count() == 0 && halt_cnv.get_count() == 0 ) {
 
-			gui.add_message_at(our_player, "####### halt name: " + halt.get_name(), world.get_time())
+			//gui.add_message_at(our_player, "####### halt name: " + halt.get_name(), world.get_time())
+
 
 			// halt no lines and convoys - remove
 			local t = halt.get_tile_list()
 			for ( local i = 0; i < t.len(); i++ ) {
-				t[i].remove_object(our_player, mo_building)
+				if ( t[i].has_way(wt_rail) ) {
+					// remove way by wt_rail from halt tiles
+					remove_tile_to_empty(t, wt_rail, 1)
+				} else {
+					t[i].remove_object(our_player, mo_building)
+				}
 			}
 		} else if ( halt_factory_connect == 0 && halt_lines.get_count() < 2 ) {
 
-			gui.add_message_at(our_player, "####### halt name: " + halt.get_name(), world.get_time())
+			local line_list = player_x(our_player.nr).get_line_list()
+			foreach(line in line_list) {
+				//gui.add_message_at(player_x(our_player.nr), "####### line check " + line.get_name(), world.get_time())
+				if ( halt_lines[0].id == line.id ) {
+					halt_lines = line
+					break
+				}
+			}
+
+			//gui.add_message_at(our_player, "####### halt name: " + halt.get_name(), world.get_time())
 
 			local home_depot = null
 			local wt = null
@@ -3643,9 +3660,9 @@ function check_stations_connections() {
 				for ( local i = 0; i < j; i++ ) {
 					halt_cnv[i].destroy(our_player)
 				}
-			} else if ( halt_lines.get_count() == 1 ) {
+			} else if ( halt.get_line_list().get_count() == 1 ) {
 				// remove convoys from line
-				halt_cnv = halt_lines[0].get_convoy_list()
+				halt_cnv = halt_lines.get_convoy_list()
 				wt = halt_cnv[0].get_waytype()
 				home_depot = halt_cnv[0].get_home_depot()
 				local j = halt_cnv.get_count()
@@ -3654,14 +3671,22 @@ function check_stations_connections() {
 				}
 				sleep()
 				// remove line
-				if ( halt_lines[0].is_valid() ) {
-					halt_lines[0].destroy(our_player)
+				//gui.add_message_at(our_player, "####### remove line " + halt_lines.get_name(), world.get_time())
+				local err = null
+				err = halt_lines.destroy(our_player)
+				if ( err != null ) {
+					//gui.add_message_at(our_player, "####### err: " + err, world.get_time())
 				}
+				sleep()
 				// halt remove
 				local t = halt.get_tile_list()
-				local tool = command_x(tool_remover)
+
 				for ( local i = 0; i < t.len(); i++ ) {
-					t[i].remove_object(our_player, mo_building)
+					if ( wt == wt_rail ) {
+						remove_tile_to_empty(t, wt, 1)
+					} else {
+						t[i].remove_object(our_player, mo_building)
+					}
 				}
 				// check depot
 				if ( check_home_depot(home_depot, wt) )  {
@@ -3670,9 +3695,10 @@ function check_stations_connections() {
 					local err = null
 					if ( wt == wt_water ) {
 						// remove depot ship
-						err = tile.remove_object(our_player, mo_depot_water)
-						gui.add_message_at(our_player, "####### depot remove " + home_depot + ": " + err, home_depot)
-						::debug.pause()
+						//err = tile.remove_object(our_player, mo_depot_water)
+						//gui.add_message_at(our_player, "####### depot remove " + home_depot + ": " + err, home_depot)
+						//gui.add_message_at(our_player, "####### tile.find_object(mo_depot_water) " + tile.find_object(mo_depot_water), home_depot)
+						//::debug.pause()
 						remove_tile_to_empty(tile, wt, 0)
 					} else {
 						// remove depot road/rail and way
