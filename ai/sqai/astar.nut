@@ -3374,7 +3374,7 @@ function destroy_line(line_obj, good) {
 			}
 			if ( wt == wt_rail ) {
 				gui.add_message_at(our_player, " double_ways " + double_ways, world.get_time())
-				gui.add_message_at(our_player, " double_way_tiles.get_count() " + double_way_tiles.get_count(), world.get_time())
+				gui.add_message_at(our_player, " double_way_tiles.get_count() " + double_way_tiles.len(), world.get_time())
 			}
 		}
 
