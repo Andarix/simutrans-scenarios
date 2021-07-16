@@ -247,7 +247,7 @@ class industry_manager_t extends manager_t
 			//::debug.pause(),
 		}
 
-		mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 900
+		mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 1000
   	if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 4 && mnt_ticks > world.get_time().ticks ) {
 			// in may
 			// check unused halts
@@ -430,6 +430,7 @@ class industry_manager_t extends manager_t
 					if ( erreg == false ) {
 						line.destroy_line_month = world.get_time().month
 					} else if ( erreg == true ) {
+						link.state = 4
 						return
 					}
 				} else {
