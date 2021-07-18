@@ -3441,8 +3441,29 @@ function destroy_line(line_obj, good) {
 			}
 		}
 
+		if ( start_f.len() > 0 && combined_s > 1 && start_line_count > 0 ) {
+			// check lines befor remove start
+			local lines = start_h.get_line_list()
+			local i = 1
+			foreach(line in lines) {
+				if ( line.get_waytype() == wt_rail ) { i++ }
+			}
+			remove_all = i
+		}
+
+		if ( end_f.len() > 0 && combined_e > 1 && end_line_count > 0 ) {
+			// check lines befor remove end
+			local lines = end_h.get_line_list()
+			local i = 1
+			foreach(line in lines) {
+				if ( line.get_waytype() == wt_rail ) { i++ }
+			}
+			remove_all = i
+		}
+
+
 		// remove rail line way by single halt and no more treeways
-		if ( ( treeways == 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && end_line_count == 0) || remove_all == 1 ) {
+		if ( remove_all == 1 ) {
 			// remove line way
 			local tool = command_x(tool_remove_way)
 			tool.work(our_player, start_l, end_l, "" + wt_rail)
