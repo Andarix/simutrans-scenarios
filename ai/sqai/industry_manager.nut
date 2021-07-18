@@ -1038,7 +1038,7 @@ class industry_manager_t extends manager_t
 				}
 
 				if ( wt == wt_road && check_good_quantity(start_l, end_l, lf, line) ) {
-					line.next_vehicle_check = world.get_time().next_month_ticks
+					line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
 					return true
 				}
 
@@ -1115,8 +1115,15 @@ class industry_manager_t extends manager_t
 				c.p_depot  = depot_x(depot.x, depot.y, depot.z)
 				c.p_line   = line
 				c.p_convoy = proto
-				c.p_count  = 1
+				if ( wt == wt_road ) {
+					// by road add 3 vehicles
+					c.p_count  = 3
+				} else {
+					c.p_count  = 1
+				}
+
 				append_child(c)
+
 				dbgprint("==> build additional convoy")
 				if ( print_message_box == 1 ) {
 					gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
@@ -1147,7 +1154,7 @@ class industry_manager_t extends manager_t
 							command_x.build_station(our_player, expand_station[i], station_list[0])
 						}
 					}
-
+					gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
 				}
 
 				local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
