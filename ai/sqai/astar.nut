@@ -3418,14 +3418,14 @@ function destroy_line(line_obj, good) {
 			// remove way from start to first treeway
 			if ( treeways > 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && remove_all == 0 ) {
 				// remove station and way to next treeway
-				tool.work(our_player, start_l, treeway_tile_s, "" + wt_rail)
+				tool.work(our_player, start_l, treeway_tile_s[0], "" + wt_rail)
 				//remove_tile_to_empty(depot, wt, 0)
 				//remove_tile_to_empty(depot_t, wt, 0)
 			}
 			// remove way from end to first treeway
 			if ( treeways > 1 && combined_s == 1 && combined_e == 1 && end_line_count == 0 && remove_all == 0 ) {
 				// remove station and way to next treeway
-				tool.work(our_player, end_l, treeway_tile_e, "" + wt_rail)
+				tool.work(our_player, end_l, treeway_tile_e[0], "" + wt_rail)
 			}
 			// remove double ways by rail
 			if ( double_ways > 0 ) {
