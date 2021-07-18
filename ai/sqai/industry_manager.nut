@@ -414,7 +414,7 @@ class industry_manager_t extends manager_t
 
 		//
 
-		local  print_message_box = 0
+		local print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
 		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
@@ -649,7 +649,7 @@ class industry_manager_t extends manager_t
 					if ( tile_way.get_desc().get_topspeed() < way_speed ) {
 						way_speed = tile_way.get_desc().get_topspeed()
 					}
-						if ( tile_way.get_desc().get_topspeed() == 45 ) {
+						if ( tile_way.get_desc().get_topspeed() == 45 && print_message_box == 1 ) {
 							gui.add_message_at(our_player, way_speed + " way speed tile " + coord3d_to_string(tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z)), tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z))
 						}
 				}
