@@ -404,6 +404,8 @@ class industry_manager_t extends manager_t
 	function check_link_line(link, line)
 	{
 
+		::debug.set_pause_on_error(true)
+
 		// set first run as line build time
 		/*if ( line.build_line == 0 ) {
   		line.build_line = world.get_time()
@@ -417,7 +419,7 @@ class industry_manager_t extends manager_t
 		local print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
-		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+		gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
 
 		local line_new = 0
 		if ( line.get_owner().nr == our_player.nr ) {
@@ -1002,7 +1004,7 @@ class industry_manager_t extends manager_t
 				local expand_station = []
 				local station_count = 0
 				if ( wt == wt_rail ) {
-					for ( local i = 0; i < 5; i++ ) {
+					for ( local i = 0; i < 6; i++ ) {
 						if ( nexttile[i].find_object(mo_building) ) {
 							station_count++
 						}
@@ -1105,8 +1107,40 @@ class industry_manager_t extends manager_t
 				}
 				if ( depot == null || depot == false ) {
 					//depot = cnv.get_home_depot()
-					gui.add_message_at(our_player, "##-ERROR-##--> not depot found", world.get_time())
-					return false
+					local c = cnv.get_home_depot()
+					depot = tile_x(c.x, c.y, c.z)
+					if ( depot.get_depot() == null ) {
+						gui.add_message_at(our_player, "##-ERROR-##--> not depot found", depot)
+						local way_tile = [null, null, null, null]
+						way_tile[0] = tile_x(depot.x-1, depot.y, depot.z)
+						way_tile[1] = tile_x(depot.x+1, depot.y, depot.z)
+						way_tile[2] = tile_x(depot.x, depot.y-1, depot.z)
+						way_tile[3] = tile_x(depot.x, depot.y+1, depot.z)
+						for ( local i = 0; i < 4; i++ ) {
+							if ( way_tile[i].find_object(mo_way) != null ) {
+								local way_obj = find_object("way", cnv.get_waytype(), cnv.get_speed())
+								local depot_obj = building_desc_x.get_available_stations(building_desc_x.depot, wt, {})
+								local err = command_x.build_way(our_player, depot, way_tile[i], way_obj, true)
+								if ( err == null ) {
+									err = command_x.build_depot(our_player, depot, depot_obj[0] )
+								} else {
+									return false
+								}
+								break
+							}
+						}
+
+					}
+					//if ( wt = wt_road ) {
+						//local err = construct_road_to_depot(pl, c_route[i], planned_way) //c_start
+						//if (err) {
+						//	print("Failed to build depot access from " + coord_to_string(c_start))
+						//	return false
+						//}
+
+					//}
+
+
 				}
 
 
@@ -1143,18 +1177,19 @@ class industry_manager_t extends manager_t
 					//local k = c.p_convoy.get_tile_length()
 					local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
 
-					if ( st_lenght == 4 && expand_station.len() == 4 ) {
+					if ( st_lenght > station_count ) {
 						// expand station to 4 tiles
 						for ( local i = 0; i < 2; i++ ) {
 							command_x.build_station(our_player, expand_station[i], station_list[0])
 						}
-					} else if ( st_lenght == 5 && expand_station.len() > 2 ) {
+						gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
+					} /*else if ( st_lenght == 5 && expand_station.len() > 2 ) {
 						// expand station to 5 tiles
 						for ( local i = 0; i < expand_station.len(); i++ ) {
 							command_x.build_station(our_player, expand_station[i], station_list[0])
 						}
-					}
-					gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
+						gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
+					}*/
 				}
 
 				local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
