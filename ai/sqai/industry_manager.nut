@@ -195,7 +195,9 @@ class industry_manager_t extends manager_t
 	function link_iteration()
 	{
 		foreach(link in link_list) {
-			check_link(link)
+			if (!check_link(link)) {
+				continue
+			}
 			yield link
 		}
 	}
@@ -204,6 +206,7 @@ class industry_manager_t extends manager_t
 	 * Check link:
 	 * - if state is st_missing set state to st_free after some time
 	 * - for working links see after their lines
+	 * - returns true if some work was done
 	 */
 	function check_link(link)
 	{
@@ -211,12 +214,12 @@ class industry_manager_t extends manager_t
 			case industry_link_t.st_free:
 			case industry_link_t.st_planned:
 			case industry_link_t.st_failed:
-				return
+				return false
 			case industry_link_t.st_built:
-				if (link.lines.len()==0) return
+				if (link.lines.len()==0) return false
 				break
 			case industry_link_t.st_missing:
-				if (link.next_check >= world.get_time().ticks) return
+				if (link.next_check >= world.get_time().ticks) return false
 				// try to plan again
 				link.state = industry_link_t.st_free
 				break
@@ -253,6 +256,7 @@ class industry_manager_t extends manager_t
 			// check unused halts
 			check_stations_connections()
 		}
+		return true
 	}
 
 	/**
