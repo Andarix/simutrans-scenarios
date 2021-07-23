@@ -1054,7 +1054,15 @@ class industry_manager_t extends manager_t
 				local cnv_valuator = valuator_simple_t()
 				cnv_valuator.wt = wt
 				cnv_valuator.freight = freight
-				cnv_valuator.volume = line.get_transported_goods().reduce(max)
+
+				local fd = link.f_dest
+				local fs = link.f_src
+				local freight_input = fd.input[freight].get_base_consumption()
+				local freight_output = fs.output[freight].get_base_production()
+				prototyper.volume = min(freight_input, freight_output)
+
+				//cnv_valuator.volume = line.get_transported_goods().reduce(max)
+
 				cnv_valuator.max_cnvs = 200
 				// no signals and double tracks - limit 1 convoy for rail
 				if (wt == wt_rail) {
