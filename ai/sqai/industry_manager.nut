@@ -419,7 +419,7 @@ class industry_manager_t extends manager_t
 		local print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
-		gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
 
 		local line_new = 0
 		if ( line.get_owner().nr == our_player.nr ) {
@@ -1010,7 +1010,7 @@ class industry_manager_t extends manager_t
 						}
 					}
 					//prototyper.max_length = station_count
-					gui.add_message_at(our_player, "###---- check stations field : " + station_count, nexttile[0])
+					local a = station_count
 					if ( station_count < 6 ) {
 						// check expand station
 						// built cnv to new length end expand station befor create cnv
@@ -1032,7 +1032,10 @@ class industry_manager_t extends manager_t
 								expand_station.append(nexttile[nexttile.len()-station_count])
 							}
 						}
-						gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
+						if ( a < station_count ) {
+							gui.add_message_at(our_player, "###---- check stations field : " + a, nexttile[0])
+							gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
+						}
 					}
 					prototyper.max_length = station_count
 				} else {
@@ -1110,7 +1113,6 @@ class industry_manager_t extends manager_t
 					local c = cnv.get_home_depot()
 					depot = tile_x(c.x, c.y, c.z)
 					if ( depot.get_depot() == null ) {
-						gui.add_message_at(our_player, "##-ERROR-##--> not depot found", depot)
 						local way_tile = [null, null, null, null]
 						way_tile[0] = tile_x(depot.x-1, depot.y, depot.z)
 						way_tile[1] = tile_x(depot.x+1, depot.y, depot.z)
@@ -1124,6 +1126,7 @@ class industry_manager_t extends manager_t
 								if ( err == null ) {
 									err = command_x.build_depot(our_player, depot, depot_obj[0] )
 								} else {
+									gui.add_message_at(our_player, "##-ERROR-##--> not depot found", depot)
 									return false
 								}
 								break
