@@ -590,6 +590,44 @@ class industry_connection_planner_t extends manager_t
 			}
 		}
 
+		// citycars on map - rate per tile
+		local citycar_count = world.get_year_citycars()
+		local map_size_tiles = world.get_size().x * world.get_size().y
+		local citycar_rate = citycar_count[0]/(map_size_tiles/10)*10
+
+		gui.add_message_at(our_player, "citycar_rate " + citycar_rate, world.get_time())
+
+		if ( citycar_rate > 5 ) {
+			switch (wt) {
+				case wt_rail:
+					r.points += 25
+			    break
+				case wt_road:
+          r.points -= 25
+			    break
+				case wt_water:
+
+			    break
+			}
+		}
+
+		// Adjustments to the pakset
+		//gui.add_message_at(our_player, "get_set_name() " + get_set_name(), world.get_time())
+		//::debug.pause()
+		if ( get_set_name() == "pak128.german" ) {
+			switch (wt) {
+				case wt_rail:
+					r.points += 35
+			    break
+				case wt_road:
+          r.points -= 25
+			    break
+				case wt_water:
+
+			    break
+			}
+		}
+
 		// successfull - complete report
 		r.cost_fix     = build_cost
 		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + planned_bridge.montly_cost
