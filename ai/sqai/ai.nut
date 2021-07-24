@@ -219,3 +219,18 @@ function save()
 
 	return str
 }
+
+/**
+ * returns pakset name (lower case)
+ *
+ *
+ */
+function get_set_name()
+{
+	local pakset = get_pakset_name()  // full string from ground.outside.pak
+	local s = pakset.find(" ")
+	pakset = pakset.slice(0, s)
+	pakset = pakset.tolower()
+
+	return pakset
+}
