@@ -3641,7 +3641,7 @@ function test_halt_waytypes(tile) {
 function check_home_depot(tile, wt) {
 
 	// load vehicle list
-	local list = world.get_convoy_list_x()
+	local list = world.get_convoy_list()
 
 	foreach(cnv in list) {
 		if ( tile.x == cnv.get_home_depot().x && tile.y == cnv.get_home_depot().y && tile.z == cnv.get_home_depot().z ) {
