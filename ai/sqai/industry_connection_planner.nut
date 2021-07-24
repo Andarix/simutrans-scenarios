@@ -595,7 +595,7 @@ class industry_connection_planner_t extends manager_t
 		local map_size_tiles = world.get_size().x * world.get_size().y
 		local citycar_rate = citycar_count[0]/(map_size_tiles/10)*10
 
-		gui.add_message_at(our_player, "citycar_rate " + citycar_rate, world.get_time())
+		gui.add_message_at(our_player, "citycar_count[0] " + citycar_count[0] + " citycar_rate " + citycar_rate, world.get_time())
 
 		if ( citycar_rate > 5 ) {
 			switch (wt) {
