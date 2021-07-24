@@ -635,17 +635,12 @@ function check_ground(pos_s, pos_e, way) {
 			// find z coord
 			z = square_x(t_tile[i].x, t_tile[i].y).get_ground_tile()
 
-			// removed objects for empty tiles
-			local tile_tree = z.find_object(mo_tree)
-			local tile_groundobj = z.find_object(mo_groundobj)
-			local tile_moving_object = z.find_object(mo_moving_object)
-
 				//gui.add_message_at(our_player, "check_ground bridge - tile_tree = " + tile_tree + " || tile_groundobj = " + tile_groundobj + " tile_moving_object = " + tile_moving_object, z)
 
 			if ( !z.is_ground() ) {
 				// tile is water
 				return true
-			} else if ( ( !z.is_empty() && !( tile_tree != null || tile_groundobj != null || tile_moving_object != null ) ) ) {
+			} else if ( !test_tile_is_empty(z) ) {
 				// tiles not free -> build bridge
 				//gui.add_message_at(our_player, "check_ground bridge - !z.is_empty() = " + !z.is_empty() + " || !z.is_ground() = " + !z.is_ground() + " tile = " + coord_to_string(z), z)
 				return true
@@ -731,6 +726,9 @@ function remove_wayline(route, pos, wt, st_len = null) {
 
 	local i = pos
 	local test = 0
+
+	local way_cnv_count = 0
+
 	for ( i; i >= 0; i-- ) {
 		l++
 		local tile = square_x(route[i].x, route[i].y).get_ground_tile()
@@ -739,6 +737,8 @@ function remove_wayline(route, pos, wt, st_len = null) {
 			next_tile = square_x(route[i-1].x, route[i-1].y).get_ground_tile()
 		}
 		local t_field = tile.find_object(mo_way)
+		if ( t_field == null ) { continue }
+		local cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]
 		// test field has way
 		if ( t_field != null && t_field.get_waytype() == wt ) {
 			// test direction next tile
@@ -768,8 +768,13 @@ function remove_wayline(route, pos, wt, st_len = null) {
 						test = 1
 					}
 			} else { // if ( test == 0 ) {
+				if ( l < 7 ) { way_cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1] }
 				// remove way from tile
-				tool.work(our_player, tile)
+				if ( cnv_count == way_cnv_count ) {
+					::debug.pause()
+					tool.work(our_player, tile)
+
+				}
 			}
 		/*} else if ( wt == wt_rail && dir.is_threeway(tile.get_way_dirs(wt)) ) {
 			gui.add_message_at(our_player, "dir.is_threeway(next_tile.get_way_dirs(wt) " + dir.is_threeway(next_tile.get_way_dirs(wt)), next_tile)
@@ -810,12 +815,11 @@ function remove_wayline(route, pos, wt, st_len = null) {
 					if ( j < 6 ) { continue }
 					test += 1
 				} else if ( wt == wt_road ) {
-					local test_way = tile.find_object(mo_way) //.get_desc()
 					//local tile_coord = coord3d_to_string(tile)
-					if ( test_way.get_owner().nr == our_player_nr ) {
+					if ( t_field.get_owner().nr == our_player_nr ) {
 						// remove player road from tile
 						// not remove public player road from tile
-						tool.work(our_player, tile)
+						toolr.work(our_player, tile, tile, "" + wt_road)
 					} else {
 						// break public way ( road )
 						test += 1
@@ -826,7 +830,10 @@ function remove_wayline(route, pos, wt, st_len = null) {
 					// no remove tile
 				} else {
 					// remove way from tile
-					tool.work(our_player, tile)
+					local cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]
+					if ( cnv_count == way_cnv_count ) {
+						toolr.work(our_player, tile, tile, "" + wt_rail)
+					}
 				}
 			}
 
@@ -955,7 +962,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		// print messages box
 		// 1
 		// 2
-		local print_message_box = 0
+		local print_message_box = 2
 
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
@@ -1069,7 +1076,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight, way_exists = 0) {
 	// find z coord
 	z = square_x(t_tile.x, t_tile.y).get_ground_tile()
 
-	if ( t_tile.is_empty() && t_tile.get_slope() == 0 && ref_hight == z.z && way_exists == 0 ) {
+	if ( test_tile_is_empty(t_tile) && t_tile.get_slope() == 0 && ref_hight == z.z && way_exists == 0 ) {
 		// tile is empty and is flat
 		if ( t_tile.is_ground() ) {
 			if ( print_message_box == 2 ) {
@@ -1089,7 +1096,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight, way_exists = 0) {
 			gui.add_message_at(pl, " ---=> tile has single way and is bridge ", world.get_time())
 		}
 		return true
-	} else if ( t_tile.is_empty() && ( t_tile.get_slope() > 0 || ref_hight != z.z ) && way_exists == 0 ) {
+	} else if ( test_tile_is_empty(t_tile) && ( t_tile.get_slope() > 0 || ref_hight != z.z ) && way_exists == 0 ) {
 		// terraform
 		// return true and terraform befor build station
 		return true
@@ -1098,6 +1105,25 @@ function test_field(pl, t_tile, wt, rotate, ref_hight, way_exists = 0) {
 	return false
 }
 
+
+/**
+ * test tile is empty
+ * removed objects for empty tiles: tree, ground_object, moving_object
+ *
+ */
+function test_tile_is_empty(tile) {
+	local tile_tree = tile.find_object(mo_tree)
+	local tile_groundobj = tile.find_object(mo_groundobj)
+	local tile_moving_object = tile.find_object(mo_moving_object)
+
+	if ( tile.is_empty() ) {
+		return true
+	} else if ( tile_tree != null || tile_groundobj != null || tile_moving_object != null ) {
+		return true
+	}
+
+	return false
+}
 
 /**
  * function expand station()
@@ -1109,7 +1135,7 @@ function test_field(pl, t_tile, wt, rotate, ref_hight, way_exists = 0) {
  */
 function expand_station(pl, fields, wt, select_station, start_field) {
 
-	local print_message_box = 0
+	local print_message_box = 2
 
 	local ref_hight = start_field.z
 	local err = null
@@ -1146,7 +1172,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 			local z = square_x(fields[i].x, fields[i].y).get_ground_tile()
 			local f = tile_x(fields[i].x, fields[i].y, z.z)
 
-			if ( f.is_empty() && ( f.get_slope() > 0 || ref_hight != z.z ) ) {
+			if ( test_tile_is_empty(f) && ( f.get_slope() > 0 || ref_hight != z.z ) ) {
 
 				if ( print_message_box == 2 ) {
 					 gui.add_message_at(pl, " ---=> terraform", world.get_time())
@@ -1183,11 +1209,12 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 		// build way to tiles
 		for ( local i = 1; i < t; i++ ) {
-			if ( fields[i].is_empty() && fields[i].get_slope() == 0 ) {
+
+			if ( test_tile_is_empty(fields[i]) && fields[i].get_slope() == 0 ) {
+				err = null
 				// empty then build way
-				if ( fields[i].is_empty() ) {
-					err = command_x.build_way(pl, fields[0], fields[i], planned_way, true)
-				}
+
+				err = command_x.build_way(pl, fields[0], fields[i], planned_way, true)
 				if ( err != null ) {
 					gui.add_message_at(pl, " ---=> not build way tile at " + coord3d_to_string(fields[i]) + " err " + err, fields[i])
 					remove_tile_to_empty(fields, wt_rail)
@@ -1209,7 +1236,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 						gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), st_dock[0])
 					}
 					local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
-					if ( tile.is_empty() ) {
+					if ( test_tile_is_empty(tile) ) {
 						if ( print_message_box == 2 ) {
 							gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
 						}
@@ -1279,7 +1306,7 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 				}
 				local extension = find_extension(wt)
 				local new_tile = 0
-				if ( tile.is_empty() ) {
+				if ( test_tile_is_empty(tile) ) {
 					err = command_x.build_station(pl, tile, extension)
 					if ( err ) {
 						gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
@@ -1592,6 +1619,7 @@ function search_station(field_pos, wt, range) {
 
 		return station_found
 }
+
 
 /**
  * build double way for more convoys to line
@@ -3469,6 +3497,8 @@ function destroy_line(line_obj, good) {
 			tool.work(our_player, start_l, end_l, "" + wt_rail)
 		}
 
+
+		::debug.pause()
 	}
 
 	// remove road line
