@@ -3172,6 +3172,53 @@ function optimize_way_line(route, wt) {
 }
 
 /*
+ * check double ways in new line
+ * waytype: wt_rail
+ *
+ *
+ */
+function check_doubleway_in_line(route, wt) {
+	gui.add_message_at(our_player, " check_doubleway_in_line(route, wt) ", world.get_time())
+
+	local treeway_tiles = []
+	local nexttile = []
+
+	local t = 0 // count treeway tile to signal tile
+
+	foreach(node in route.routes) {
+		local tile = tile_x(node.x, node.y, node.z)
+		nexttile.append(tile)
+		// check route to treeways
+
+		if ( t > 0 ) { t++ }
+
+		// treeway
+		if ( dir.is_threeway(tile.get_way_dirs(wt)) ) {
+			treeway_tiles.append(tile)
+			t++
+		}
+
+		// test signals by rail
+		if ( tile.find_object(mo_signal) != null && t < 6 ) {
+			// connect in double way
+			gui.add_message_at(our_player, " ## WARNING ## connect in double way ", tile)
+
+		} else if ( t >= 6  ) {
+			t = 0
+		}
+	}
+
+
+	::debug.pause()
+
+		//local asf = astar_route_finder(wt)
+		//wayline = asf.search_route([start_l], [end_l])
+
+
+}
+
+
+/*
  *	destroy line complete
  *	- destroy convoy
  *	- remove line
