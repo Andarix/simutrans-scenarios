@@ -981,24 +981,36 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 			gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time())
 		}
 
-		local b_tile = [t] // station fields array
+		// test directions
+		local d_quer    = (d == dir.east || d == dir.west) ? dir.north : dir.east;
+		local test_dirs = [d, d_quer, dir.backward(d_quer) ]
 
-		// first check direction d, then backwards
+
+		// first check direction d and backwards
+		// then both orthogonal directions
+		for(local i = 0; i<test_dirs.len(); i++)
 		{
+			local b_tile = [] // station fields array
 			local step = 1 // if positive go in direction d, otherwise go backwards
 			local step_end = 0 // (positive) steps to the end of the station
 
-			local dc = dir.to_coord(d)
+			local current_d = test_dirs[i]
+			local dc = dir.to_coord(current_d)
+
+			if (i == 0) {
+				// append starting tile if searching in direction d
+				b_tile.append(t)
+			}
 
 			while (b_tile.len() < st_lenght) {
 
 				local b1_tile = tile_x(starts_field.x + step * dc.x, starts_field.y + step * dc.y, starts_field.z)
 				if ( print_message_box == 2 ) {
 					gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
-					gui.add_message_at(pl, " ---=> dir.double(d) : " + dir.double(d), world.get_time())
+					gui.add_message_at(pl, " ---=> dir.double(d) : " + dir.double(current_d), world.get_time())
 				}
 
-				if ( test_field(pl, b1_tile, wt, dir.double(d), starts_field.z) && b_tile.len() < st_lenght ) {
+				if ( test_field(pl, b1_tile, wt, dir.double(d), starts_field.z)) {
 					if ( print_message_box == 2 ) {
 						gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
 					}
@@ -1014,6 +1026,10 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 				else {
 					if (step < 0) {
 						// not enough space, fail
+						break
+					}
+					if (i>0) {
+						// do not search for backward directions if orthogonal to d
 						break
 					}
 					// search in forward direction failed, now go backward
@@ -1036,6 +1052,9 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 				starts_field.x += step_end*dc.x
 				starts_field.y += step_end*dc.y
 				//gui.add_message_at(pl, " ---> first tile of station reset : " + coord3d_to_string(starts_field), starts_field)
+			}
+			if (st_build) {
+				break // leave for loop to test directions
 			}
 		}
 
