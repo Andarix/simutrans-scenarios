@@ -618,10 +618,10 @@ class industry_connection_planner_t extends manager_t
 		if ( get_set_name() == "pak128.german" ) {
 			switch (wt) {
 				case wt_rail:
-					r.points += 35
+					r.points += 20
 			    break
 				case wt_road:
-          r.points -= 25
+          r.points -= 15
 			    break
 				case wt_water:
 

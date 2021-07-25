@@ -771,7 +771,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
 				if ( l < 7 ) { way_cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1] }
 				// remove way from tile
 				if ( cnv_count == way_cnv_count ) {
-					::debug.pause()
+					//::debug.pause()
 					tool.work(our_player, tile)
 
 				}
@@ -962,7 +962,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 		// print messages box
 		// 1
 		// 2
-		local print_message_box = 2
+		local print_message_box = 0
 
 		if ( print_message_box == 2 ) {
 			gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
@@ -1154,7 +1154,7 @@ function test_tile_is_empty(tile) {
  */
 function expand_station(pl, fields, wt, select_station, start_field) {
 
-	local print_message_box = 2
+	local print_message_box = 0
 
 	local ref_hight = start_field.z
 	local err = null
@@ -3228,7 +3228,7 @@ function check_doubleway_in_line(route, wt) {
 	}
 
 
-	::debug.pause()
+	//::debug.pause()
 
 		//local asf = astar_route_finder(wt)
 		//wayline = asf.search_route([start_l], [end_l])
@@ -3250,7 +3250,12 @@ function destroy_line(line_obj, good) {
 
 	::debug.set_pause_on_error(true)
 
-	gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
+	// 1 = messages
+	local print_message_box = 0
+
+	if ( print_message_box == 1 ) {
+		gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
+	}
 
 	local line_name = line_obj.get_name()
 	local cnv_list = line_obj.get_convoy_list()
@@ -3305,14 +3310,14 @@ function destroy_line(line_obj, good) {
 		start_f = start_h.get_factory_list()
 		end_f = end_h.get_factory_list()
 		//}
-		if ( start_f.len() > 0 ) {
+		if ( start_f.len() > 0 && print_message_box == 1 ) {
 			gui.add_message_at(our_player, " factory start " + start_f[0].get_name(), world.get_time())
-		} else {
+		} else if ( print_message_box == 1 ) {
 			gui.add_message_at(our_player, " not connect factory start ", world.get_time())
 		}
-		if ( end_f.len() > 0 ) {
+		if ( end_f.len() > 0 && print_message_box == 1 ) {
 			gui.add_message_at(our_player, " factory end " + end_f[0].get_name(), world.get_time())
-		} else {
+		} else if ( print_message_box == 1 ) {
 			gui.add_message_at(our_player, " not connect factory end ", world.get_time())
 		}
 
@@ -3338,7 +3343,9 @@ function destroy_line(line_obj, good) {
 			}
 
 			if (good_list_in.len() == g_count_in ) {
-				gui.add_message_at(our_player, "### last line connect factorys - stored/in-transit all goods > 0 factory start", world.get_time())
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "### last line connect factorys - stored/in-transit all goods > 0 factory start", world.get_time())
+				}
 				// something stored/in-transit in last and current month
 				// no need to search for more supply
 				return false
@@ -3349,19 +3356,27 @@ function destroy_line(line_obj, good) {
 		foreach(cnv in cnv_list) {
 			if ( depot == null ) {
 				depot = tile_x(cnv.get_home_depot().x, cnv.get_home_depot().y, cnv.get_home_depot().z)
-				gui.add_message_at(our_player, "depot " + coord3d_to_string(depot), world.get_time())
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "depot " + coord3d_to_string(depot), world.get_time())
+				}
 			}
 			// mark convoy for destroying
 			if ( cnv.get_distance_traveled_total() < 3 ) {
-				gui.add_message_at(our_player, "return cnv/line new", world.get_time())
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "return cnv/line new", world.get_time())
+				}
 				return
 			}
 			if ( wt != wt_water && combined_s > 1 && start_line_count > 1 ) {
-				gui.add_message_at(our_player, "return start combined station, more lines ", world.get_time())
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "return start combined station, more lines ", world.get_time())
+				}
 				return false
 			}
 			if ( wt == wt_water && combined_e > 1 && end_line_count > 1 ) {
-				gui.add_message_at(our_player, "return end combined station, more lines ", world.get_time())
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "return end combined station, more lines ", world.get_time())
+				}
 				return false
 			}
 			cnv.destroy(our_player)
@@ -3385,9 +3400,10 @@ function destroy_line(line_obj, good) {
 	sleep()
 
 
-	gui.add_message_at(our_player, " combined station s waytypes = " + combined_s, start_l)
-	gui.add_message_at(our_player, " combined station e waytypes = " + combined_e, end_l)
-
+	if ( print_message_box == 1 ) {
+		gui.add_message_at(our_player, " combined station s waytypes = " + combined_s, start_l)
+		gui.add_message_at(our_player, " combined station e waytypes = " + combined_e, end_l)
+	}
 	// check line way
 	local wayline = null
 	local treeways = 0
@@ -3466,7 +3482,7 @@ function destroy_line(line_obj, good) {
 					sig_tile = 0
 				}
 			}
-			if ( wt == wt_rail ) {
+			if ( wt == wt_rail && print_message_box == 1 ) {
 				gui.add_message_at(our_player, " double_ways " + double_ways, world.get_time())
 				gui.add_message_at(our_player, " double_way_tiles.get_count() " + double_way_tiles.len(), world.get_time())
 			}
@@ -3478,7 +3494,9 @@ function destroy_line(line_obj, good) {
 
 	if ( wt == wt_rail ) {
 		local remove_all = 0
-		gui.add_message_at(our_player, " remove wt_rail line ", world.get_time())
+		if ( print_message_box == 1 ) {
+			gui.add_message_at(our_player, " remove wt_rail line ", world.get_time())
+		}
 		// remove combined station ( rail - water ) on start
 		local tool = command_x(tool_remove_way)
 		if ( start_line_count <= 1 ) {
@@ -3487,7 +3505,9 @@ function destroy_line(line_obj, good) {
 				local t = start_h.get_tile_list()
 				for ( local i = 0; i < t.len(); i++ ) {
 					local k = t[i].find_object(mo_building).get_desc().get_waytype()
-					gui.add_message_at(our_player, " station tile " + i + " waytype " + k, world.get_time())
+					if ( print_message_box == 1 ) {
+						gui.add_message_at(our_player, " station tile " + i + " waytype " + k, world.get_time())
+					}
 					if ( k == wt_water ) {
 						local tool = command_x(tool_remover)
 						//tool.work(our_player, t[i])
@@ -3564,7 +3584,7 @@ function destroy_line(line_obj, good) {
 		}
 
 
-		::debug.pause()
+		//::debug.pause()
 	}
 
 	// remove road line
@@ -3579,8 +3599,10 @@ function destroy_line(line_obj, good) {
 		start_line_count = start_h.get_line_list().get_count()
 		end_line_count = end_h.get_line_list().get_count()
 
-		gui.add_message_at(our_player, " treeway_tile_s " + treeway_tile_s[0] + "  " + treeway_tile_s[1], world.get_time())
-		gui.add_message_at(our_player, " treeway_tile_e " + treeway_tile_e[0] + "  " + treeway_tile_e[1], world.get_time())
+		if ( print_message_box == 1 ) {
+			gui.add_message_at(our_player, " treeway_tile_s " + treeway_tile_s[0] + "  " + treeway_tile_s[1], world.get_time())
+			gui.add_message_at(our_player, " treeway_tile_e " + treeway_tile_e[0] + "  " + treeway_tile_e[1], world.get_time())
+		}
 
 		local tool = command_x(tool_remove_way)
 		if ( start_line_count == 0 ) {
@@ -3638,7 +3660,7 @@ function destroy_line(line_obj, good) {
 		if ( check_home_depot(depot, wt) ) {
 			err = depot.remove_object(our_player, mo_depot_rail)
 			if ( err != null ) {
-				gui.add_message_at(our_player, "####### depot remove " + depot + ": " + err, home_depot)
+				gui.add_message_at(our_player, "## ERROR depot remove " + depot + ": " + err, home_depot)
 			}
 			//tool.work(our_player, depot)
 		}
@@ -3681,8 +3703,10 @@ function destroy_line(line_obj, good) {
 			}
 		}
 	}
-	gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
-	::debug.pause()
+	if ( print_message_box == 1 ) {
+		gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
+	}
+	//::debug.pause()
 	return true
 }
 
