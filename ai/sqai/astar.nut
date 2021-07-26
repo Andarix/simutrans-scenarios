@@ -3296,13 +3296,11 @@ function destroy_line(line_obj, good) {
 	gui.add_message_at(our_player, "  " + line_obj.get_name(), world.get_time())
 
 	local start_line_count = start_h.get_line_list().get_count()
-	local end_line_count = 0
+	local end_line_count = end_h.get_line_list().get_count()
 
 	local combined_s = test_halt_waytypes(start_l)
 	local combined_e = test_halt_waytypes(end_l)
 
-	start_line_count = start_h.get_line_list().get_count()
-	end_line_count = end_h.get_line_list().get_count()
 
 		local start_f = null
 		local end_f = null
@@ -3399,6 +3397,8 @@ function destroy_line(line_obj, good) {
 
 	sleep()
 
+	start_line_count = start_h.get_line_list().get_count()
+	end_line_count = end_h.get_line_list().get_count()
 
 	if ( print_message_box == 1 ) {
 		gui.add_message_at(our_player, " combined station s waytypes = " + combined_s, start_l)
@@ -3500,7 +3500,7 @@ function destroy_line(line_obj, good) {
 		// remove combined station ( rail - water ) on start
 		local tool = command_x(tool_remove_way)
 		if ( start_line_count <= 1 ) {
-			// remove combined waytype halt water - not road
+			// remove combined waytype halt water - not rail
 			if ( combined_s > 1 ) {
 				local t = start_h.get_tile_list()
 				for ( local i = 0; i < t.len(); i++ ) {
@@ -3529,18 +3529,38 @@ function destroy_line(line_obj, good) {
 				remove_tile_to_empty(depot, wt, 0)
 			}
 
+			if ( print_message_box == 1 ) {
+				gui.add_message_at(our_player, " treeways " + treeways + " combined_s " + combined_s + " combined_e " + combined_e, world.get_time())
+				gui.add_message_at(our_player, " start_line_count " + start_line_count + " end_line_count " + end_line_count + " remove_all " + remove_all, world.get_time())
+				::debug.pause()
+			}
+
 			// remove way from start to first treeway
 			if ( treeways > 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && remove_all == 0 ) {
 				// remove station and way to next treeway
-				tool.work(our_player, start_l, treeway_tile_s[0], "" + wt_rail)
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "treeway_tile_s[0] " + coord3d_to_string(treeway_tile_s[0]), treeway_tile_s[0])
+				}
+				local err = tool.work(our_player, start_l, treeway_tile_s[0], "" + wt_rail)
+				if ( err != null ) {
+					gui.add_message_at(our_player, " ## ERROR remove way start_l" + coord3d_to_string(start_l), start_l)
+				}
 				//remove_tile_to_empty(depot, wt, 0)
 				//remove_tile_to_empty(depot_t, wt, 0)
 			}
+
 			// remove way from end to first treeway
 			if ( treeways > 1 && combined_s == 1 && combined_e == 1 && end_line_count == 0 && remove_all == 0 ) {
 				// remove station and way to next treeway
-				tool.work(our_player, end_l, treeway_tile_e[0], "" + wt_rail)
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "treeway_tile_e[0] " + coord3d_to_string(treeway_tile_e[0]), treeway_tile_e[0])
+				}
+				local err = tool.work(our_player, end_l, treeway_tile_e[0], "" + wt_rail)
+				if ( err != null ) {
+					gui.add_message_at(our_player, " ## ERROR remove way end_l" + coord3d_to_string(end_l), start_l)
+				}
 			}
+
 			// remove double ways by rail
 			if ( double_ways > 0 ) {
 				for ( local i = 0; i < double_ways; i++ ) {
