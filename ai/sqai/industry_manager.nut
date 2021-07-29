@@ -209,7 +209,7 @@ class industry_manager_t extends manager_t
 	 * Check link:
 	 * - if state is st_missing set state to st_free after some time
 	 * - for working links see after their lines
-	 * - returns true if some work was done
+	 * - @returns true if some work was done
 	 */
 	function check_link(link)
 	{
@@ -226,7 +226,7 @@ class industry_manager_t extends manager_t
 				// try to plan again
 				link.state = industry_link_t.st_free
 				link.next_check = 0
-				break
+				return false
 		}
 
 		// iterate through all lines
@@ -254,6 +254,7 @@ class industry_manager_t extends manager_t
 			//::debug.pause(),
 		}
 
+		// check all 5 years ( year xxx0 and xxx5 )
 		mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 1000
   	if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 4 && mnt_ticks > world.get_time().ticks ) {
 			// in may
