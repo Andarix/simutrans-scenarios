@@ -632,8 +632,18 @@ class astar_builder extends astar
 						if ( build_bridge ) {
 							err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
 							if (err) {
-								//gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
-								remove_wayline(route, (i - 1), way.get_waytype())
+								// check whether bridge exists
+								sleep()
+								local arf = astar_route_finder(wt_road)
+								local res_bridge = arf.search_route([route[i-1]], [route[i]])
+
+								if ("routes" in res_bridge  &&  res_bridge.routes.len() == abs(route[i-1].x-route[i].x)+abs(route[i-1].y-route[i].y)+1) {
+									// there is a bridge, continue
+									err = null
+									//gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
+								} else {
+									remove_wayline(route, (i - 1), way.get_waytype())
+								}
 							}
 						}
 
