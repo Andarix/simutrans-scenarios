@@ -571,6 +571,11 @@ class astar_builder extends astar
 
 					} else {
 						if ( build_route == 1 ) {
+							// test way is available
+							if ( !way.is_available(world.get_time()) ) {
+								way = find_object("way", way.get_waytype(), way.get_topspeed())
+							}
+
 							if ( settings.get_pay_for_total_distance_mode == 2 ) {
 								err = command_x.build_way(our_player, route[i-1], route[i], way, true)
 							} else {
@@ -3374,7 +3379,9 @@ function destroy_line(line_obj, good) {
 		}
 
 	}
-	gui.add_message_at(our_player, "  " + line_obj.get_name(), world.get_time())
+	if ( print_message_box == 1 ) {
+		gui.add_message_at(our_player, "  " + line_obj.get_name(), world.get_time())
+	}
 
 	local start_line_count = start_h.get_line_list().get_count()
 	local end_line_count = end_h.get_line_list().get_count()
