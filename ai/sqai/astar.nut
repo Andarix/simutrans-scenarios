@@ -3253,12 +3253,14 @@ function optimize_way_line(route, wt) {
 			if ( build_bridge == 1 ) {
 				local err = remove_tile_to_empty(tile_2, wt, 0)
 					//gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
-				err = null
-				err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
-				if (err != null ) {
-					gui.add_message_at(our_player, " build bridge: " + err, world.get_time())
-				} else {
-					count_build++
+				if (err) {
+					err = null
+					err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
+					if (err != null ) {
+						gui.add_message_at(our_player, " build bridge: " + err, tile_1)
+					} else {
+						count_build++
+					}
 				}
 			}
 	}
@@ -3337,9 +3339,10 @@ function destroy_line(line_obj, good) {
 	::debug.set_pause_on_error(true)
 
 	// 1 = messages
+	// 2 = debug.pause()
 	local print_message_box = 0
 
-	if ( print_message_box == 1 ) {
+	if ( print_message_box > 0 ) {
 		gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
 	}
 
@@ -3510,6 +3513,7 @@ function destroy_line(line_obj, good) {
 
 		local i = 0
 
+		// remove depot
 		if ( check_home_depot(depot, wt) )  {
 			// todo check vehicles in depot
 			remove_tile_to_empty(depot, wt, 0)
@@ -3570,7 +3574,7 @@ function destroy_line(line_obj, good) {
 					sig_tile = 0
 				}
 			}
-			if ( wt == wt_rail && print_message_box == 1 ) {
+			if ( wt == wt_rail && print_message_box > 0 ) {
 				gui.add_message_at(our_player, " double_ways " + double_ways, world.get_time())
 				gui.add_message_at(our_player, " double_way_tiles.get_count() " + double_way_tiles.len(), world.get_time())
 			}
@@ -3607,19 +3611,20 @@ function destroy_line(line_obj, good) {
 				}
 			}
 
-			if ( treeways == 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && end_line_count == 0 ) {
+			if ( treeways == 0 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && end_line_count == 0 ) {
 				// remove all
 				remove_all = 1
 			}
-
+/*
 			// remove depot
 			if ( check_home_depot(depot, wt) ) {
 				remove_tile_to_empty(depot, wt, 0)
 			}
-
-			if ( print_message_box == 1 ) {
+*/
+			if ( print_message_box > 0 ) {
 				gui.add_message_at(our_player, " treeways " + treeways + " combined_s " + combined_s + " combined_e " + combined_e, world.get_time())
 				gui.add_message_at(our_player, " start_line_count " + start_line_count + " end_line_count " + end_line_count + " remove_all " + remove_all, world.get_time())
+				gui.add_message_at(our_player, " double_ways " + double_ways, world.get_time())
 				::debug.pause()
 			}
 
@@ -3653,6 +3658,11 @@ function destroy_line(line_obj, good) {
 			if ( double_ways > 0 ) {
 				for ( local i = 0; i < double_ways; i++ ) {
 					// remove double way
+					if ( print_message_box > 0 ) {
+						gui.add_message_at(our_player, " double_way_tiles[i] " + double_way_tiles[i] + " double_way_tiles[i+1] " + double_way_tiles[i+1], double_way_tiles[i])
+						::debug.pause()
+					}
+
 					tool.work(our_player, double_way_tiles[i], double_way_tiles[i+1], "" + wt_rail)
 					tool.work(our_player, double_way_tiles[i+1], double_way_tiles[i], "" + wt_rail)
 					if ( i < (double_ways-1) ) {
