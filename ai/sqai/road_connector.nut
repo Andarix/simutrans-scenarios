@@ -201,7 +201,7 @@ class road_connector_t extends manager_t
 						gui.add_message_at(pl, "Completed route from  " + coord_to_string(c_start) + " to " + coord_to_string(c_end) + " after " + c_trial_route + " attempts", c_end)
 					}
 					if ( print_message_box == 2 ) { gui.add_message_at(our_player, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) }
-					phase ++
+					phase += 3
 				}
 			case 3: // find depot place
 				{
@@ -217,7 +217,7 @@ class road_connector_t extends manager_t
 						return error_handler()
 					}
 					*/
-					phase += 2
+					//phase += 2
 				}
 			case 5: // build depot
 				{
@@ -255,7 +255,7 @@ class road_connector_t extends manager_t
 						local trial = 0
 						local err = null
 						do { // try 3x to find road to suitable depot spot
-							err = construct_road_to_depot(pl, c_start, planned_way)
+							err = construct_road_to_depot(pl, c_route[i], planned_way)
 							trial ++
 						} while (err != null  &&  err != "No route"  &&  trial < 3)
 
