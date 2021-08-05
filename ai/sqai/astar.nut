@@ -1007,20 +1007,28 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 		// remove one tile
 		local tile_remove = 1
 		local tiles_r = tile_x(tiles.x, tiles.y, tiles.z)
+		local crossing_tile = tiles_r.find_object(mo_crossing)
 		local test_way = tiles_r.find_object(mo_way) //.get_desc()
 		//gui.add_message_at(our_player, "test way tile " + tiles.find_object(mo_way), tiles)
 		if ( test_way != null ) {
-				if ( test_way.get_owner().nr != our_player_nr ) {
+				if ( test_way.get_owner().nr != our_player_nr && crossing_tile == null ) {
 					tile_remove = 0
 				}
 		}
 		if ( tile_remove == 1 ) {
 			//gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles_r), tiles)
-			while(true){
-				tool.work(our_player, tiles_r)
-				if (tiles_r.is_empty())
-					break
-			}
+				if ( crossing_tile != null && wt == wt_rail ) {
+					//::debug.pause()
+					// test crossing and remove
+					toolr.work(our_player, tiles_r, tiles_r, "" + wt_rail)
+					//tool.work(our_player, tile)
+				} else {
+					while(true){
+					tool.work(our_player, tiles_r)
+					if (tiles_r.is_empty())
+						break
+					}
+				}
 			return true
 		} else {
 			return false
@@ -3340,7 +3348,7 @@ function destroy_line(line_obj, good) {
 
 	// 1 = messages
 	// 2 = debug.pause()
-	local print_message_box = 0
+	local print_message_box = 2
 
 	if ( print_message_box > 0 ) {
 		gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
