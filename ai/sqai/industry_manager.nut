@@ -428,7 +428,9 @@ class industry_manager_t extends manager_t
 		local print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
-		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+		if ( our_player.nr == 3 && print_message_box == 5 ) {
+			gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+		}
 
 		local line_new = 0
 		if ( line.get_owner().nr == our_player.nr ) {
@@ -733,6 +735,9 @@ class industry_manager_t extends manager_t
 
 		if (cnv.is_valid() && cnv.is_withdrawn()) {
 			// come back later
+			if ( print_message_box > 0 ) {
+				gui.add_message_at(our_player, "cnv.is_valid() && cnv.is_withdrawn() ", world.get_time())
+			}
 			return
 		}
 
@@ -878,6 +883,9 @@ class industry_manager_t extends manager_t
 		dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
 		dbgprint("")
 
+		if ( print_message_box > 0 ) {
+			gui.add_message_at(our_player, "freight_available " + freight_available + " cc_new " + cc_new + " cc_stop " + cc_stop + " cnv.is_valid() " + cnv.is_valid(), world.get_time())
+		}
 		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2 && cnv.is_valid() ) {
 
 			// stations distance
@@ -995,7 +1003,7 @@ class industry_manager_t extends manager_t
 
 				local wt = cnv.get_waytype()
 
-				if ( print_message_box == 1 ) {
+				if ( print_message_box >= 1 ) {
 					gui.add_message_at(our_player, "###---- check convoys line : " + line.get_name(), world.get_time())
 				}
 
@@ -1447,7 +1455,10 @@ function check_good_quantity(start_l, end_l, good, line) {
 				//gui.add_message_at(our_player, "*** good halt src " + good_src + " " + line.get_name(), world.get_time())
 				//gui.add_message_at(our_player, "*** islot.good " + translate(islot.good) + " factory " + f_dest[0].get_name() + " input storage [" + max_storage + "]", world.get_time())
 
-				if ( (st[0] + it[0] > max_storage && (max_storage/5) < st[0]) || it[0] > max_storage ) {
+				if ( st[0] < (max_storage/10) ) {
+					return false
+				} else if ( (st[0] + it[0] > max_storage && (max_storage/5) < st[0]) || it[0] > max_storage ) {
+					//
 					//gui.add_message_at(our_player, "*** good quantity [" + (st[0] + it[0]) + "] > factory " + f_dest[0].get_name() + " input storage [" + max_storage + "] " + line.get_name(), world.get_time())
 					return true
 
