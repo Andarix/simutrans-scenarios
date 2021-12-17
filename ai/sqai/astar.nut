@@ -1244,9 +1244,11 @@ function test_tile_is_empty(tile) {
  * fields 				= array fields
  * wt 						= waytype
  * select_station = station object
- * start_field 		= c_start or c_end
+ * start_fld 		= c_start or c_end
  */
-function expand_station(pl, fields, wt, select_station, start_field) {
+function expand_station(pl, fields, wt, select_station, start_fld) {
+
+  local start_field = tile_x(start_fld.x, start_fld.y, start_fld.z)
 
 	local print_message_box = 0
 
@@ -1452,10 +1454,109 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 
 				if ( new_tile == 1 ) {
 					// to do connection factory other rotations
-
+          gui.add_message_at(pl, "check connect factory : build extension", start_field)
+          ::debug.pause()
 					local s_tiles = []
+					  s_tiles.append(fields[0])
+						s_tiles.append(start_field)
 					local tool = command_x(tool_remover)
-					if ( start_field.x < fields[0].x && start_field.y < tile.y ) {
+          local test_tiles = []
+          local factory_connect = 0
+          if ( start_field.get_way_dirs(wt_rail) == 3 ) {
+            if ( start_field.x == fields[0].x ) {
+              s_tiles.append(square_x(start_field.x+1, start_field.y).get_ground_tile())
+
+              test_tiles.append(square_x(start_field.x-1, start_field.y).get_ground_tile())
+              test_tiles.append(square_x(start_field.x-1, start_field.y+1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x, start_field.y+1).get_ground_tile())
+
+              factory_connect = build_extensions_connect_factory(pl, start_field, fields[0], test_tiles, extension)
+
+            } else if ( start_field.y == fields[0].y ) {
+              s_tiles.append(square_x(start_field.x, start_field.y-1).get_ground_tile())
+
+              test_tiles.append(square_x(start_field.x, start_field.y+1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x-1, start_field.y+1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x-1, start_field.y).get_ground_tile())
+
+              factory_connect = build_extensions_connect_factory(pl, start_field, fields[0], test_tiles, extension)
+
+            }
+
+          } else if ( start_field.get_way_dirs(wt_rail) == 6 ) {
+            if ( start_field.x == fields[0].x ) {
+              s_tiles.append(square_x(start_field.x-1, start_field.y).get_ground_tile())
+
+              test_tiles.append(square_x(start_field.x-1, start_field.y).get_ground_tile())
+              test_tiles.append(square_x(start_field.x-1, start_field.y-1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x, start_field.y-1).get_ground_tile())
+
+              factory_connect = build_extensions_connect_factory(pl, start_field, fields[0], test_tiles, extension)
+
+            } else if ( start_field.y == fields[0].y ) {
+              s_tiles.append(square_x(start_field.x, start_field.y+1).get_ground_tile())
+
+              test_tiles.append(square_x(start_field.x, start_field.y-1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x-1, start_field.y-1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x-1, start_field.y).get_ground_tile())
+
+              factory_connect = build_extensions_connect_factory(pl, start_field, fields[0], test_tiles, extension)
+
+            }
+
+          } else if ( start_field.get_way_dirs(wt_rail) == 9 ) {
+            if ( start_field.x == fields[0].x ) {
+              s_tiles.append(square_x(start_field.x-1, start_field.y).get_ground_tile())
+
+              test_tiles.append(square_x(start_field.x+1, start_field.y).get_ground_tile())
+              test_tiles.append(square_x(start_field.x+1, start_field.y+1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x, start_field.y+1).get_ground_tile())
+
+              factory_connect = build_extensions_connect_factory(pl, start_field, fields[0], test_tiles, extension)
+
+            } else if ( start_field.y == fields[0].y ) {
+              s_tiles.append(square_x(start_field.x, start_field.y-1).get_ground_tile())
+
+              test_tiles.append(square_x(start_field.x, start_field.y+1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x+1, start_field.y+1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x+1, start_field.y).get_ground_tile())
+
+              factory_connect = build_extensions_connect_factory(pl, start_field, fields[0], test_tiles, extension)
+
+            }
+
+          } else if ( start_field.get_way_dirs(wt_rail) == 12 ) {
+            if ( start_field.x == fields[0].x ) {
+              s_tiles.append(square_x(start_field.x-1, start_field.y).get_ground_tile())
+
+              test_tiles.append(square_x(start_field.x+1, start_field.y).get_ground_tile())
+              test_tiles.append(square_x(start_field.x+1, start_field.y-1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x, start_field.y-1).get_ground_tile())
+
+              factory_connect = build_extensions_connect_factory(pl, start_field, fields[0], test_tiles, extension)
+
+            } else if ( start_field.y == fields[0].y ) {
+              s_tiles.append(square_x(start_field.x, start_field.y+1).get_ground_tile())
+
+              test_tiles.append(square_x(start_field.x, start_field.y-1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x+1, start_field.y-1).get_ground_tile())
+              test_tiles.append(square_x(start_field.x+1, start_field.y).get_ground_tile())
+
+              factory_connect = build_extensions_connect_factory(pl, start_field, fields[0], test_tiles, extension)
+
+            }
+
+          }
+
+          if ( tiles.len() == 3 ) {
+            for ( local x = 0; x < 3; x++ ) {
+              if ( halt_x.get_halt(tiles[x], pl) ) {
+                fields.append(tiles[x])
+              }
+            }
+
+          }
+					/*if ( start_field.x < fields[0].x && start_field.y < fields[0].y ) {
 						tile = square_x(start_field.x-1, start_field.y).get_ground_tile()
 						if ( tile.is_empty ) {
 							gui.add_message_at(pl, " --=> new extensions field: " + coord3d_to_string(tile), tile)
@@ -1466,19 +1567,26 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 							} else if ( start_field.get_way_dirs(wt_rail) == 6 ) {
 								s_tiles.append(square_x(start_field.x, start_field.y+1).get_ground_tile())
 							}
-							// remove way for build extension
-							tool.work(our_player, start_field)
-							// build extensions
-							err = command_x.build_station(pl, start_field, extension)
-							err = command_x.build_station(pl, tile, extension)
-							// remove extension for restore way
-							tool.work(our_player, start_field)
-							err = command_x.build_way(pl, s_tiles[0], s_tiles[1], planned_way, true)
-							err = command_x.build_way(pl, s_tiles[1], s_tiles[2], planned_way, true)
-						}
-
+              rebuild = 1
+            }
 						fields.append(tile)
-					} else {
+					} else if ( start_field.x > fields[0].x && start_field.y > fields[0].y ) {
+						tile = square_x(start_field.x+1, start_field.y).get_ground_tile()
+						if ( tile.is_empty ) {
+							gui.add_message_at(pl, " --=> new extensions field: " + coord3d_to_string(tile), tile)
+							s_tiles.append(fields[0])
+							s_tiles.append(start_field)
+							if ( start_field.get_way_dirs(wt_rail) == 9 ) {
+								s_tiles.append(square_x(start_field.x, start_field.y-1).get_ground_tile())
+							} else if ( start_field.get_way_dirs(wt_rail) == 12 ) {
+								s_tiles.append(square_x(start_field.x+1, start_field.y).get_ground_tile())
+							}
+              rebuild = 1
+            }
+						fields.append(tile)
+
+					} else {*/
+          if ( factory_connect == 0 ) {
 						local tile = square_x(fields[0].x, fields[0].y).get_ground_tile()
 						if ( tile.find_object(mo_building) != null ) {
 							local waytypes = test_halt_waytypes(tile)
@@ -1491,13 +1599,80 @@ function expand_station(pl, fields, wt, select_station, start_field) {
 					}
 
 
+
 				}
 			}
 
 		}
 
+    if ( start_field.is_empty() ) {
+      // rebuild way
+		  err = command_x.build_way(pl, s_tiles[0], s_tiles[1], planned_way, true)
+		  err = command_x.build_way(pl, s_tiles[1], s_tiles[2], planned_way, true)
+	  }
+
 		return fields
 	}
+}
+
+/*
+ *  pl          = player
+ *  st_field    = start field
+ *  hlt_field   = halt field
+ *  tiles[]     = test tiles for extensions to connect factory
+ *  extension   = extensions object
+ *
+ *  return
+ *    1 = connect factory
+ *    0 = not connect factory
+ */
+function build_extensions_connect_factory(pl, st_field, hlt_field, tiles, extension) {
+  local factory_connect = 0
+	// check station connect factory
+	local st = halt_x.get_halt(hlt_field, pl)
+  local fl_st = null
+  local err = null
+
+  // test 1 -> rebuild 0
+  if ( tiles[0].is_empty ) {
+    err = command_x.build_station(pl, tiles[0], extension)
+    fl_st = st.get_factory_list()
+    if ( fl_st.len() > 0 ) {
+      factory_connect = 1
+    }
+  }
+
+  if ( factory_connect == 0 ) {
+		// remove way for build extension
+		tool.work(our_player, st_field)
+		// build extensions
+		err = command_x.build_station(pl, st_field, extension)
+
+    // test 2 -> rebuild 1
+    if ( tiles[1].is_empty ) {
+			err = command_x.build_station(pl, tiles[1], extension)
+      fl_st = st.get_factory_list()
+      if ( fl_st.len() > 0 ) {
+        tool.work(our_player, st_field)
+        factory_connect = 1
+      }
+    }
+
+    if ( factory_connect == 0 ) {
+      // test 3 -> rebuild 1
+      if ( tiles[2].is_empty ) {
+				err = command_x.build_station(pl, tiles[2], extension)
+        fl_st = st.get_factory_list()
+        if ( fl_st.len() > 0 ) {
+          tool.work(our_player, st_field)
+          factory_connect = 1
+        }
+      }
+    }
+  }
+
+
+  return factory_connect
 }
 
 /*
