@@ -516,7 +516,7 @@ class astar_builder extends astar
 	{
 
 		if ( start.len() == 0 || end.len() == 0 ) {
-			gui.add_message_at(our_player, " *** invalid tile : start or end ", world.get_time())
+			//gui.add_message_at(our_player, " *** invalid tile : start or end ", world.get_time())
 			return { err =  "No route" }
 		}
 
@@ -1154,7 +1154,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 		if ( st_build == false ) {
 			// move station
-			if ( print_message_box == 0 ) {
+			if ( print_message_box > 0 ) {
 				gui.add_message_at(pl, " *#* ERROR => expand station failed", world.get_time())
 				gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), starts_field)
 				gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time())
@@ -1388,7 +1388,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 				}
 				err = command_x.build_station(pl, fields[i], select_station)
 				if ( err ) {
-					gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[i]), fields[i])
+					//gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[i]), fields[i])
 					remove_tile_to_empty(fields, wt_rail)
 					return false
 				}
@@ -1592,7 +1592,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 						if ( tile.find_object(mo_building) != null ) {
 							local waytypes = test_halt_waytypes(tile)
 							if ( waytypes > 1 ) {
-								gui.add_message_at(pl, " -#-=> combined station " + coord3d_to_string(start_field), start_field)
+								//gui.add_message_at(pl, " -#-=> combined station " + coord3d_to_string(start_field), start_field)
 							} else {
 								gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
 							}
@@ -3528,7 +3528,7 @@ function destroy_line(line_obj, good) {
 	// 2 = debug.pause()
 	local print_message_box = 0
 
-	if ( print_message_box >= 0 ) {
+	if ( print_message_box > 0 ) {
 		gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
 	}
 
@@ -4011,7 +4011,7 @@ function destroy_line(line_obj, good) {
 			}
 		}
 	}
-	if ( print_message_box >= 0 ) {
+	if ( print_message_box > 0 ) {
 		gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
 	  ::debug.pause()
 	}
