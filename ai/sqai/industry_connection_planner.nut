@@ -619,7 +619,7 @@ class industry_connection_planner_t extends manager_t
 
 
 		if ( citycar_rate < 10 ) {
-		  gui.add_message_at(our_player, "citycar_count[0] " + citycar_count[0] + " citycar_rate " + citycar_rate, world.get_time())
+		  //gui.add_message_at(our_player, "citycar_count[0] " + citycar_count[0] + " citycar_rate " + citycar_rate, world.get_time())
 			switch (wt) {
 				case wt_rail:
 					r.points += 25
