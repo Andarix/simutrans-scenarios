@@ -1240,6 +1240,7 @@ function test_tile_is_empty(tile) {
 
 /**
  * function expand station()
+ *
  * pl 						= player
  * fields 				= array fields
  * wt 						= waytype
@@ -1616,6 +1617,8 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 }
 
 /*
+ *  function build_extensions_connect_factory()
+ *
  *  pl          = player
  *  st_field    = start field
  *  hlt_field   = halt field
