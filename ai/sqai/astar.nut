@@ -516,7 +516,7 @@ class astar_builder extends astar
 	{
 
 		if ( start.len() == 0 || end.len() == 0 ) {
-			//gui.add_message_at(our_player, " *** invalid tile : start or end ", world.get_time())
+			gui.add_message_at(our_player, " *** invalid tile : start or end ", world.get_time())
 			return { err =  "No route" }
 		}
 
@@ -1154,7 +1154,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
 		if ( st_build == false ) {
 			// move station
-			if ( print_message_box > 0 ) {
+			if ( print_message_box == 0 ) {
 				gui.add_message_at(pl, " *#* ERROR => expand station failed", world.get_time())
 				gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), starts_field)
 				gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time())
@@ -1388,7 +1388,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 				}
 				err = command_x.build_station(pl, fields[i], select_station)
 				if ( err ) {
-					//gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[i]), fields[i])
+					gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[i]), fields[i])
 					remove_tile_to_empty(fields, wt_rail)
 					return false
 				}
@@ -1592,7 +1592,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 						if ( tile.find_object(mo_building) != null ) {
 							local waytypes = test_halt_waytypes(tile)
 							if ( waytypes > 1 ) {
-								//gui.add_message_at(pl, " -#-=> combined station " + coord3d_to_string(start_field), start_field)
+								gui.add_message_at(pl, " -#-=> combined station " + coord3d_to_string(start_field), start_field)
 							} else {
 								gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
 							}
@@ -3526,9 +3526,9 @@ function destroy_line(line_obj, good) {
 
 	// 1 = messages
 	// 2 = debug.pause()
-	local print_message_box = 0
+	local print_message_box = 1
 
-	if ( print_message_box > 0 ) {
+	if ( print_message_box >= 0 ) {
 		gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
 	}
 
@@ -3545,6 +3545,9 @@ function destroy_line(line_obj, good) {
 	local end_l = null
 	local start_h = null
 	local end_h = null
+
+  local nexttile = []
+
 	{
 		local entries = line_obj.get_schedule().entries
 		local entries_count = entries.len()
@@ -3648,13 +3651,14 @@ function destroy_line(line_obj, good) {
 				}
 				return false
 			}
-			if ( wt == wt_water && combined_e > 1 && end_line_count > 1 ) {
+			if ( wt == wt_water && combined_e > 1 && end_line_count > 2 ) {
 				if ( print_message_box == 1 ) {
 					gui.add_message_at(our_player, "return end combined station, more lines ", world.get_time())
 				}
 				return false
 			}
 			cnv.destroy(our_player)
+      //::debug.pause()
 		}
 		// sleep - convoys are destroyed when simulation continues
 		sleep()
@@ -3713,7 +3717,7 @@ function destroy_line(line_obj, good) {
 			local t_t = 0
 			foreach(node in wayline.routes) {
 				local tile = tile_x(node.x, node.y, node.z)
-				//nexttile.append(tile)
+				nexttile.append(tile)
 				// check route to treeways
 
 				// treeway tile other player, set next tile for remove
@@ -3888,6 +3892,21 @@ function destroy_line(line_obj, good) {
 		if ( remove_all == 1 ) {
 			// remove line way
 			local tool = command_x(tool_remove_way)
+      if ( start_l.is_empty() || end_l.is_empty() ) {
+        local c1 = 0
+        local c2 = 0
+        for ( local i = 0; i > 10; i++ ) {
+          if ( !nexttile[nexttile.len-i].is_empty() ) {
+            start_l = nexttile[nexttile.len-i]
+            c1++
+          }
+          if ( !nexttile[i].is_empty() ) {
+            end_l = nexttile[i]
+            c2++
+          }
+          if ( (c1+c2) == 2 ) { break }
+        }
+      }
 			tool.work(our_player, start_l, end_l, "" + wt_rail)
 		}
 
@@ -3966,7 +3985,7 @@ function destroy_line(line_obj, good) {
 
 		// remove depot
 		if ( check_home_depot(depot, wt) ) {
-			err = depot.remove_object(our_player, mo_depot_rail)
+			local err = depot.remove_object(our_player, mo_depot_rail)
 			if ( err != null ) {
 				gui.add_message_at(our_player, "## ERROR depot remove " + depot + ": " + err, home_depot)
 			}
@@ -4011,7 +4030,7 @@ function destroy_line(line_obj, good) {
 			}
 		}
 	}
-	if ( print_message_box > 0 ) {
+	if ( print_message_box >= 0 ) {
 		gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
 	  ::debug.pause()
 	}
