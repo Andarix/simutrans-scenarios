@@ -468,7 +468,7 @@ class industry_connection_planner_t extends manager_t
 						r.points += 20
 						cash_buffer = 10
 					}
-					if ( world.get_time().year < 1935 && planned_bridge.tiles > 25 ) {
+					if ( world.get_time().year < 1935 && planned_bridge.tiles > 18 ) {
             //gui.add_message_at(our_player, "wt_road: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
 						r.points -= (34*bridge_year_factor)
           } else if ( planned_bridge.tiles > 40 ) {
@@ -619,7 +619,7 @@ class industry_connection_planner_t extends manager_t
 
 
 		if ( citycar_rate < 10 ) {
-		  //gui.add_message_at(our_player, "citycar_count[0] " + citycar_count[0] + " citycar_rate " + citycar_rate, world.get_time())
+		  gui.add_message_at(our_player, "citycar_count[0] " + citycar_count[0] + " citycar_rate " + citycar_rate, world.get_time())
 			switch (wt) {
 				case wt_rail:
 					r.points += 25
