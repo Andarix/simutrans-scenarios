@@ -237,7 +237,7 @@ class industry_manager_t extends manager_t
 					check_link_line(link, line)
 				}
 			} else {
-				gui.add_message_at(our_player, "####### invalid line " + line, world.get_time())
+				//gui.add_message_at(our_player, "####### invalid line " + line, world.get_time())
 				link.lines.remove(index)
 			}
 		}
