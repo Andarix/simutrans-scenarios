@@ -429,7 +429,7 @@ class industry_manager_t extends manager_t
 
 		//
 
-		local print_message_box = 2
+		local print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
 		if ( our_player.nr == 3 && print_message_box == 5 ) {
