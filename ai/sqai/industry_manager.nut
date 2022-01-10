@@ -277,6 +277,7 @@ class industry_manager_t extends manager_t
 		f_dest = d
 		freight = good_desc_x(f)
 */
+		local print_message_box = 0
 
 		local pl_lines = []
 
@@ -397,8 +398,10 @@ class industry_manager_t extends manager_t
 		}
 
 		if ( line_list.get_count() > line_ai_count ) {
-			gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### line check: not all listet in ai lines ", world.get_time())
-			gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
+		  if ( print_message_box == 1 ) {
+			  gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### line check: not all listet in ai lines ", world.get_time())
+			  gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
+      }
 			for ( local i = 0; i < ai_lines_missing.len(); i++ ) {
 				gui.add_message_at(player_x(our_player.nr), "####### line missing " + ai_lines_missing[i].get_name(), world.get_time())
 			}
@@ -1054,7 +1057,7 @@ class industry_manager_t extends manager_t
 								expand_station.append(nexttile[nexttile.len()-station_count])
 							}
 						}
-						if ( a < station_count ) {
+						if ( a < station_count && print_message_box > 0 ) {
 							gui.add_message_at(our_player, "###---- check stations field : " + a, nexttile[0])
 							gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
 						}
@@ -1096,7 +1099,9 @@ class industry_manager_t extends manager_t
 					if ( dist <= 50) { cnv_valuator.max_cnvs = dist/3 }
 					else if ( dist > 50 && dist <= 250 ) { cnv_valuator.max_cnvs = dist/2 }
 					//else if ( dist > 250 ) { cnv_valuator.max_cnvs = dist - 50 }
-					gui.add_message_at(our_player, "### line : " + line.get_name() + " dist: " + dist + " cnv max: " + cnv_valuator.max_cnvs, world.get_time())
+			    if ( print_message_box > 0 ) {
+					  gui.add_message_at(our_player, "### line : " + line.get_name() + " dist: " + dist + " cnv max: " + cnv_valuator.max_cnvs, world.get_time())
+          }
 				}
 
 				// add 10% from distance
