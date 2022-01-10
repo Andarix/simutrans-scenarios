@@ -3787,7 +3787,7 @@ function destroy_line(line_obj, good) {
     }
     // remove combined station ( rail - water ) on start
     local tool = command_x(tool_remove_way)
-    if ( start_line_count <= 1 ) {
+    if ( start_line_count < 2 ) {
       // remove combined waytype halt water - not rail
       if ( combined_s > 1 ) {
         local t = start_h.get_tile_list()
@@ -3897,6 +3897,9 @@ function destroy_line(line_obj, good) {
     // remove rail line way by single halt and no more treeways
     if ( remove_all == 1 ) {
       // remove line way
+      if ( print_message_box == 1 ) {
+        gui.add_message_at(our_player, " remove_all == 1 ", world.get_time())
+      }
       local tool = command_x(tool_remove_way)
       if ( start_l.is_empty() || end_l.is_empty() ) {
         local c1 = 0
@@ -3913,7 +3916,16 @@ function destroy_line(line_obj, good) {
           if ( (c1+c2) == 2 ) { break }
         }
       }
+
+      local t = start_l.get_halt().get_tile_list()
+
       tool.work(our_player, start_l, end_l, "" + wt_rail)
+      // remove all tiles from halt start
+        for ( local i = 0; i < t.len(); i++ ) {
+          if ( t[i].find_object(mo_building) ) {
+            t[i].remove_object(our_player, mo_building)
+          }
+        }
     }
 
 
@@ -4020,7 +4032,7 @@ function destroy_line(line_obj, good) {
       }
     }
 
-    if ( end_line_count == 0 ) {
+    if ( end_line_count < 2 ) {
       // remove combined waytype halt water - not road
       if ( combined_e > 1 ) {
         local t = end_h.get_tile_list()
@@ -4172,6 +4184,7 @@ function check_stations_connections() {
 
       local home_depot = null
       local wt = null
+      local good = null
 
       // combined station not finish
       if ( halt_cnv.get_count() > 0 ) {
@@ -4183,6 +4196,14 @@ function check_stations_connections() {
           halt_cnv[i].destroy(our_player)
         }
       } else if ( halt.get_line_list().get_count() == 1 ) {
+
+        //local t = halt.get_tile_list()
+        //halt_cnv = halt_lines.get_convoy_list()
+        destroy_line(halt_lines, good)
+
+
+        break
+        /*
         // remove convoys from line
         halt_cnv = halt_lines.get_convoy_list()
         wt = halt_cnv[0].get_waytype()
@@ -4228,7 +4249,7 @@ function check_stations_connections() {
             // remove depot road/rail and way
             err = remove_tile_to_empty(tile, wt, 0)
           }
-        }
+        }*/
       }
 
     }
