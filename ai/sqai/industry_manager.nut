@@ -17,6 +17,7 @@ class my_line_t extends line_x
 	build_line					= world.get_time() // create line
 	next_vehicle_check  = 0 // save ticks for next vehicle check
 	next_check 					= world.get_time().ticks
+  halt_length         = 0 // tiles from halts
 
 	constructor(line /* line_x */)
 	{
@@ -1030,6 +1031,7 @@ class industry_manager_t extends manager_t
 						}
 					}
 					//prototyper.max_length = station_count
+          line.halt_length = station_count
 					local a = station_count
 					if ( station_count < 6 ) {
 						// check expand station
@@ -1209,10 +1211,11 @@ class industry_manager_t extends manager_t
 					local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
 
 					if ( st_lenght > station_count ) {
-						// expand station to 4 tiles
+						// expand station
 						for ( local i = 0; i < 2; i++ ) {
 							command_x.build_station(our_player, expand_station[i], station_list[0])
 						}
+            line.halt_length = st_lenght
 						gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
 					} /*else if ( st_lenght == 5 && expand_station.len() > 2 ) {
 						// expand station to 5 tiles
@@ -1323,6 +1326,9 @@ class industry_manager_t extends manager_t
 
 		prototyper.max_vehicles = get_max_convoi_length(wt)
 		prototyper.max_length = 1
+    if ( wt == wt_rail ) {
+      prototyper.max_length = line.halt_length
+    }
 		if (wt == wt_water) {
 			prototyper.max_length = 4
 		}
