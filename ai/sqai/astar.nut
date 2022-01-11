@@ -1974,11 +1974,13 @@ function build_double_track(start_field, wt) {
       // build from n to s
       // ns - r
       local ref_ground = square_x(start_field.x, start_field.y + i).get_ground_tile()
-      if ( tile_x(start_field.x + 1, start_field.y + i, start_field.z).is_empty() ) { //&& square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z
+      local t = tile_x(start_field.x + 1, start_field.y + i, start_field.z)
+      if ( t.is_valid() && t.is_empty() ) { //&& square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z
         tiles_build_r.append(tile_x(start_field.x + 1, start_field.y + i, ref_ground.z))
       }
       // ns - l
-      if ( tile_x(start_field.x - 1, start_field.y + i, start_field.z).is_empty() ) { //&& square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z
+      t = tile_x(start_field.x - 1, start_field.y + i, start_field.z)
+      if ( t.is_valid() && t.is_empty() ) { //&& square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z
         tiles_build_l.append(tile_x(start_field.x - 1, start_field.y + i, ref_ground.z))
       }
       tiles.append(ref_ground)
@@ -1989,11 +1991,13 @@ function build_double_track(start_field, wt) {
       // ew - r
       // build from w to e
       local ref_ground = square_x(start_field.x + i, start_field.y).get_ground_tile()
-      if ( tile_x(start_field.x + i, start_field.y + 1, start_field.z).is_empty() ) { //&& square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z
+      local t = tile_x(start_field.x + i, start_field.y + 1, start_field.z)
+      if ( t.is_valid() && t.is_empty() ) { //&& square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z
         tiles_build_r.append(tile_x(start_field.x + i, start_field.y + 1, ref_ground.z))
       }
       // ew - l
-      if ( tile_x(start_field.x + i, start_field.y - 1, start_field.z).is_empty() ) { //&& square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z
+      t = tile_x(start_field.x + i, start_field.y - 1, start_field.z)
+      if ( t.is_valid() && t.is_empty() ) { //&& square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z
         tiles_build_l.append(tile_x(start_field.x + i, start_field.y - 1, ref_ground.z))
       }
       tiles.append(ref_ground)
@@ -2014,32 +2018,39 @@ function build_double_track(start_field, wt) {
         gui.add_message_at(b_player, "6/9 ref_ground " + coord3d_to_string(ref_ground), ref_ground)
       }
 
+      local t = null
       if ( tiles_build_l.len() == 0 && ref_ground.get_way_dirs(wt) == 9 ) {
-        if ( tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 1).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 1).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z))
         }
-        if ( tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z))
         }
       } else if ( tiles_build_l.len() > way_len-2 && tiles_build_l.len() <= way_len ) {
         // no build tile
       } else if ( tiles_build_l.len() < way_len-2 ) {
-        if ( tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z))
         }
       }
 
       if ( tiles_build_r.len() == 0 && ref_ground.get_way_dirs(wt) == 6 ) {
-        if ( tile_x(ref_ground.x - 1, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x - 1, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x - 1, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x - 1, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x - 1, ref_ground.y, ref_ground.z))
         }
-        if ( tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x - 2, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x - 2, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z))
         }
       }else if ( tiles_build_r.len() > way_len-2 && i <= way_len ) {
         // no build tile
       } else if ( tiles_build_r.len() < way_len-2 ) {
-        if ( tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x - 2, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x - 2, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z))
         }
       }
@@ -2067,14 +2078,17 @@ function build_double_track(start_field, wt) {
         gui.add_message_at(b_player, "tiles_build_l.len() " + tiles_build_l.len() + " ref_ground.get_way_dirs(wt)" + ref_ground.get_way_dirs(wt), world.get_time())
       }
 
+      local t = null
       if ( tiles_build_l.len() == 0 && ref_ground.get_way_dirs(wt) == 3 ) {
         //gui.add_message_at(b_player, "test tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z)), world.get_time())
-        if ( tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 1).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 1).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z))
           //gui.add_message_at(b_player, "add tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z)), world.get_time())
         }
         //gui.add_message_at(b_player, "test tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)), world.get_time())
-        if ( tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z))
           //gui.add_message_at(b_player, "add tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)), world.get_time())
         }
@@ -2082,23 +2096,27 @@ function build_double_track(start_field, wt) {
         // no build tile
       } else if ( tiles_build_l.len() < way_len-2 ) {
         //gui.add_message_at(b_player, "test tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)), world.get_time())
-        if ( tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z))
           //gui.add_message_at(b_player, "add tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)), world.get_time())
         }
       }
 
       if ( tiles_build_r.len() == 0 && ref_ground.get_way_dirs(wt) == 12 ) {
-        if ( tile_x(ref_ground.x + 1, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x + 1, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x + 1, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x + 1, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x + 1, ref_ground.y, ref_ground.z))
         }
-        if ( tile_x(ref_ground.x + 2, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x + 2, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x + 2, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x + 2, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x + 2, ref_ground.y, ref_ground.z))
         }
       }else if ( tiles_build_r.len() > way_len-2 && i <= way_len ) {
         // no build tile
       } else if ( tiles_build_r.len() < way_len-2 ) {
-        if ( tile_x(ref_ground.x + 2, ref_ground.y, start_field.z).is_empty() ) { //&& square_x(ref_ground.x + 2, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x + 2, ref_ground.y, start_field.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x + 2, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x + 2, ref_ground.y, ref_ground.z))
         }
       }
