@@ -3495,7 +3495,7 @@ function optimize_way_line(route, wt) {
  *
  */
 function check_doubleway_in_line(route, wt) {
-  gui.add_message_at(our_player, " check_doubleway_in_line(route, wt) ", world.get_time())
+  //gui.add_message_at(our_player, " check_doubleway_in_line(route, wt) ", world.get_time())
 
   local treeway_tiles = []
   local nexttile = []
