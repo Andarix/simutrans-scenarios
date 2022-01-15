@@ -657,10 +657,20 @@ class industry_manager_t extends manager_t
 		if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			if ( line.optimize_way_line == 0 ) {
 				// optimize way line befor build double ways
-				optimize_way_line(nexttile, cnv.get_waytype())
-				line.optimize_way_line = 1
-			} else {
-
+				local err = optimize_way_line(nexttile, cnv.get_waytype())
+        if ( err ) {
+				  line.optimize_way_line = 1
+        }
+			} else if ( line.optimize_way_line == 1 && our_player.get_current_cash() > 500000 ) {
+				local err = optimize_way_line(nexttile, cnv.get_waytype())
+        if ( err ) {
+				  line.optimize_way_line = 2
+        }
+			} else if ( line.optimize_way_line == 2 && our_player.get_current_cash() > 1500000 ) {
+				local err = optimize_way_line(nexttile, cnv.get_waytype())
+        if ( err ) {
+				  line.optimize_way_line = 3
+        }
 			}
 		}
 
