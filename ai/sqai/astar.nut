@@ -3378,6 +3378,7 @@ function optimize_way_line(route, wt) {
       }
     }
 
+    // build bridges an tunnel - 2 to 4 tiles
     local build_bridge = 0
     local build_tunnel = 0
     local build_tile = null
@@ -3390,7 +3391,7 @@ function optimize_way_line(route, wt) {
     local way_d = 0
     if ( tile_1_d == 5 || tile_1_d == 10 ) {
       if ( tile_1_d == tile_2_d && tile_2_d == tile_3_d && tile_3_d == tile_4_d && tile_1.z == tile_4.z && tile_1.get_slope() > 0 && tile_4.get_slope() > 0 ) {
-        if ( our_player.get_current_cash() > 1500000 ) {
+        if ( our_player.get_current_cash() > 1000000 ) {
           if ( tile_1.z == tile_2.z && tile_2.z == tile_3.z && tile_1.is_bridge() != true ) {
             build_bridge = 2
             build_tile = tile_4
@@ -3586,6 +3587,95 @@ function optimize_way_line(route, wt) {
           }
         }
       }
+
+    // remove obsolete bridges
+    if ( tile_2.is_bridge() && tile_1.z == tile_2.z && tile_2.get_slope() == 0 ) {
+      local tile_way = tile_2.find_object(mo_bridge)
+      local pl_check = tile_way.get_owner().nr
+
+      local remove_bridge = 0
+      local bridge_len = 0
+      if ( tile_2_d == 5 && pl_check == our_player_nr ) {
+        local t_tile = tile_2
+        if ( tile_2.y > tile_1.y ) {
+          local check_gr = tile_x(t_tile.x, t_tile.y+1, t_tile.z)
+          for ( local x = 1; route[i].is_bridge(); x++ ) {
+            if ( check_gr.is_ground() && check_gr.is_empty() ) {
+              remove_bridge++
+            }
+            bridge_len = x
+            i++
+
+            check_gr = square_x(route[i].x, route[i].y).get_ground_tile()
+          }
+
+        } else {
+          local check_gr = tile_x(t_tile.x, t_tile.y-1, t_tile.z)
+          for ( local x = 1; route[i].is_bridge(); x++ ) {
+            if ( check_gr.is_ground() && check_gr.is_empty() ) {
+              remove_bridge++
+            }
+            bridge_len = x
+            i++
+
+            check_gr = square_x(route[i].x, route[i].y).get_ground_tile()
+          }
+
+        }
+      } else if ( tile_2_d == 10 && pl_check == our_player_nr ) {
+        local t_tile = tile_2
+        if ( tile_2.x > tile_1.x ) {
+          local check_gr = tile_x(t_tile.x+1, t_tile.y, t_tile.z)
+          for ( local x = 1; route[i].is_bridge(); x++ ) {
+            if ( check_gr.is_ground() && check_gr.is_empty() ) {
+              remove_bridge++
+            }
+            bridge_len = x
+            i++
+
+            check_gr = square_x(route[i].x, route[i].y).get_ground_tile()
+          }
+
+        } else {
+          local check_gr = tile_x(t_tile.x-1, t_tile.y, t_tile.z)
+          for ( local x = 1; route[i].is_bridge(); x++ ) {
+            if ( check_gr.is_ground() && check_gr.is_empty() ) {
+              remove_bridge++
+            }
+            bridge_len = x
+            i++
+
+            check_gr = square_x(route[i].x, route[i].y).get_ground_tile()
+          }
+
+        }
+      }
+      if ( bridge_len > 0 && print_message_box > 0 ) {
+        gui.add_message_at(our_player, " test bridge : bridge_len = " + bridge_len + " : remove_bridge = " + remove_bridge, tile_1)
+        //::debug.pause()
+      }
+
+
+      if ( remove_bridge > 0 && bridge_len > 2 && bridge_len < 5 && pl_check == our_player_nr ) {
+        local err = remove_tile_to_empty(tile_2, wt, 0)
+            //gui.add_message_at(our_player, " remove way: " + err, tile_1)
+        if (err) {
+          build_tile = tile_x(route[i].x, route[i].y, route[i].z)
+          local way_obj = tile_1.find_object(mo_way).get_desc() //way_list[0]
+          if ( !way_obj.is_available(world.get_time()) ) {
+            way_obj = find_object("way", wt, way_obj.get_topspeed())
+          }
+          err = command_x.build_way(our_player, tile_1, build_tile, way_obj, true)
+          if (err != null ) {
+            gui.add_message_at(our_player, " remove bridge and build way: " + err, tile_1)
+            // restore way
+            err = command_x.build_bridge(our_player, tile_2, build_tile, bridge_obj)
+          } else {
+            count_build++
+          }
+        }
+      }
+    }
   }
 
   if (count_build > 0 ) {
