@@ -671,6 +671,11 @@ class industry_manager_t extends manager_t
         if ( err ) {
 				  line.optimize_way_line = 3
         }
+			} else if ( line.optimize_way_line == 3 && our_player.get_current_cash() > 1000000 && world.get_time().year >= 1950 ) {
+				local err = optimize_way_line(nexttile, cnv.get_waytype())
+        if ( err ) {
+				  line.optimize_way_line = 4
+        }
 			}
 		}
 
