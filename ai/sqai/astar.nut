@@ -3629,35 +3629,36 @@ function optimize_way_line(route, wt) {
     // START :: crossing
     // replace crossing to road bridge
     local check_crossing = tile_2.find_object(mo_crossing)
-    local tile_way = [tile_1.find_object(mo_way), tile_3.find_object(mo_way)]
-    local pl_check = [tile_way[0].get_owner().nr, tile_way[1].get_owner().nr]
-    local build_check = 0
-    if ( (pl_check[0] == our_player_nr || pl_check[0] == 1) && (pl_check[1] == our_player_nr || pl_check[1] == 1) ) {
-      build_check = 1
-    }
+    if ( check_crossing != null ) {
+      local tile_way = [tile_1.find_object(mo_way), tile_3.find_object(mo_way)]
+      local pl_check = [tile_way[0].get_owner().nr, tile_way[1].get_owner().nr]
+      local build_check = 0
+      if ( (pl_check[0] == our_player_nr || pl_check[0] == 1) && (pl_check[1] == our_player_nr || pl_check[1] == 1) ) {
+        build_check = 1
+      }
 
-    if ( check_crossing != null && wt == wt_road && build_check == 1 && world.get_time().year >= 1935 ) {
-      if ( (tile_1_d == 5 && tile_3_d == 5) || (tile_1_d == 10 && tile_3_d == 10) ) {
-        if ( print_message_box == 3 ) {
-          gui.add_message_at(our_player, " test crossing = " + check_crossing, tile_2)
-          gui.add_message_at(our_player, " find way = " + tile_2.find_object(mo_way), tile_2)
-          gui.add_message_at(our_player, " way name = " + tile_2.find_object(mo_way).get_name() + " cnv count : " + tile_2.find_object(mo_way).get_convoys_passed()[1], tile_2)
-          //gui.add_message_at(our_player, " crossing way = " + check_crossing., tile_2)
-          //::debug.pause()
-        }
+      if ( wt == wt_road && build_check == 1 && world.get_time().year >= 1935 ) {
+        if ( (tile_1_d == 5 && tile_3_d == 5) || (tile_1_d == 10 && tile_3_d == 10) ) {
+          if ( print_message_box == 3 ) {
+            gui.add_message_at(our_player, " test crossing = " + check_crossing, tile_2)
+            gui.add_message_at(our_player, " find way = " + tile_2.find_object(mo_way), tile_2)
+            gui.add_message_at(our_player, " way name = " + tile_2.find_object(mo_way).get_name() + " cnv count : " + tile_2.find_object(mo_way).get_convoys_passed()[1], tile_2)
+            //gui.add_message_at(our_player, " crossing way = " + check_crossing., tile_2)
+            //::debug.pause()
+          }
 
-        local cnv_count = tile_2.find_object(mo_way).get_convoys_passed()[1]
-        if ( cnv_count > 100 ) {
-          local tool = command_x(tool_remove_way)
-          local err = tool.work(our_player, tile_1, tile_3, "" + wt)
+          local cnv_count = tile_2.find_object(mo_way).get_convoys_passed()[1]
+          if ( cnv_count > 100 ) {
+            local tool = command_x(tool_remove_way)
+            local err = tool.work(our_player, tile_1, tile_3, "" + wt)
             //gui.add_message_at(our_player, " remove way: " + err, tile_1)
-          if (err == null) {
-            err = command_x.build_bridge(our_player, tile_1, tile_3, bridge_obj)
-            if (err != null ) {
-              gui.add_message_at(our_player, " build bridge: " + err, tile_1)
-              // restore way
-            } else {
-              count_build++
+            if (err == null) {
+              err = command_x.build_bridge(our_player, tile_1, tile_3, bridge_obj)
+              if (err != null ) {
+                gui.add_message_at(our_player, " build bridge: " + err, tile_1)
+              } else {
+                count_build++
+              }
             }
           }
         }
