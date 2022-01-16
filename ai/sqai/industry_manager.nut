@@ -1305,7 +1305,7 @@ class industry_manager_t extends manager_t
 	 */
 	function upgrade_link_line(link, line, cnv_speed)
 	{
-		local print_message_box = 1
+		local print_message_box = 0
 
 		if ( print_message_box > 0 ) {
 		  gui.add_message_at(our_player, "### upgrade_link_line " + line.get_name(), world.get_time())
