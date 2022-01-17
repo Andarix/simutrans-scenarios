@@ -1419,7 +1419,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 
     if ( st ) {
       local fl_st = st.get_factory_list()
-      if ( combined_station == false && fl_st.len() == 0 ) {
+      if ( combined_station == false && fl_st.len() == 0 && extension_tile != null ) {
         local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
         if ( print_message_box == 2 ) {
           gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), tile)
@@ -1552,7 +1552,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
             }
 
           }
-
+          /*
           if ( tiles.len() == 3 ) {
             for ( local x = 0; x < 3; x++ ) {
               if ( halt_x.get_halt(tiles[x], pl) ) {
@@ -1560,7 +1560,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
               }
             }
 
-          }
+          }*/
           /*if ( start_field.x < fields[0].x && start_field.y < fields[0].y ) {
             tile = square_x(start_field.x-1, start_field.y).get_ground_tile()
             if ( tile.is_empty ) {
@@ -1731,6 +1731,9 @@ function find_object(obj, wt, speed) {
     case "way":
       list = way_desc_x.get_available_ways(wt, st_flat)
       break
+    case "catenary":
+      list = wayobj_desc_x.get_available_wayobjs(wt)
+      break
   }
 
   local len = list.len()
@@ -1776,7 +1779,11 @@ function find_object(obj, wt, speed) {
           o = 0
         }
 
-        if ( obj == "way" && !obj_desc.is_available(world.get_time()) ) {
+        if ( (obj == "way" || obj == "tunnel") && !obj_desc.is_available(world.get_time()) ) {
+          o = 0
+        }
+
+        if ( obj == "catenary" && !obj_desc.is_available(world.get_time()) && obj_desc.is_overhead_line() ) {
           o = 0
         }
 
@@ -3448,6 +3455,20 @@ function optimize_way_line(route, wt) {
       //::debug.pause()
     }
 
+    // way
+    local way_obj = route[0].find_object(mo_way).get_desc() //way_list[0]
+    if ( !way_obj.is_available(world.get_time()) ) {
+      way_obj = find_object("way", wt, way_obj.get_topspeed())
+    }
+    // catenary
+    local catenary_obj = null
+    if ( tile_1.find_object(mo_wayobj) != null ) {
+      catenary_obj = tile_1.find_object(mo_wayobj).get_desc()
+      if ( catenary_obj != null && !catenary_obj.is_available(world.get_time()) ) {
+        catenary_obj = find_object("catenary", wt, catenary_obj.get_topspeed())
+      }
+    }
+
       // slope up - slope down -> tunnel
       if ( build_tunnel == 1 ) {
         // not build tunnel -> set slope down
@@ -3510,7 +3531,7 @@ function optimize_way_line(route, wt) {
         local tool = command_x(tool_remove_way)
         local err = tool.work(our_player, tile_2, tile_2, "" + wt)
           //gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
-        if (err) {
+        if (err == null) {
           err = null
           err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
           if (err != null ) {
@@ -3609,10 +3630,6 @@ function optimize_way_line(route, wt) {
             //gui.add_message_at(our_player, " remove way: " + err, tile_1)
         if (err) {
           build_tile = tile_x(route[i].x, route[i].y, route[i].z)
-          local way_obj = tile_1.find_object(mo_way).get_desc() //way_list[0]
-          if ( !way_obj.is_available(world.get_time()) ) {
-            way_obj = find_object("way", wt, way_obj.get_topspeed())
-          }
           err = command_x.build_way(our_player, tile_1, build_tile, way_obj, true)
           if (err != null ) {
             gui.add_message_at(our_player, " remove bridge and build way: " + err, tile_1)
