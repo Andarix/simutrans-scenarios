@@ -1066,7 +1066,7 @@ class industry_manager_t extends manager_t
 					if ( station_count < 6 ) {
 						// check expand station
 						// built cnv to new length end expand station befor create cnv
-            station_count++
+            //station_count++
 						for ( station_count; station_count < 6; station_count++ ) {
 							//gui.add_message_at(our_player, "###---- nexttile[station_count-1] : " + coord3d_to_string(nexttile[station_count-1]) + " - " + nexttile[station_count-1].get_way_dirs(wt), nexttile[0])
 							//gui.add_message_at(our_player, "###---- nexttile[station_count] : " + coord3d_to_string(nexttile[station_count]) + " - " + nexttile[station_count].get_way_dirs(wt), nexttile[0])
@@ -1077,12 +1077,39 @@ class industry_manager_t extends manager_t
 									(nexttile[station_count].is_bridge() && nexttile[station_count].z == square_x(nexttile[station_count].x, nexttile[station_count].y).get_ground_tile().z) ||
 									(nexttile[nexttile.len()-station_count-1].is_bridge() && nexttile[nexttile.len()-station_count-1].z == square_x(nexttile[station_count].x, nexttile[nexttile.len()-station_count-1].y).get_ground_tile().z) ) {
 							*/
-							if ( !test_field(our_player, nexttile[station_count], wt, nexttile[station_count].get_way_dirs(wt), square_x(nexttile[station_count].x, nexttile[station_count].y).get_ground_tile().z, 1) ) {
-								//station_count--
+							//if ( !test_field(our_player, nexttile[station_count], wt, nexttile[station_count].get_way_dirs(wt), square_x(nexttile[station_count].x, nexttile[station_count].y).get_ground_tile().z, 1) ) {
+              local t1 = nexttile[station_count]
+              local t2 = nexttile[(nexttile.len()-1)-station_count]
+              if ( (t1.get_way_dirs(wt) == 5 || t1.get_way_dirs(wt) == 10) && (t2.get_way_dirs(wt) == 5 || t2.get_way_dirs(wt) == 10) ) {
+                local check_tile = 0
+                if ( print_message_box == 5 ) {
+                  gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t1), t1)
+							    gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t2), t2)
+                }
+                if ( (t1.z == nexttile[a-1].z && !t1.is_bridge() && !t1.is_tunnel()) || (t1.z < nexttile[a-1].z && t1.is_bridge()) ) {
+                  if ( print_message_box == 5 ) {
+                    gui.add_message_at(our_player, "###---- check tile t1 z : " + t1.z, t1)
+                    gui.add_message_at(our_player, "###---- check tile nexttile[a-1].z (" + coord3d_to_string(nexttile[a-1]) + ") : " + nexttile[a-1].z, nexttile[a-1])
+                  }
+                  check_tile++
+                }
+                if ( (t2.z == nexttile[(nexttile.len()-1)-(a-1)].z && !t2.is_bridge() && !t2.is_tunnel()) || (t2.z < nexttile[(nexttile.len()-1)-(a-1)].z && t2.is_bridge()) ) {
+                  if ( print_message_box == 5 ) {
+							      gui.add_message_at(our_player, "###---- check tile t2 z : " + t2.z, t2)
+                    gui.add_message_at(our_player, "###---- check tile nexttile[(nexttile.len()-1)-(a-1)].z (" + coord3d_to_string(nexttile[(nexttile.len()-1)-(a-1)]) + ") : " + nexttile[(nexttile.len()-1)-(a-1)].z, nexttile[(nexttile.len()-1)-(a-1)])
+                  }
+                  check_tile++
+                }
+                if (check_tile == 2) {
+								  expand_station.append(nexttile[station_count])
+								  expand_station.append(nexttile[nexttile.len()-station_count])
+                } else {
+								  station_count--
+								  break
+                }
+              } else {
+								station_count--
 								break
-							} else {
-								expand_station.append(nexttile[station_count])
-								expand_station.append(nexttile[nexttile.len()-station_count])
 							}
 						}
 						if ( a < station_count && (print_message_box == 2 || print_message_box == 5) ) {
@@ -1141,7 +1168,6 @@ class industry_manager_t extends manager_t
             gui.add_message_at(our_player, "###---- set electrified convoys " + line.get_name(), world.get_time())
             gui.add_message_at(our_player, "###---- line len " + nexttile.len(), world.get_time())
           }
-          // disabled - not command_x.build_wayobject() work
           //prototyper.electrified = 1
         }
 
