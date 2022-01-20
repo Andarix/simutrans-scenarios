@@ -433,7 +433,7 @@ class industry_manager_t extends manager_t
     // 3
     // 4 = cnv status retired / all to old
     // 5 = electrified
-		local print_message_box = 0
+		local print_message_box = 5
 
 		dbgprint("Check line " + line.get_name())
 		if ( our_player.nr == 3 && print_message_box == 1 ) {
@@ -725,6 +725,7 @@ class industry_manager_t extends manager_t
 
 			if ( cnv_max_speed >= way_speed && upgrade_tiles > 2 ) {
 				local costs = (upgrade_tiles*(way_obj.get_cost()/100))
+        local count_build = 0
 				if ( cnv.get_waytype() == wt_rail && line.double_ways_build > 0 ) {
 					costs += line.double_ways_count*8*(way_obj.get_cost()/100)
 				}
@@ -734,15 +735,17 @@ class industry_manager_t extends manager_t
 						local tile_way_2 = tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z)
 						if ( tile_way_2.find_object(mo_way) != null && (tile_way_2.find_object(mo_way).get_owner().nr == our_player_nr || tile_way_2.find_object(mo_way).get_owner().nr == 1) && tile_way_2.find_object(mo_way).get_desc().get_topspeed() < way_obj.get_topspeed() ) {
 							command_x.build_way(our_player, tile_way_1, tile_way_2, way_obj, true)
-						}
+						  count_build++
+            }
 					}
-					// built double ways by rail
+					// build double ways by rail
 					if ( cnv.get_waytype() == wt_rail && line.double_ways_build > 0 ) {
 						for ( local i = 1; i < nexttile_r.len(); i++ ) {
 							local tile_way_1 = tile_x(nexttile_r[i-1].x, nexttile_r[i-1].y, nexttile_r[i-1].z)
 							local tile_way_2 = tile_x(nexttile_r[i].x, nexttile_r[i].y, nexttile_r[i].z)
 							if ( tile_way_2.find_object(mo_way) != null && (tile_way_2.find_object(mo_way).get_owner().nr == our_player_nr || tile_way_2.find_object(mo_way).get_owner().nr == 1) && tile_way_2.find_object(mo_way).get_desc().get_topspeed() < way_obj.get_topspeed() ) {
 								command_x.build_way(our_player, tile_way_1, tile_way_2, way_obj, true)
+                count_build++
 							}
 						}
 					}
@@ -751,9 +754,11 @@ class industry_manager_t extends manager_t
 				local start_l = nexttile[nexttile.len()-1]
 				local end_l = nexttile[0]
 
-				local msgtext = format(translate("%s extends the route from %s (%s) to %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
-				gui.add_message_at(our_player, msgtext, start_l)
-				//gui.add_message_at(our_player, " upgrade way ", world.get_time())
+				if (count_build > 0 ) {
+				  local msgtext = format(translate("%s extends the route from %s (%s) to %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
+				  gui.add_message_at(our_player, msgtext, start_l)
+				  //gui.add_message_at(our_player, " upgrade way ", world.get_time())
+        }
 
 				line.line_way_speed = way_obj.get_topspeed()
 			} else {
@@ -1082,19 +1087,19 @@ class industry_manager_t extends manager_t
               local t2 = nexttile[(nexttile.len()-1)-station_count]
               if ( (t1.get_way_dirs(wt) == 5 || t1.get_way_dirs(wt) == 10) && (t2.get_way_dirs(wt) == 5 || t2.get_way_dirs(wt) == 10) ) {
                 local check_tile = 0
-                if ( print_message_box == 5 ) {
+                if ( print_message_box == 2 ) {
                   gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t1), t1)
 							    gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t2), t2)
                 }
                 if ( (t1.z == nexttile[a-1].z && !t1.is_bridge() && !t1.is_tunnel()) || (t1.z < nexttile[a-1].z && t1.is_bridge()) ) {
-                  if ( print_message_box == 5 ) {
+                  if ( print_message_box == 2 ) {
                     gui.add_message_at(our_player, "###---- check tile t1 z : " + t1.z, t1)
                     gui.add_message_at(our_player, "###---- check tile nexttile[a-1].z (" + coord3d_to_string(nexttile[a-1]) + ") : " + nexttile[a-1].z, nexttile[a-1])
                   }
                   check_tile++
                 }
                 if ( (t2.z == nexttile[(nexttile.len()-1)-(a-1)].z && !t2.is_bridge() && !t2.is_tunnel()) || (t2.z < nexttile[(nexttile.len()-1)-(a-1)].z && t2.is_bridge()) ) {
-                  if ( print_message_box == 5 ) {
+                  if ( print_message_box == 2 ) {
 							      gui.add_message_at(our_player, "###---- check tile t2 z : " + t2.z, t2)
                     gui.add_message_at(our_player, "###---- check tile nexttile[(nexttile.len()-1)-(a-1)].z (" + coord3d_to_string(nexttile[(nexttile.len()-1)-(a-1)]) + ") : " + nexttile[(nexttile.len()-1)-(a-1)].z, nexttile[(nexttile.len()-1)-(a-1)])
                   }
@@ -1168,7 +1173,7 @@ class industry_manager_t extends manager_t
             gui.add_message_at(our_player, "###---- set electrified convoys " + line.get_name(), world.get_time())
             gui.add_message_at(our_player, "###---- line len " + nexttile.len(), world.get_time())
           }
-          //prototyper.electrified = 1
+          prototyper.electrified = 1
         }
 
 				cnv_valuator.distance = dist
@@ -1311,12 +1316,12 @@ class industry_manager_t extends manager_t
           } else {
             catenary_obj = find_object("catenary", wt, way_obj.get_topspeed())
 
-            /*
+
             command_x.build_wayobj(our_player, start_l, end_l, catenary_obj)
             command_x.build_wayobj(our_player, end_l, start_l, catenary_obj)
             command_x.build_wayobj(our_player, depot, start_l, catenary_obj)
-            */
-				    local msgtext = format(translate("%s electrified the line: %s"), our_player.get_name(), line.get_name())
+
+				    local msgtext = format(translate("%s electrified the line %s"), our_player.get_name(), line.get_name())
 				    gui.add_message_at(our_player, msgtext, world.get_time())
           }
 

@@ -7,10 +7,10 @@
 
 // some meta data - unused
 ai <- {}
-ai.short_description <- "Test AI player implementation"
+ai.short_description <- "AI player implementation road/ship/rail"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.7.9"
+ai.version <- "0.8.0"
 
 // includes
 include("basic")  // .. definition of basic node classes
