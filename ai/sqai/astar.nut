@@ -3436,7 +3436,7 @@ function optimize_way_line(route, wt) {
             build_tile = tile_3
           }
         }
-      } else if ( tile_1_d == tile_2_d && tile_1.z == tile_2.z && tile_1.get_slope() > 0 && tile_2.get_slope() > 0  && tile_1.is_bridge() != true ) {
+      } else if ( tile_1_d == tile_2_d && tile_1.z == tile_2.z && tile_1.get_slope() > 0 && tile_2.get_slope() > 0 && tile_1.is_bridge() != true && tile_2.is_bridge() != true ) {
         // slope down - slope up -> bridge
         // slope up - slope down -> terraform down ( build_tunnel = 1 )
         if ( (tile_1.get_slope() == 4 && tile_2.get_slope() == 36 && tile_1.y < tile_2.y) || (tile_1.get_slope() == 36 && tile_2.get_slope() == 4 && tile_1.y > tile_2.y)  ) {
