@@ -91,11 +91,13 @@ class rail_connector_t extends manager_t
 
           // test route for calculate cost
           local calc_route = test_route(our_player, c_start, c_end, planned_way)
-          //gui.add_message_at(our_player, "distance " + distance, world.get_time())
           if ( calc_route == "No route" || calc_route.routes.len() < 7 ) {
             return error_handler()
           } else {
-            //gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+            if ( calc_route.routes.len() > 150 ) {
+              //gui.add_message_at(our_player, "distance " + distance, world.get_time())
+              gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+            }
             local s = calc_route.routes.len()-3
             t_start = calc_route.routes.slice(s)
             t_start.reverse()
@@ -229,7 +231,7 @@ class rail_connector_t extends manager_t
               local fl_st = st.get_factory_list()
               if ( fl_st.len() == 0 ) {
                 cash = our_player.get_current_net_wealth()
-                gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + (our_player.get_current_net_wealth()/100), world.get_time())
+                gui.add_message_at(our_player, "rail: combined station -> get_current_net_wealth() " + (our_player.get_current_net_wealth()/100), world.get_time())
               } else {
 
               }
@@ -241,6 +243,14 @@ class rail_connector_t extends manager_t
             //remove_tile_to_empty(t_end, wt_rail, 1)
             industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
             gui.add_message_at(pl, "Way construction cost to height: cash: " + cash + " build cost: " + build_cost, world.get_time())
+            return error_handler()
+          }
+
+          if ( calc_route.routes.len() > 150 && (cash-build_cost-(build_cost/2)) < (cost_monthly*10) ) {
+            //remove_tile_to_empty(t_start, wt_rail, 1)
+            //remove_tile_to_empty(t_end, wt_rail, 1)
+            industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
+            gui.add_message_at(pl, "Way to long for rentabel build.", world.get_time())
             return error_handler()
           }
 

@@ -684,6 +684,13 @@ class industry_connection_planner_t extends manager_t
     if ( (cash-m) < 0 ) {
       r.points -= 50
     }
+    if ( r.distance > 280 ) {
+      gui.add_message_at(our_player, "connection planner r.distance > 280 -> " + r.distance, world.get_time())
+      m = r.cost_fix*(cash_buffer/2)
+      if ( (cash-m) < 0 ) {
+        r.points -= 80
+      }
+    }
 
     // set retire time for report
     r.retire_time = world.get_time().next_month_ticks + world.get_time().ticks_per_month - 1

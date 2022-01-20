@@ -1253,7 +1253,10 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 
   local start_field = tile_x(start_fld.x, start_fld.y, start_fld.z)
 
-  local print_message_box = 0
+  // 0 = off
+  // 1 =
+  // 2 = messages
+  local print_message_box = 1
 
   local ref_hight = start_field.z
   local err = null
@@ -1421,17 +1424,26 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
       local fl_st = st.get_factory_list()
       if ( combined_station == false && fl_st.len() == 0 && extension_tile != null ) {
         local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
-        if ( print_message_box == 2 ) {
+        if ( print_message_box == 1 ) {
           gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), tile)
         }
         local extension = find_extension(wt)
         local new_tile = 0
         if ( test_tile_is_empty(tile) ) {
           err = command_x.build_station(pl, tile, extension)
-          if ( err ) {
+          if ( err || tile.find_object(mo_way) == null ) {
             gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
             new_tile = 1
+          } else {
+            // test factory - not connect then combined station
+            // remove extensions
+            fl_st = st.get_factory_list()
+            if ( fl_st.len() == 0 ) {
+              local tool = command_x(tool_remover)
+              tool.work(our_player, tile)
+            }
           }
+
         } else if ( tile.has_way(wt_road) && !tile.has_two_ways() ) {
           local tiles = [1, 2, 4, 5, 8, 10]
           local test = 0
@@ -1445,7 +1457,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
             local stations_list = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x("Passagiere"))
             err = command_x.build_station(pl, tile, stations_list[0])
             if ( err ) {
-              gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
+              gui.add_message_at(pl, " -##-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
               new_tile = 1
             }
 
@@ -1459,8 +1471,10 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 
         if ( new_tile == 1 ) {
           // to do connection factory other rotations
-          gui.add_message_at(pl, "check connect factory : build extension", start_field)
-          ::debug.pause()
+          if ( print_message_box == 1 ) {
+            gui.add_message_at(pl, "check connect factory : build extension", start_field)
+          }
+          //::debug.pause()
           local s_tiles = []
             s_tiles.append(fields[0])
             s_tiles.append(start_field)
@@ -1595,12 +1609,12 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
             local tile = square_x(fields[0].x, fields[0].y).get_ground_tile()
             if ( tile.find_object(mo_building) != null ) {
               local waytypes = test_halt_waytypes(tile)
-              if ( waytypes > 1 ) {
+              if ( waytypes > 1 || start_field.find_object(mo_building) != null ) {
                 if ( print_message_box > 0 ) {
                   gui.add_message_at(pl, " -#-=> combined station " + coord3d_to_string(start_field), start_field)
                 }
               } else {
-                gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
+                gui.add_message_at(pl, " -###-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
               }
             }
           }
