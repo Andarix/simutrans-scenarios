@@ -92,7 +92,7 @@ class rail_connector_t extends manager_t
           // test route for calculate cost
           local calc_route = test_route(our_player, c_start, c_end, planned_way)
           if ( calc_route == "No route" || calc_route.routes.len() < 7 ) {
-            return error_handler()
+            return r_t(RT_TOTAL_FAIL)
           } else {
             if ( calc_route.routes.len() > 150 ) {
               //gui.add_message_at(our_player, "distance " + distance, world.get_time())
@@ -502,7 +502,7 @@ class rail_connector_t extends manager_t
       if ( fl_st.len() > 0 ) {
         f_name[0] = fl_st[0].get_name()
       } else {
-        f_name[0] = "station"
+        f_name[0] = st.get_name()
       }
     }
     st = halt_x.get_halt(ce, pl)
@@ -511,7 +511,7 @@ class rail_connector_t extends manager_t
       if ( fl_st.len() > 0 ) {
         f_name[1] = fl_st[0].get_name()
       } else {
-        f_name[1] = "station"
+        f_name[1] = st.get_name()
       }
     }
     local msgtext = format(translate("%s build rail line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(cs), f_name[1], coord_to_string(ce))

@@ -381,7 +381,7 @@ class ship_connector_t extends manager_t
         if ( fl_st.len() > 0 ) {
           f_name[0] = fl_st[0].get_name()
         } else {
-          f_name[0] = "station"
+          f_name[0] = st.get_name()
         }
       }
       st = halt_x.get_halt(c_end, pl)
@@ -390,7 +390,7 @@ class ship_connector_t extends manager_t
         if ( fl_st.len() > 0 ) {
           f_name[1] = fl_st[0].get_name()
         } else {
-          f_name[1] = "station"
+          f_name[1] = st.get_name()
         }
       }
       local msgtext = format(translate("%s build ship line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(c_start), f_name[1], coord_to_string(c_end))
