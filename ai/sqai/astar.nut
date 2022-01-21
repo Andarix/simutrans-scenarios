@@ -1321,6 +1321,9 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
             if ( err != null ) { break }
             z = square_x(fields[i].x, fields[i].y).get_ground_tile()
           } while(z.z > ref_hight )
+          // replace water to land
+          if ( z.is_water() ) { command_x.change_climate_at(our_player, z, cl_temperate) }
+
         }
         if ( err ) {
           return false
@@ -2296,6 +2299,9 @@ function build_double_track(start_field, wt) {
               if ( err != null ) { break }
               z = square_x(tiles_build[i].x, tiles_build[i].y).get_ground_tile()
             } while(z.z > ref_hight.z )
+            // replace water to land
+            if ( z.is_water() ) { command_x.change_climate_at(our_player, z, cl_temperate) }
+
           }
           if ( err ) {
             return false
@@ -3498,10 +3504,12 @@ function optimize_way_line(route, wt) {
         err = command_x.set_slope(our_player, tile_1, 83)
           //gui.add_message_at(our_player, " terraform tile_1: " + err, world.get_time())
           //::debug.pause()
+          if ( tile_1.is_water() ) { command_x.change_climate_at(our_player, tile_1, cl_temperate) }
         err = null
         err = command_x.set_slope(our_player, tile_2, 83)
           //gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
           //::debug.pause()
+          if ( tile_2.is_water() ) { command_x.change_climate_at(our_player, tile_2, cl_temperate) }
         local way_obj = tile_4.find_object(mo_way).get_desc()
         local txt_way = way_obj.is_available(world.get_time())
         if ( !way_obj.is_available(world.get_time()) ) {
