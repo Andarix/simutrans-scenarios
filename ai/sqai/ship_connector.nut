@@ -84,6 +84,7 @@ class ship_connector_t extends manager_t
 
         if (c_start.len()>0  &&  c_end.len()>0) {
           if ( print_message_box == 1 ) { gui.add_message_at(pl, "Water way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time()) }
+
           phase ++
         }
         else {
@@ -182,7 +183,8 @@ class ship_connector_t extends manager_t
         }
       case 4: // find route again after harbour was built
         {
-          if (c_start.len()>1  ||  c_end.len()>1) {
+
+           if (c_start.len()>1  ||  c_end.len()>1) {
             local err = find_route()
             if (err) {
               print("No way2 from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
@@ -260,7 +262,24 @@ class ship_connector_t extends manager_t
           local sched = schedule_x(wt_water, [])
           sched.entries.append( schedule_entry_x(c_start[0], 100, 0) );
           sched.entries.append( schedule_entry_x(c_end[0], 0, 0) );
+
+          if ( sched.entries[0].get_halt(pl).get_name() == sched.entries[1].get_halt(pl).get_name() ) {
+            // set new start
+
+            //gui.add_message_at(pl," ... start name (" + sched.entries[0].get_halt(pl).get_name() + ") == end name (" + sched.entries[1].get_halt(pl).get_name() + ")", world.get_time())
+            //gui.add_message_at(pl," ... c_start len = " + c_start.len(), world.get_time())
+
+            c_start.clear()
+            c_start = find_anchorage(fsrc,  planned_station, planned_harbour_flat, c_harbour_tiles)
+
+            sched.entries[0] = schedule_entry_x(c_start[0], 100, 0);
+
+            //gui.add_message_at(pl," ... new start name (" + sched.entries[0].get_halt(pl).get_name() + ")", world.get_time())
+            //::debug.pause()
+          }
+
           c_sched = sched
+
           phase ++
         }
 
@@ -339,7 +358,7 @@ class ship_connector_t extends manager_t
         if ( fl_st.len() > 0 ) {
           f_name[0] = fl_st[0].get_name()
         } else {
-          f_name[0] = "station"
+          f_name[0] = st.get_name()
         }
       }
       st = halt_x.get_halt(c_end[0], pl)
@@ -348,7 +367,7 @@ class ship_connector_t extends manager_t
         if ( fl_st.len() > 0 ) {
           f_name[1] = fl_st[0].get_name()
         } else {
-          f_name[1] = "station"
+          f_name[1] = st.get_name()
         }
       }
       local msgtext = format(translate("%s build ship line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(c_start[0]), f_name[1], coord_to_string(c_end[0]))
