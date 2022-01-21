@@ -100,9 +100,10 @@ class road_connector_t extends manager_t
 					// test route for calculate cost
 					local calc_route = test_route(our_player, c_start, c_end, planned_way)
 					//gui.add_message_at(our_player, "distance " + distance, world.get_time())
-					if ( calc_route == "No route" || calc_route.routes.len() < 3 ) {
-						return error_handler()
+					if ( calc_route == "No route" ) {
+						return r_t(RT_TOTAL_FAIL)
 					}
+
 					//gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
 
 					sleep()
@@ -201,6 +202,23 @@ class road_connector_t extends manager_t
 						gui.add_message_at(pl, "Completed route from  " + coord_to_string(c_start) + " to " + coord_to_string(c_end) + " after " + c_trial_route + " attempts", c_end)
 					}
 					if ( print_message_box == 2 ) { gui.add_message_at(our_player, "Build station on " + coord_to_string(c_start) + " and " + coord_to_string(c_end), world.get_time()) }
+
+          //
+			    local asf = astar_route_finder(wt_road)
+			    local result = asf.search_route([c_start], [c_end])
+          if (  result.routes.len() < 3 ) {
+            gui.add_message_at(pl, "route len < 3 tiles  ", c_end)
+            /*
+            local extension = find_extension(wt_road)
+            remove_tile_to_empty(c_start, wt_road, 0)
+            command_x.build_station(our_player, c_start, extension)
+            remove_tile_to_empty(c_end, wt_road, 0)
+            command_x.build_station(our_player, c_end, extension)
+            */
+            return r_t(RT_TOTAL_SUCCESS)
+
+          }
+
 					phase += 3
 				}
 			case 3: // find depot place
@@ -221,6 +239,7 @@ class road_connector_t extends manager_t
 				}
 			case 5: // build depot
 				{
+
 
 					if ( print_message_box == 3 ) {
 						gui.add_message_at(our_player, "___________ exists depots road ___________", world.get_time())
