@@ -3491,35 +3491,49 @@ function optimize_way_line(route, wt) {
 
       // slope up - slope down -> tunnel
       if ( build_tunnel == 1 ) {
+        local step_ok = true
         // not build tunnel -> set slope down
         local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
-        local txt = coord3d_to_string(tile_1)
-        local err = remove_tile_to_empty(tile_2, wt, 0)
-          //gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
-        err = null
-        err = remove_tile_to_empty(tile_1, wt, 0)
-          //gui.add_message_at(our_player, " remove tile_1: " + err, world.get_time())
-        err = null
-        // terraform down
-        err = command_x.set_slope(our_player, tile_1, 83)
-          //gui.add_message_at(our_player, " terraform tile_1: " + err, world.get_time())
-          //::debug.pause()
-          if ( tile_1.is_water() ) { command_x.change_climate_at(our_player, tile_1, cl_temperate) }
-        err = null
-        err = command_x.set_slope(our_player, tile_2, 83)
-          //gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
-          //::debug.pause()
-          if ( tile_2.is_water() ) { command_x.change_climate_at(our_player, tile_2, cl_temperate) }
+        local tool = command_x(tool_remove_way)
+        local err = tool.work(our_player, tile_3, tile_4, "" + wt)
+
         local way_obj = tile_4.find_object(mo_way).get_desc()
-        local txt_way = way_obj.is_available(world.get_time())
         if ( !way_obj.is_available(world.get_time()) ) {
           way_obj = find_object("way", wt, speed)
         }
-        err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
-        if (err != null ) {
-          gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
-        } else {
-          count_build++
+
+        if ( err != null ) {
+          // tile not remove -> restore way
+          err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
+          step_ok = false
+        }
+
+        if ( step_ok ) {
+          err = null
+          // terraform down
+          err = command_x.set_slope(our_player, tile_1, 83)
+          //gui.add_message_at(our_player, " terraform tile_1: " + err, world.get_time())
+          //::debug.pause()
+          if ( tile_1.is_water() ) {
+            command_x.change_climate_at(our_player, tile_1, cl_temperate)
+            remove_tile_to_empty(tile_2, wt, 0)
+          }
+          err = null
+          err = command_x.set_slope(our_player, tile_2, 83)
+          //gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
+          //::debug.pause()
+          if ( tile_2.is_water() ) {
+            command_x.change_climate_at(our_player, tile_2, cl_temperate)
+            remove_tile_to_empty(tile_1, wt, 0)
+            command_x.change_climate_at(our_player, tile_1, cl_temperate)
+          }
+          err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
+          if (err != null ) {
+            gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
+          } else {
+            count_build++
+          }
+
         }
       } else if ( build_tunnel == 2 ) {
         // build tunnel - not work tunnel tool script ai
