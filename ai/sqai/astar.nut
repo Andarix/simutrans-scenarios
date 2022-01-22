@@ -1829,30 +1829,32 @@ function find_object(obj, wt, speed) {
   *
   *
   */
-function find_extension(wt) {
+function find_extension(wt, tile_size = 1) {
 
-  local print_message_box = 2
+  local print_message_box = 0
 
   local select_extension = null
 
   // extension building from waytype for selected good
   local extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt, good_desc_x(freight))
 
-  gui.add_message_at(our_player, "extension_list " + extension_list.len(), world.get_time())
+  if ( print_message_box == 2 ) {
+    gui.add_message_at(our_player, "extension_list " + extension_list.len(), world.get_time())
+  }
 
   if ( extension_list.len() > 0 ) {
     foreach(extension in extension_list) {
       local ok = (select_extension == null)
 
       if ( print_message_box == 2 ) {
-        gui.add_message_at(our_player, "extension " + extension.get_name(), world.get_time())
+        gui.add_message_at(our_player, "extension " + extension.get_name() + " size " + extension.get_size(0), world.get_time())
       }
 
-      if ( !ok ) {
+      if ( !ok && extension.get_size(0) == "1,1" ) {
         if ( select_extension.get_capacity() > extension.get_capacity() ) {
           select_extension = extension
         }
-      } else {
+      } else if ( extension.get_size(0) == "1,1" ) {
         select_extension = extension
       }
     }
@@ -1873,11 +1875,11 @@ function find_extension(wt) {
           gui.add_message_at(our_player, "extension " + extension.get_name(), world.get_time())
         }
 
-        if ( !ok ) {
+        if ( !ok && extension.get_size(0) == "1,1" ) {
           if ( select_extension.get_capacity() > extension.get_capacity() ) {
             select_extension = extension
           }
-        } else {
+        } else if ( extension.get_size(0) == "1,1" ) {
           select_extension = extension
         }
       }
@@ -1890,7 +1892,9 @@ function find_extension(wt) {
     // search post extension from all waytypes
     extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_all, good_desc_x("post"))
 
-    gui.add_message_at(our_player, "extension_list " + extension_list.len(), world.get_time())
+    if ( print_message_box == 2 ) {
+      gui.add_message_at(our_player, "extension_list " + extension_list.len(), world.get_time())
+    }
 
     if ( extension_list.len() > 0 ) {
       foreach(extension in extension_list) {
@@ -1900,11 +1904,11 @@ function find_extension(wt) {
           gui.add_message_at(our_player, "extension " + extension.get_name(), world.get_time())
         }
 
-        if ( !ok ) {
+        if ( !ok && extension.get_size(0) == "1,1" ) {
           if ( select_extension.get_capacity() > extension.get_capacity() ) {
             select_extension = extension
           }
-        } else {
+        } else if ( extension.get_size(0) == "1,1" ) {
           select_extension = extension
         }
       }
