@@ -1831,12 +1831,14 @@ function find_object(obj, wt, speed) {
   */
 function find_extension(wt) {
 
-  local print_message_box = 0
+  local print_message_box = 2
 
   local select_extension = null
 
   // extension building from waytype for selected good
   local extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt, good_desc_x(freight))
+
+  gui.add_message_at(our_player, "extension_list " + extension_list.len(), world.get_time())
 
   if ( extension_list.len() > 0 ) {
     foreach(extension in extension_list) {
@@ -1854,10 +1856,41 @@ function find_extension(wt) {
         select_extension = extension
       }
     }
-  } else {
+  }
+
+  if ( select_extension == null ) {
+    // not find extension from waytype for selected good
+    // search post extension from all waytypes
+    extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_all, good_desc_x(freight))
+
+    gui.add_message_at(our_player, "extension_list " + extension_list.len(), world.get_time())
+
+    if ( extension_list.len() > 0 ) {
+      foreach(extension in extension_list) {
+        local ok = (select_extension == null)
+
+        if ( print_message_box == 2 ) {
+          gui.add_message_at(our_player, "extension " + extension.get_name(), world.get_time())
+        }
+
+        if ( !ok ) {
+          if ( select_extension.get_capacity() > extension.get_capacity() ) {
+            select_extension = extension
+          }
+        } else {
+          select_extension = extension
+        }
+      }
+    }
+
+  }
+
+  if ( select_extension == null ) {
     // not find extension from waytype for selected good
     // search post extension from all waytypes
     extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_all, good_desc_x("post"))
+
+    gui.add_message_at(our_player, "extension_list " + extension_list.len(), world.get_time())
 
     if ( extension_list.len() > 0 ) {
       foreach(extension in extension_list) {
@@ -4523,6 +4556,51 @@ function check_stations_connections() {
 
   }
 
+}
 
+function check_combined_station(halt) {
+  local lines = halt.get_line_list()
+  local factorys = halt.get_factory_list()
+
+  local halt_tiles = halt.get_tile_list()
+
+  local wts = test_halt_waytypes(halt_tiles[0])
+
+  if ( wts > 1 && lines.get_count() == 1 && factorys.len() > 0 ) {
+    gui.add_message_at(our_player, "####### station more wt and one line - factory connect ", world.get_time())
+    local wt = null
+
+		foreach(line in lines) {
+			wt = line.get_waytype()
+		}
+
+    local replace_tiles = []
+
+    for ( local i = 0; i < halt_tiles.len(); i++ ) {
+      local building = halt_tiles[i].find_object(mo_building).get_desc()
+      if ( building ) {
+        if ( building.get_waytype() != wt ) {
+          replace_tiles.append(halt_tiles[i])
+        }
+
+      }
+    }
+
+    local extension = find_extension(wt_road)
+
+    if ( extension != null ) {
+      for ( local i = 0; i < replace_tiles.len()-1; i++ ) {
+        remove_tile_to_empty(replace_tiles[i], wt_road, 0)
+        command_x.build_station(our_player, replace_tiles[i], extension)
+
+      }
+
+    }
+           /*
+
+            remove_tile_to_empty(c_end, wt_road, 0)
+            command_x.build_station(our_player, c_end, extension)
+            */
+  }
 
 }

@@ -172,6 +172,10 @@ class road_connector_t extends manager_t
 				}
 			case 2: // build station
 				{
+          if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null ) {
+            gui.add_message_at(pl, " --- tile to build station not free", world.get_time())
+            return restart_with_phase0()
+          }
 					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
 						if (debug) gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_start) + " [" + err + "]", c_start)// try again
@@ -207,16 +211,16 @@ class road_connector_t extends manager_t
 			    local asf = astar_route_finder(wt_road)
 			    local result = asf.search_route([c_start], [c_end])
           if (  result.routes.len() < 3 ) {
-            gui.add_message_at(pl, "route len < 3 tiles  ", c_end)
-            /*
+            //gui.add_message_at(pl, "route len < 3 tiles  ", c_end)
             local extension = find_extension(wt_road)
-            remove_tile_to_empty(c_start, wt_road, 0)
-            command_x.build_station(our_player, c_start, extension)
-            remove_tile_to_empty(c_end, wt_road, 0)
-            command_x.build_station(our_player, c_end, extension)
-            */
-            return r_t(RT_TOTAL_SUCCESS)
 
+            if ( extension != null ) {
+              remove_tile_to_empty(c_start, wt_road, 0)
+              command_x.build_station(our_player, c_start, extension)
+              remove_tile_to_empty(c_end, wt_road, 0)
+              command_x.build_station(our_player, c_end, extension)
+            }
+            return r_t(RT_TOTAL_SUCCESS)
           }
 
 					phase += 3

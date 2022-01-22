@@ -165,6 +165,10 @@ class ship_connector_t extends manager_t
 
             key = coord3d_to_key(c_end[0])
             if (key in c_harbour_tiles) {
+              if ( c_harbour_tiles[key].find_object(mo_building) != null ) {
+                gui.add_message_at(pl, " --- tile to build harbour not free", world.get_time())
+                return restart_with_phase0()
+              }
               err = build_harbour(c_harbour_tiles[key], c_end)
             }
           }
@@ -350,6 +354,7 @@ class ship_connector_t extends manager_t
 
     gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(square_x(cs[0].x, cs[0].y)) + ") to " + f_name[1] + " (" + coord_to_string(square_x(ce[0].x, ce[0].y)) + ")", c_start)
     */
+
     if (c_start.len()>0  &&  c_end.len()>0) {
       local st = halt_x.get_halt(c_start[0], pl)
       local f_name = ["", ""]
