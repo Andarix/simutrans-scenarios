@@ -10,7 +10,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 	// 1 =
 	// 2 =
 	// 3 =
-	print_message_box_x = 1
+	print_message_box_x = 0
 
 	function step()
 	{
