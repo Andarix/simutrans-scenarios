@@ -1256,7 +1256,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
   // 0 = off
   // 1 =
   // 2 = messages
-  local print_message_box = 1
+  local print_message_box = 0
 
   local ref_hight = start_field.z
   local err = null
@@ -1433,19 +1433,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
         local extension = find_extension(wt)
         local new_tile = 0
         if ( test_tile_is_empty(tile) ) {
-          err = command_x.build_station(pl, tile, extension)
-          if ( err || tile.find_object(mo_way) == null ) {
-            gui.add_message_at(pl, " -#-=> WARNING not connect factory: " + coord3d_to_string(start_field), start_field)
-            new_tile = 1
-          } else {
-            // test factory - not connect then combined station
-            // remove extensions
-            fl_st = st.get_factory_list()
-            if ( fl_st.len() == 0 ) {
-              local tool = command_x(tool_remover)
-              tool.work(our_player, tile)
-            }
-          }
+          new_tile = 1
 
         } else if ( tile.has_way(wt_road) && !tile.has_two_ways() ) {
           local tiles = [1, 2, 4, 5, 8, 10]
@@ -1659,44 +1647,42 @@ function build_extensions_connect_factory(pl, st_field, hlt_field, tiles, extens
   local fl_st = null
   local err = null
 
+  local tool = command_x(tool_remover)
+
+  //gui.add_message_at(pl, " -##-=> " + coord3d_to_string(tiles[0]) + " tiles[0].is_empty() " + tiles[0].is_empty() + " - tiles[0].is_water() " + tiles[0].is_water() + " - tiles[0].has_ways() " + tiles[0].has_ways() + " - tiles[0].has_way(wt_water) " + tiles[0].has_way(wt_water), tiles[0])
+  //gui.add_message_at(pl, " -##-=> " + coord3d_to_string(tiles[1]) + " tiles[1].is_empty() " + tiles[1].is_empty() + " - tiles[1].is_water() " + tiles[1].is_water(), tiles[1])
+  //gui.add_message_at(pl, " -##-=> " + coord3d_to_string(tiles[2]) + " tiles[2].is_empty() " + tiles[2].is_empty() + " - tiles[2].is_water() " + tiles[2].is_water(), tiles[2])
+
   // test 1 -> rebuild 0
-  if ( tiles[0].is_empty ) {
-    err = command_x.build_station(pl, tiles[0], extension)
-    fl_st = st.get_factory_list()
-    if ( fl_st.len() > 0 ) {
-      factory_connect = 1
-    }
-  }
-
-  if ( factory_connect == 0 ) {
-    // remove way for build extension
-    tool.work(our_player, st_field)
-    // build extensions
-    err = command_x.build_station(pl, st_field, extension)
-
-    // test 2 -> rebuild 1
-    if ( tiles[1].is_empty ) {
-      err = command_x.build_station(pl, tiles[1], extension)
+  for (local i = 0; i < tiles.len(); i++ ) {
+    if ( tiles[i].is_empty() && tiles[i].is_ground() ) {
+      err = command_x.build_station(pl, tiles[i], extension)
       fl_st = st.get_factory_list()
       if ( fl_st.len() > 0 ) {
-        tool.work(our_player, st_field)
         factory_connect = 1
+        break
       }
-    }
+    } else if ( tiles[i].has_way(wt_water) ) {
 
-    if ( factory_connect == 0 ) {
-      // test 3 -> rebuild 1
-      if ( tiles[2].is_empty ) {
-        err = command_x.build_station(pl, tiles[2], extension)
-        fl_st = st.get_factory_list()
-        if ( fl_st.len() > 0 ) {
-          tool.work(our_player, st_field)
-          factory_connect = 1
+      //gui.add_message_at(pl, " -##-=> tiles["+i+"].get_way_dirs(wt_water) " + tiles[i].get_way_dirs(wt_water) + " - tiles["+i+"].find_object(mo_way).get_owner().nr " + tiles[i].find_object(mo_way).get_owner().nr, tiles[i])
+
+      if ( (tiles[i].get_way_dirs(wt_water) == 5 || tiles[i].get_way_dirs(wt_water) == 10 ) && tiles[i].find_object(mo_way).get_owner().nr == 16 ) {
+
+        local station = find_station(wt_water)
+        if ( station != false ) {
+          err = command_x.build_station(pl, tiles[i], station)
+
+          fl_st = st.get_factory_list()
+          if ( fl_st.len() > 0 ) {
+            factory_connect = 1
+            break
+          }
         }
       }
-    }
-  }
 
+    }
+
+  }
 
   return factory_connect
 }
@@ -1728,10 +1714,24 @@ function find_signal(sig_type, wt) {
 
 }
 
+/*
+ *
+ *
+ */
+function find_station(wt) {
+  local list = building_desc_x.get_available_stations(building_desc_x.station, wt, good_desc_x(freight))
+
+  if ( list.len() > 0 ) {
+    return list[0]
+  } else {
+    return false
+  }
+}
+
 /**
   * find object tool
   *
-  * obj   = object type ( bridge, tunnel, way )
+  * obj   = object type ( bridge, tunnel, way, catenary )
   * wt    = waytype
   * speed = speed
   */
@@ -1865,7 +1865,9 @@ function find_extension(wt, tile_size = 1) {
     // search post extension from all waytypes
     extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_all, good_desc_x(freight))
 
-    gui.add_message_at(our_player, "extension_list " + extension_list.len(), world.get_time())
+    if ( print_message_box == 2 ) {
+      gui.add_message_at(our_player, "extension_list " + extension_list.len(), world.get_time())
+    }
 
     if ( extension_list.len() > 0 ) {
       foreach(extension in extension_list) {
