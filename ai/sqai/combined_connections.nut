@@ -10,7 +10,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 	// 1 =
 	// 2 =
 	// 3 =
-	print_message_box_x = 0
+	print_message_box_x = 1
 
 	function step()
 	{
@@ -95,18 +95,9 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		local report = report_t()
 		report.action = node_seq_t()
 
-		marine.search_route(fsrc,fdest)
-
-		local route = marine.route
-		if (route.len() == 0) {
-			return r_t(RT_TOTAL_FAIL)
-		}
-		// generate report
-		local report = report_t()
-		report.action = node_seq_t()
-
 		if ( print_message_box_x == 1 ) {
 			gui.add_message_at(our_player, " ---> marine.route.len(fsrc,fdest)  " + route.len(), world.get_time())
+			gui.add_message_at(our_player, " ---> route[0] " + coord3d_to_string(route[0]) + " - route[route.len()-1] " + coord3d_to_string(route[route.len()-1]), world.get_time())
 		}
 
 		// now loop through route backwards
