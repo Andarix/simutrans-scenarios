@@ -173,7 +173,7 @@ class road_connector_t extends manager_t
 			case 2: // build station
 				{
           if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null ) {
-            gui.add_message_at(pl, " --- tile to build station not free", world.get_time())
+            if (debug) gui.add_message_at(pl, " --- tile to build station not free", world.get_time())
             return restart_with_phase0()
           }
 					local err = command_x.build_station(pl, c_start, planned_station )
