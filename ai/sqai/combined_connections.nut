@@ -140,10 +140,19 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 				else {
 					// from_i = first land tile, which is harbour slope
 					// i      = first water tile
-					r = plan_simple_connection(wt, route[from_i-1], change ? route[i+2] : null, from_i-1 - (i+2))
+					print("Try to catch index error")
+					if (i+2 < route.len()) {
+						r = plan_simple_connection(wt, route[from_i-1], change ? route[i+2] : null, from_i-1 - (i+2))
+					}
+					else {
+						// else: first tile of route but second already in water - no need to plan road
+						r = report_t()
+					}
 				}
 				if (r) {
-					r.action.finalize = !change
+					if (r.action) {
+						r.action.finalize = !change
+					}
 					report.merge_report(r)
 				}
 				else {
