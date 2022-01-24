@@ -4294,7 +4294,7 @@ function destroy_line(line_obj, good) {
           if ( k == wt_water ) {
             local tool = command_x(tool_remover)
             tool.work(our_player, t[i])
-            break
+            //break
           }
         }
       }
@@ -4345,16 +4345,16 @@ function destroy_line(line_obj, good) {
     }
 
     if ( end_line_count < 2 ) {
-      // remove combined waytype halt water - not road
+      // remove combined waytype halt water - not road/rail
       if ( combined_e > 1 ) {
         local t = end_h.get_tile_list()
         for ( local i = 0; i < t.len(); i++ ) {
           local k = t[i].find_object(mo_building).get_desc().get_waytype()
-          if ( k == wt_road ) {
+          if ( k == wt_water ) {
             tool.work(our_player, t[i])
-            break
+          /*  break
           } else if ( k == wt_rail ) {
-            tool.work(our_player, t[i])
+            tool.work(our_player, t[i])*/
           }
         }
       }
