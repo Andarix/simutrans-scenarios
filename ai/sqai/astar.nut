@@ -1850,17 +1850,18 @@ function find_extension(wt, tile_size = 1) {
         gui.add_message_at(our_player, "extension " + extension.get_name() + " size " + extension.get_size(0), world.get_time())
       }
 
-      if ( !ok && extension.get_size(0) == "1,1" ) {
+      if ( !ok && coord_to_string(extension.get_size(0)) == "1,1" ) {
         if ( select_extension.get_capacity() > extension.get_capacity() ) {
           select_extension = extension
         }
-      } else if ( extension.get_size(0) == "1,1" ) {
+      } else if ( coord_to_string(extension.get_size(0)) == "1,1" ) {
         select_extension = extension
       }
     }
   }
 
   if ( select_extension == null ) {
+    extension_list.clear()
     // not find extension from waytype for selected good
     // search post extension from all waytypes
     extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_all, good_desc_x(freight))
@@ -1877,11 +1878,11 @@ function find_extension(wt, tile_size = 1) {
           gui.add_message_at(our_player, "extension " + extension.get_name(), world.get_time())
         }
 
-        if ( !ok && extension.get_size(0) == "1,1" ) {
+        if ( !ok && coord_to_string(extension.get_size(0)) == "1,1" ) {
           if ( select_extension.get_capacity() > extension.get_capacity() ) {
             select_extension = extension
           }
-        } else if ( extension.get_size(0) == "1,1" ) {
+        } else if ( coord_to_string(extension.get_size(0)) == "1,1" ) {
           select_extension = extension
         }
       }
@@ -1890,6 +1891,7 @@ function find_extension(wt, tile_size = 1) {
   }
 
   if ( select_extension == null ) {
+    extension_list.clear()
     // not find extension from waytype for selected good
     // search post extension from all waytypes
     extension_list = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_all, good_desc_x("post"))
@@ -1906,16 +1908,20 @@ function find_extension(wt, tile_size = 1) {
           gui.add_message_at(our_player, "extension " + extension.get_name(), world.get_time())
         }
 
-        if ( !ok && extension.get_size(0) == "1,1" ) {
+        if ( !ok && coord_to_string(extension.get_size(0)) == "1,1" ) {
           if ( select_extension.get_capacity() > extension.get_capacity() ) {
             select_extension = extension
           }
-        } else if ( extension.get_size(0) == "1,1" ) {
+        } else if ( coord_to_string(extension.get_size(0)) == "1,1" ) {
           select_extension = extension
         }
       }
     }
 
+  }
+
+  if ( print_message_box == 2 ) {
+    gui.add_message_at(our_player, "select_extension " + select_extension, world.get_time())
   }
 
   return select_extension
