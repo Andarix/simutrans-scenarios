@@ -3580,6 +3580,11 @@ function optimize_way_line(route, wt) {
           }
 
         }
+
+        // restor exist catenary
+        if ( catenary_obj != null ) {
+          command_x.build_wayobj(our_player, tile_4, tile_3, catenary_obj)
+        }
       } else if ( build_tunnel == 2 ) {
         // build tunnel - not work tunnel tool script ai
         //local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
@@ -3592,6 +3597,10 @@ function optimize_way_line(route, wt) {
           gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
         } else {
           count_build++
+        }
+        // restor exist catenary
+        if ( catenary_obj != null ) {
+          command_x.build_wayobj(our_player, tile_1, build_tile, catenary_obj)
         }
       } else if ( build_tunnel == 3 ) {
         // build tunnel - not work tunnel tool script ai
@@ -3621,6 +3630,10 @@ function optimize_way_line(route, wt) {
             count_build++
           }
         }
+        // restor exist catenary
+        if ( catenary_obj != null ) {
+          command_x.build_wayobj(our_player, tile_1, build_tile, catenary_obj)
+        }
       } else if ( build_bridge == 2 ) {
         local tool = command_x(tool_remove_way)
         local err = tool.work(our_player, tile_1, build_tile, "" + wt)
@@ -3634,6 +3647,10 @@ function optimize_way_line(route, wt) {
           } else {
             count_build++
           }
+        }
+        // restor exist catenary
+        if ( catenary_obj != null ) {
+          command_x.build_wayobj(our_player, tile_1, build_tile, catenary_obj)
         }
       }
     // END :: build bridges and tunnel - 2 to 4 tiles
