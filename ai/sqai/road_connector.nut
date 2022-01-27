@@ -210,15 +210,25 @@ class road_connector_t extends manager_t
           //
 			    local asf = astar_route_finder(wt_road)
 			    local result = asf.search_route([c_start], [c_end])
-          if (  result.routes.len() < 3 ) {
+          if (  result.routes.len() <= 3 ) {
             //gui.add_message_at(pl, "route len < 3 tiles  ", c_end)
             local extension = find_extension(wt_road)
+            local start_h = tile_x(c_start.x, c_start.y, c_start.z).get_halt().get_name()
+            local end_h = tile_x(c_end.x, c_end.y, c_end.z).get_halt().get_name()
 
-            if ( extension != null ) {
+            if ( extension != null && start_h == end_h ) {
               remove_tile_to_empty(c_start, wt_road, 0)
               command_x.build_station(our_player, c_start, extension)
               remove_tile_to_empty(c_end, wt_road, 0)
               command_x.build_station(our_player, c_end, extension)
+              if ( result.routes.len() == 3 ) {
+                foreach(node in result.routes) {
+                  local tile = tile_x(node.x, node.y, node.z)
+                  if ( tile.find_object(mo_building) == null ) {
+                    remove_tile_to_empty(tile, wt_road, 0)
+                  }
+                }
+              }
             }
             return r_t(RT_TOTAL_SUCCESS)
           }
