@@ -3861,6 +3861,7 @@ function destroy_line(line_obj, good) {
 
   // 1 = messages
   // 2 = debug.pause()
+  // 3 = line check
   local print_message_box = 0
 
   if ( print_message_box > 0 ) {
@@ -3923,14 +3924,14 @@ function destroy_line(line_obj, good) {
     start_f = start_h.get_factory_list()
     end_f = end_h.get_factory_list()
     //}
-    if ( start_f.len() > 0 && print_message_box == 1 ) {
+    if ( start_f.len() > 0 && (print_message_box == 1 || print_message_box == 3) ) {
       gui.add_message_at(our_player, " factory start " + start_f[0].get_name(), world.get_time())
-    } else if ( print_message_box == 1 ) {
+    } else if ( print_message_box == 1 || print_message_box == 3 ) {
       gui.add_message_at(our_player, " not connect factory start ", world.get_time())
     }
-    if ( end_f.len() > 0 && print_message_box == 1 ) {
+    if ( end_f.len() > 0 && (print_message_box == 1 || print_message_box == 3) ) {
       gui.add_message_at(our_player, " factory end " + end_f[0].get_name(), world.get_time())
-    } else if ( print_message_box == 1 ) {
+    } else if ( print_message_box == 1 || print_message_box == 3 ) {
       gui.add_message_at(our_player, " not connect factory end ", world.get_time())
     }
 
@@ -3956,12 +3957,18 @@ function destroy_line(line_obj, good) {
       }
 
       if (good_list_in.len() == g_count_in ) {
-        if ( print_message_box == 1 ) {
+        if ( print_message_box == 1 || print_message_box == 3 ) {
           gui.add_message_at(our_player, "### last line connect factorys - stored/in-transit all goods > 0 factory start", world.get_time())
         }
-        // something stored/in-transit in last and current month
-        // no need to search for more supply
-        return false
+        if ( start_f[0].input.len() == 0 && end_f[0].output.len() == 0 ) {
+          if ( print_message_box == 1 || print_message_box == 3 ) {
+            gui.add_message_at(our_player, "### factory start generator && factory end  end-consumers", world.get_time())
+          }
+        } else {
+          // something stored/in-transit in last and current month
+          // no need to search for more supply
+          return false
+        }
       }
     }
 

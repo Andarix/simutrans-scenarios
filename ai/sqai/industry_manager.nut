@@ -454,7 +454,17 @@ class industry_manager_t extends manager_t
 						link.state = 4
 						return
 					}
-				} else {
+				} else if ( line.destroy_line_month != world.get_time().month && check_factory_links(link.f_src, link.f_dest, link.freight.get_name()) == 1 ) {
+          if ( link.f_src.input.len() == 0 && link.f_dest.output.len() == 0 ) {
+					  local erreg = destroy_line(line, link.freight)
+					  if ( erreg == false ) {
+						  line.destroy_line_month = world.get_time().month
+					  } else if ( erreg == true ) {
+						  link.state = 4
+						  return
+					  }
+          }
+        } else {
 					//gui.add_message_at(our_player, "return cnv/line new " + line.get_name(), world.get_time())
 				}
 				line_new = 1
