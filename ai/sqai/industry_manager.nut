@@ -1197,9 +1197,10 @@ class industry_manager_t extends manager_t
         }
 
         // through schedule to estimate distance
-        local dist = 0
-        local entries = cnv.get_schedule().entries
-        dist = abs(entries[0].x - entries[1].x) + abs(entries[0].y - entries[1].y)
+        //local dist = 0
+        //local entries = cnv.get_schedule().entries
+        // distance real route
+        local dist = nexttile.len() //abs(entries[0].x - entries[1].x) + abs(entries[0].y - entries[1].y)
 
         if (wt == wt_road ) {
           if ( dist <= 50) { cnv_valuator.max_cnvs = dist/3 }
@@ -1211,15 +1212,34 @@ class industry_manager_t extends manager_t
         }
 
         // add 10% from distance
-        dist += dist / 100 * 10
+        //dist += dist / 100 * 10
 
-        // set electrified for vehicle by way len > xx tiles
-        if ( wt == wt_rail && nexttile.len() > 80 && world.get_time().year >= 1935 && our_player.get_current_cash() > 250000 ) {
-          if ( print_message_box == 5 ) {
-            gui.add_message_at(our_player, "###---- set electrified convoys " + line.get_name(), world.get_time())
-            gui.add_message_at(our_player, "###---- line len " + nexttile.len(), world.get_time())
+        if ( wt == wt_rail ) {
+          local catenary_obj = null //find_object("catenary", wt, 100)
+          local catenary_cost = 0
+          if ( start_l.find_object(mo_wayobj) != null ) {
+            catenary_obj = start_l.find_object(mo_wayobj).get_desc()
+            if ( catenary_obj != null && !catenary_obj.is_available(world.get_time()) && !catenary_obj.is_overhead_line() ) {
+              catenary_obj = find_object("catenary", wt, cnv_max_speed)
+            }
+          } else {
+            catenary_obj = find_object("catenary", wt, cnv_max_speed)
           }
-          prototyper.electrified = 1
+
+          // build cost
+          catenary_cost = (catenary_obj.get_cost() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_cost()
+          // + maintenance for 5 months
+          catenary_cost += ((catenary_obj.get_maintenance() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_maintenance()) * 5
+
+          // set electrified for vehicle by way len > xx tiles
+          if ( nexttile.len() > 80 && world.get_time().year >= 1935 && our_player.get_current_cash() > catenary_cost ) {
+            if ( print_message_box == 5 ) {
+              gui.add_message_at(our_player, "###---- set electrified convoys " + line.get_name(), world.get_time())
+              gui.add_message_at(our_player, "###---- line len " + nexttile.len(), world.get_time())
+            }
+            prototyper.electrified = 1
+          }
+
         }
 
         cnv_valuator.distance = dist
