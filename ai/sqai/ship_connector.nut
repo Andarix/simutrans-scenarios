@@ -167,7 +167,7 @@ class ship_connector_t extends manager_t
             if (key in c_harbour_tiles) {
               if ( c_harbour_tiles[key].find_object(mo_building) != null ) {
                 gui.add_message_at(pl, " --- tile to build harbour not free", world.get_time())
-                return restart_with_phase0()
+                return r_t(RT_TOTAL_FAIL)
               }
               err = build_harbour(c_harbour_tiles[key], c_end)
             }
