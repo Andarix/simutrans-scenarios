@@ -3862,7 +3862,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 1
+  local print_message_box = 0
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
@@ -4163,7 +4163,7 @@ function destroy_line(line_obj, good) {
         gui.add_message_at(our_player, " treeways " + treeways + " combined_s " + combined_s + " combined_e " + combined_e, world.get_time())
         gui.add_message_at(our_player, " start_line_count " + start_line_count + " end_line_count " + end_line_count + " remove_all " + remove_all, world.get_time())
         gui.add_message_at(our_player, " double_ways " + double_ways, world.get_time())
-        ::debug.pause()
+        //::debug.pause()
       }
 
       // remove way from start to first treeway
@@ -4199,7 +4199,7 @@ function destroy_line(line_obj, good) {
           // remove double way
           if ( print_message_box > 0 ) {
             gui.add_message_at(our_player, " double_way_tiles[j] " + coord3d_to_string(double_way_tiles[i]) + " double_way_tiles[j+1] " + coord3d_to_string(double_way_tiles[i+1]), double_way_tiles[i])
-            ::debug.pause()
+            //::debug.pause()
           }
 
           tool.work(our_player, double_way_tiles[j], double_way_tiles[j+1], "" + wt_rail)
@@ -4392,7 +4392,7 @@ function destroy_line(line_obj, good) {
   }
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
-    ::debug.pause()
+    //::debug.pause()
   }
   return true
 }

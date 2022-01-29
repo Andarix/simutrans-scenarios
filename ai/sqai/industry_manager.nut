@@ -433,7 +433,7 @@ class industry_manager_t extends manager_t
     // 3
     // 4 = cnv status retired / all to old
     // 5 = electrified
-    local print_message_box = 5
+    local print_message_box = 0
 
     dbgprint("Check line " + line.get_name())
     if ( our_player.nr == 3 && print_message_box == 1 ) {
