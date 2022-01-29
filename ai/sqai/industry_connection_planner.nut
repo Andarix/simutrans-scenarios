@@ -560,10 +560,16 @@ class industry_connection_planner_t extends manager_t
 
     // middle distance
     if  ( r.distance > 120 && r.distance < 350 ) {
+
+      if ( (f_dist + (f_dist / 100 * 22)) < r.distance ) {
+        //gui.add_message_at(our_player, "factory dist +22% " + (f_dist + (f_dist / 100 * 22)) + " route len " + r.distance, world.get_time())
+
+      }
+
       switch (wt) {
         case wt_rail:
           if ( world.get_time().year < 1935 && planned_bridge.tiles > 12 ) {
-            //gui.add_message_at(our_player, "wt_road: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
+            //gui.add_message_at(our_player, "wt_rail: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
             r.points -= (22*bridge_year_factor)
           } else if ( planned_bridge.tiles > 28 ) {
             r.points -= (15*bridge_year_factor)
@@ -579,6 +585,20 @@ class industry_connection_planner_t extends manager_t
           break
       }
     }
+
+    // route > 1.5 * factory distance
+    if ( (f_dist + (f_dist / 3 * 2)) < r.distance ) {
+      gui.add_message_at(our_player, "factorys: f_dist " + f_dist + " - f_dist + (f_dist / 3 * 2) " + (f_dist + (f_dist / 3 * 2)) + " - route len " + r.distance, world.get_time())
+      switch (wt) {
+        case wt_rail:
+          r.points -= 40
+          break
+        case wt_road:
+          r.points -= 60
+          break
+      }
+    }
+
 
     // freight weight
     local g = good_desc_x(freight).get_weight_per_unit()
