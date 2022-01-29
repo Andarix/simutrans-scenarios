@@ -3862,7 +3862,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 0
+  local print_message_box = 1
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
@@ -3925,18 +3925,24 @@ function destroy_line(line_obj, good) {
     end_f = end_h.get_factory_list()
     //}
     if ( start_f.len() > 0 && (print_message_box == 1 || print_message_box == 3) ) {
-      gui.add_message_at(our_player, " factory start " + start_f[0].get_name(), world.get_time())
+      gui.add_message_at(our_player, " factory start " + start_f[0].get_name(), start_l)
     } else if ( print_message_box == 1 || print_message_box == 3 ) {
       gui.add_message_at(our_player, " not connect factory start ", world.get_time())
     }
     if ( end_f.len() > 0 && (print_message_box == 1 || print_message_box == 3) ) {
-      gui.add_message_at(our_player, " factory end " + end_f[0].get_name(), world.get_time())
+      gui.add_message_at(our_player, " factory end " + end_f[0].get_name(), end_l)
     } else if ( print_message_box == 1 || print_message_box == 3 ) {
       gui.add_message_at(our_player, " not connect factory end ", world.get_time())
     }
 
+    local chk_link = 0
+    if ( start_f.len() > 0 && end_f.len() > 0 ) {
+      chk_link = check_factory_links(start_f[0], end_f[0], good.get_name())
+    }
+
+    //gui.add_message_at(our_player, "### check_factory_links(start_f[0], end_f[0], good.get_name()) " + check_factory_links(start_f[0], end_f[0], good.get_name()), world.get_time())
     // check links
-    if ( combined_s == 0 && combined_e == 0 && check_factory_links(start_f[0], end_f[0], good.get_name()) == 1 ) {
+    if ( combined_s == 1 && combined_e == 1 && chk_link == 1 ) {
 
       local good_list_in = [];
       local g_count_in = 0
@@ -3960,7 +3966,7 @@ function destroy_line(line_obj, good) {
         if ( print_message_box == 1 || print_message_box == 3 ) {
           gui.add_message_at(our_player, "### last line connect factorys - stored/in-transit all goods > 0 factory start", world.get_time())
         }
-        if ( start_f[0].input.len() == 0 && end_f[0].output.len() == 0 ) {
+        if ( start_f[0].get_suppliers().len() == 0 && end_f[0].get_consumers().len() == 0 ) {
           if ( print_message_box == 1 || print_message_box == 3 ) {
             gui.add_message_at(our_player, "### factory start generator && factory end  end-consumers", world.get_time())
           }
