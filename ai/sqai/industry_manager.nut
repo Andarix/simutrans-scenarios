@@ -1222,22 +1222,29 @@ class industry_manager_t extends manager_t
             if ( catenary_obj != null && !catenary_obj.is_available(world.get_time()) && !catenary_obj.is_overhead_line() ) {
               catenary_obj = find_object("catenary", wt, cnv_max_speed)
             }
-          } else {
-            catenary_obj = find_object("catenary", wt, cnv_max_speed)
-          }
 
-          // build cost
-          catenary_cost = (catenary_obj.get_cost() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_cost()
-          // + maintenance for 5 months
-          catenary_cost += ((catenary_obj.get_maintenance() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_maintenance()) * 5
-
-          // set electrified for vehicle by way len > xx tiles
-          if ( nexttile.len() > 80 && world.get_time().year >= 1935 && our_player.get_current_cash() > catenary_cost ) {
             if ( print_message_box == 5 ) {
               gui.add_message_at(our_player, "###---- set electrified convoys " + line.get_name(), world.get_time())
-              gui.add_message_at(our_player, "###---- line len " + nexttile.len(), world.get_time())
+              gui.add_message_at(our_player, "###---- line has catenary ", world.get_time())
             }
+
             prototyper.electrified = 1
+          } else {
+            catenary_obj = find_object("catenary", wt, cnv_max_speed)
+
+            // build cost
+            catenary_cost = (catenary_obj.get_cost() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_cost()
+            // + maintenance for 5 months
+            catenary_cost += ((catenary_obj.get_maintenance() * (dist + (8 * line.double_ways_count))) + catenary_obj.get_maintenance()) * 5
+
+            // set electrified for vehicle by way len > xx tiles
+            if ( nexttile.len() > 80 && world.get_time().year >= 1935 && our_player.get_current_cash() > catenary_cost ) {
+              if ( print_message_box == 5 ) {
+                gui.add_message_at(our_player, "###---- set electrified convoys " + line.get_name(), world.get_time())
+                gui.add_message_at(our_player, "###---- line len " + nexttile.len(), world.get_time())
+              }
+              prototyper.electrified = 1
+            }
           }
 
         }
