@@ -3917,6 +3917,9 @@ function destroy_line(line_obj, good) {
   local combined_s = test_halt_waytypes(start_l)
   local combined_e = test_halt_waytypes(end_l)
 
+  if ( start_line_count >= 2 && end_line_count >= 2 && combined_s > 1 && combined_e > 1  ) {
+    return false
+  }
 
     local start_f = null
     local end_f = null
@@ -4356,27 +4359,27 @@ function destroy_line(line_obj, good) {
     start_line_count = start_h.get_line_list().get_count()
     end_line_count = end_h.get_line_list().get_count()
 
-    if ( start_line_count == 0 ) {
-      // remove combined waytype halt water - not road
-      if ( combined_s > 1 ) {
+    if ( start_line_count <= 1 ) {
+      // remove combined waytype halt water - not road/rail
+      if ( combined_s >= 1 && combined_e == 1 ) {
         local t = start_h.get_tile_list()
         for ( local i = 0; i < t.len(); i++ ) {
           local k = t[i].find_object(mo_building).get_desc().get_waytype()
-          if ( k == wt_road ) {
+          if ( k == wt_water ) {
             tool.work(our_player, t[i])
-            break
-          } else if ( k == wt_rail ) {
+            //break
+          } /*else if ( k == wt_rail ) {
             tool.work(our_player, t[i])
-          }
+          }*/
         }
-        t = start_h.get_tile_list()
-        tool.work(our_player, t[0])
+        //t = start_h.get_tile_list()
+        //tool.work(our_player, t[0])
       }
     }
 
-    if ( end_line_count < 2 ) {
+    if ( end_line_count <= 1 ) {
       // remove combined waytype halt water - not road/rail
-      if ( combined_e > 1 ) {
+      if ( combined_e <= 2 ) {
         local t = end_h.get_tile_list()
         for ( local i = 0; i < t.len(); i++ ) {
           local k = t[i].find_object(mo_building).get_desc().get_waytype()
