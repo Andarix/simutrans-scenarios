@@ -245,7 +245,7 @@ class rail_connector_t extends manager_t
             gui.add_message_at(pl, "Way construction cost to height: cash: " + cash + " build cost: " + build_cost, world.get_time())
             return error_handler()
           }
-
+/*
           if ( calc_route.routes.len() > 150 && (cash-build_cost-(build_cost/2)) < (cost_monthly*10) ) {
             //remove_tile_to_empty(t_start, wt_rail, 1)
             //remove_tile_to_empty(t_end, wt_rail, 1)
@@ -253,7 +253,7 @@ class rail_connector_t extends manager_t
             gui.add_message_at(pl, "Way to long for rentabel build.", world.get_time())
             return error_handler()
           }
-
+*/
           //gui.add_message_at(pl, "c_start.len() " + c_start.len() + " - c_end.len() " + c_end.len(), world.get_time())
           err = construct_rail(pl, c_start, c_end, planned_way )
           print("Way construction cost: " + (d-pl.get_current_cash()) )

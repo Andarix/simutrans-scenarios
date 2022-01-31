@@ -560,12 +560,6 @@ class industry_connection_planner_t extends manager_t
 
     // middle distance
     if  ( r.distance > 120 && r.distance < 350 ) {
-
-      if ( (f_dist + (f_dist / 100 * 22)) < r.distance ) {
-        //gui.add_message_at(our_player, "factory dist +22% " + (f_dist + (f_dist / 100 * 22)) + " route len " + r.distance, world.get_time())
-
-      }
-
       switch (wt) {
         case wt_rail:
           if ( world.get_time().year < 1935 && planned_bridge.tiles > 12 ) {
@@ -586,9 +580,20 @@ class industry_connection_planner_t extends manager_t
       }
     }
 
-    // route > 1.5 * factory distance
-    if ( (f_dist + (f_dist / 3 * 2)) < r.distance ) {
-      gui.add_message_at(our_player, "factorys: f_dist " + f_dist + " - f_dist + (f_dist / 3 * 2) " + (f_dist + (f_dist / 3 * 2)) + " - route len " + r.distance, world.get_time())
+    // route <-> factory distance
+    local dist_route_check = 0
+    if ( get_set_name() == "pak64.german" ) {
+      //gui.add_message_at(our_player, "factorys: f_dist " + f_dist + " - f_dist * 2) " + (f_dist * 2) + " - route len " + r.distance, world.get_time())
+      dist_route_check = f_dist * 2
+
+
+    } else {
+      //gui.add_message_at(our_player, "factorys: f_dist " + f_dist + " - f_dist + (f_dist / 3 * 2) " + (f_dist + (f_dist / 3 * 2)) + " - route len " + r.distance, world.get_time())
+      dist_route_check = f_dist + (f_dist / 3 * 2)
+
+    }
+
+    if ( dist_route_check < r.distance ) {
       switch (wt) {
         case wt_rail:
           r.points -= 40
@@ -701,15 +706,21 @@ class industry_connection_planner_t extends manager_t
     }
 
     local m = r.cost_fix/100*cash_buffer
+
+    if ( r.distance > 350 ) {
+      gui.add_message_at(our_player, "connection planner r.distance > 350 -> " + r.distance, world.get_time())
+      m = r.cost_fix/40*cash_buffer
+    } else if ( r.distance > 300 ) {
+      gui.add_message_at(our_player, "connection planner r.distance > 300 -> " + r.distance, world.get_time())
+      m = r.cost_fix/60*cash_buffer
+    } else if ( r.distance > 250 ) {
+      gui.add_message_at(our_player, "connection planner r.distance > 250 -> " + r.distance, world.get_time())
+      m = r.cost_fix/80*cash_buffer
+    }
+
+
     if ( (cash-m) < 0 ) {
       r.points -= 50
-    }
-    if ( r.distance > 280 ) {
-      gui.add_message_at(our_player, "connection planner r.distance > 280 -> " + r.distance, world.get_time())
-      m = r.cost_fix*(cash_buffer/2)
-      if ( (cash-m) < 0 ) {
-        r.points -= 80
-      }
     }
 
     // set retire time for report
