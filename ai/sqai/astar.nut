@@ -714,8 +714,16 @@ function check_ground(pos_s, pos_e, way) {
     t_tile.append(t)
   }
 
+  local start_end_slope = 0
+  if ( tile_x(pos_s.x, pos_s.y, pos_s.z).get_slope() == 0 && tile_x(pos_e.x, pos_e.y, pos_e.z).get_slope() == 0 ) {
+    start_end_slope = 1
+  } else if ( tile_x(pos_s.x, pos_s.y, pos_s.z).get_slope() > 0 && tile_x(pos_e.x, pos_e.y, pos_e.z).get_slope() == 0 ) {
+    start_end_slope = 1
+  } else if ( tile_x(pos_s.x, pos_s.y, pos_s.z).get_slope() == 0 && tile_x(pos_e.x, pos_e.y, pos_e.z).get_slope() > 0 ) {
+    start_end_slope = 1
+  }
 
-  if ( tile_x(pos_s.x, pos_s.y, pos_s.z).get_slope() == 0 && tile_x(pos_e.x, pos_e.y, pos_e.z).get_slope() == 0 && pos_s.z == pos_e.z ) {
+  if ( start_end_slope == 1 && pos_s.z == pos_e.z ) {
     local z = null
     local terraform_tiles = []
     local err = null
@@ -3725,9 +3733,13 @@ function optimize_way_line(route, wt) {
 
       if ( remove_bridge > 0 && ( (remove_bridge+1) == bridge_len ) && bridge_len > 2 && bridge_len < 5 && pl_check == our_player_nr ) {
         local err = remove_tile_to_empty(tile_2, wt, 0)
-            //gui.add_message_at(our_player, " remove way: " + err, tile_1)
+            gui.add_message_at(our_player, " remove bridge: " + err, tile_1)
         if (err) {
+          build_tile = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
+          err = check_ground(tile_2, build_tile, way_obj)
+
           build_tile = tile_x(route[i].x, route[i].y, route[i].z)
+
           err = command_x.build_way(our_player, tile_1, build_tile, way_obj, true)
           if (err != null ) {
             gui.add_message_at(our_player, " remove bridge and build way: " + err, tile_1)
@@ -3862,7 +3874,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 0
+  local print_message_box = 1
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
