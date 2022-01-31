@@ -3874,7 +3874,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 1
+  local print_message_box = 0
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
@@ -4322,9 +4322,9 @@ function destroy_line(line_obj, good) {
       }
       // remove station and way to next treeway
       // treeway tile check player
-      if ( treeway_tile_s[0].find_object(mo_way).get_owner() == our_player ) {
+      if ( treeway_tile_s[0] != null && treeway_tile_s[0].find_object(mo_way).get_owner() == our_player ) {
         tool.work(our_player, start_l, treeway_tile_s[0], "" + wt_road)
-      } else {
+      } else if ( treeway_tile_s[1] != null && treeways > 0 ) {
         tool.work(our_player, start_l, treeway_tile_s[1], "" + wt_road)
         remove_tile_to_empty(treeway_tile_s[1], wt, 0)
       }
@@ -4345,12 +4345,16 @@ function destroy_line(line_obj, good) {
       }
       // remove station and way to next treeway
       // treeway tile check player
-      if ( treeway_tile_e[0].find_object(mo_way).get_owner() == our_player ) {
+      if ( treeway_tile_e[0] != null && treeway_tile_e[0].find_object(mo_way).get_owner() == our_player ) {
         tool.work(our_player, end_l, treeway_tile_e[0], "" + wt_road)
-      } else {
+      } else if ( treeway_tile_e[1] != null && treeways > 0 ) {
         tool.work(our_player, end_l, treeway_tile_e[1], "" + wt_road)
         remove_tile_to_empty(treeway_tile_e[1], wt, 0)
       }
+    }
+
+    if ( treeways == 0 ) {
+      tool.work(our_player, end_l, start_l, "" + wt_road)
     }
   }
 
