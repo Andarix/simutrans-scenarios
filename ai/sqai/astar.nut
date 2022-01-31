@@ -2882,9 +2882,9 @@ function check_way_line(start, end, wt, l, c) {
   local stl = 0
   local str = 0
   local dst = 0
-  local i = 0
+  local i = 8
 
-  while ( i < nexttile.len() - 1 ) {
+  while ( i < (nexttile.len() - 1 - 8) ) {
     i++
     // check to signal
     local sig = nexttile[i-1].find_object(mo_signal)
@@ -3874,7 +3874,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 0
+  local print_message_box = 1
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
