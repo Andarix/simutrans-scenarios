@@ -132,7 +132,9 @@ class rail_connector_t extends manager_t
             }
 
             err = command_x.build_way(pl, t_start[0], t_start[1], planned_way, true)
+            if ( err != null ) { gui.add_message_at(pl, "check_station build_way " + err, t_start[0]) }
             err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
+            if ( err != null ) { gui.add_message_at(pl, "check_station build_way " + err, t_start[0]) }
             if ( err == null ) {
               err = check_station(pl, t_start[0], st_lenght, wt_rail, planned_station, 0)
               if ( err == false ) {
@@ -141,7 +143,9 @@ class rail_connector_t extends manager_t
               if ( err == true ) {
                 // station start ok
                 err = command_x.build_way(pl, t_end[0], t_end[1], planned_way, true)
+                if ( err != null ) { gui.add_message_at(pl, "check_station build_way t_end " + err, t_end[0]) }
                 err = command_x.build_way(pl, t_end[1], t_end[2], planned_way, true)
+                if ( err != null ) { gui.add_message_at(pl, "check_station build_way t_end " + err, t_end[0]) }
                 //local tool = command_x(tool_remove_way)
                 if ( err == null ) {
                   err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
@@ -170,10 +174,12 @@ class rail_connector_t extends manager_t
                     return error_handler()
                   }
                 } else {
-                  // remove start
-                    for ( local i = 0; i < 3; i++ ) {
+                  // remove start and end
+                    for ( local i = 0; i < 6; i++ ) {
                       if ( check_way[i] == 0 && i < 3 ) {
                         remove_tile_to_empty(t_start[i], wt_rail, 0)
+                      } else if ( check_way[i] == 0 && i > 2 ) {
+                        remove_tile_to_empty(t_end[i-3], wt_rail, 0)
                       }
                     }
                 }
