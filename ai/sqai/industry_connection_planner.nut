@@ -584,7 +584,7 @@ class industry_connection_planner_t extends manager_t
     local dist_route_check = 0
     if ( get_set_name() == "pak64.german" ) {
       //gui.add_message_at(our_player, "factorys: f_dist " + f_dist + " - f_dist * 2) " + (f_dist * 2) + " - route len " + r.distance, world.get_time())
-      dist_route_check = f_dist * 2
+      dist_route_check = f_dist + (f_dist / 3 * 4)
 
 
     } else {
