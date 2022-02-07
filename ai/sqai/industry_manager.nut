@@ -549,6 +549,8 @@ class industry_manager_t extends manager_t
         sleep()
         list = line.get_convoy_list()
         cnv_count = list.get_count()
+        line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 3)
+        return
       }
 
       if ( line_new == 1 ) { return }
