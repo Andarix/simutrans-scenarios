@@ -3890,7 +3890,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 1
+  local print_message_box = 0
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
