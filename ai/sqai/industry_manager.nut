@@ -433,7 +433,7 @@ class industry_manager_t extends manager_t
     // 3
     // 4 = cnv status retired / all to old
     // 5 = electrified
-    local print_message_box = 0
+    local print_message_box = 5
 
     dbgprint("Check line " + line.get_name())
     if ( our_player.nr == 3 && print_message_box == 1 ) {
@@ -1000,6 +1000,7 @@ class industry_manager_t extends manager_t
         }
         //
         // check way for find fields for double track
+        optimize_way_line(nexttile, cnv.get_waytype())
         local s_fields = check_way_line(start_l, end_l, cnv.get_waytype(), l, c)
         local cc = 1
 
