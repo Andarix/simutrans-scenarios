@@ -3441,40 +3441,58 @@ function optimize_way_line(route, wt) {
 
     // START :: remove diagonal double ways without spacing
     if ( dir.is_threeway(tile_1_d)  &&  dir.is_threeway(tile_3_d) ) {
-      if ( tile_2_d == 3 || tile_2_d == 6 ) {
-        tile_4 = tile_x(tile_2.x+1, tile_2.y-1, tile_2.z)
-
-        tile_2_speed = tile_2.find_object(mo_way).get_desc().get_topspeed()
-
-        local tile_1_coord = coord3d_to_string(tile_1)
-        local tile_2_coord = coord3d_to_string(tile_2)
-        local tile_3_coord = coord3d_to_string(tile_3)
-        local tile_4_coord = coord3d_to_string(tile_4)
-
-        if ( tile_4.find_object(mo_way) != null ) {
-          tile_4_d = tile_4.get_way_dirs(wt)
-          if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && ( tile_4_d == 9 || tile_4_d == 12 ) ) {
-            remove_tile_to_empty(tile_4, wt, 0)
-          } else if ( tile_2_d == 9 || tile_2_d == 12 ) {
-            remove_tile_to_empty(tile_2, wt, 0)
+      tile_2_speed = tile_2.find_object(mo_way).get_desc().get_topspeed()
+      local remove_tile = null
+      switch(tile_2_d) {
+        case 3:
+          tile_4 = tile_x(tile_2.x+1, tile_2.y-1, tile_2.z)
+          if ( tile_4.find_object(mo_way) != null ) {
+            tile_4_d = tile_4.get_way_dirs(wt)
+            if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && tile_4_d == 12 ) {
+              remove_tile = tile_4
+            } else if ( tile_4_d == 12 ) {
+              remove_tile = tile_2
+            }
           }
-        }
-      } else if ( tile_2_d == 9 || tile_2_d == 12 ) {
-        tile_4 = tile_x(tile_2.x-1, tile_2.y+1, tile_2.z)
-
-        local tile_1_coord = coord3d_to_string(tile_1)
-        local tile_2_coord = coord3d_to_string(tile_2)
-        local tile_3_coord = coord3d_to_string(tile_3)
-        local tile_4_coord = coord3d_to_string(tile_4)
-
-        if ( tile_4.find_object(mo_way) != null ) {
-          tile_4_d = tile_4.get_way_dirs(wt)
-          if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && ( tile_4_d == 3 || tile_4_d == 6 ) ) {
-            remove_tile_to_empty(tile_4, wt, 0)
-          } else if ( tile_2_d == 3 || tile_2_d == 6 ) {
-            remove_tile_to_empty(tile_2, wt, 0)
+          break
+        case 6:
+          tile_4 = tile_x(tile_2.x+1, tile_2.y+1, tile_2.z)
+          if ( tile_4.find_object(mo_way) != null ) {
+            tile_4_d = tile_4.get_way_dirs(wt)
+            if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && tile_4_d == 9 ) {
+              remove_tile = tile_4
+            } else if ( tile_4_d == 9 ) {
+              remove_tile = tile_2
+            }
           }
-        }
+          break
+        case 9:
+          tile_4 = tile_x(tile_2.x-1, tile_2.y-1, tile_2.z)
+          if ( tile_4.find_object(mo_way) != null ) {
+            tile_4_d = tile_4.get_way_dirs(wt)
+            if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && tile_4_d == 6 ) {
+              remove_tile = tile_4
+            } else if ( tile_4_d == 6 ) {
+              remove_tile = tile_2
+            }
+          }
+          break
+        case 12:
+          tile_4 = tile_x(tile_2.x-1, tile_2.y+1, tile_2.z)
+          if ( tile_4.find_object(mo_way) != null ) {
+            tile_4_d = tile_4.get_way_dirs(wt)
+            if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && tile_4_d == 3 ) {
+              remove_tile = tile_4
+            } else if ( tile_4_d == 3 ) {
+              remove_tile = tile_2
+            }
+          }
+          break
+      }
+
+
+      if ( remove_tile != null ) {
+        remove_tile_to_empty(remove_tile, wt, 0)
       }
     }
     // END :: remove diagonal double ways without spacing
@@ -3890,7 +3908,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 0
+  local print_message_box = 1
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
@@ -4396,13 +4414,15 @@ function destroy_line(line_obj, good) {
       if ( combined_s >= 1 && combined_e == 1 ) {
         local t = start_h.get_tile_list()
         for ( local i = 0; i < t.len(); i++ ) {
-          local k = t[i].find_object(mo_building).get_desc().get_waytype()
-          if ( k == wt_water ) {
-            tool.work(our_player, t[i])
-            //break
-          } /*else if ( k == wt_rail ) {
-            tool.work(our_player, t[i])
-          }*/
+          if ( t[i].find_object(mo_building) != null ) {
+            local k = t[i].find_object(mo_building).get_desc().get_waytype()
+            if ( k == wt_water ) {
+              tool.work(our_player, t[i])
+              //break
+            } /*else if ( k == wt_rail ) {
+              tool.work(our_player, t[i])
+            }*/
+          }
         }
         //t = start_h.get_tile_list()
         //tool.work(our_player, t[0])
@@ -4414,12 +4434,14 @@ function destroy_line(line_obj, good) {
       if ( combined_e <= 2 ) {
         local t = end_h.get_tile_list()
         for ( local i = 0; i < t.len(); i++ ) {
-          local k = t[i].find_object(mo_building).get_desc().get_waytype()
-          if ( k == wt_water ) {
-            tool.work(our_player, t[i])
-          /*  break
-          } else if ( k == wt_rail ) {
-            tool.work(our_player, t[i])*/
+          if ( t[i].find_object(mo_building) != null ) {
+            local k = t[i].find_object(mo_building).get_desc().get_waytype()
+            if ( k == wt_water ) {
+              tool.work(our_player, t[i])
+              /*  break
+            } else if ( k == wt_rail ) {
+              tool.work(our_player, t[i])*/
+            }
           }
         }
       }
