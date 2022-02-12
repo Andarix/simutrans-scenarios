@@ -4215,6 +4215,9 @@ function destroy_line(line_obj, good) {
         //::debug.pause()
       }
 
+      local cnv_count_start = start_l.get_way(wt_rail).get_convoys_passed()[0] + start_l.get_way(wt_rail).get_convoys_passed()[1]
+      local cnv_count_end = end_l.get_way(wt_rail).get_convoys_passed()[0] + end_l.get_way(wt_rail).get_convoys_passed()[1]
+
       // remove way from start to first treeway
       if ( treeways > 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && remove_all == 0 ) {
         // remove station and way to next treeway
@@ -4250,13 +4253,19 @@ function destroy_line(line_obj, good) {
             gui.add_message_at(our_player, " double_way_tiles[j] " + coord3d_to_string(double_way_tiles[i]) + " double_way_tiles[j+1] " + coord3d_to_string(double_way_tiles[i+1]), double_way_tiles[i])
             //::debug.pause()
           }
+          //    local cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]
+          local cnv_count_0 = double_way_tiles[j].get_way(wt_rail).get_convoys_passed()[0] + double_way_tiles[j].get_way(wt_rail).get_convoys_passed()[1]
+          local cnv_count_1 = double_way_tiles[j+1].get_way(wt_rail).get_convoys_passed()[0] + double_way_tiles[j+1].get_way(wt_rail).get_convoys_passed()[1]
 
-          tool.work(our_player, double_way_tiles[j], double_way_tiles[j+1], "" + wt_rail)
-          tool.work(our_player, double_way_tiles[j+1], double_way_tiles[j], "" + wt_rail)
-          if ( i < (double_ways-1) ) {
-            // remove single way to next double way
-            tool.work(our_player, double_way_tiles[j+1], double_way_tiles[j+2], "" + wt_rail)
-            //::debug.pause()
+          if ( cnv_count_0 == cnv_count_1 && cnv_count_0 <= cnv_count_start ) {
+            tool.work(our_player, double_way_tiles[j], double_way_tiles[j+1], "" + wt_rail)
+            tool.work(our_player, double_way_tiles[j+1], double_way_tiles[j], "" + wt_rail)
+            if ( i < (double_ways-1) ) {
+              // remove single way to next double way
+              tool.work(our_player, double_way_tiles[j+1], double_way_tiles[j+2], "" + wt_rail)
+              //::debug.pause()
+            }
+
           }
 
           j += 2;
