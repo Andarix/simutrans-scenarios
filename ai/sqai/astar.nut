@@ -2005,7 +2005,7 @@ function build_double_track(start_field, wt) {
   // 1
   // 2 - terraform
   // 3 - double track diagonal
-  local print_message_box = 0
+  local print_message_box = 1
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, " ### build_double_track ### " + coord3d_to_string(start_field), start_field)
@@ -2563,6 +2563,8 @@ function build_double_track(start_field, wt) {
             }
           }
         }
+      } else {
+        return false
       }
     }
     else if ( tiles[0].get_way_dirs(wt) == 6 ) {
@@ -2588,6 +2590,8 @@ function build_double_track(start_field, wt) {
           err = null
         }
 
+      } else {
+        return false
       }
     }
     else if ( tiles[0].get_way_dirs(wt) == 9 ) {
@@ -2950,11 +2954,15 @@ function check_way_line(start, end, wt, l, c) {
     local st = 0 // st == 1 no field for double way
     if ( dst == 0 && fc == 0 && ( t.get_slope() > 0 || t.is_bridge() || t.has_two_ways() ) ) {
       // check slope, bridge and crossing to start field for double way
-      //gui.add_message_at(our_player, " ### check first tile " + coord3d_to_string(t), t)
+      if ( i >= s[r] && print_message_box == 2 ) {
+        gui.add_message_at(our_player, " ### check first tile " + coord3d_to_string(t), t)
+      }
       st = 1
     } else if ( t.is_bridge() || t.has_two_ways() ) {
       // check bridge and crossing
-      //gui.add_message_at(our_player, " ### check bridge " + coord3d_to_string(t), t)
+      if ( i >= s[r] && print_message_box == 2 ) {
+        gui.add_message_at(our_player, " ### check bridge " + coord3d_to_string(t), t)
+      }
       st = 1
     } else if ( t.get_way_dirs(wt) == 10 ) {
       local check_tile_str = tile_x(t.x, t.y + 1, t.z)
@@ -3297,7 +3305,7 @@ function check_way_line(start, end, wt, l, c) {
     }
 
 
-    if ( i >= s[r] && ( fc >= way_len || dfcl >= way_len || dfcr >= way_len ) && start_fields.len() < c) {
+    if ( i >= s[r] && ( fc >= way_len || dfcl >= way_len || dfcr >= way_len ) && start_fields.len() < c ) {
       if ( ( nexttile[i-1].x > nexttile[i].x && fc > 0 && nexttile[i-1].y == nexttile[i].y ) || ( nexttile[i-1].y > nexttile[i].y && fc > 0 ) || ( nexttile[i-1].y > nexttile[i].y && fc == 0 ) || ( nexttile[i-1].x < nexttile[i].x && fc == 0 && nexttile[i-2].y > nexttile[i].y ) ) {
         /*
          *
@@ -3305,7 +3313,7 @@ function check_way_line(start, end, wt, l, c) {
          */
         if ( nexttile[i].get_slope() == 0 ) {
           if ( print_message == 1 ) {
-            gui.add_message_at(our_player, " add nexttile[i] id = " + i + " " + coord3d_to_string(t), t)
+            gui.add_message_at(our_player, " (1) add nexttile[i] id = " + i + " " + coord3d_to_string(t), t)
           }
           start_fields.append(nexttile[i])
           stl = 0
@@ -3314,7 +3322,7 @@ function check_way_line(start, end, wt, l, c) {
         } else if ( nexttile[i+1].get_slope() == 0 ) {
           // plan start tile has slope then next tile
           if ( print_message == 1 ) {
-            gui.add_message_at(our_player, " add nexttile[i+1] id = " + (i+1) + " " + coord3d_to_string(nexttile[i+1]), nexttile[i+1])
+            gui.add_message_at(our_player, " (2) add nexttile[i+1] id = " + (i+1) + " " + coord3d_to_string(nexttile[i+1]), nexttile[i+1])
           }
           start_fields.append(nexttile[i+1])
           stl = 0
@@ -3328,7 +3336,7 @@ function check_way_line(start, end, wt, l, c) {
          */
         if ( nexttile[i].get_slope() == 0 ) {
           if ( print_message == 1 ) {
-            gui.add_message_at(our_player, " add nexttile[i] id = " + i + " " + coord3d_to_string(t), t)
+            gui.add_message_at(our_player, " (3) add nexttile[i] id = " + i + " " + coord3d_to_string(t), t)
           }
           start_fields.append(nexttile[i])
           stl = 0
@@ -3336,15 +3344,15 @@ function check_way_line(start, end, wt, l, c) {
           fc = 0
         }
       } else if ( nexttile[i-1].x < nexttile[i].x && fc > 0 && nexttile[i-2].y == nexttile[i].y ) {
-        if ( nexttile[i-way_len].get_slope() == 0 ) {
+        if ( nexttile[i-way_len].get_slope() == 0 && !nexttile[i-way_len].is_bridge() ) {
           start_fields.append(nexttile[i-way_len])
           if ( print_message == 1 ) {
-            gui.add_message_at(our_player, " add nexttile[i-way_len] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
+            gui.add_message_at(our_player, " (4) add nexttile[i-way_len] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
           }
         } else {
           start_fields.append(nexttile[i-way_len+1])
           if ( print_message == 1 ) {
-            gui.add_message_at(our_player, " add nexttile[i-way_len+1] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
+            gui.add_message_at(our_player, " (5) add nexttile[i-way_len+1] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
           }
         }
           stl = 0
@@ -3355,7 +3363,7 @@ function check_way_line(start, end, wt, l, c) {
             stl = 0
             str = 0
             if ( print_message == 1 ) {
-              gui.add_message_at(our_player, " add nexttile[i-way_len] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
+              gui.add_message_at(our_player, " (6) add nexttile[i-way_len] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
             }
           } else if ( nexttile[i-way_len-1].get_slope() == 0 ) {
             start_fields.append(nexttile[i-way_len+1])
@@ -3363,7 +3371,7 @@ function check_way_line(start, end, wt, l, c) {
             str = 0
             fc = 0
             if ( print_message == 1 ) {
-              gui.add_message_at(our_player, " add nexttile[i-way_len+1] id = " + (i-way_len+1) + " " + coord3d_to_string(t), t)
+              gui.add_message_at(our_player, " (7) add nexttile[i-way_len+1] id = " + (i-way_len+1) + " " + coord3d_to_string(t), t)
             }
           }
       }
@@ -3908,7 +3916,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 1
+  local print_message_box = 0
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
