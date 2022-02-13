@@ -537,6 +537,10 @@ class industry_manager_t extends manager_t
           stucked_cnv.append(list[i])
           //remove_cnv++
         }
+        // destroy convoys in depots
+        if ( list[i].is_in_depot() ) {
+          stucked_cnv.append(list[i])
+        }
       }
 
       // stucked vehicle remove, not last vehicle
