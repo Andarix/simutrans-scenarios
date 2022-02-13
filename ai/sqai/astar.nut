@@ -2883,7 +2883,7 @@ function check_way_line(start, end, wt, l, c) {
       for (local i = 0; i < c; i++ ) {
       if ( i == 0 ) {
         if ( c == 1 ) {
-          s.append(as - 10 )
+          s.append(15)
         } else {
           s.append(as - (as * 0.3).tointeger() )
         }
