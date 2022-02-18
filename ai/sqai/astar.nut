@@ -1114,7 +1114,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
           gui.add_message_at(pl, " ---=> dir.double(d) : " + dir.double(current_d), world.get_time())
         }
 
-        if ( test_field(pl, b1_tile, wt, dir.double(d), starts_field.z)) {
+        if ( test_field(pl, b1_tile, wt, dir.double(current_d), starts_field.z)) {
           if ( print_message_box == 2 ) {
             gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
           }
@@ -1203,25 +1203,29 @@ function test_field(pl, t_tile, wt, rotate, ref_hight, way_exists = 0) {
     // tile is empty and is flat
     if ( t_tile.is_ground() ) {
       if ( print_message_box == 2 ) {
-        gui.add_message_at(pl, " ---=> tile is empty and is flat ", world.get_time())
+        gui.add_message_at(pl, " ---=> tile is empty and is flat " + coord3d_to_string(t_tile), t_tile)
       }
       return true
     }
   } else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && dir.double(t_tile.get_way_dirs(wt)) == rotate && t_tile.get_slope() == 0 && !t_tile.is_bridge() ) {
     // tile has single way and is flat - no bridge ramp
     if ( print_message_box == 2 ) {
-      gui.add_message_at(pl, " ---=> tile has single way and is flat ", world.get_time())
+      gui.add_message_at(pl, " ---=> tile has single way and is flat " + coord3d_to_string(t_tile), t_tile)
+      gui.add_message_at(pl, " ---=> dir.double(t_tile.get_way_dirs(wt)) == rotate : " + dir.double(t_tile.get_way_dirs(wt)) + " == " + rotate, t_tile)
     }
     return true
   } else if ( t_tile.has_way(wt) && !t_tile.has_two_ways() && dir.double(t_tile.get_way_dirs(wt)) == rotate && t_tile.get_slope() > 0 && t_tile.is_bridge() ) {
     // tile has single way and has bridge start
     if ( print_message_box == 2 ) {
-      gui.add_message_at(pl, " ---=> tile has single way and is bridge ", world.get_time())
+      gui.add_message_at(pl, " ---=> tile has single way and is bridge " + coord3d_to_string(t_tile), t_tile)
     }
     return true
   } else if ( test_tile_is_empty(t_tile) && ( t_tile.get_slope() > 0 || ref_hight != z.z ) && way_exists == 0 ) {
     // terraform
     // return true and terraform befor build station
+    if ( print_message_box == 2 ) {
+      gui.add_message_at(pl, " ---=> tile terraform befor build station " + coord3d_to_string(t_tile), t_tile)
+    }
     return true
   }
 
