@@ -546,6 +546,8 @@ class astar_builder extends astar
       local is_tunnel_0 = tile_x(route[0].x, route[0].y, route[0].z).find_object(mo_tunnel)
       local is_tunnel_1 = is_tunnel_0
 
+      local last_treeway_tile = null
+
       for (local i = 1; i<route.len(); i++) {
         // remove any fields on our routes (only start & end currently)
         remove_field( route[i] )
@@ -578,10 +580,55 @@ class astar_builder extends astar
                 way = find_object("way", way.get_waytype(), way.get_topspeed())
               }
 
-              if ( settings.get_pay_for_total_distance_mode == 2 ) {
+              local t = tile_x(route[i].x, route[i].y, route[i].z)
+              local d = t.get_way_dirs(way.get_waytype())
+              local test_exists_way = t.find_object(mo_way)
+
+              if ( test_exists_way != null && test_exists_way.get_owner() != our_player.nr ) { //&& last_treeway_tile != null
+                //gui.add_message_at(our_player, "test_exists_way " + test_exists_way + " last_treeway_tile " + last_treeway_tile + " test_exists_way.get_waytype() " + test_exists_way.get_waytype() + " !t.is_bridge() " + !t.is_bridge() + " t.get_slope() " + t.get_slope(), t)
+
+                  test_exists_way = null
+
+
+              }
+
+              if ( t.is_bridge() ) {
+                //gui.add_message_at(our_player, " t.is_bridge() " + t.is_bridge(), t)
+                last_treeway_tile = null
+              }
+
+              if ( i > 2 && test_exists_way != null && last_treeway_tile != null && test_exists_way.get_waytype() == wt_rail && !t.is_bridge() && t.get_slope() == 0 ) {
+                err = test_select_way(route[i], route[last_treeway_tile], route[i-1], way.get_waytype())
+                if ( err ) {
+                  last_treeway_tile = null
+                } else {
+                  test_exists_way = null
+                  last_treeway_tile = null
+                }
+                err = null
+              }
+              /*if ( way.get_waytype() == wt_rail && !t.is_bridge() && t.get_slope == 0 ) {
+                t = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
+                d = t.get_way_dirs(way.get_waytype())
+                if ( dir.is_threeway(d) ) {
+                  last_treeway_tile = i - 1
+                } else {
+                  last_treeway_tile = null
+                  test_exists_way = null
+                }
+
+              }*/
+              if ( test_exists_way != null && ( i < 2 || test_exists_way.get_waytype() == wt_road ) ) {
+                test_exists_way = null
+              }
+
+              local build_tile = false
+              if ( settings.get_pay_for_total_distance_mode == 2 && test_exists_way == null ) {
                 err = command_x.build_way(our_player, route[i-1], route[i], way, true)
-              } else {
+                build_tile = true
+              } else if ( test_exists_way == null ) {
                 err = command_x.build_way(our_player, route[i-1], route[i], way, false)
+                build_tile = true
               }
               if (err) {
                 //gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
@@ -589,8 +636,13 @@ class astar_builder extends astar
                 // route[0] to route[i]
                 //err = command_x.remove_way(our_player, route[0], route[i])
                 remove_wayline(route, (i - 1), way.get_waytype())
+              } else {
+                t = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
+                d = t.get_way_dirs(way.get_waytype())
+                if ( dir.is_threeway(d) && way.get_waytype() == wt_rail && build_tile ) {
+                  last_treeway_tile = i - 1
+                }
               }
-
             } else if ( build_route == 0 ) {
               if ( tile_x(route[i].x, route[i].y, route[i].z).find_object(mo_tree) != null ) {
                 count_tree++
@@ -667,6 +719,25 @@ class astar_builder extends astar
     print("No route found")
     return { err =  "No route" }
   }
+}
+
+/*
+ *
+ *
+ */
+function test_select_way(start, end, t_end, wt) {
+  //gui.add_message_at(our_player, "start " + coord3d_to_string(start) + " end " + coord3d_to_string(end) + " t_end " + coord3d_to_string(t_end), start)
+  local asf = astar_route_finder(wt_rail)
+  local wayline = asf.search_route([start], [end])
+  if ( "err" in wayline ) {
+    //gui.add_message_at(our_player, "no route from " + coord3d_to_string(start) + " to " + coord3d_to_string(end) , start)
+  } else {
+    gui.add_message_at(our_player, "exists route from " + coord3d_to_string(start) + " to " + coord3d_to_string(end) , start)
+    local toolr = command_x(tool_remove_way)
+    toolr.work(our_player, t_end, end, "" + wt)
+    return true
+  }
+  return false
 }
 
 /*
@@ -823,6 +894,8 @@ function remove_wayline(route, pos, wt, st_len = null) {
   local i = pos
   local test = 0
 
+  local tile_treeway = false
+
   local way_cnv_count = 0
 
   for ( i; i >= 0; i-- ) {
@@ -843,6 +916,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
       if ( i > 0 ) {
         if (dir.is_threeway(next_tile.get_way_dirs(wt))  ||  t_field.get_owner().nr == 1) {
           test = 1
+          tile_treeway = dir.is_threeway(next_tile.get_way_dirs(wt))
           //gui.add_message_at(our_player, "dir.is_threeway(next_tile.get_way_dirs(wt) " + dir.is_threeway(next_tile.get_way_dirs(wt)), next_tile)
           //::debug.pause()
         }
@@ -864,7 +938,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
             test = 1
           }
       } else { // if ( test == 0 ) {
-        if ( l < 7 ) { way_cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1] }
+        if ( l < 6 ) { way_cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1] }
         // remove way from tile
         if ( cnv_count == way_cnv_count ) {
           //::debug.pause()
@@ -904,11 +978,11 @@ function remove_wayline(route, pos, wt, st_len = null) {
       // test field has way
       if ( t_field != null && t_field.get_waytype() == wt ) {
         // test direction: if in  [7, 11, 13, 14, 15] then dir.is_threeway will find this
-        //test = dir.is_threeway(next_tile.get_way_dirs(wt))
+        //local tile_treeway = dir.is_threeway(next_tile.get_way_dirs(wt))
 
         if ( tile.find_object(mo_building) != null ) {
           // no remove station
-          if ( j < 6 ) { continue }
+          if ( j < 7 ) { continue }
           test += 1
         } else if ( wt == wt_road ) {
           //local tile_coord = coord3d_to_string(tile)
@@ -927,8 +1001,10 @@ function remove_wayline(route, pos, wt, st_len = null) {
         } else {
           // remove way from tile
           local cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]
-          if ( cnv_count == way_cnv_count ) {
+          if ( cnv_count == way_cnv_count && !tile_treeway ) {
             toolr.work(our_player, tile, tile, "" + wt_rail)
+          } else {
+
           }
         }
       }
@@ -1350,9 +1426,9 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
         err = null
         // empty then build way
 
-        err = command_x.build_way(pl, fields[0], fields[i], planned_way, true)
+        err = command_x.build_way(pl, fields[i-1], fields[i], planned_way, true)
         if ( err != null ) {
-          gui.add_message_at(pl, " ---=> not build way tile at " + coord3d_to_string(fields[i]) + " err " + err, fields[i])
+          gui.add_message_at(pl, " ---=> not build way tile " + coord3d_to_string(fields[i-1]) + " to " + coord3d_to_string(fields[i]) + " - err :" + err, fields[i])
           remove_tile_to_empty(fields, wt_rail)
           return false
         }
@@ -2009,7 +2085,7 @@ function build_double_track(start_field, wt) {
   // 1
   // 2 - terraform
   // 3 - double track diagonal
-  local print_message_box = 1
+  local print_message_box = 0
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, " ### build_double_track ### " + coord3d_to_string(start_field), start_field)
