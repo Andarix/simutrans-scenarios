@@ -277,12 +277,16 @@ class rail_connector_t extends manager_t
             local asf = astar_route_finder(wt_rail)
             // check start -> end
             local wayline = asf.search_route([c_start], [c_end])
-            check_doubleway_in_line(wayline, wt_rail)
-            // check end -> start
-            wayline.clear()
-            wayline = asf.search_route([c_end], [c_start])
-            check_doubleway_in_line(wayline, wt_rail)
+            if ( "err" in wayline ) {
+              // no route found
+            } else {
+              check_doubleway_in_line(wayline, wt_rail)
+              // check end -> start
+              wayline.clear()
+              wayline = asf.search_route([c_end], [c_start])
+              check_doubleway_in_line(wayline, wt_rail)
 
+            }
           }
           phase ++
         }
@@ -342,6 +346,8 @@ class rail_connector_t extends manager_t
 
             remove_wayline(c_route, c_route.len()-1, wt_rail, s_src.len())
             remove_tile_to_empty(s_src, wt_rail)
+            remove_tile_to_empty(c_start, wt_rail, 0)
+            remove_tile_to_empty(c_end, wt_rail, 0)
             return error_handler()
           }
 
