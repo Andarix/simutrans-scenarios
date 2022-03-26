@@ -37,6 +37,9 @@ function abs(x) { return x>0 ? x : -x }
 our_player_nr <- -1
 our_player    <- null // player_x instance
 
+month_count   <- null
+month_count_ticks <- world.get_time().next_month_ticks
+
 // the AI is organized as a tree,
 // all the work is done in the nodes of the tree
 tree <- {}

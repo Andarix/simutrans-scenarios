@@ -243,25 +243,7 @@ class industry_manager_t extends manager_t
       }
     }
 
-    // check all 10 years ( year xxx0 )
-    local yt = world.get_time().year.tostring()
-    // Zeitfenster am Monatsanfang um Daueraufruf zu vermeiden im Monat
-    local mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 3500
 
-    if ( yt.slice(-1) == "0" && world.get_time().month == 3 && mnt_ticks > world.get_time().ticks ) {
-      // in april
-      //gui.add_message_at(our_player, "####### year check " + yt, world.get_time())
-      check_pl_lines()
-      //::debug.pause(),
-    }
-
-    // check all 5 years ( year xxx0 and xxx5 )
-    mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 500
-    if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 4 && mnt_ticks > world.get_time().ticks ) {
-      // in may
-      // check unused halts
-      check_stations_connections()
-    }
     return true
   }
 
