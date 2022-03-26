@@ -194,18 +194,15 @@ class manager_t extends node_seq_t
           local message_text = format(translate("%s - last month: operating profit %d net wealth %d"), our_player.get_name(), operating_profit[1], net_wealth[1])
 					gui.add_message_at(our_player, message_text, world.get_time())
 
-          // check all 10 years ( year xxx0 )
           local yt = world.get_time().year.tostring()
 
+          // check all 5 years ( year xxx0 and xxx5 )
           if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 3 ) {
             // in april
-            //gui.add_message_at(our_player, "####### year check " + yt, world.get_time())
             check_pl_lines()
-            //::debug.pause(),
           }
 
           // check all 5 years ( year xxx2 and xxx7 )
-          //mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 1200 && mnt_ticks > world.get_time().ticks
           if ( (yt.slice(-1) == "2" || yt.slice(-1) == "7") && world.get_time().month == 4 ) {
             // in may
             // check unused halts
