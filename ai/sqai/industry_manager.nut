@@ -11,7 +11,7 @@ class my_line_t extends line_x
   //dings_bums = 0 // extra data, you can put more such variables here.
   double_ways_count   = 0 // count of double way build
   double_ways_build   = 0 // double way build: 0 = no ; 1 = yes
-  optimize_way_line   = 0 // is way line optimize: 0 = no ; 1 = yes
+  optimize_way_line   = 0 // is way line optimize: 0 = no ; 1 = run 1 ; 2 = run 2 ....
   destroy_line_month  = world.get_time().month // test month save
   line_way_speed      = 0 // save way speed for line
   build_line          = world.get_time() // create line
@@ -247,151 +247,6 @@ class industry_manager_t extends manager_t
     return true
   }
 
-  /**
-    *
-    *
-    *
-    */
-  function check_pl_lines() {
-    local line_list = player_x(our_player.nr).get_line_list()
-/*
-    f_src = s
-    f_dest = d
-    freight = good_desc_x(f)
-*/
-    local print_message_box = 0
-
-    local pl_lines = []
-
-    local line_ai_count = 0
-    foreach(link in link_list) {
-      //gui.add_message_at(player_x(our_player.nr), " ####### link check: f_src " + link.f_src.get_name() + " f_dest " + link.f_dest.get_name() + " freight " + link.freight.get_name(), world.get_time())
-
-      foreach(index, line in link.lines) {
-        //gui.add_message_at(player_x(our_player.nr), "####### line check " + line.get_name(), world.get_time())
-        if ( line.is_valid() && line.get_owner().nr == our_player.nr ) {
-          line_ai_count++
-          pl_lines.append(line)
-        }
-      }
-    }
-
-    local ai_lines_missing = []
-    if ( pl_lines.len() > 0 ) {
-      foreach(line in line_list) {
-        local c = 0
-        for ( local i = 0; i < pl_lines.len(); i++ ) {
-          if ( line.get_name() == pl_lines[i].get_name() ) {
-            c = 1
-            break
-          }
-        }
-        if ( c == 0 ) {
-          ai_lines_missing.append(line)
-        }
-      }
-    }
-    //::debug.pause()
-    //gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
-
-    //
-    if ( line_list.get_count() > line_ai_count ) {
-      for ( local i = 0; i < ai_lines_missing.len(); i++ ) {
-        // rename line
-        local line_name   = ai_lines_missing[i].get_name()
-        local str_search  = ") " + translate("Line")
-        local st_names    = ai_lines_missing[i].get_schedule().entries
-        local wt_name     = ["", "road", "Train", "Ship"]
-
-        local f_src   = st_names[0].get_halt(our_player).get_factory_list()
-        local f_dest  = st_names[st_names.len()-1].get_halt(our_player).get_factory_list()
-
-        local freight = ""
-        if ( f_src.len() == 1 && f_dest.len() == 1 ) {
-          // list output goods
-          local good_list_out = []
-          foreach(good, islot in f_src[0].output) {
-            good_list_out.append(good)
-          }
-          if ( good_list_out.len() == 1 ) {
-            // one good output
-            freight = good_list_out[0]
-          } else {
-            // more output goods - check good to f_dest
-            local good_list_in = []
-            foreach(good, islot in f_dest[0].input) {
-              good_list_in.append(good)
-            }
-            // todo more goods check
-
-          }
-
-        } else if ( f_src.len() == 0 || f_dest.len() == 0 ) {
-          // combined line
-          if ( f_src.len() == 0 && f_dest.len() == 1 ) {
-            local connect_lines = st_names[0].get_halt(our_player).get_line_list()
-            local cline_list = []
-            foreach(line in connect_lines) {
-              if ( line.get_name() != line_name ) {
-                cline_list.append(line)
-              }
-            }
-            if ( cline_list.len() == 1 ) {
-              local cline_st_names = cline_list[0].get_schedule().entries
-              f_src = cline_st_names[0].get_halt(our_player).get_factory_list()
-              if ( f_src.len() == 1 ) {
-                local good_list_out = []
-                foreach(good, islot in f_src[0].output) {
-                  good_list_out.append(good)
-                }
-                if ( good_list_out.len() == 1 ) {
-                  // one good output
-                  freight = good_list_out[0]
-                } else {
-                  // more output goods - check good to f_dest
-                  local good_list_in = []
-                  foreach(good, islot in f_dest[0].input) {
-                    good_list_in.append(good)
-                  }
-                  // todo more goods check
-                }
-              }
-            }
-
-
-          }
-
-
-        }// todo check by more factorys
-
-        // rename standard line name '(x) Line'
-        if ( line_name.find(str_search) != null && freight != "" ) {
-          local new_name = translate(wt_name[ai_lines_missing[i].get_waytype()]) + " " + translate(freight) + " " + st_names[0].get_halt(our_player).get_name() + " - " + st_names[st_names.len()-1].get_halt(our_player).get_name()
-          ai_lines_missing[i].set_name(new_name)
-        }
-
-        if ( freight != "" ) {
-          //missing line add ai line list
-          industry_manager.set_link_state(f_src[0], f_dest[0], freight, industry_link_t.st_built)
-          industry_manager.access_link(f_src[0], f_dest[0], freight).append_line(ai_lines_missing[i])
-        }
-
-      }
-    }
-
-    if ( line_list.get_count() > line_ai_count ) {
-      if ( print_message_box == 1 ) {
-        gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### line check: not all listet in ai lines ", world.get_time())
-        gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
-      }
-      for ( local i = 0; i < ai_lines_missing.len(); i++ ) {
-        gui.add_message_at(player_x(our_player.nr), "####### line missing " + ai_lines_missing[i].get_name(), world.get_time())
-      }
-    }
-
-
-
-  }
 
   /**
    * Manages convoys of one line: withdraw if there are too many, build new ones, upgrade to newer vehicles
@@ -416,6 +271,8 @@ class industry_manager_t extends manager_t
     // 4 = cnv status retired / all to old
     // 5 = electrified
     local print_message_box = 0
+
+    local wt = line.get_waytype()
 
     dbgprint("Check line " + line.get_name())
     if ( our_player.nr == 3 && print_message_box == 1 ) {
@@ -454,7 +311,7 @@ class industry_manager_t extends manager_t
           local entries = line.get_schedule().entries
           local start_l = null
           local end_l = null
-          if ( line.get_waytype() == wt_water ) {
+          if ( wt == wt_water ) {
             if ( entries.len() >= 2 ) {
               local start_h = entries[0].get_halt(our_player)
               local end_h = entries[entries.len()-1].get_halt(our_player)
@@ -639,7 +496,7 @@ class industry_manager_t extends manager_t
     // find route
     local nexttile = []
     local nexttile_r = []
-    if (cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
+    if (wt != wt_water && wt != wt_air) {
       local entries = cnv.get_schedule().entries
       local start = null
       local end = null
@@ -650,7 +507,7 @@ class industry_manager_t extends manager_t
 
 
 
-      local asf = astar_route_finder(cnv.get_waytype())
+      local asf = astar_route_finder(wt)
       local result = asf.search_route([start], [end])
       // result is contains routes-array or error message
       // route is backward from end to start
@@ -671,7 +528,7 @@ class industry_manager_t extends manager_t
         sleep()
       }
 
-      if ( cnv.get_waytype() == wt_rail && line.double_ways_build > 0 ) {
+      if ( wt == wt_rail && line.double_ways_build > 0 ) {
         // return way for upgrade double ways
         result = asf.search_route([end], [start])
         if ("err" in result) {
@@ -688,25 +545,25 @@ class industry_manager_t extends manager_t
     }
 
 
-    if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
+    if (our_player.get_current_cash() > 50000 && wt != wt_water && wt != wt_air) {
       if ( line.optimize_way_line == 0 ) {
         // optimize way line befor build double ways
-        local err = optimize_way_line(nexttile, cnv.get_waytype())
+        local err = optimize_way_line(nexttile, wt)
         if ( err ) {
           line.optimize_way_line = 1
         }
       } else if ( line.optimize_way_line == 1 && our_player.get_current_cash() > 500000 ) {
-        local err = optimize_way_line(nexttile, cnv.get_waytype())
+        local err = optimize_way_line(nexttile, wt)
         if ( err ) {
           line.optimize_way_line = 2
         }
       } else if ( line.optimize_way_line == 2 && our_player.get_current_cash() > 1000000 ) {
-        local err = optimize_way_line(nexttile, cnv.get_waytype())
+        local err = optimize_way_line(nexttile, wt)
         if ( err ) {
           line.optimize_way_line = 3
         }
       } else if ( line.optimize_way_line == 3 && our_player.get_current_cash() > 1000000 && world.get_time().year >= 1950 ) {
-        local err = optimize_way_line(nexttile, cnv.get_waytype())
+        local err = optimize_way_line(nexttile, wt)
         if ( err ) {
           line.optimize_way_line = 4
         }
@@ -735,7 +592,7 @@ class industry_manager_t extends manager_t
         }
       }
       // check double ways by rail
-      if ( cnv.get_waytype() == wt_rail && line.double_ways_build > 0 ) {
+      if ( wt == wt_rail && line.double_ways_build > 0 ) {
         for ( local i = 0; i < nexttile_r.len(); i++ ) {
           local tile = tile_x(nexttile_r[i].x, nexttile_r[i].y, nexttile_r[i].z)
           local tile_way = tile.find_object(mo_way)
@@ -754,13 +611,13 @@ class industry_manager_t extends manager_t
       //gui.add_message_at(our_player, " cnv max speed " + cnv_max_speed, world.get_time())
 
       // upgrade way
-      local way_obj = find_object("way", cnv.get_waytype(), cnv_max_speed)
+      local way_obj = find_object("way", wt, cnv_max_speed)
       //gui.add_message_at(our_player, " way max speed new " + way_obj.get_topspeed(), world.get_time())
 
       if ( cnv_max_speed >= way_speed && upgrade_tiles > 2 ) {
         local costs = (upgrade_tiles*(way_obj.get_cost()/100))
         local count_build = 0
-        if ( cnv.get_waytype() == wt_rail && line.double_ways_build > 0 ) {
+        if ( wt == wt_rail && line.double_ways_build > 0 ) {
           costs += line.double_ways_count*8*(way_obj.get_cost()/100)
         }
         if ( our_player.get_current_cash() > costs ) {
@@ -773,7 +630,7 @@ class industry_manager_t extends manager_t
             }
           }
           // build double ways by rail
-          if ( cnv.get_waytype() == wt_rail && line.double_ways_build > 0 ) {
+          if ( wt == wt_rail && line.double_ways_build > 0 ) {
             for ( local i = 1; i < nexttile_r.len(); i++ ) {
               local tile_way_1 = tile_x(nexttile_r[i-1].x, nexttile_r[i-1].y, nexttile_r[i-1].z)
               local tile_way_2 = tile_x(nexttile_r[i].x, nexttile_r[i].y, nexttile_r[i].z)
@@ -979,22 +836,22 @@ class industry_manager_t extends manager_t
 
 
       // no signals and double tracks - limit 1 convoy for rail
-      if (cnv.get_waytype() == wt_rail && cnv_count == 1 && c > 0 && line.double_ways_build == 0 ) {
+      if (wt == wt_rail && cnv_count == 1 && c > 0 && line.double_ways_build == 0 ) {
         if ( print_message_box == 1 ) {
           gui.add_message_at(our_player, "####### cnv.get_waytype() " + cnv.get_waytype() + " cnv.name " + cnv.get_name(), world.get_time())
           gui.add_message_at(our_player, "####### lenght " + l + " double ways " + c, world.get_time())
         }
         //
         // check way for find fields for double track
-        optimize_way_line(nexttile, cnv.get_waytype())
-        local s_fields = check_way_line(start_l, end_l, cnv.get_waytype(), l, c)
+        optimize_way_line(nexttile, wt)
+        local s_fields = check_way_line(start_l, end_l, wt, l, c)
         local cc = 1
 
         //gui.add_message_at(our_player, "####### type(s_fields) " + type(s_fields), world.get_time())
         if ( type(s_fields) == "array" ) {
           //gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
           if ( s_fields.len() == 0 ) {
-            s_fields = check_way_line(end_l, start_l, cnv.get_waytype(), l, c)
+            s_fields = check_way_line(end_l, start_l, wt, l, c)
           }
         }
 
@@ -1005,7 +862,7 @@ class industry_manager_t extends manager_t
          */
         local build_double_ways = false
         if ( s_fields != true && c > 0 && s_fields.len() > 0 ) {
-          local obj_sign = find_signal("is_signal", cnv.get_waytype())
+          local obj_sign = find_signal("is_signal", wt)
           local way_obj = s_fields[0].find_object(mo_way).get_desc()
 
           local build_cost = s_fields.len()*(obj_sign.get_cost()*2)
@@ -1059,7 +916,7 @@ class industry_manager_t extends manager_t
         } else {
           return
         }
-      } else if (cnv.get_waytype() == wt_rail && (cnv_count > c || c == 0) ) {
+      } else if (wt == wt_rail && (cnv_count > c || c == 0) ) {
         return null
       }
 
@@ -1069,9 +926,6 @@ class industry_manager_t extends manager_t
         // directly append
         // TODO put into report
         local proto = cnv_proto_t.from_convoy(cnv, lf)
-        local wt = cnv.get_schedule().waytype
-
-        local wt = cnv.get_waytype()
 
         if ( print_message_box == 1 ) {
           gui.add_message_at(our_player, "###---- check convoys line : " + line.get_name(), world.get_time())
@@ -1128,17 +982,17 @@ class industry_manager_t extends manager_t
                   gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t1), t1)
                   gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t2), t2)
                 }
-                if ( (t1.z == nexttile[station_exist-1].z && !t1.is_bridge() && !t1.is_tunnel()) || (t1.z < nexttile[a-1].z && t1.is_bridge()) ) {
+                if ( (t1.z == nexttile[station_exist-1].z && !t1.is_bridge() && !t1.is_tunnel()) || (t1.z < nexttile[station_exist-1].z && t1.is_bridge()) ) {
                   if ( print_message_box == 2 ) {
                     gui.add_message_at(our_player, "###---- check tile t1 z : " + t1.z, t1)
-                    gui.add_message_at(our_player, "###---- check tile nexttile[a-1].z (" + coord3d_to_string(nexttile[a-1]) + ") : " + nexttile[a-1].z, nexttile[a-1])
+                    gui.add_message_at(our_player, "###---- check tile nexttile[station_exist-1].z (" + coord3d_to_string(nexttile[station_exist-1]) + ") : " + nexttile[a-1].z, nexttile[station_exist-1])
                   }
                   check_tile++
                 }
-                if ( (t2.z == nexttile[(nexttile.len()-1)-(station_exist-1)].z && !t2.is_bridge() && !t2.is_tunnel()) || (t2.z < nexttile[(nexttile.len()-1)-(a-1)].z && t2.is_bridge()) ) {
+                if ( (t2.z == nexttile[(nexttile.len()-1)-(station_exist-1)].z && !t2.is_bridge() && !t2.is_tunnel()) || (t2.z < nexttile[(nexttile.len()-1)-(station_exist-1)].z && t2.is_bridge()) ) {
                   if ( print_message_box == 2 ) {
                     gui.add_message_at(our_player, "###---- check tile t2 z : " + t2.z, t2)
-                    gui.add_message_at(our_player, "###---- check tile nexttile[(nexttile.len()-1)-(a-1)].z (" + coord3d_to_string(nexttile[(nexttile.len()-1)-(a-1)]) + ") : " + nexttile[(nexttile.len()-1)-(a-1)].z, nexttile[(nexttile.len()-1)-(a-1)])
+                    gui.add_message_at(our_player, "###---- check tile nexttile[(nexttile.len()-1)-(station_exist-1)].z (" + coord3d_to_string(nexttile[(nexttile.len()-1)-(station_exist-1)]) + ") : " + nexttile[(nexttile.len()-1)-(station_exist-1)].z, nexttile[(nexttile.len()-1)-(station_exist-1)])
                   }
                   check_tile++
                 }
@@ -1159,9 +1013,14 @@ class industry_manager_t extends manager_t
               gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
             }
           }
-          prototyper.max_length = station_count
         } else {
           prototyper.max_length = prototyper.max_vehicles * 8
+        }
+
+        if ( expand_station.len() > 0 ) {
+          prototyper.max_length = station_exist + (expand_station.len()/2)
+        } else {
+          prototyper.max_length = station_exist
         }
 
         if ( wt == wt_road && check_good_quantity(start_l, end_l, lf, line) ) {
@@ -1288,7 +1147,7 @@ class industry_manager_t extends manager_t
             way_tile[3] = tile_x(depot.x, depot.y+1, depot.z)
             for ( local i = 0; i < 4; i++ ) {
               if ( way_tile[i].find_object(mo_way) != null ) {
-                local way_obj = find_object("way", cnv.get_waytype(), cnv.get_speed())
+                local way_obj = find_object("way", wt, cnv.get_speed())
                 local depot_obj = building_desc_x.get_available_stations(building_desc_x.depot, wt, {})
                 local err = command_x.build_way(our_player, depot, way_tile[i], way_obj, true)
                 if ( err == null ) {
@@ -1434,7 +1293,11 @@ class industry_manager_t extends manager_t
         gui.add_message_at(our_player, msgtext, world.get_time())
 
         // save ticks for next check
-        line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+        if ( wt == wt_rail ) {
+          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month*2)
+        } else {
+          line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+        }
 
         return true
       }
@@ -1464,7 +1327,11 @@ class industry_manager_t extends manager_t
         gui.add_message_at(our_player, msgtext, world.get_time())
 
         // save ticks for next check
-        line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+        if ( wt == wt_rail ) {
+          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month*2)
+        } else {
+          line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+        }
 
       }
     }
@@ -1494,11 +1361,11 @@ class industry_manager_t extends manager_t
       }
       cnv = list[0]
     }
-    local wt = cnv.get_waytype()
     // estimate transport volume
     local transported = line.get_transported_goods().reduce(max)
 
     // plan convoy prototype
+    local wt = line.get_waytype()
     local prototyper = prototyper_t(wt, link.freight.get_name())
 
     // iterate through schedule to estimate distance
@@ -1689,4 +1556,150 @@ function check_good_quantity(start_l, end_l, good, line) {
   }
 
   return false
+}
+
+  /**
+    *
+    *
+    *
+    */
+function check_pl_lines() {
+    local line_list = player_x(our_player.nr).get_line_list()
+/*
+    f_src = s
+    f_dest = d
+    freight = good_desc_x(f)
+*/
+    local print_message_box = 0
+
+    local pl_lines = []
+
+    local line_ai_count = 0
+    foreach(link in link_list) {
+      //gui.add_message_at(player_x(our_player.nr), " ####### link check: f_src " + link.f_src.get_name() + " f_dest " + link.f_dest.get_name() + " freight " + link.freight.get_name(), world.get_time())
+
+      foreach(index, line in link.lines) {
+        //gui.add_message_at(player_x(our_player.nr), "####### line check " + line.get_name(), world.get_time())
+        if ( line.is_valid() && line.get_owner().nr == our_player.nr ) {
+          line_ai_count++
+          pl_lines.append(line)
+        }
+      }
+    }
+
+    local ai_lines_missing = []
+    if ( pl_lines.len() > 0 ) {
+      foreach(line in line_list) {
+        local c = 0
+        for ( local i = 0; i < pl_lines.len(); i++ ) {
+          if ( line.get_name() == pl_lines[i].get_name() ) {
+            c = 1
+            break
+          }
+        }
+        if ( c == 0 ) {
+          ai_lines_missing.append(line)
+        }
+      }
+    }
+    //::debug.pause()
+    //gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
+
+    //
+    if ( line_list.get_count() > line_ai_count ) {
+      for ( local i = 0; i < ai_lines_missing.len(); i++ ) {
+        // rename line
+        local line_name   = ai_lines_missing[i].get_name()
+        local str_search  = ") " + translate("Line")
+        local st_names    = ai_lines_missing[i].get_schedule().entries
+        local wt_name     = ["", "road", "Train", "Ship"]
+
+        local f_src   = st_names[0].get_halt(our_player).get_factory_list()
+        local f_dest  = st_names[st_names.len()-1].get_halt(our_player).get_factory_list()
+
+        local freight = ""
+        if ( f_src.len() == 1 && f_dest.len() == 1 ) {
+          // list output goods
+          local good_list_out = []
+          foreach(good, islot in f_src[0].output) {
+            good_list_out.append(good)
+          }
+          if ( good_list_out.len() == 1 ) {
+            // one good output
+            freight = good_list_out[0]
+          } else {
+            // more output goods - check good to f_dest
+            local good_list_in = []
+            foreach(good, islot in f_dest[0].input) {
+              good_list_in.append(good)
+            }
+            // todo more goods check
+
+          }
+
+        } else if ( f_src.len() == 0 || f_dest.len() == 0 ) {
+          // combined line
+          if ( f_src.len() == 0 && f_dest.len() == 1 ) {
+            local connect_lines = st_names[0].get_halt(our_player).get_line_list()
+            local cline_list = []
+            foreach(line in connect_lines) {
+              if ( line.get_name() != line_name ) {
+                cline_list.append(line)
+              }
+            }
+            if ( cline_list.len() == 1 ) {
+              local cline_st_names = cline_list[0].get_schedule().entries
+              f_src = cline_st_names[0].get_halt(our_player).get_factory_list()
+              if ( f_src.len() == 1 ) {
+                local good_list_out = []
+                foreach(good, islot in f_src[0].output) {
+                  good_list_out.append(good)
+                }
+                if ( good_list_out.len() == 1 ) {
+                  // one good output
+                  freight = good_list_out[0]
+                } else {
+                  // more output goods - check good to f_dest
+                  local good_list_in = []
+                  foreach(good, islot in f_dest[0].input) {
+                    good_list_in.append(good)
+                  }
+                  // todo more goods check
+                }
+              }
+            }
+
+
+          }
+
+
+        }// todo check by more factorys
+
+        // rename standard line name '(x) Line'
+        if ( line_name.find(str_search) != null && freight != "" ) {
+          local new_name = translate(wt_name[ai_lines_missing[i].get_waytype()]) + " " + translate(freight) + " " + st_names[0].get_halt(our_player).get_name() + " - " + st_names[st_names.len()-1].get_halt(our_player).get_name()
+          ai_lines_missing[i].set_name(new_name)
+        }
+
+        if ( freight != "" ) {
+          //missing line add ai line list
+          industry_manager.set_link_state(f_src[0], f_dest[0], freight, industry_link_t.st_built)
+          industry_manager.access_link(f_src[0], f_dest[0], freight).append_line(ai_lines_missing[i])
+        }
+
+      }
+    }
+
+    if ( line_list.get_count() > line_ai_count ) {
+      if ( print_message_box == 1 ) {
+        gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### line check: not all listet in ai lines ", world.get_time())
+        gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
+      }
+      for ( local i = 0; i < ai_lines_missing.len(); i++ ) {
+        gui.add_message_at(player_x(our_player.nr), "####### line missing " + ai_lines_missing[i].get_name(), world.get_time())
+      }
+    }
+
+
+
 }
