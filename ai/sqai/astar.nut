@@ -3702,9 +3702,10 @@ function optimize_way_line(route, wt) {
             remove_tile_to_empty(tile_1, wt, 0)
             command_x.change_climate_at(our_player, tile_1, cl_temperate)
           }
+          err = null
           err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
           if (err != null ) {
-            gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
+            gui.add_message_at(our_player, " build tunnel " + coord3d_to_string(tile_4) + " - " + coord3d_to_string(tile_3) + ": " + err, world.get_time())
           } else {
             count_build++
           }
