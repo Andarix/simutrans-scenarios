@@ -437,7 +437,7 @@ class industry_manager_t extends manager_t
       }
       //gui.add_message_at(our_player, " max speed " + cnv_max_speed, world.get_time())
 
-      if ( speed_count < cnv_count ) {
+      if ( speed_count < cnv_count && wt != wt_rail ) {
         // update convoys - retire slower convoys
         local k = 0
         for ( local i = 0; i < cnv_count; i++ ) {
@@ -749,9 +749,14 @@ class industry_manager_t extends manager_t
     //local remove_cnv = 0
     {
       local list = line.get_convoy_list()
+      //local halt_len = line.halt_length
+      local first_cnv = null
       local message_show = 0
       foreach(c in list)
       {
+        if ( first_cnv == null ) {
+          first_cnv = c
+        }
         // convoy empty?
         local is_empty = c.get_loading_level() == 0
         // convoy new? less than 2 months old, and not much transported
@@ -786,7 +791,12 @@ class industry_manager_t extends manager_t
         }
 
         if (is_empty  &&  is_stopped  &&  cnv_empty_stopped==null) {
-          cnv_empty_stopped = c
+          //gui.add_message_at(our_player, "### list.len() " + list.get_count() + " ### first_cnv.get_tile_length() " + first_cnv.get_tile_length() + " ### c.get_tile_length() " + c.get_tile_length(), world.get_time())
+          if ( list.get_count() == 2 && first_cnv.get_tile_length() < c.get_tile_length() ) {
+            first_cnv.toggle_withdraw(our_player)
+          } else {
+            cnv_empty_stopped = c
+          }
         }
         /*
         // stucked road vehicles destroy
@@ -799,11 +809,11 @@ class industry_manager_t extends manager_t
         }*/
       }
 
-      if ( message_show > 0 ) {
+      /*if ( message_show > 0 ) {
         local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
         gui.add_message_at(our_player, msgtext, world.get_time())
         return true
-      }
+      }*/
 
     }
     dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
