@@ -1344,7 +1344,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
   // 0 = off
   // 1 =
   // 2 = messages
-  local print_message_box = 0
+  local print_message_box = 1
 
   local ref_hight = start_field.z
   local err = null
@@ -1510,6 +1510,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 
     // check station connect factory
     local st = halt_x.get_halt(fields[0], pl)
+    local s_tiles = []
 
     if ( st ) {
       local fl_st = st.get_factory_list()
@@ -1554,7 +1555,6 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
             gui.add_message_at(pl, "check connect factory : build extension", start_field)
           }
           //::debug.pause()
-          local s_tiles = []
             s_tiles.append(fields[0])
             s_tiles.append(start_field)
           local tool = command_x(tool_remover)
@@ -1743,11 +1743,21 @@ function build_extensions_connect_factory(pl, st_field, hlt_field, tiles, extens
 
   // test 1 -> rebuild 0
   for (local i = 0; i < tiles.len(); i++ ) {
-    if ( tiles[i].is_empty() && tiles[i].is_ground() ) {
+    if ( test_tile_is_empty(tiles[i]) && tiles[i].is_ground() ) {
+      if ( i > 0 ) {
+        tool.work(pl, st_field)
+        command_x.build_station(pl, st_field, extension)
+      }
       err = command_x.build_station(pl, tiles[i], extension)
+      if ( err != null ) {
+        gui.add_message_at(pl, " -##-=> build err tile " + i + " " + err, tiles[i])
+      }
       fl_st = st.get_factory_list()
       if ( fl_st.len() > 0 ) {
         factory_connect = 1
+        if ( i > 0 ) {
+          tool.work(pl, st_field)
+        }
         break
       }
     } else if ( tiles[i].has_way(wt_water) ) {
@@ -1759,7 +1769,9 @@ function build_extensions_connect_factory(pl, st_field, hlt_field, tiles, extens
         local station = find_station(wt_water)
         if ( station != false ) {
           err = command_x.build_station(pl, tiles[i], station)
-
+          if ( err != null ) {
+            gui.add_message_at(pl, " -##-=> build err tile " + i + " " + err, tiles[i])
+          }
           fl_st = st.get_factory_list()
           if ( fl_st.len() > 0 ) {
             factory_connect = 1
@@ -3997,7 +4009,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 0
+  local print_message_box = 3
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
@@ -4109,8 +4121,35 @@ function destroy_line(line_obj, good) {
             gui.add_message_at(our_player, "### factory start generator && factory end  end-consumers", world.get_time())
           }
         } else {
-          // something stored/in-transit in last and current month
-          // no need to search for more supply
+          // 12 month no output goods -> line remove
+          local output_count = 0
+          /*foreach(good, islot in end_f[0].output) {
+
+            // test for in-storage or in-transit goods
+            local st = end_f[0].get_desc().get_outputs()
+            foreach(t in st) {
+              gui.add_message_at(our_player, "### foreach(t in st) - t.keys() " + t.keys(), world.get_time())
+              local tt = t.keys()
+              for (local i = 0; i < tt.len(); i++) {
+                gui.add_message_at(our_player, "**** keys() - tt["+i+"] " + tt[i], world.get_time())
+              }
+              tt.clear()
+              tt = t.values()
+              for (local i = 0; i < tt.len(); i++) {
+                if ( i == 2 ) {
+                  gui.add_message_at(our_player, "**** values() - tt["+i+"].get_name() " + tt[i].get_name(), world.get_time())
+                } else {
+                  gui.add_message_at(our_player, "**** values() - tt["+i+"] " + tt[i], world.get_time())
+                }
+              }
+              //output_count += t
+            }
+          }*/
+          if ( print_message_box == 1 || print_message_box == 3 ) {
+            gui.add_message_at(our_player, "### factory end : count outputs good = " + output_count, world.get_time())
+          }
+
+
           return false
         }
       }
@@ -4190,7 +4229,13 @@ function destroy_line(line_obj, good) {
     local i = 0
 
     // remove depot
-    if ( check_home_depot(depot, wt) )  {
+    if ( depot == null ) {
+      depot = search_depot(start_l, wt_road)
+      if ( !depot ) {
+        depot = search_depot(end_l, wt_road)
+      }
+    }
+    if ( depot != false && check_home_depot(depot, wt) )  {
       // todo check vehicles in depot
       remove_tile_to_empty(depot, wt, 0)
     }
