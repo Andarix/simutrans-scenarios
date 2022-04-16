@@ -414,24 +414,28 @@ class industry_manager_t extends manager_t
     // 3
     // 4 = cnv status retired / all to old
     // 5 = electrified
+    // 6 and pl 3
     local print_message_box = 0
 
     local wt = line.get_waytype()
 
     dbgprint("Check line " + line.get_name())
-    if ( our_player.nr == 3 && print_message_box == 1 ) {
+    if ( our_player.nr == 3 && print_message_box == 6 ) {
       gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
     }
 
     local line_new = 0
+    local bilanz_year = 0
     if ( line.get_owner().nr == our_player.nr ) {
       // non profit in 5 months then destroy line //cnv.get_distance_traveled_total() > 3 &&
       local profit_count = line.get_profit()
       //if ( cnv.get_distance_traveled_total() < 3 ) { return }
-      local bilanz_year = 0
       local month_check = 0
       for ( local i = 0; i < 12; i++ ) {
         bilanz_year += profit_count[i]
+        if ( our_player.nr == 3 && print_message_box == 6 ) {
+          //gui.add_message_at(our_player, "bilanz_year += profit_count["+i+"] " + bilanz_year, world.get_time())
+        }
         if ( i >= 4 ) {
           month_check += profit_count[i]
         }
@@ -441,7 +445,7 @@ class industry_manager_t extends manager_t
       if ( profit_count[4] <= 0 && profit_count[3] <= 0 && profit_count[2] <= 0 && profit_count[1] <= 0 && profit_count[0] <= 0 && month_check != 0) {
         //line.get_traveled_distance() > 1 && line.get_traveled_distance() < 25 && line.get_loading_level() == 0 &&
         local chk_f_link = check_factory_links(link.f_src, link.f_dest, link.freight.get_name())
-        if ( line.destroy_line_month != world.get_time().month && (chk_f_link > 1 || (chk_f_link == 1 && link.f_src.get_suppliers().len() == 0 && link.f_dest.get_consumers().len() == 0) || bilanz_year < 0) ) {
+        if ( line.destroy_line_month != world.get_time().month && (chk_f_link > 1 || (chk_f_link == 1 && link.f_src.get_suppliers().len() == 0 && link.f_dest.get_consumers().len() == 0) || bilanz_year <= 0) ) {
           local erreg = destroy_line(line, link.freight)
           if ( erreg == false ) {
             line.destroy_line_month = world.get_time().month
@@ -501,8 +505,9 @@ class industry_manager_t extends manager_t
     {
       local list = line.get_convoy_list()
       cnv_count = list.get_count()
-      if (cnv_count == 0) {
+      if (cnv_count == 0 || ( bilanz_year == 0 && cnv_count == 1 )) {
         // 0 convoy destroy line
+        // 1 convoy and profit year 0
         if ( line.get_owner().nr == our_player.nr ) {
           destroy_line(line, link.freight)
           sleep()
