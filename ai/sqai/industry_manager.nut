@@ -520,8 +520,8 @@ class industry_manager_t extends manager_t
 				}
 				// stucked road vehicles destroy
 				local d = list[i].get_traveled_distance()
-				if ( list[i].get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && list[i].is_loading() == false && list[i].get_waytype() == wt_road && cnv_count > 1 && list[i].get_loading_level() == 0) {
-					//gui.add_message_at(our_player, "####### destroy stucked road vehicles " + cnv_count, world.get_time())
+				if ( list[i].get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && list[i].is_loading() == false && cnv_count > 1 && list[i].get_loading_level() == 0) {
+					//gui.add_message_at(our_player, "####### destroy stucked road vehicles " + cnv_count, world.get_time())list[i].get_waytype() == wt_road &&
 					stucked_cnv.append(list[i])
 					//remove_cnv++
 				}
