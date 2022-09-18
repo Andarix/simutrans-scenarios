@@ -503,8 +503,15 @@ class industry_manager_t extends manager_t
 		local new_cnv_add_line = false
 		local stucked_cnv = []
 		{
-			local list = line.get_convoy_list()
-			cnv_count = list.get_count()
+			local list = []
+			// remove withdrawn convois
+			foreach(cnv in line.get_convoy_list()) {
+				if (cnv.is_valid() && !cnv.is_withdrawn()) {
+					list.append(cnv);
+				}
+			}
+
+			cnv_count = list.len()
 			if (cnv_count == 0 || ( bilanz_year == 0 && cnv_count == 1 )) {
 				// 0 convoy destroy line
 				// 1 convoy and profit year 0
@@ -539,8 +546,6 @@ class industry_manager_t extends manager_t
 					stucked_cnv[i].destroy(our_player)
 				}
 				sleep()
-				list = line.get_convoy_list()
-				cnv_count = list.get_count()
 				line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 3)
 				return
 			}
@@ -903,6 +908,11 @@ class industry_manager_t extends manager_t
 			local message_show = 0
 			foreach(c in list)
 			{
+				if (!c.is_valid()  ||  c.is_withdrawn()) {
+					// will be withdrawn, ignore it
+					continue
+				}
+
 				if ( first_cnv == null ) {
 					first_cnv = c
 				}
