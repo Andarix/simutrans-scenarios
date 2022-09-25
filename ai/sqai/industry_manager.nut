@@ -441,10 +441,20 @@ class industry_manager_t extends manager_t
 				}
 			}
 
+			if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+				gui.add_message_at(our_player, "bilanz_year " + bilanz_year, world.get_time())
+				gui.add_message_at(our_player, "month_check " + month_check, world.get_time())
+				//::debug.pause()
+			}
+
 
 			if ( profit_count[4] <= 0 && profit_count[3] <= 0 && profit_count[2] <= 0 && profit_count[1] <= 0 && profit_count[0] <= 0 && month_check != 0) {
 				//line.get_traveled_distance() > 1 && line.get_traveled_distance() < 25 && line.get_loading_level() == 0 &&
 				local chk_f_link = check_factory_links(link.f_src, link.f_dest, link.freight.get_name())
+						/*if ( bilanz_year < 0 ) {
+							gui.add_message_at(our_player, "line 456 : chk_f_link " + chk_f_link, world.get_time())
+						}*/
 				if ( line.destroy_line_month != world.get_time().month && (chk_f_link > 1 || (chk_f_link == 1 && link.f_src.get_suppliers().len() == 0 && link.f_dest.get_consumers().len() == 0) || bilanz_year <= 0) ) {
 					local erreg = destroy_line(line, link.freight)
 					if ( erreg == false ) {
@@ -476,6 +486,9 @@ class industry_manager_t extends manager_t
 					}
 					if ( test_halt_waytypes(end_l) == 1 && end_l.get_halt().get_factory_list().len() == 0 ) {
 						local erreg = destroy_line(line, link.freight)
+						/*if ( bilanz_year < 0 ) {
+							gui.add_message_at(our_player, "line 490 : erreg = destroy_line " + erreg, world.get_time())
+						}*/
 						if ( erreg == false ) {
 							line.destroy_line_month = world.get_time().month
 						} else if ( erreg == true ) {
@@ -494,6 +507,10 @@ class industry_manager_t extends manager_t
 			}
 		}
 
+			/*if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, " line 511 ", world.get_time())
+				//::debug.pause()
+			}*/
 
 		// find convoy
 		local cnv = null
@@ -519,6 +536,9 @@ class industry_manager_t extends manager_t
 					destroy_line(line, link.freight)
 					sleep()
 				}
+				/*if ( bilanz_year < 0 ) {
+					gui.add_message_at(our_player, "line 536 : destroy_line ", world.get_time())
+				}*/
 				return
 			}
 			for ( local i = 0; i < cnv_count; i++ ) {
@@ -643,6 +663,10 @@ class industry_manager_t extends manager_t
 			}
 		}
 
+			/*if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, " line 667 ", world.get_time())
+				//::debug.pause()
+			}*/
 
 		sleep()
 		if ( cnv == null || !cnv.is_valid() ) { return }
@@ -698,6 +722,10 @@ class industry_manager_t extends manager_t
 			}
 		}
 
+			/*if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, " line 726 ", world.get_time())
+				//::debug.pause()
+			}*/
 
 		if (our_player.get_current_cash() > 50000 && wt != wt_water && wt != wt_air) {
 			if ( line.optimize_way_line == 0 ) {
@@ -724,6 +752,10 @@ class industry_manager_t extends manager_t
 			}
 		}
 
+			/*if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, " line 756 ", world.get_time())
+				//::debug.pause()
+			}*/
 		// way speed
 		//gui.add_message_at(our_player, " -##- " + link.line_way_speed + " old speed save line " + line.get_name(), world.get_time())
 		//gui.add_message_at(our_player, " cnv max speed " + cnv_max_speed, world.get_time())
@@ -813,6 +845,11 @@ class industry_manager_t extends manager_t
 
 		}
 
+			/*if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, " line 849 ", world.get_time())
+				//::debug.pause()
+			}*/
+
 		if (cnv.is_valid() && cnv.is_withdrawn()) {
 			// come back later
 			if ( print_message_box > 0 ) {
@@ -885,6 +922,11 @@ class industry_manager_t extends manager_t
 			}
 		}
 
+
+			/*if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, " line 927 ", world.get_time())
+				//::debug.pause()
+			}*/
 
 		// calc gain per month of one convoy
 		local gain_per_m = 0
@@ -981,8 +1023,12 @@ class industry_manager_t extends manager_t
 		if ( print_message_box == 1 ) {
 			gui.add_message_at(our_player, "freight_available " + freight_available + " cc_new " + cc_new + " cc_stop " + cc_stop + " cnv.is_valid() " + cnv.is_valid(), world.get_time())
 		}
-		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2 && cnv.is_valid() ) {
+		if ( (freight_available  &&  cc_new == 0  &&  cc_stop < 2 && cnv.is_valid()) || bilanz_year < 0 ) {
 
+			if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, " line 1029 ", world.get_time())
+				//::debug.pause()
+			}
 			// stations distance
 			local l = abs(start_l.x - end_l.x) + abs(start_l.y - end_l.y)
 			local c = 0
@@ -1091,9 +1137,19 @@ class industry_manager_t extends manager_t
 
 			cnv_count = line.double_ways_count + 1
 
-			if (gain_per_m > 0 && line.next_vehicle_check < world.get_time().ticks ) {
+			if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, " line 1141 ", world.get_time())
+				gui.add_message_at(our_player, " gain_per_m " + gain_per_m, world.get_time())
+				//::debug.pause()
+			}
+
+			if ( (gain_per_m > 0 || bilanz_year < 0 ) && line.next_vehicle_check < world.get_time().ticks ) {
 				// directly append
 				// TODO put into report
+			if ( bilanz_year < 0 ) {
+				gui.add_message_at(our_player, " line 1144 ", world.get_time())
+				//::debug.pause()
+			}
 				local proto = cnv_proto_t.from_convoy(cnv, lf)
 
 				if ( print_message_box == 1 ) {
@@ -1539,21 +1595,26 @@ class industry_manager_t extends manager_t
 					}
 
 					local catenary_obj = null //find_object("catenary", wt, 100)
+					local build_catenary = false
 					if ( start_l.find_object(mo_wayobj) != null ) {
 						catenary_obj = start_l.find_object(mo_wayobj).get_desc()
 						if ( catenary_obj != null && !catenary_obj.is_available(world.get_time()) && !catenary_obj.is_overhead_line() ) {
 							catenary_obj = find_object("catenary", wt, way_obj.get_topspeed())
+							build_catenary = true
 						}
 					} else {
 						catenary_obj = find_object("catenary", wt, way_obj.get_topspeed())
+						build_catenary = true
+					}
 
-
+					if ( build_catenary ) {
 						command_x.build_wayobj(our_player, start_l, end_l, catenary_obj)
 						command_x.build_wayobj(our_player, end_l, start_l, catenary_obj)
 						command_x.build_wayobj(our_player, depot, start_l, catenary_obj)
 
 						local msgtext = format(translate("%s electrified the line %s"), our_player.get_name(), line.get_name())
 						gui.add_message_at(our_player, msgtext, world.get_time())
+
 					}
 
 

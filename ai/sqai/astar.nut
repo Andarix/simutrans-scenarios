@@ -1942,7 +1942,7 @@ function find_station(wt) {
   */
 function find_object(obj, wt, speed) {
 
-  local list = null
+  local list = []
   switch(obj) {
     case "bridge":
       list = bridge_desc_x.get_available_bridges(wt)
@@ -1954,7 +1954,12 @@ function find_object(obj, wt, speed) {
       list = way_desc_x.get_available_ways(wt, st_flat)
       break
     case "catenary":
-      list = wayobj_desc_x.get_available_wayobjs(wt)
+			local li = wayobj_desc_x.get_available_wayobjs(wt)
+      for (local j=0; j<li.len(); j++) {
+        if ( li[j].is_overhead_line() ) {
+          list.append(li[j])
+        }
+      }
       break
   }
 
