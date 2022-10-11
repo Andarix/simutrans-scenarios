@@ -878,6 +878,10 @@ function check_tile_end_of_station(direction, count, s_tile) {
   }
 
   local t_ground = null
+  // tile out of map
+  if ( !world.is_coord_valid(t_square) ) {
+    return null
+  }
   t_ground = t_square.get_ground_tile()
   if ( test_tile_is_empty(t_ground) && t_ground.z > (s_tile.z - 2) && t_ground.z < (s_tile.z + 2) ) { //t_ground.z > s_tile.z
     return t_ground
