@@ -900,7 +900,7 @@ function check_tile_end_of_station(direction, count, s_tile) {
 function terraform_tile(tile, ref_hight) {
 
   // messages set 2
-  local print_message_box = 2
+  local print_message_box = 0
 
   if ( print_message_box > 0 ) {
     ::debug.set_pause_on_error(true)
@@ -1453,7 +1453,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
   // 0 = off
   // 1 =
   // 2 = messages
-  local print_message_box = 1
+  local print_message_box = 0
 
   local ref_hight = start_field.z
   local err = null

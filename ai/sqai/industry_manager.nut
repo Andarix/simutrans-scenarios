@@ -415,7 +415,7 @@ class industry_manager_t extends manager_t
 		// 4 = cnv status retired / all to old
 		// 5 = electrified
 		// 6 and pl 3
-		local print_message_box = 2
+		local print_message_box = 0
 
 		local wt = line.get_waytype()
 
