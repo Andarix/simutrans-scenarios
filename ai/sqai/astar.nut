@@ -900,7 +900,7 @@ function check_tile_end_of_station(direction, count, s_tile) {
 function terraform_tile(tile, ref_hight) {
 
   // messages set 2
-  local print_message_box = 0
+  local print_message_box = 2
 
   if ( print_message_box > 0 ) {
     ::debug.set_pause_on_error(true)
@@ -1453,7 +1453,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
   // 0 = off
   // 1 =
   // 2 = messages
-  local print_message_box = 0
+  local print_message_box = 1
 
   local ref_hight = start_field.z
   local err = null
@@ -1958,7 +1958,7 @@ function find_object(obj, wt, speed) {
       list = way_desc_x.get_available_ways(wt, st_flat)
       break
     case "catenary":
-			local li = wayobj_desc_x.get_available_wayobjs(wt)
+      local li = wayobj_desc_x.get_available_wayobjs(wt)
       for (local j=0; j<li.len(); j++) {
         if ( li[j].is_overhead_line() ) {
           list.append(li[j])
@@ -2584,7 +2584,7 @@ function build_double_track(start_field, wt) {
             gui.add_message_at(b_player, " ---=> tiles_build.z " + build_hight.z + " tiles.z " + ref_hight.z, world.get_time())
           }
           if ( i < (tiles_build.len()-1) ) {
-						err = command_x.set_slope(b_player, build_hight, ref_hight.get_slope())
+            err = command_x.set_slope(b_player, build_hight, ref_hight.get_slope())
             if ( err != null ) {
               gui.add_message_at(b_player, " ERROR " + err, world.get_time())
               err = null
@@ -3793,10 +3793,19 @@ function optimize_way_line(route, wt) {
       // slope up - slope down -> tunnel
       if ( build_tunnel == 1 ) {
         local step_ok = true
+        local err = null
         // not build tunnel -> set slope down
         local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
-        local tool = command_x(tool_remove_way)
-        local err = tool.work(our_player, tile_3, tile_4, "" + wt)
+        tile_4_d = tile_4.get_way_dirs(wt)
+        if ( tile_4.find_object(mo_building) != null ) { //dir.is_single(tile_4_d)
+          local tool = command_x(tool_remover)
+          err = tool.work(our_player, tile_3)
+          if ( err == null ) { err = tool.work(our_player, tile_2) }
+        } else {
+          local tool = command_x(tool_remove_way)
+          local err = tool.work(our_player, tile_3, tile_4, "" + wt)
+        }
+
 
         local way_obj = tile_4.find_object(mo_way).get_desc()
         if ( !way_obj.is_available(world.get_time()) ) {
@@ -4927,9 +4936,9 @@ function check_combined_station(halt) {
     gui.add_message_at(our_player, "####### station more wt and one line - factory connect ", world.get_time())
     local wt = null
 
-		foreach(line in lines) {
-			wt = line.get_waytype()
-		}
+    foreach(line in lines) {
+      wt = line.get_waytype()
+    }
 
     local replace_tiles = []
 
