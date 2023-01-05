@@ -22,6 +22,12 @@ class rail_connector_t extends manager_t
   c_line  = null
   c_cnv   = null
 
+  t_start = []
+  t_end = []
+  st_lenght = 0
+
+  pl = null
+
   // print messages box
   // 1 = way
   // 2 = stations
@@ -37,7 +43,7 @@ class rail_connector_t extends manager_t
   function work()
   {
     // TODO check if child does the right thing
-    local pl = our_player
+    pl = our_player
     local tic = get_ops_total();
 
     local fs = fsrc.get_tile_list()
@@ -94,136 +100,43 @@ class rail_connector_t extends manager_t
       case 1: // build way
         {
           sleep()
-          local t_start = []
-          local t_end = []
-          local st_lenght = 0
           local d = pl.get_current_cash()
           local err = null
 
+          local line_start = null
+
           // test route for calculate cost
           local calc_route = test_route(our_player, c_start, c_end, planned_way)
+          local build_status = null
           if ( calc_route == "No route" || calc_route.routes.len() < 7 ) {
             return r_t(RT_TOTAL_FAIL)
           } else {
-            if ( calc_route.routes.len() > 150 ) {
-              //gui.add_message_at(our_player, "distance " + distance, world.get_time())
-              gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
-            }
-            local s = calc_route.routes.len()-3
-            t_start = calc_route.routes.slice(s)
-            t_start.reverse()
-            //t_start.append(tile_x(c_start[0].x, c_start[0].y, c_start[0].z))
-            t_end = calc_route.routes.slice(0, 3)
-            //t_end.append(tile_x(c_end[0].x, c_end[0].y, c_end[0].z))
-            // stations lenght
-            local a = planned_convoy.length
-            do {
-              a -= 16
-              st_lenght += 1
-            } while(a > 0)
-
-            if ( !planned_way.is_available(world.get_time()) ) {
-              planned_way = find_object("way", wt_rail, planned_way.get_topspeed())
-            }
-
-            // check exist way
-            local check_way = [0, 0, 0, 0, 0, 0]
-            for ( local i = 0; i < 6; i++ ) {
-              if ( i < 3 ) {
-                // start
-                if ( tile_x(t_start[i].x, t_start[i].y, t_start[i].z).find_object(mo_way) ) {
-                  check_way[i] = 1
-                }
+            build_status = check_build_station(calc_route)
+            //::debug.pause()
+            if ( build_status != true ) {
+              calc_route = test_route(our_player, c_end, c_start, planned_way)
+              build_status = check_build_station(calc_route)
+              if ( build_status ) {
+                local c = c_start
+                c_start = c_end
+                c_end = c
+                line_start = t_end[0]
               } else {
-                // end
-                if ( tile_x(t_end[i-3].x, t_end[i-3].y, t_end[i-3].z).find_object(mo_way) ) {
-                  check_way[i] = 1
-                }
-              }
-            }
-
-            err = command_x.build_way(pl, t_start[0], t_start[1], planned_way, true)
-            if ( err != null ) { gui.add_message_at(pl, "check_station build_way " + err, t_start[0]) }
-            err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
-            if ( err != null ) { gui.add_message_at(pl, "check_station build_way " + err, t_start[0]) }
-            if ( err == null ) {
-              err = check_station(pl, t_start[0], st_lenght, wt_rail, planned_station, 0)
-              if ( err == false ) {
-                gui.add_message_at(pl, "check_station " + err, t_start[0])
-              }
-              if ( err == true ) {
-                // station start ok
-                err = command_x.build_way(pl, t_end[0], t_end[1], planned_way, true)
-                if ( err != null ) { gui.add_message_at(pl, "check_station build_way t_end " + err, t_end[0]) }
-                err = command_x.build_way(pl, t_end[1], t_end[2], planned_way, true)
-                if ( err != null ) { gui.add_message_at(pl, "check_station build_way t_end " + err, t_end[0]) }
-                //local tool = command_x(tool_remove_way)
-                if ( err == null ) {
-                  err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
-                  if ( err == true ) {
-                    // station end ok
-                    // remove track -> error by build
-                    for ( local i = 0; i < 6; i++ ) {
-                      if ( check_way[i] == 0 && i < 3 ) {
-                        remove_tile_to_empty(t_start[i], wt_rail, 0)
-                      } else if ( check_way[i] == 0 && i > 2 ) {
-                        remove_tile_to_empty(t_end[i-3], wt_rail, 0)
-                      }
-                    }
-                    //tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
-                    //tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
-                  } else {
-                    // failed station place end
-                    for ( local i = 0; i < 6; i++ ) {
-                      if ( check_way[i] == 0 && i < 3 ) {
-                        remove_tile_to_empty(t_start[i], wt_rail, 0)
-                      } else if ( check_way[i] == 0 && i > 2 ) {
-                        remove_tile_to_empty(t_end[i-3], wt_rail, 0)
-                      }
-                    }
-
-                    return error_handler()
-                  }
-                } else {
-                  // remove start and end
-                    for ( local i = 0; i < 6; i++ ) {
-                      if ( check_way[i] == 0 && i < 3 ) {
-                        remove_tile_to_empty(t_start[i], wt_rail, 0)
-                      } else if ( check_way[i] == 0 && i > 2 ) {
-                        remove_tile_to_empty(t_end[i-3], wt_rail, 0)
-                      }
-                    }
-                }
-              } else {
-                // failed station place start
-                // remove start
-                //::debug.pause()
-                for ( local i = 0; i < 3; i++ ) {
-                  if ( check_way[i] == 0 && i < 3 ) {
-                    remove_tile_to_empty(t_start[i], wt_rail, 0)
-                  }
-                }
-                return error_handler()
+                return build_status
               }
             } else {
-              // no built way start -> remove start
-              for ( local i = 0; i < 3; i++ ) {
-                if ( check_way[i] == 0 && i < 3 ) {
-                  remove_tile_to_empty(t_start[i], wt_rail, 0)
-                }
-              }
-            }
-            if ( print_message_box > 0 ) {
-              gui.add_message_at(pl, "plan station start " + t_start[0] + " - plan station end " + t_end[0], t_start[2])
+              line_start = t_start[0]
             }
           }
+
+
 
           sleep()
           local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + ((st_lenght*2)*planned_station.get_cost()) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
           local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + ((st_lenght*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
           build_cost = build_cost/100
-
-          build_cost = build_cost + (calc_route.tiles_tree * ((tree_desc_x.get_price()/100)*2))
+          //build_cost +
+          build_cost += (calc_route.tiles_tree * ((tree_desc_x.get_price()/100)*2))
 
           //gui.add_message_at(pl, "tree remove cost: " + tree_desc_x.get_price(), world.get_time())
           //gui.add_message_at(pl, "terraform cost: " + command_x.slope_get_price(82), world.get_time())
@@ -240,7 +153,7 @@ class rail_connector_t extends manager_t
           sleep()
           // if combined station from ship
           local cash = pl.get_current_cash()
-          local st_dock = search_station(t_start[0], wt_water, 1)
+          local st_dock = search_station(line_start, wt_water, 1)
           //gui.add_message_at(our_player, "search_station(t_start[0], wt_water, 1) " + st_dock + " t_start[0] " + coord3d_to_string(t_start[0]), world.get_time())
           if ( st_dock ) {
             local st = halt_x.get_halt(st_dock[0], our_player)
@@ -302,6 +215,12 @@ class rail_connector_t extends manager_t
               check_doubleway_in_line(wayline, wt_rail)
 
             }
+          }
+          if ( line_start == t_end[0] ) {
+            local c = c_start
+            c_start = c_end
+            c_end = c
+            c_route.reverse()
           }
           phase ++
         }
@@ -400,7 +319,11 @@ class rail_connector_t extends manager_t
           local starts_field = c_start
           if ( !depot_found ) {
             depot_found = search_depot(c_end, wt_rail)
-            starts_field = c_end
+            if ( !depot_found ) {
+
+            } else {
+              starts_field = c_end
+            }
           }
 
           if ( !depot_found && print_message_box == 3 ) {
@@ -603,6 +526,165 @@ class rail_connector_t extends manager_t
     }
     local d = res.end
     c_depot = tile_x(d.x, d.y, d.z)
+  }
+
+  function check_build_station(calc_route) {
+    local routes = calc_route.routes
+    local err = null
+
+    // count tiles test for station
+    local nr_tile_test = 3
+
+    if ( routes.len() > 150 ) {
+    //gui.add_message_at(our_player, "distance " + distance, world.get_time())
+      gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+    }
+    local s = routes.len()-nr_tile_test
+    t_start = routes.slice(s)
+    t_start.reverse()
+    //t_start.append(tile_x(c_start[0].x, c_start[0].y, c_start[0].z))
+    t_end = routes.slice(0, nr_tile_test)
+    //t_end.append(tile_x(c_end[0].x, c_end[0].y, c_end[0].z))
+    // stations lenght
+    local a = planned_convoy.length
+    do {
+      a -= 16
+      st_lenght += 1
+    } while(a > 0)
+
+    if ( !planned_way.is_available(world.get_time()) ) {
+      planned_way = find_object("way", wt_rail, planned_way.get_topspeed())
+    }
+
+    // check exist way
+    local check_way = []
+    for ( local j = 0; j < (nr_tile_test*2); j++ ) {
+      check_way.append(0)
+    }
+    for ( local i = 0; i < (nr_tile_test*2); i++ ) {
+      if ( i < nr_tile_test ) {
+        // start
+        if ( tile_x(t_start[i].x, t_start[i].y, t_start[i].z).find_object(mo_way) ) {
+          check_way[i] = 1
+        }
+      } else {
+        // end
+        if ( tile_x(t_end[i-nr_tile_test].x, t_end[i-nr_tile_test].y, t_end[i-nr_tile_test].z).find_object(mo_way) ) {
+          check_way[i] = 1
+        }
+      }
+    }
+
+    for ( local j = 0; j < t_start.len()-1; j++ ) {
+      err = command_x.build_way(pl, t_start[j], t_start[j+1], planned_way, true)
+      if ( err != null ) {
+        gui.add_message_at(pl, "check_station build_way " + err, t_start[0])
+      }
+    }
+
+            //err = command_x.build_way(pl, t_start[0], t_start[1], planned_way, true)
+            //if ( err != null ) { gui.add_message_at(pl, "check_station build_way " + err, t_start[0]) }
+            //err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
+            //if ( err != null ) { gui.add_message_at(pl, "check_station build_way " + err, t_start[0]) }
+            //::debug.pause()
+    if ( err == null ) {
+      err = check_station(pl, t_start[0], st_lenght, wt_rail, planned_station, 0)
+      if ( err == false ) {
+        gui.add_message_at(pl, "check_station " + err, t_start[0])
+      }
+      if ( err == true ) {
+        // station start ok
+        for ( local j = 0; j < t_end.len()-1; j++ ) {
+          err = command_x.build_way(pl, t_end[j], t_end[j+1], planned_way, true)
+          if ( err != null ) {
+            gui.add_message_at(pl, "check_station build_way " + err, t_end[0])
+          }
+        }
+                //::debug.pause()
+                //err = command_x.build_way(pl, t_end[0], t_end[1], planned_way, true)
+                //if ( err != null ) { gui.add_message_at(pl, "check_station build_way t_end " + err, t_end[0]) }
+                //err = command_x.build_way(pl, t_end[1], t_end[2], planned_way, true)
+                //if ( err != null ) { gui.add_message_at(pl, "check_station build_way t_end " + err, t_end[0]) }
+                //local tool = command_x(tool_remove_way)
+
+        if ( err == null ) {
+          err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
+          if ( err == true ) {
+            // station end ok
+            // remove track -> error by build
+                    /*for ( local i = 0; i < (nr_tile_test*2); i++ ) {
+                      if ( i < nr_tile_test && check_way[i] == 0 ) {
+                        remove_tile_to_empty(t_start[i], wt_rail, 0)
+                      } else if ( i > (nr_tile_test-1) && check_way[i] == 0 ) {
+                        remove_tile_to_empty(t_end[i-nr_tile_test], wt_rail, 0)
+                      }
+                    }*/
+            remove_test_way(check_way, nr_tile_test, t_start, t_end, 1)
+                    //tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
+                    //tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
+          } else {
+            // failed station place end
+                    /*for ( local i = 0; i < (nr_tile_test*2); i++ ) {
+                      if ( check_way[i] == 0 && i < nr_tile_test ) {
+                        remove_tile_to_empty(t_start[i], wt_rail, 0)
+                        //gui.add_message_at(pl, "remove " + coord3d_to_string(t_start[i]), t_start[i])
+                      } else if ( check_way[i] == 0 && i > (nr_tile_test-1) ) {
+                        remove_tile_to_empty(t_end[i-nr_tile_test], wt_rail, 0)
+                        //gui.add_message_at(pl, "remove " + coord3d_to_string(t_end[i-nr_tile_test]), t_end[i-nr_tile_test])
+                      }
+                    }*/
+            remove_test_way(check_way, nr_tile_test, t_start, t_end, 1)
+
+            return error_handler()
+          }
+        } else {
+          // remove start and end
+                    /*for ( local i = 0; i < (nr_tile_test*2); i++ ) {
+                      if ( check_way[i] == 0 && i < nr_tile_test ) {
+                        remove_tile_to_empty(t_start[i], wt_rail, 0)
+                      } else if ( check_way[i] == 0 && i > (nr_tile_test-1) ) {
+                        remove_tile_to_empty(t_end[i-nr_tile_test], wt_rail, 0)
+                      }
+                    }*/
+          remove_test_way(check_way, nr_tile_test, t_start, t_end, 1)
+        }
+      } else {
+        // failed station place start
+        // remove start
+                //::debug.pause()
+                /*for ( local i = 0; i < nr_tile_test; i++ ) {
+                  if ( check_way[i] == 0 && i < nr_tile_test ) {
+                    remove_tile_to_empty(t_start[i], wt_rail, 0)
+                  }
+                }*/
+        remove_test_way(check_way, nr_tile_test, t_start, t_end, 0)
+        return error_handler()
+      }
+    } else {
+      // no built way start -> remove start
+              /*for ( local i = 0; i < nr_tile_test; i++ ) {
+                if ( check_way[i] == 0 && i < nr_tile_test ) {
+                  remove_tile_to_empty(t_start[i], wt_rail, 0)
+                }
+              }*/
+      remove_test_way(check_way, nr_tile_test, t_start, t_end, 0)
+    }
+
+    if ( print_message_box > 0 ) {
+      gui.add_message_at(pl, "plan station start " + t_start[0] + " - plan station end " + t_end[0], t_start[2])
+    }
+
+    return true
+  }
+
+  function remove_test_way(check_way, nr_tile_test, t_start, t_end, s) {
+    for ( local i = 0; i < (nr_tile_test*2); i++ ) {
+      if ( check_way[i] == 0 && i < nr_tile_test ) {
+        remove_tile_to_empty(t_start[i], wt_rail, 0)
+      } else if ( s == 1 && check_way[i] == 0 && i > (nr_tile_test-1) ) {
+        remove_tile_to_empty(t_end[i-nr_tile_test], wt_rail, 0)
+      }
+    }
   }
 
 }
