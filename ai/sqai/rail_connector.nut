@@ -278,6 +278,9 @@ class rail_connector_t extends manager_t
               gui.add_message_at(pl, "Failed to build rail station at s_dest " + coord_to_string(c_end), world.get_time())
             }
 
+            build_check_month = world.get_time().month + 1
+            if ( build_check_month > 11 ) { build_check_month = build_check_month - 11 }
+
             remove_wayline(c_route, c_route.len()-1, wt_rail, s_src.len())
             remove_tile_to_empty(s_src, wt_rail)
             remove_tile_to_empty(c_start, wt_rail, 0)
