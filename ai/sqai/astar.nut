@@ -3802,7 +3802,7 @@ function optimize_way_line(route, wt) {
         // not build tunnel -> set slope down
         local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
         tile_4_d = tile_4.get_way_dirs(wt)
-        if ( tile_4.find_object(mo_building) != null ) { //dir.is_single(tile_4_d)
+        if ( tile_4.find_object(mo_building) != null || tile_4.find_object(mo_bridge) != null ) { //dir.is_single(tile_4_d)
           local tool = command_x(tool_remover)
           err = tool.work(our_player, tile_3)
           if ( err == null ) { err = tool.work(our_player, tile_2) }
