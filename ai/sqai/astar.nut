@@ -2485,7 +2485,7 @@ function build_double_track(start_field, wt) {
       tl = way_len
       tr = 0
     }
-    else if ( ( tr < tiles_build_r.len() && tiles_build_r.len() == way_len &&  diagonal_st == 0 ) || ( tr < tiles_build_r.len() && tiles_build_r.len() == way_len - 2 &&  diagonal_st > 0 ) ) {
+    else if ( (( tr < tiles_build_r.len() && tiles_build_r.len() == way_len && diagonal_st == 0 ) || ( tr < tiles_build_r.len() && tiles_build_r.len() == way_len - 2 &&  diagonal_st > 0 )) && tr >= tl ) {
       // check terraform tr
       if ( print_message_box == 1 ) {
         gui.add_message_at(b_player, "build right check terraform", world.get_time())
@@ -2495,7 +2495,7 @@ function build_double_track(start_field, wt) {
       tl = 0
       terraform = 1
     }
-    else if ( ( tl < tiles_build_l.len() && tiles_build_l.len() == way_len &&  diagonal_st == 0 ) || ( tl < tiles_build_l.len() && tiles_build_l.len() == way_len - 2 &&  diagonal_st > 0 ) ) {
+    else if ( ( tl < tiles_build_l.len() && tiles_build_l.len() == way_len && diagonal_st == 0 ) || ( tl < tiles_build_l.len() && tiles_build_l.len() == way_len - 2 &&  diagonal_st > 0 ) ) {
       // check terraform tl
       if ( print_message_box == 1 ) {
         gui.add_message_at(b_player, "build left check terraform", world.get_time())
@@ -2608,6 +2608,10 @@ function build_double_track(start_field, wt) {
     }
 
     // set build left or right
+    /*if ( tr == way_len && tl == way_len ) {
+
+    }
+    else */
     if ( tr == way_len ) {
       tiles_build = tiles_build_r
     }
@@ -3006,6 +3010,7 @@ function check_way_line(start, end, wt, l, c) {
    * 1 =
    * 2 = straight
    * 3 = diagonal
+   * 4 =
    */
 
   ::debug.set_pause_on_error(true)
@@ -3282,7 +3287,7 @@ function check_way_line(start, end, wt, l, c) {
                 str = 0
               }
             } else {
-              gui.add_message_at(our_player, " ERROR test tile out of map " + coord3d_to_string(check_tile_strs) + " / " + coord3d_to_string(check_tile_str), t)
+              //gui.add_message_at(our_player, " ERROR test tile out of map " + coord3d_to_string(check_tile_strs) + " / " + coord3d_to_string(check_tile_str), t)
             }
           } else if ( t.get_way_dirs(wt) == 9 && stl == 0 ) {
             if ( print_message_box == 3 && i >= s[0] && i < (s[0] + way_len) ) {
@@ -3295,7 +3300,7 @@ function check_way_line(start, end, wt, l, c) {
                 stl = 0
               }
             } else {
-              gui.add_message_at(our_player, " ERROR test tile out of map " + coord3d_to_string(check_tile_stls) + " / " + coord3d_to_string(check_tile_stl), t)
+              //gui.add_message_at(our_player, " ERROR test tile out of map " + coord3d_to_string(check_tile_stls) + " / " + coord3d_to_string(check_tile_stl), t)
             }
           }
 
@@ -3317,7 +3322,7 @@ function check_way_line(start, end, wt, l, c) {
                 str++
               }
             } else {
-              gui.add_message_at(our_player, " ERROR test tile out of map ", t)
+              //gui.add_message_at(our_player, "(3320) ERROR test tile out of map ", t)
             }
 
             if ( tile_on_map_l == 1 ) {
@@ -3333,7 +3338,7 @@ function check_way_line(start, end, wt, l, c) {
                 stl++
               }
             } else {
-              gui.add_message_at(our_player, " ERROR test tile out of map ", t)
+              //gui.add_message_at(our_player, "(3336) ERROR test tile out of map ", t)
             }
 
           }
@@ -3397,7 +3402,7 @@ function check_way_line(start, end, wt, l, c) {
                 str = 0
               }
             } else {
-              gui.add_message_at(our_player, " ERROR test tile out of map ", t)
+              //gui.add_message_at(our_player, "(3400) ERROR test tile out of map ", t)
             }
           } else if ( t.get_way_dirs(wt) == 12 && stl == 0 ) {
             if ( print_message_box == 4 && i >= s[0] && i < (s[0] + way_len) ) { //
@@ -3410,7 +3415,7 @@ function check_way_line(start, end, wt, l, c) {
                 stl = 0
               }
             } else {
-              gui.add_message_at(our_player, " ERROR test tile out of map ", t)
+              //gui.add_message_at(our_player, "(3414) ERROR test tile out of map ", t)
             }
           }
 
@@ -3431,7 +3436,7 @@ function check_way_line(start, end, wt, l, c) {
                 str++
               }
             } else {
-              gui.add_message_at(our_player, " ERROR test tile out of map ", t)
+              //gui.add_message_at(our_player, "(3436) ERROR test tile out of map ", t)
             }
 
             if ( tile_on_map_l == 1 ) {
@@ -3447,7 +3452,7 @@ function check_way_line(start, end, wt, l, c) {
                 stl++
               }
             } else {
-              gui.add_message_at(our_player, " ERROR test tile out of map ", t)
+              //gui.add_message_at(our_player, "(3453) ERROR test tile out of map ", t)
             }
           }
           if ( print_message_box == 4 && i >= s[0] && i < (s[0] + way_len + 1) ) {
@@ -4246,6 +4251,17 @@ function destroy_line(line_obj, good) {
         } else {
           // 12 month no output goods -> line remove
           local output_count = 0
+
+          local list_halts_dest = end_f[0].get_halt_list()
+          // check conected halts
+          if ( list_halts_dest.len() == 1 ) {
+            // one halt remove link
+            if ( print_message_box == 1 || print_message_box == 3 ) {
+              gui.add_message_at(our_player, "### factory end : count halts = " + list_halts_dest.len(), world.get_time())
+            }
+            //return true
+          } else {
+
           /*foreach(good, islot in end_f[0].output) {
 
             // test for in-storage or in-transit goods
@@ -4268,12 +4284,14 @@ function destroy_line(line_obj, good) {
               //output_count += t
             }
           }*/
-          if ( print_message_box == 1 || print_message_box == 3 ) {
-            gui.add_message_at(our_player, "### factory end : count outputs good = " + output_count, world.get_time())
+            if ( print_message_box == 1 || print_message_box == 3 ) {
+              gui.add_message_at(our_player, "### factory end : count outputs good = " + output_count, world.get_time())
+            }
+
+
+            return false
+
           }
-
-
-          return false
         }
       }
     }
