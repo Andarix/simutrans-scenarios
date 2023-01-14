@@ -1091,6 +1091,8 @@ class industry_manager_t extends manager_t
 
           if ( build_cost/100 < (our_player.get_current_cash()+(our_player.get_current_maintenance()/100*5)) ) {
             build_double_ways = true
+          } else {
+            //gui.add_message_at(our_player, "calculate build cost double ways " + build_cost/100 + " < " + (our_player.get_current_cash()+(our_player.get_current_maintenance()/100*5)), world.get_time())
           }
 
         }
