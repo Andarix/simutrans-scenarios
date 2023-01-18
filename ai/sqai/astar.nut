@@ -3468,6 +3468,15 @@ function check_way_line(start, end, wt, l, c) {
     if ( i >= s[r] && print_message_box == 2 ) {
         gui.add_message_at(our_player, "*  st " + st + "  dst " + dst + "  stl " + stl + " str " + str + " fc " + fc + " * " + coord3d_to_string(t), t)
     }
+    if ( t.get_slope() > 0 && nexttile[i-1].get_slope() > 0 ) {
+      if ( i >= s[r] && print_message_box == 2 ) {
+        gui.add_message_at(our_player, " last 2 tiles have slope - reset " + coord3d_to_string(t), t)
+        ::debug.pause()
+      }
+      stl = 0
+      str = 0
+      fc = 0
+    }
 
     if ( dst == 0 && dc == d && i >= s[r] && st == 0 ) {
       if ( print_message_box == 2 ) {
@@ -3766,8 +3775,9 @@ function optimize_way_line(route, wt) {
 
 
 
-      if ( way_d > 0 && print_message_box > 0 ) { //
+      if ( (way_d > 0 || build_bridge > 0) && print_message_box > 0 ) { //
         //gui.add_message_at(our_player, " optimize way way_d " + way_d, tile_1)
+        gui.add_message_at(our_player, " optimize way build_bridge " + build_bridge, tile_1)
       }
     }
 
