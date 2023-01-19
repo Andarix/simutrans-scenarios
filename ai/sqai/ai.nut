@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "AI player implementation road/ship/rail"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.8.6"
+ai.version <- "0.8.7"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -61,9 +61,9 @@ persistent.s <- s
 
 // 2.. 14 = 13 names
 possible_names <- ["Petersil Cars", "Teumer Alp Dream Trucks", "Runk & Strunk Transports", "A. Nach B. Transports", "Interflug Fourwheelers",
-	"Pfarnest International", "Suboptimal Transports", "Conveyor Belts & Braces", "Bucket Brigade Inc.",
-	"Maggikraut AG", "Bugs & Eggs Unlimited", "S. Claus & R. Deer Worldwide", "Leiterwagn & Sons"
-			]
+  "Pfarnest International", "Suboptimal Transports", "Conveyor Belts & Braces", "Bucket Brigade Inc.",
+  "Maggikraut AG", "Bugs & Eggs Unlimited", "S. Claus & R. Deer Worldwide", "Leiterwagn & Sons"
+      ]
 
 /**
  * Start-routine. Will be called when AI is initialized.
@@ -71,14 +71,14 @@ possible_names <- ["Petersil Cars", "Teumer Alp Dream Trucks", "Runk & Strunk Tr
  */
 function start(pl_nr)
 {
-	init(pl_nr)
-	// set a funny name
+  init(pl_nr)
+  // set a funny name
 
-	if (our_player_nr > 1  &&  our_player_nr-2 < possible_names.len()) {
-		player_x(our_player_nr).set_name( possible_names[our_player_nr-2]);
-	}
+  if (our_player_nr > 1  &&  our_player_nr-2 < possible_names.len()) {
+    player_x(our_player_nr).set_name( possible_names[our_player_nr-2]);
+  }
 
-	print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
+  print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
 }
 
 /**
@@ -86,34 +86,34 @@ function start(pl_nr)
  */
 function init_tree()
 {
-	if (factorysearcher == null) {
-		factorysearcher = factorysearcher_t()
-	}
-	if (industry_manager == null) {
-		industry_manager = industry_manager_t()
-	}
-	if (!("tree" in persistent)) {
-		tree = manager_t()
-		tree.append_child(factorysearcher)
-		tree.append_child(industry_manager)
-		persistent.tree <- tree
-	}
-	else {
-		if (persistent.tree.getclass() != manager_t) {
-			// upgrade
-			tree = manager_t()
-			foreach(i in ["nodes", "next_to_step"]) {
-				tree[i] = persistent.tree[i]
-			}
-		}
-		else {
-			tree = persistent.tree
-		}
-	}
+  if (factorysearcher == null) {
+    factorysearcher = factorysearcher_t()
+  }
+  if (industry_manager == null) {
+    industry_manager = industry_manager_t()
+  }
+  if (!("tree" in persistent)) {
+    tree = manager_t()
+    tree.append_child(factorysearcher)
+    tree.append_child(industry_manager)
+    persistent.tree <- tree
+  }
+  else {
+    if (persistent.tree.getclass() != manager_t) {
+      // upgrade
+      tree = manager_t()
+      foreach(i in ["nodes", "next_to_step"]) {
+        tree[i] = persistent.tree[i]
+      }
+    }
+    else {
+      tree = persistent.tree
+    }
+  }
 
-	if (!("station_manager" in persistent)) {
-		persistent.station_manager <- freight_station_manager_t(1)
-	}
+  if (!("station_manager" in persistent)) {
+    persistent.station_manager <- freight_station_manager_t(1)
+  }
 }
 
 /**
@@ -121,23 +121,23 @@ function init_tree()
  */
 function resume_game(pl_nr)
 {
-	init(pl_nr)
+  init(pl_nr)
 
-	s = persistent.s
+  s = persistent.s
 }
 
 function init(pl_nr)
 {
-	debug.set_pause_on_error(true)
+  debug.set_pause_on_error(true)
 
-	our_player_nr = pl_nr
-	our_player    = player_x(our_player_nr)
+  our_player_nr = pl_nr
+  our_player    = player_x(our_player_nr)
 
-	srand(our_player_nr * 4711)
+  srand(our_player_nr * 4711)
 
-	annotate_classes() // sets class name as attribute for all known classes (save.nut)
+  annotate_classes() // sets class name as attribute for all known classes (save.nut)
 
-	init_tree()
+  init_tree()
 }
 
 /**
@@ -148,49 +148,49 @@ function init(pl_nr)
  */
 function step()
 {
-	if ( build_check_month <= world.get_time().month ) {
+  if ( build_check_month <= world.get_time().month ) {
 
-		tree.step()
-		s._step++
+    tree.step()
+    s._step++
 
-		// connector node may fail, but may offer alternative connector node
-		local report = tree.get_report()
-		if (report) {
-			factorysearcher.append_report(report)
-		}
+    // connector node may fail, but may offer alternative connector node
+    local report = tree.get_report()
+    if (report) {
+      factorysearcher.append_report(report)
+    }
 
-		if (s._step > s._next_construction_step) {
-			local r = factorysearcher.get_report()
+    if (s._step > s._next_construction_step) {
+      local r = factorysearcher.get_report()
 
-			if (r   &&  r.action) {
-		/*
-			gui.add_message_at(our_player, "####### r.retire_obj " + r.retire_obj, world.get_time())
-			gui.add_message_at(our_player, "####### world.get_time().raw " + world.get_time().raw, world.get_time())
-		*/
-				if ( r.retire_time != null && r.retire_time < world.get_time().ticks ) {
-					gui.add_message_at(our_player, "####### report out of time ", world.get_time())
-					gui.add_message_at(our_player, "####### r.retire_time " + r.retire_time, world.get_time())
-					gui.add_message_at(our_player, "####### world.get_time().ticks " + world.get_time().ticks, world.get_time())
-					return
-				}
-				else if ( r.retire_obj != null && r.retire_obj <= world.get_time().raw ) {
-					gui.add_message_at(our_player, "####### object out of time ", world.get_time())
-					return
-				}
-				else {
-					print("New report: expected construction cost: " + (r.cost_fix / 100.0))
-					gui.add_message_at(our_player, "New report: expected construction cost: " + (r.cost_fix / 100.0), world.get_time())
-					tree.append_child(r.action)
-				}
-			}
+      if (r   &&  r.action) {
+    /*
+      gui.add_message_at(our_player, "####### r.retire_obj " + r.retire_obj, world.get_time())
+      gui.add_message_at(our_player, "####### world.get_time().raw " + world.get_time().raw, world.get_time())
+    */
+        if ( r.retire_time != null && r.retire_time < world.get_time().ticks ) {
+          gui.add_message_at(our_player, "####### report out of time ", world.get_time())
+          gui.add_message_at(our_player, "####### r.retire_time " + r.retire_time, world.get_time())
+          gui.add_message_at(our_player, "####### world.get_time().ticks " + world.get_time().ticks, world.get_time())
+          return
+        }
+        else if ( r.retire_obj != null && r.retire_obj <= world.get_time().raw ) {
+          gui.add_message_at(our_player, "####### object out of time ", world.get_time())
+          return
+        }
+        else {
+          print("New report: expected construction cost: " + (r.cost_fix / 100.0))
+          gui.add_message_at(our_player, "New report: expected construction cost: " + (r.cost_fix / 100.0), world.get_time())
+          tree.append_child(r.action)
+        }
+      }
 
-			s._next_construction_step += 1 + (s._step % 3)
-		}
+      s._next_construction_step += 1 + (s._step % 3)
+    }
 
-	}
-	else {
-		//gui.add_message_at(our_player, " ai step() break : build_check_month = " + build_check_month, world.get_time())
-	}
+  }
+  else {
+    //gui.add_message_at(our_player, " ai step() break : build_check_month = " + build_check_month, world.get_time())
+  }
 }
 
 /**
@@ -199,25 +199,25 @@ function step()
  */
 function coord3d_to_key(c)
 {
-	return ("coord3d_" + c.x + "_" + c.y + "_" + c.z).toalnum();
+  return ("coord3d_" + c.x + "_" + c.y + "_" + c.z).toalnum();
 }
 
 function coord_to_key(c)
 {
-	return ("coord_" + c.x + "_" + c.y).toalnum();
+  return ("coord_" + c.x + "_" + c.y).toalnum();
 }
 
 function equal_coord3d(a,b)
 {
-	return a.x == b.x  &&  a.y == b.y  &&  a.z == b.z
+  return a.x == b.x  &&  a.y == b.y  &&  a.z == b.z
 }
 
 
 function is_cash_available(cost /* in 1/100 cr */)
 {
-	//gui.add_message_at(our_player, " ***** cash : " + our_player.get_current_cash(), world.get_time())
-	//gui.add_message_at(our_player, " ***** cost : " + cost, world.get_time())
-	return cost + 2*our_player.get_current_maintenance() < our_player.get_current_cash()*100
+  //gui.add_message_at(our_player, " ***** cash : " + our_player.get_current_cash(), world.get_time())
+  //gui.add_message_at(our_player, " ***** cost : " + cost, world.get_time())
+  return cost + 2*our_player.get_current_maintenance() < our_player.get_current_cash()*100
 }
 
 /**
@@ -227,16 +227,16 @@ function is_cash_available(cost /* in 1/100 cr */)
  */
 function save()
 {
-	local str = ""
-	local tic = get_ops_total()
-	local rem = get_ops_remaining()
+  local str = ""
+  local tic = get_ops_total()
+  local rem = get_ops_remaining()
 
-	str = "persistent = " + recursive_save(persistent, "\t", [ persistent ] )
+  str = "persistent = " + recursive_save(persistent, "\t", [ persistent ] )
 
-	local toc = get_ops_total()
-	print("save used " + (toc-tic) + " ops, remaining = " + rem)
+  local toc = get_ops_total()
+  print("save used " + (toc-tic) + " ops, remaining = " + rem)
 
-	return str
+  return str
 }
 
 /**
@@ -244,15 +244,15 @@ function save()
  */
 function myrand(upper)
 {
-	if (upper <= 1) {
-		return upper-1
-	}
-	local rem = (RAND_MAX % upper) + 1
-	local r
-	do {
-		r = rand()
-	} while (r > RAND_MAX - rem)
-	return r % upper
+  if (upper <= 1) {
+    return upper-1
+  }
+  local rem = (RAND_MAX % upper) + 1
+  local r
+  do {
+    r = rand()
+  } while (r > RAND_MAX - rem)
+  return r % upper
 }
 
 /**
@@ -260,8 +260,8 @@ function myrand(upper)
  */
 function today_plus_months(m)
 {
-	local time = world.get_time()
-	return time.ticks + m * time.ticks_per_month
+  local time = world.get_time()
+  return time.ticks + m * time.ticks_per_month
 }
 
 /**
@@ -271,10 +271,10 @@ function today_plus_months(m)
  */
 function get_set_name()
 {
-	local pakset = get_pakset_name()  // full string from ground.outside.pak
-	local s = pakset.find(" ")
-	pakset = pakset.slice(0, s)
-	pakset = pakset.tolower()
+  local pakset = get_pakset_name()  // full string from ground.outside.pak
+  local s = pakset.find(" ")
+  pakset = pakset.slice(0, s)
+  pakset = pakset.tolower()
 
-	return pakset
+  return pakset
 }
