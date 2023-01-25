@@ -1041,7 +1041,9 @@ function remove_wayline(route, pos, wt, st_len = null) {
           if ( test_way.get_owner().nr == our_player_nr ) {
             // remove player road from tile
             // not remove public player road from tile
-            tool.work(our_player, tile)
+            if ( (t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]) == 0 ) {
+              tool.work(our_player, tile)
+            }
           }else {
             // break public way ( road )
             test = 1
@@ -1098,7 +1100,9 @@ function remove_wayline(route, pos, wt, st_len = null) {
           if ( t_field.get_owner().nr == our_player_nr ) {
             // remove player road from tile
             // not remove public player road from tile
+           if ( (t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]) == 0 ) {
             toolr.work(our_player, tile, tile, "" + wt_road)
+           }
           } else {
             // break public way ( road )
             test += 1
