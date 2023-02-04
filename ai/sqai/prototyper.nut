@@ -205,6 +205,7 @@ class prototyper_t extends node_t
     // iterating ind-th position in convoy
     local ind = 1
 
+    local count_cnv_length = false
 
     while(true) {
 
@@ -256,7 +257,14 @@ class prototyper_t extends node_t
       // no more by max length
       // no more by speed < max speed convoy
       if (l > a  || c["min_top_speed"] < c["max_speed"]) { //) { max_length   CARUNITS_PER_TILE
-        continue;
+        //gui.add_message_at(our_player, "c['min_top_speed']: " + c["min_top_speed"], world.get_time())
+        //gui.add_message_at(our_player, "c['max_speed']: " + c["max_speed"], world.get_time())
+        if ( (c["max_speed"]-c["min_top_speed"]) < 10 ) {
+          count_cnv_length = true
+        } else {
+          continue;
+        }
+
       }
 
       // check if convoy finished
@@ -281,7 +289,8 @@ class prototyper_t extends node_t
       }
 
       // move on to next position
-      if (ind >= max_vehicles) {
+      if (ind >= max_vehicles || count_cnv_length) {
+        count_cnv_length = false
         continue;
       }
 
