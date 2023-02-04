@@ -168,18 +168,18 @@ function step()
       gui.add_message_at(our_player, "####### world.get_time().raw " + world.get_time().raw, world.get_time())
     */
         if ( r.retire_time != null && r.retire_time < world.get_time().ticks ) {
-          gui.add_message_at(our_player, "####### report out of time ", world.get_time())
-          gui.add_message_at(our_player, "####### r.retire_time " + r.retire_time, world.get_time())
-          gui.add_message_at(our_player, "####### world.get_time().ticks " + world.get_time().ticks, world.get_time())
+          //gui.add_message_at(our_player, "####### report out of time ", world.get_time())
+          //gui.add_message_at(our_player, "####### r.retire_time " + r.retire_time, world.get_time())
+          //gui.add_message_at(our_player, "####### world.get_time().ticks " + world.get_time().ticks, world.get_time())
           return
         }
         else if ( r.retire_obj != null && r.retire_obj <= world.get_time().raw ) {
-          gui.add_message_at(our_player, "####### object out of time ", world.get_time())
+          //gui.add_message_at(our_player, "####### object out of time ", world.get_time())
           return
         }
         else {
           print("New report: expected construction cost: " + (r.cost_fix / 100.0))
-          gui.add_message_at(our_player, "New report: expected construction cost: " + (r.cost_fix / 100.0), world.get_time())
+          //gui.add_message_at(our_player, "New report: expected construction cost: " + (r.cost_fix / 100.0), world.get_time())
           tree.append_child(r.action)
         }
       }

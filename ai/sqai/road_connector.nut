@@ -29,6 +29,7 @@ class road_connector_t extends manager_t
   // 1 = way
   // 2 = station
   // 3 = depot
+  // 4 = info
   print_message_box = 0
 
   constructor()
@@ -65,13 +66,15 @@ class road_connector_t extends manager_t
 
     if ( build_check_month > world.get_time().month ) {
       // not build link
-      gui.add_message_at(our_player, " not build line : build_check_month = " + build_check_month, world.get_time())
+      if ( print_message_box == 4 ) {
+        gui.add_message_at(our_player, " not build line : build_check_month = " + build_check_month, world.get_time())
+      }
       return r_t(RT_TOTAL_FAIL)
     }
 
     switch(phase) {
       case 0:  // station places
-        if ( print_message_box > 0 ) {
+        if ( print_message_box > 0 && print_message_box != 4 ) {
           gui.add_message_at(our_player, "______________________ build road ______________________", world.get_time())
           gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
         }
@@ -108,7 +111,9 @@ class road_connector_t extends manager_t
 
           // test route for calculate cost
           local calc_route = test_route(our_player, c_start, c_end, planned_way)
-          //gui.add_message_at(our_player, "distance " + distance, world.get_time())
+          if ( print_message_box == 1 && calc_route != "No route" ) {
+            gui.add_message_at(our_player, "distance " + (calc_route.routes.len() + calc_route.bridge_lens), world.get_time())
+          }
           if ( calc_route == "No route" ) {
             return r_t(RT_TOTAL_FAIL)
           }
@@ -139,7 +144,9 @@ class road_connector_t extends manager_t
               local fl_st = st.get_factory_list()
               if ( fl_st.len() == 0 ) {
                 cash = our_player.get_current_net_wealth()
-                gui.add_message_at(our_player, "road: combined station -> get_current_net_wealth() " + (our_player.get_current_net_wealth()/100), world.get_time())
+                if ( print_message_box == 4 ) {
+                  gui.add_message_at(our_player, "road: combined station -> get_current_net_wealth() " + (our_player.get_current_net_wealth()/100), world.get_time())
+                }
               } else {
 
               }
@@ -184,15 +191,19 @@ class road_connector_t extends manager_t
         }
       case 2: // build station
         {
-          if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null ) {
-            if (debug) gui.add_message_at(pl, " --- tile to build station not free", world.get_time())
+          local err = null
+          local obj_building = tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building)
+          if ( obj_building != null && obj_building.get_owner() != our_player ) {
+            if (debug) gui.add_message_at(pl, " --- tile to build station not free", c_start)
 
             build_check_month = world.get_time().month + 1
             if ( build_check_month > 11 ) { build_check_month = build_check_month - 11 }
 
-            return restart_with_phase0()
+            //return restart_with_phase0()
+            return error_handler()
+          } else if ( c_generate_start ) {
+            err = command_x.build_station(pl, c_start, planned_station )
           }
-          local err = command_x.build_station(pl, c_start, planned_station )
           if (err) {
             if (debug) gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_start) + " [" + err + "]", c_start)// try again
             if ( print_message_box == 2 ) { gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_start) + " error " + err, world.get_time()) }
@@ -201,7 +212,7 @@ class road_connector_t extends manager_t
           else {
             c_generate_start = false // station build, do not search for another place
           }
-          local err = command_x.build_station(pl, c_end, planned_station )
+          err = command_x.build_station(pl, c_end, planned_station )
           if (err) {
             if (debug) gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_end) + " [" + err + "]", c_end)
             // try again
