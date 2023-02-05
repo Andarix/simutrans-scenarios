@@ -1484,7 +1484,7 @@ class industry_manager_t extends manager_t
         gui.add_message_at(our_player, "### prototyper.max_length = " + prototyper.max_length, world.get_time())
       }
 
-      prototyper.electrified = check_catenary(line, dist, start_l, cnv_speed)
+      prototyper.electrified = check_catenary(line, dist, route[route.len()-1], cnv_speed)
     }
     if (wt == wt_water) {
       prototyper.max_length = 4
