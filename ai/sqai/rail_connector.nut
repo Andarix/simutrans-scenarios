@@ -106,7 +106,15 @@ class rail_connector_t extends manager_t
           local line_start = null
 
           // test route for calculate cost
-          local calc_route = test_route(our_player, c_start, c_end, planned_way)
+          local calc_route = null
+          local r1 = test_route(our_player, c_start, c_end, planned_way)
+          local r2 = test_route(our_player, c_end, c_start, planned_way)
+          if ( r1.routes.len() > r2.routes.len() ) {
+            calc_route = r2
+          } else {
+            calc_route = r1
+          }
+
           local build_status = null
           if ( calc_route == "No route" || calc_route.routes.len() < 7 ) {
             return r_t(RT_TOTAL_FAIL)
@@ -189,7 +197,12 @@ class rail_connector_t extends manager_t
           }
 */
           //gui.add_message_at(pl, "c_start.len() " + c_start.len() + " - c_end.len() " + c_end.len(), world.get_time())
-          err = construct_rail(pl, c_start, c_end, planned_way )
+          //err = construct_rail(pl, c_start, c_end, planned_way )
+          if ( r1.routes.len() > r2.routes.len() ) {
+            err = construct_rail(pl, c_end, c_start, planned_way )
+          } else {
+            err = construct_rail(pl, c_start, c_end, planned_way )
+          }
           print("Way construction cost: " + (d-pl.get_current_cash()) )
 
           if (err) { // fail, c_start, c_end still arrays
