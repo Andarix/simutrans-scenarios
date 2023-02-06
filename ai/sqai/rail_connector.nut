@@ -109,14 +109,20 @@ class rail_connector_t extends manager_t
           local calc_route = null
           local r1 = test_route(our_player, c_start, c_end, planned_way)
           local r2 = test_route(our_player, c_end, c_start, planned_way)
-          if ( r1.routes.len() > r2.routes.len() ) {
+          if ( r1 == "No route" && r2 == "No route" ) {
+            return r_t(RT_TOTAL_FAIL)
+          } else if ( r1 == "No route" && r2 != "No route" ) {
+            calc_route = r2
+          } else if ( r1 != "No route" && r2 == "No route" ) {
+            calc_route = r1
+          } else if ( r1.routes.len() > r2.routes.len() ) {
             calc_route = r2
           } else {
             calc_route = r1
           }
 
           local build_status = null
-          if ( calc_route == "No route" || calc_route.routes.len() < 7 ) {
+          if ( calc_route.routes.len() < 7 ) {
             return r_t(RT_TOTAL_FAIL)
           } else {
             build_status = check_build_station(calc_route)
@@ -200,6 +206,9 @@ class rail_connector_t extends manager_t
           //err = construct_rail(pl, c_start, c_end, planned_way )
           if ( r1.routes.len() > r2.routes.len() ) {
             err = construct_rail(pl, c_end, c_start, planned_way )
+            local c = c_start
+            c_start = c_end
+            c_end = c
           } else {
             err = construct_rail(pl, c_start, c_end, planned_way )
           }
