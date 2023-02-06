@@ -2789,7 +2789,7 @@ function build_double_track(start_field, wt) {
           tile_b = tile_x(tiles[0].x-1, tiles[0].y+1, tiles[0].z)
           if ( tile_a.get_way_dirs(wt) == 6 && (tile_b.get_way_dirs(wt) == 9 || tile_b.get_way_dirs(wt) == 5) ) {
             b_tile = tile_b
-            sig_tile_new = "tr10"
+            sig_tile_new = "tr10t"
           }
           tile_check = 4
           gui.add_message_at(b_player, "(2795) tile_a " + coord3d_to_string(tile_a) + " tile_b " + coord3d_to_string(tile_b), start_field)
@@ -3044,12 +3044,15 @@ function build_double_track(start_field, wt) {
 
 
               } else {
+                gui.add_message_at(b_player, "sig_tile_new " + sig_tile_new, world.get_time())
                 if ( (sig_tile_new == "tr10" && j == 0) || (sig_tile_new == "tl5" && j == 0) ) {
                   signal_build_tile = tiles_build[way_len - 1]
                 //} else if ( sig_tile_new == "tr5s" ) {
 
-                } else if ( (sig_tile_new == "tr5" && j == 0) ) {
+                } else if ( (sig_tile_new == "tl10" && j == 0) || (sig_tile_new == "tr5" && j == 0) ) {
                   signal_build_tile = tiles_build[0]
+                } else if ( (sig_tile_new == "tr10t" && j == 1) || (sig_tile_new == "tr5t" && j == 1) ) {
+                  signal_build_tile = tiles[0]
                 }
               }
 
