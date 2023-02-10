@@ -117,6 +117,7 @@ class rail_connector_t extends manager_t
             calc_route = r1
           } else if ( r1.routes.len() > r2.routes.len() ) {
             calc_route = r2
+            r1 = null
           } else {
             calc_route = r1
           }
@@ -126,24 +127,29 @@ class rail_connector_t extends manager_t
             return r_t(RT_TOTAL_FAIL)
           } else {
             build_status = check_build_station(calc_route)
+            //gui.add_message_at(pl, "(129) build_status : " + build_status, world.get_time())
             //::debug.pause()
             if ( build_status != true ) {
               calc_route = test_route(our_player, c_end, c_start, planned_way)
               build_status = check_build_station(calc_route)
-              if ( build_status ) {
+              if ( build_status == true ) {
                 local c = c_start
                 c_start = c_end
                 c_end = c
                 line_start = t_end[0]
               } else {
-                return build_status
+                return r_t(RT_TOTAL_FAIL)
               }
             } else {
-              line_start = t_start[0]
+              if ( build_status == true ) {
+                line_start = t_start[0]
+              } else {
+                return r_t(RT_TOTAL_FAIL)
+              }
             }
           }
 
-
+          //gui.add_message_at(pl, "(146) build_status : " + build_status, world.get_time())
 
           sleep()
           local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + ((st_lenght*2)*planned_station.get_cost()) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
@@ -204,7 +210,7 @@ class rail_connector_t extends manager_t
 */
           //gui.add_message_at(pl, "c_start.len() " + c_start.len() + " - c_end.len() " + c_end.len(), world.get_time())
           //err = construct_rail(pl, c_start, c_end, planned_way )
-          if ( r1.routes.len() > r2.routes.len() ) {
+          if ( r1 == null ) {
             err = construct_rail(pl, c_end, c_start, planned_way )
             local c = c_start
             c_start = c_end
