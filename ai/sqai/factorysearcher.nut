@@ -659,6 +659,11 @@ function check_factory_link_line(f_src, f_dest, t_good) {
     gui.add_message_at(our_player, "--> check_factory_link_line() return " + o, world.get_time())
   }
 
+  // check input f_src
+  if ( o && f_src.input.len() > 0 ) {
+    o = check_fsrc_input(f_src)
+  }
+
   return o
 
   //get_delivered()
@@ -721,4 +726,43 @@ function check_link_catg_goods(f_src, f_dest, t_good) {
   //gui.add_message_at(our_player, "<-- check catg conect end", world.get_time())
 
   return true
+}
+
+/*
+ * check factory input storage
+ *
+ */
+function check_fsrc_input(f_src) {
+  // check input f_src
+  if ( f_src.input.len() > 0 ) {
+    local src_count_in = []
+    local j = 0
+    foreach(good, islot in f_src.input) {
+
+      // test for in-storage or in-transit goods
+      local st = islot.get_storage()
+      local it = islot.get_in_transit()
+      local count = 0
+      for ( local i = 0; i < 12; i++ ) {
+        count += st[i]
+        count += it[i]
+      }
+
+      src_count_in.append(count)
+
+      local fs = f_src.get_tile_list()
+      gui.add_message_at(our_player, "### " + f_src.get_name() + " - " + coord_to_string(fs[0]) + " # " + good + " # src_count_in " + src_count_in[j], fs[0])
+
+      j++
+
+    }
+
+    if ( src_count_in.find(0) != null && f_src.get_halt_list().len() > 0 ) {
+      gui.add_message_at(our_player, "### return false", fs[0])
+      return false
+    }
+  }
+
+  return true
+
 }
