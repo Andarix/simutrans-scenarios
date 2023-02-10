@@ -1064,7 +1064,13 @@ function remove_wayline(route, pos, wt, st_len = null) {
       // no remove tile
     } else if ( tile.find_object(mo_crossing) != null ) {
       // test crossing and remove
-      toolr.work(our_player, tile, tile, "" + wt_rail)
+      local t_field = tile.get_way(wt)
+      way_cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]
+      //::debug.pause()
+
+      if ( way_cnv_count == 0 ) {
+        toolr.work(our_player, tile, tile, "" + wt)
+      }
       //tool.work(our_player, tile)
     }
     // break by direction 7, 11, 13, 14, 15 or owner public player next tile
@@ -1125,7 +1131,13 @@ function remove_wayline(route, pos, wt, st_len = null) {
       if ( tile.find_object(mo_crossing) != null && wt == wt_rail ) {
         //::debug.pause()
         // test crossing and remove
-        toolr.work(our_player, tile, tile, "" + wt_rail)
+        local t_field = tile.get_way(wt)
+        way_cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]
+        //gui.add_message_at(our_player, "(1133) crossing way_cnv_count " + way_cnv_count, tile)
+        //::debug.pause()
+        if ( way_cnv_count == 0 ) {
+          toolr.work(our_player, tile, tile, "" + wt)
+        }
         //tool.work(our_player, tile)
       }
       // break by direction 7, 11, 13, 14, 15
@@ -1457,7 +1469,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
   // 0 = off
   // 1 =
   // 2 = messages
-  local print_message_box = 1
+  local print_message_box = 0
 
   local ref_hight = start_field.z
   local err = null
@@ -4532,8 +4544,18 @@ function destroy_line(line_obj, good) {
         }
       }
       // mark convoy for destroying
-      if ( cnv.get_distance_traveled_total() < 3 ) {
-        if ( print_message_box == 1 ) {
+      local cnv_trav_month = cnv.get_traveled_distance()
+      local cnv_trav_month_count = 0
+      for (local i = 0; i < cnv_trav_month.len(); i++ ) {
+        cnv_trav_month_count += cnv_trav_month[i]
+      }
+        if ( print_message_box == 3 ) {
+          gui.add_message_at(our_player, "cnv_trav_month_count " + cnv_trav_month_count, world.get_time())
+          gui.add_message_at(our_player, "cnv.get_distance_traveled_total() " + cnv.get_distance_traveled_total(), world.get_time())
+        }
+
+      if ( cnv.get_distance_traveled_total() < 3 && cnv_trav_month_count == cnv.get_distance_traveled_total() && !cnv.is_loading() && check_fsrc_input(line_obj.f_src) ) {
+        if ( print_message_box == 3 ) {
           gui.add_message_at(our_player, "return cnv/line new", world.get_time())
         }
         return
@@ -4552,6 +4574,7 @@ function destroy_line(line_obj, good) {
       }
       cnv.destroy(our_player)
       //::debug.pause()
+      line_obj.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 1)
     }
     // sleep - convoys are destroyed when simulation continues
     sleep()
