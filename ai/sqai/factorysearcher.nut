@@ -758,6 +758,7 @@ function check_fsrc_input(f_src) {
     }
 
     if ( src_count_in.find(0) != null && f_src.get_halt_list().len() > 0 ) {
+      local fs = f_src.get_tile_list()
       gui.add_message_at(our_player, "### return false", fs[0])
       return false
     }

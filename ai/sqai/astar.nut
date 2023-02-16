@@ -1365,7 +1365,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
     if ( st_build == false ) {
       // move station
-      if ( print_message_box == 0 ) {
+      if ( print_message_box > 0 ) {
         gui.add_message_at(pl, " *#* ERROR => expand station failed", world.get_time())
         gui.add_message_at(pl, " --- field test : " + coord3d_to_string(starts_field), starts_field)
         gui.add_message_at(pl, " ------ get_way_dirs : " + d, world.get_time())
@@ -1467,7 +1467,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
   local start_field = tile_x(start_fld.x, start_fld.y, start_fld.z)
 
   // 0 = off
-  // 1 =
+  // 1 = extension build
   // 2 = messages
   local print_message_box = 0
 
@@ -1493,6 +1493,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
       extension_tile = square_x(start_field.x + 1, start_field.y)
       break
   }
+  //gui.add_message_at(pl, "(1496) ---=> extension_tile " + extension_tile, world.get_time())
 
   local t = fields.len()
 
@@ -1554,7 +1555,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
         err = command_x.build_way(pl, fields[i-1], fields[i], planned_way, true)
         if ( err != null ) {
           gui.add_message_at(pl, " ---=> not build way tile " + coord3d_to_string(fields[i-1]) + " to " + coord3d_to_string(fields[i]) + " - err :" + err, fields[i])
-          remove_tile_to_empty(fields, wt_rail)
+          remove_tile_to_empty(fields, wt)
           return false
         }
       }
@@ -1572,29 +1573,39 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
           if ( print_message_box == 2 ) {
             gui.add_message_at(our_player, "-*---> dock/harbour found at : " + coord3d_to_string(st_dock[0]), st_dock[0])
           }
-          local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
-          if ( test_tile_is_empty(tile) ) {
-            if ( print_message_box == 2 ) {
-              gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
+          //gui.add_message_at(pl, "(1596) ---=> abs(fields[0].x - st_dock[0].x) " + abs(fields[0].x - st_dock[0].x), fields[0])
+          //gui.add_message_at(pl, "(1596) ---=> abs(fields[0].y - st_dock[0].y) " + abs(fields[0].y - st_dock[0].y), fields[0])
+          if ( abs(fields[0].x - st_dock[0].x) > 1 || abs(fields[0].y - st_dock[0].y) > 1 ) {
+            local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
+            if ( test_tile_is_empty(tile) ) {
+              if ( print_message_box == 2 ) {
+                gui.add_message_at(our_player, "-*---> build extension at : " + coord3d_to_string(tile), world.get_time())
+              }
+              err = command_x.build_station(pl, tile, extension)
             }
-            err = command_x.build_station(pl, tile, extension)
           }
+
         }
       }
     }
-    if ( st_dock ) {
+    if ( st_dock  ) { //&& st_dock[0].find_object(mo_building).get_waytype() == wt_water
+      if ( print_message_box == 0 ) {
+        gui.add_message_at(pl, "(1593) ---=> st_dock " + st_dock, st_dock[0])
+        local b = tile_x(st_dock[0].x, st_dock[0].y, st_dock[0].z).find_object(mo_building)
+        gui.add_message_at(pl, "(1593) ---=> b " + b, st_dock[0])
+        gui.add_message_at(pl, "(1593) ---=> b.get_waytype() " + b.get_waytype(), st_dock[0])
+        gui.add_message_at(pl, "(1593) ---=> b.get_name() " + b.get_name(), st_dock[0])
+        ::debug.pause()
+      }
       combined_station = true
     }
 
     // station not build to start_field
     local build_connection = 0
-    if ( !equal_coord3d( fields[0], start_field) ) {
-
-      if ( combined_station ) {
-        // build connect tile to dock
+    if ( combined_station && !equal_coord3d( fields[0], start_field) ) {
         err = command_x.build_station(pl, start_field, select_station)
         build_connection = 1
-      }
+        // build connect tile to dock
     }
 
 
@@ -1610,7 +1621,10 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
         err = command_x.build_station(pl, fields[i], select_station)
         if ( err ) {
           if ( print_message_box > 0 ) {
-            gui.add_message_at(pl, " ---=> not build station tile at " + coord3d_to_string(fields[i]), fields[i])
+            gui.add_message_at(pl, "(1615) ---=> not build station tile at " + coord3d_to_string(fields[i]), fields[i])
+          }
+          if ( equal_coord3d( fields[0], start_field) ) {
+            fields.remove(0)
           }
           remove_tile_to_empty(fields, wt_rail)
           return false
@@ -1624,6 +1638,9 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
     // station not build to start_field
     if ( !equal_coord3d( fields[0], start_field) ) {
       if ( combined_station && build_connection == 1 ) {
+        if ( print_message_box == 2 ) {
+          gui.add_message_at(pl, "(1629) ---=> combined_station " + combined_station, fields[0])
+        }
         // remove connect tile to dock
         local tool = command_x(tool_remover)
         tool.work(our_player, start_field)
@@ -1637,8 +1654,10 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
     local st = halt_x.get_halt(fields[0], pl)
     local s_tiles = []
 
-    if ( st ) {
+    if ( st.get_factory_list().len() == 0 ) {
       local fl_st = st.get_factory_list()
+        gui.add_message_at(our_player, "(1646) -*---> combined_station : " + combined_station, fields[0])
+        gui.add_message_at(our_player, "(1646) -*---> extension_tile : " + extension_tile, fields[0])
       if ( combined_station == false && fl_st.len() == 0 && extension_tile != null ) {
         local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
         if ( print_message_box == 1 ) {
@@ -3079,7 +3098,11 @@ function build_double_track(start_field, wt) {
 
           //}
         }
-      ::debug.pause()
+
+      if ( sig_tile_new != null ) {
+        ::debug.pause()
+
+      }
 
     }
     else if ( diagonal_st == 6 || diagonal_st == 9 || diagonal_st == 3 || diagonal_st == 12 ) {
@@ -4369,7 +4392,7 @@ function check_doubleway_in_line(route, wt) {
  *  - destroy depot by rail/ship
  *  - destroy way line
  */
-function destroy_line(line_obj, good) {
+function destroy_line(line_obj, good, link_obj) {
 
   ::debug.set_pause_on_error(true)
 
@@ -4379,7 +4402,7 @@ function destroy_line(line_obj, good) {
   local print_message_box = 3
 
   if ( print_message_box > 0 ) {
-    gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
+    gui.add_message_at(our_player, "+ destroy_line(line_obj, good, link) start line " + line_obj.get_name(), world.get_time())
   }
 
   local line_name = line_obj.get_name()
@@ -4554,7 +4577,7 @@ function destroy_line(line_obj, good) {
           gui.add_message_at(our_player, "cnv.get_distance_traveled_total() " + cnv.get_distance_traveled_total(), world.get_time())
         }
 
-      if ( cnv.get_distance_traveled_total() < 3 && cnv_trav_month_count == cnv.get_distance_traveled_total() && !cnv.is_loading() && check_fsrc_input(line_obj.f_src) ) {
+      if ( cnv.get_distance_traveled_total() < 3 && cnv_trav_month_count == cnv.get_distance_traveled_total() && !cnv.is_loading() && (link_obj != null && check_fsrc_input(link_obj.f_src)) ) {
         if ( print_message_box == 3 ) {
           gui.add_message_at(our_player, "return cnv/line new", world.get_time())
         }
@@ -4774,15 +4797,17 @@ function destroy_line(line_obj, good) {
         local j = 0;
         for ( local i = 0; i < double_ways; i++ ) {
           // remove double way
-          if ( print_message_box > 0 ) {
-            gui.add_message_at(our_player, " double_way_tiles[j] " + coord3d_to_string(double_way_tiles[i]) + " double_way_tiles[j+1] " + coord3d_to_string(double_way_tiles[i+1]), double_way_tiles[i])
-            //::debug.pause()
-          }
           //    local cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]
           local cnv_count_0 = double_way_tiles[j].get_way(wt_rail).get_convoys_passed()[0] + double_way_tiles[j].get_way(wt_rail).get_convoys_passed()[1]
           local cnv_count_1 = double_way_tiles[j+1].get_way(wt_rail).get_convoys_passed()[0] + double_way_tiles[j+1].get_way(wt_rail).get_convoys_passed()[1]
 
-          if ( cnv_count_0 == cnv_count_1 && cnv_count_0 <= cnv_count_start ) {
+          if ( print_message_box > 0 ) {
+            gui.add_message_at(our_player, " double_way_tiles[j] " + coord3d_to_string(double_way_tiles[i]) + " double_way_tiles[j+1] " + coord3d_to_string(double_way_tiles[i+1]), double_way_tiles[i])
+            gui.add_message_at(our_player, " cnv_count_0 " + cnv_count_0 + " cnv_count_1 " + cnv_count_1 + " cnv_count_start " + cnv_count_start, double_way_tiles[i])
+            //::debug.pause()
+          }
+
+          if ( cnv_count_0 == cnv_count_1 && (cnv_count_0 <= cnv_count_start || cnv_count_0 <= cnv_count_end) ) {
             tool.work(our_player, double_way_tiles[j], double_way_tiles[j+1], "" + wt_rail)
             tool.work(our_player, double_way_tiles[j+1], double_way_tiles[j], "" + wt_rail)
             if ( i < (double_ways-1) ) {
@@ -4982,7 +5007,7 @@ function destroy_line(line_obj, good) {
     }
   }
   if ( print_message_box > 0 ) {
-    gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
+    gui.add_message_at(our_player, "+ destroy_line(line_obj, good, link) finish line " + line_name, world.get_time())
     //::debug.pause()
   }
   return true
@@ -5133,7 +5158,7 @@ function check_stations_connections() {
 
         //local t = halt.get_tile_list()
         //halt_cnv = halt_lines.get_convoy_list()
-        destroy_line(halt_lines, good)
+        destroy_line(halt_lines, good, null)
 
 
         break

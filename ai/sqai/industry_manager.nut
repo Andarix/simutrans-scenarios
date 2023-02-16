@@ -484,14 +484,21 @@ class industry_manager_t extends manager_t
       if ( profit_count[3] <= 0 && profit_count[2] <= 0 && profit_count[1] <= 0 && profit_count[0] <= 0 && month_check != 0) {
         //line.get_traveled_distance() > 1 && line.get_traveled_distance() < 25 && line.get_loading_level() == 0 &&
         local chk_f_link = check_factory_links(link.f_src, link.f_dest, link.freight.get_name())
-            /*if ( bilanz_year < 0 ) {
-              gui.add_message_at(our_player, "line 456 : chk_f_link " + chk_f_link, world.get_time())
-            }*/
-        if ( line.destroy_line_month != world.get_time().month && (chk_f_link > 1 || (chk_f_link == 1 && link.f_src.get_suppliers().len() == 0 && link.f_dest.get_consumers().len() == 0) || (bilanz_year <= 0 && chk_f_link > 1)) ) {
-          local erreg = destroy_line(line, link.freight)
+            if ( bilanz_year <= 0 ) {
+              gui.add_message_at(our_player, "(488) : Check line " + line.get_name(), world.get_time())
+              gui.add_message_at(our_player, "(488) : chk_f_link " + chk_f_link, world.get_time())
+              gui.add_message_at(our_player, "(488) : line.destroy_line_month " + line.destroy_line_month + " -#- " + (world.get_time().month+1), world.get_time())
+              //::debug.pause()
+            }
+        if ( line.destroy_line_month != (world.get_time().month+1) && (chk_f_link > 1 || (chk_f_link == 1 && link.f_src.get_suppliers().len() == 0 && link.f_dest.get_consumers().len() == 0) || (bilanz_year <= 0 && chk_f_link > 1)) ) {
+          local erreg = destroy_line(line, link.freight, link)
+          gui.add_message_at(our_player, "(495) : destroy_line(line, link.freight, link) = " + erreg, world.get_time())
           if ( erreg == false ) {
             line.destroy_line_month = world.get_time().month
           } else if ( erreg == true ) {
+            link.state = 4
+            return
+          } else if ( erreg == null ) {
             link.state = 4
             return
           }
@@ -517,7 +524,7 @@ class industry_manager_t extends manager_t
             }
           }
           if ( test_halt_waytypes(end_l) == 1 && end_l.get_halt().get_factory_list().len() == 0 ) {
-            local erreg = destroy_line(line, link.freight)
+            local erreg = destroy_line(line, link.freight, link)
             /*if ( bilanz_year < 0 ) {
               gui.add_message_at(our_player, "line 490 : erreg = destroy_line " + erreg, world.get_time())
             }*/
@@ -563,7 +570,7 @@ class industry_manager_t extends manager_t
         // 0 convoy destroy line
         // 1 convoy and profit year 0
         if ( line.get_owner().nr == our_player.nr ) {
-          destroy_line(line, link.freight)
+          destroy_line(line, link.freight, link)
           sleep()
         }
         /*if ( bilanz_year < 0 ) {
@@ -1339,49 +1346,53 @@ class industry_manager_t extends manager_t
           c.p_count  = 1
         }
 
-        append_child(c)
-        if ( cnv_retired.len() == 1 && cnv_retired.len() == cnv_count ) {
-          cnv_retired[0].toggle_withdraw(our_player)
-        }
+        // input storage f_src = 0 then not add convoys
+        if ( check_fsrc_input(link.f_src) ) {
+          append_child(c)
+          if ( cnv_retired.len() == 1 && cnv_retired.len() == cnv_count ) {
+            cnv_retired[0].toggle_withdraw(our_player)
+          }
 
-        dbgprint("==> build additional convoy")
-        if ( print_message_box == 1 ) {
-          gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-          gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
-        }
+          dbgprint("==> build additional convoy")
+          if ( print_message_box == 1 ) {
+            gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
+            gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
+          }
 
-        //gui.add_message_at(our_player, "####### expand_station.len() " + expand_station.len(), expand_station[0])
-        if ( wt == wt_rail && expand_station.len() > 0 ) {
-          // tiles for convoy
-          local a = c.p_convoy.length
-          local st_lenght = 0
+          //gui.add_message_at(our_player, "####### expand_station.len() " + expand_station.len(), expand_station[0])
+          if ( wt == wt_rail && expand_station.len() > 0 ) {
+            // tiles for convoy
+            local a = c.p_convoy.length
+            local st_lenght = 0
             do {
               a -= 16
               st_lenght += 1
             } while(a > 0)
 
-          // expand station
-          local ret = build_expand_station(nexttile, expand_station, st_lenght, link.freight.get_name())
-          if ( ret ) {
-            line.halt_length = st_lenght
+            // expand station
+            local ret = build_expand_station(nexttile, expand_station, st_lenght, link.freight.get_name())
+            if ( ret ) {
+              line.halt_length = st_lenght
+            }
           }
+
+          if ( wt == wt_rail && proto.veh[0].needs_electrification() ) {
+            build_catenary(start_l, end_l, depot, line)
+          }
+
+          local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
+          gui.add_message_at(our_player, msgtext, world.get_time())
+
+          // save ticks for next check
+          if ( wt == wt_rail ) {
+            line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month*2)
+          } else {
+            line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+          }
+
+          return true
+
         }
-
-        if ( wt == wt_rail && proto.veh[0].needs_electrification() ) {
-          build_catenary(start_l, end_l, depot, line)
-        }
-
-        local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
-        gui.add_message_at(our_player, msgtext, world.get_time())
-
-        // save ticks for next check
-        if ( wt == wt_rail ) {
-          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month*2)
-        } else {
-          line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
-        }
-
-        return true
       }
     }
 /*
