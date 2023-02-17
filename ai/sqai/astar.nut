@@ -1588,25 +1588,29 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
         }
       }
     }
-    if ( st_dock  ) { //&& st_dock[0].find_object(mo_building).get_waytype() == wt_water
+    if ( st_dock ) { //&& st_dock[0].find_object(mo_building).get_waytype() == wt_water
+      local st_dock_wt = st_dock[0].find_object(mo_building).get_desc().get_waytype()
+
       if ( print_message_box == 0 ) {
         gui.add_message_at(pl, "(1593) ---=> st_dock " + st_dock, st_dock[0])
         local b = tile_x(st_dock[0].x, st_dock[0].y, st_dock[0].z).find_object(mo_building)
         gui.add_message_at(pl, "(1593) ---=> b " + b, st_dock[0])
-        gui.add_message_at(pl, "(1593) ---=> b.get_waytype() " + b.get_waytype(), st_dock[0])
-        gui.add_message_at(pl, "(1593) ---=> b.get_name() " + b.get_name(), st_dock[0])
+        gui.add_message_at(pl, "(1593) ---=> b.get_desc().get_waytype() " + b.get_desc().get_waytype(), st_dock[0])
+        gui.add_message_at(pl, "(1593) ---=> b.get_desc().get_name() " + b.get_desc().get_name(), st_dock[0])
         ::debug.pause()
       }
-      combined_station = true
+      if ( st_dock_wt == wt_water ) {
+        combined_station = true
+      }
     }
 
     // station not build to start_field
-    local build_connection = 0
+/*    local build_connection = 0
     if ( combined_station && !equal_coord3d( fields[0], start_field) ) {
         err = command_x.build_station(pl, start_field, select_station)
         build_connection = 1
         // build connect tile to dock
-    }
+    }*/
 
 
     if ( err == null ) {
@@ -1637,7 +1641,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 
     // station not build to start_field
     if ( !equal_coord3d( fields[0], start_field) ) {
-      if ( combined_station && build_connection == 1 ) {
+      if ( start_field.find_object(mo_building) ) {
         if ( print_message_box == 2 ) {
           gui.add_message_at(pl, "(1629) ---=> combined_station " + combined_station, fields[0])
         }
