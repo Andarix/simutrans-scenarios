@@ -199,9 +199,9 @@ class road_connector_t extends manager_t
             build_check_month = world.get_time().month + 1
             if ( build_check_month > 11 ) { build_check_month = build_check_month - 11 }
 
-            //return restart_with_phase0()
-            return error_handler()
-          } else if ( c_generate_start ) {
+            return restart_with_phase0()
+            //return error_handler()
+          } else if ( c_generate_start || obj_building == null) {
             err = command_x.build_station(pl, c_start, planned_station )
           }
           if (err) {
