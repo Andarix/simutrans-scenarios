@@ -837,7 +837,14 @@ function check_ground(pos_s, pos_e, way) {
       return false
     }
 
-  } else {
+  } else if ( start_end_slope == 1 && ((pos_s.z-1) == pos_e.z || (pos_s.z+1) == pos_e.z) ) {
+    if ( (pos_s.z-1) == pos_e.z ) {
+
+    } else if ( (pos_s.z+1) == pos_e.z ) {
+
+    }
+    return false
+  }else {
     return true
   }
 }
@@ -2006,11 +2013,22 @@ function find_object(obj, wt, speed) {
       local li = wayobj_desc_x.get_available_wayobjs(wt)
       for (local j=0; j<li.len(); j++) {
         if ( li[j].is_overhead_line() ) {
-          list.append(li[j])
+          /*
+            pak128.german check catenary in name
+          */
+          if ( get_set_name() == "pak128.german" ) {
+            local name = li[j].get_name().tolower()
+            if ( name.find("catenary") != null ) {
+              list.append(li[j])
+            }
+          } else {
+            list.append(li[j])
+          }
         }
       }
       break
   }
+
 
   local len = list.len()
 
@@ -2807,7 +2825,7 @@ function build_double_track(start_field, wt) {
         } else if ( start_field.get_way_dirs(wt) == 10 ) {
           tile_a = tile_x(tiles[0].x-1, tiles[0].y, tiles[0].z)
           tile_b = tile_x(tiles[0].x-1, tiles[0].y-1, tiles[0].z)
-          if ( tile_a.get_way_dirs(wt) == 12 && tile_b.get_way_dirs(wt) == 3 ) {
+          if ( tile_a.get_way_dirs(wt) == 12 && (tile_b.get_way_dirs(wt) == 3 || (tile_b.get_way_dirs(wt) == 5 && !tile_b.is_bridge() && !tile_b.is_tunnel())) ) {
             b_tile = tile_b
           }
           tile_check = 2
@@ -3914,7 +3932,7 @@ function optimize_way_line(route, wt) {
   // 1 = bridges
   // 2 = tunnel
   // 3 = crossing
-  local print_message_box = 0
+  local print_message_box = 1
 
   if ( print_message_box > 0 ) { //wt == wt_road && wt == wt_rail &&
     gui.add_message_at(our_player, " optimize_way_line(route, wt) ", tile_x(route[0].x, route[0].y, route[0].z))
@@ -4272,29 +4290,37 @@ function optimize_way_line(route, wt) {
 
         }
       }
-      if ( bridge_len > 0 && print_message_box == 1 ) {
+      if ( bridge_len == 4 && print_message_box == 1 ) {
         gui.add_message_at(our_player, " test bridge : bridge_len = " + bridge_len + " : remove_bridge = " + remove_bridge, tile_1)
-        //::debug.pause()
+        gui.add_message_at(our_player, " tile_4 " + coord3d_to_string(tile_4), world.get_time())
+        gui.add_message_at(our_player, " build_tile " + coord3d_to_string(tile_x(route[i-1].x, route[i-1].y, route[i-1].z)), world.get_time())
+        ::debug.pause()
+        sleep()
       }
 
 
       if ( remove_bridge > 0 && ( (remove_bridge+1) == bridge_len ) && bridge_len > 2 && bridge_len < 5 && pl_check == our_player_nr ) {
-        local err = remove_tile_to_empty(tile_2, wt, 0)
-            gui.add_message_at(our_player, " remove bridge: " + err, tile_1)
-        if (err) {
-          build_tile = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
-          err = check_ground(tile_2, build_tile, way_obj)
+        build_tile = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
+        if ( tile_2.z == build_tile.z ) {
 
-          build_tile = tile_x(route[i].x, route[i].y, route[i].z)
+          local err = remove_tile_to_empty(tile_2, wt, 0)
+          if (err != null) { gui.add_message_at(our_player, " remove bridge: " + err, tile_1) }
 
-          err = command_x.build_way(our_player, tile_1, build_tile, way_obj, true)
-          if (err != null ) {
-            gui.add_message_at(our_player, " remove bridge and build way: " + err, tile_1)
-            // restore way
-            err = command_x.build_bridge(our_player, tile_2, build_tile, bridge_obj)
-          } else {
-            count_build++
+          if (err) {
+            err = check_ground(tile_2, build_tile, way_obj)
+
+            build_tile = tile_x(route[i].x, route[i].y, route[i].z)
+
+            err = command_x.build_way(our_player, tile_1, build_tile, way_obj, true)
+            if (err != null ) {
+              gui.add_message_at(our_player, " not build way: " + err, tile_1)
+              // restore bridge
+              err = command_x.build_bridge(our_player, tile_2, build_tile, bridge_obj)
+            } else {
+              count_build++
+            }
           }
+
         }
       }
     }
