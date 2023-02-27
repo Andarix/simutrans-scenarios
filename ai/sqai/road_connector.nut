@@ -237,6 +237,13 @@ class road_connector_t extends manager_t
           //
           local asf = astar_route_finder(wt_road)
           local result = asf.search_route([c_start], [c_end])
+
+          if ( "routes" in result ) {  } else {
+            //::debug.pause()
+            //sleep()
+            return r_t(RT_TOTAL_FAIL)
+          }
+
           if (  result.routes.len() <= 3 ) {
             //gui.add_message_at(pl, "route len < 3 tiles  ", c_end)
             local extension = find_extension(wt_road)
