@@ -865,8 +865,7 @@ function check_ground(pos_s, pos_e, way) {
 
       local f = null
       for ( local i = 0; i < terraform_tiles.len(); i++ ) {
-        f = square_x(terraform_tiles[i].x, terraform_tiles[i].y).get_ground_tile()
-        //gui.add_message_at(our_player, " ---=> terraform_tiles[" + i + "] tile : " + coord3d_to_string(f), world.get_time())
+        gui.add_message_at(our_player, " ---=> terraform_tiles[" + i + "] tile : " + coord3d_to_string(terraform_tiles[i]), world.get_time())
       }
     /*
       slope up 83
@@ -887,26 +886,49 @@ function check_ground(pos_s, pos_e, way) {
         err = remove_tile_to_empty(pos_s, way.get_waytype(), 0)
       }
 
+      if ( terraform_tiles[0].z == pos_s.z && pos_s.z > pos_e.z && terraform_tiles.len() > 1 ) {
+        terraform_tiles.reverse()
+      } else if ( terraform_tiles[0].z < pos_s.z && pos_s.z > pos_e.z && terraform_tiles.len() > 1 ) {
+        terraform_tiles.reverse()
+      } else if ( terraform_tiles[0].z == pos_s.z && pos_s.z < pos_e.z && pos_s.x > pos_e.x && terraform_tiles.len() > 1 ) {
+        terraform_tiles.reverse()
+      }
 
-      if ( pos_s.x == pos_e.x && pos_s.y < pos_e.y ) {
-        err = command_x.set_slope(our_player, terraform_tiles[0], 36)
-        if ( terraform_tiles.len() > 1 ) {
-          err = command_x.set_slope(our_player, terraform_tiles[1], 83)
+      local slope_id = 0
+      if ( pos_s.x == pos_e.x && pos_s.y < terraform_tiles[0].y ) {
+        gui.add_message_at(our_player, " ---=> (897) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
+        if ( terraform_tiles[0].z == pos_s.z ) {
+          slope_id = 4
+        } else {
+          slope_id = 36
         }
-      } else if ( pos_s.x == pos_e.x && pos_s.y > pos_e.y ) {
-        err = command_x.set_slope(our_player, terraform_tiles[0], 4)
-        if ( terraform_tiles.len() > 1 ) {
-          err = command_x.set_slope(our_player, terraform_tiles[1], 83)
+      } else if ( pos_s.x == pos_e.x && pos_s.y > terraform_tiles[0].y ) {
+        gui.add_message_at(our_player, " ---=> (900) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
+        if ( terraform_tiles[0].z == pos_s.z ) {
+          slope_id = 36
+        } else {
+          slope_id = 4
         }
-      } else if ( pos_s.y == pos_e.y && pos_s.x < pos_e.x ) {
-        err = command_x.set_slope(our_player, terraform_tiles[0], 12)
-        if ( terraform_tiles.len() > 1 ) {
-          err = command_x.set_slope(our_player, terraform_tiles[1], 83)
+      } else if ( pos_s.y == pos_e.y && pos_s.x < terraform_tiles[0].x ) {
+        gui.add_message_at(our_player, " ---=> (903) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
+        if ( terraform_tiles[0].z == pos_s.z ) {
+          slope_id = 12
+        } else {
+          slope_id = 28
         }
-      } else if ( pos_s.y == pos_e.y && pos_s.x > pos_e.x ) {
-        err = command_x.set_slope(our_player, terraform_tiles[0], 28)
+      } else if ( pos_s.y == pos_e.y && pos_s.x > terraform_tiles[0].x ) {
+        gui.add_message_at(our_player, " ---=> (906) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
+        if ( terraform_tiles[0].z == pos_s.z ) {
+          slope_id = 28
+        } else {
+          slope_id = 12
+        }
+      }
+
+      if ( slope_id > 0 ) {
+        err = command_x.set_slope(our_player, terraform_tiles[0], slope_id)
         if ( terraform_tiles.len() > 1 ) {
-          err = command_x.set_slope(our_player, terraform_tiles[1], 83)
+          err = command_x.set_slope(our_player, terraform_tiles[1], 82)
         }
       }
 
