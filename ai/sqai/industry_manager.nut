@@ -603,7 +603,14 @@ class industry_manager_t extends manager_t
           stucked_cnv[i].destroy(our_player)
         }
         sleep()
-        line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 3)
+
+        if ( get_set_name() == "pak128" ) {
+          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month / 2)
+        } else if ( get_set_name() == "pak128.german" ) {
+          line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+        } else {
+          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 3)
+        }
         return
       }
 
