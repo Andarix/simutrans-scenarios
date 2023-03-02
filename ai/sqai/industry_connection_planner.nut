@@ -685,6 +685,19 @@ class industry_connection_planner_t extends manager_t
           break
       }
     }
+    if ( get_set_name() == "pak128" ) {
+      switch (wt) {
+        case wt_rail:
+          r.points -= 200
+          break
+        case wt_road:
+          //r.points -= 15
+          break
+        case wt_water:
+
+          break
+      }
+    }
 
     // successfull - complete report
     r.cost_fix     = build_cost
