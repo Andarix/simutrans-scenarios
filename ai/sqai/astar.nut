@@ -4749,7 +4749,11 @@ function destroy_line(line_obj, good, link_obj) {
       }
       cnv.destroy(our_player)
       //::debug.pause()
-      line_obj.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 1)
+
+      // Prüfen warum next_vehicle_check nicht vorhanden bei Schiffslinien
+      if ( wt != wt_water ) {
+        line_obj.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 1)
+      }
     }
     // sleep - convoys are destroyed when simulation continues
     sleep()
