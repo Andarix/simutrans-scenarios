@@ -234,7 +234,7 @@ class industry_manager_t extends manager_t
     foreach(index, line in link.lines) {
       if ( line.is_valid() ) {
         //gui.add_message_at(our_player, "####### valid line " + line.get_name(), world.get_time())
-        if ( line.next_check < world.get_time().ticks ) {
+        if ( line.next_vehicle_check < world.get_time().ticks ) {
           check_link_line(link, line)
         }
       } else {
@@ -415,7 +415,7 @@ class industry_manager_t extends manager_t
     // 4 = cnv status retired / all to old
     // 5 = electrified
     // 6 and pl 3
-    local print_message_box = 2
+    local print_message_box = 0
 
     local wt = line.get_waytype()
     // find route
@@ -484,7 +484,7 @@ class industry_manager_t extends manager_t
       if ( profit_count[3] <= 0 && profit_count[2] <= 0 && profit_count[1] <= 0 && profit_count[0] <= 0 && month_check != 0) {
         //line.get_traveled_distance() > 1 && line.get_traveled_distance() < 25 && line.get_loading_level() == 0 &&
         local chk_f_link = check_factory_links(link.f_src, link.f_dest, link.freight.get_name())
-            if ( bilanz_year <= 0 ) {
+            if ( bilanz_year <= 0 && print_message_box > 0 ) {
               gui.add_message_at(our_player, "(488) : Check line " + line.get_name(), world.get_time())
               gui.add_message_at(our_player, "(488) : chk_f_link " + chk_f_link, world.get_time())
               gui.add_message_at(our_player, "(488) : line.destroy_line_month " + line.destroy_line_month + " -#- " + (world.get_time().month+1), world.get_time())
@@ -492,7 +492,7 @@ class industry_manager_t extends manager_t
             }
         if ( line.destroy_line_month != (world.get_time().month+1) && (chk_f_link > 1 || (chk_f_link == 1 && link.f_src.get_suppliers().len() == 0 && link.f_dest.get_consumers().len() == 0) || (bilanz_year <= 0 && chk_f_link > 1)) ) {
           local erreg = destroy_line(line, link.freight, link)
-          gui.add_message_at(our_player, "(495) : destroy_line(line, link.freight, link) = " + erreg, world.get_time())
+          //gui.add_message_at(our_player, "(495) : destroy_line(line, link.freight, link) = " + erreg, world.get_time())
           if ( erreg == false ) {
             line.destroy_line_month = world.get_time().month
           } else if ( erreg == true ) {
