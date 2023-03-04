@@ -42,6 +42,11 @@ month_count_ticks <- world.get_time().next_month_ticks
 // build check for new lines
 build_check_month <- world.get_time().month
 
+// convoy and citycar count
+convoy_count <- 0
+road_convoy_count <- 0
+citycar_count <- 0
+
 // the AI is organized as a tree,
 // all the work is done in the nodes of the tree
 tree <- {}
