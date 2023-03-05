@@ -627,6 +627,10 @@ class industry_manager_t extends manager_t
         } else {
           line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
         }
+
+        local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
+        gui.add_message_at(our_player, msgtext, world.get_time())
+
         return
       }
 
