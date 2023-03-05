@@ -751,15 +751,15 @@ function check_fsrc_input(f_src) {
       src_count_in.append(count)
 
       local fs = f_src.get_tile_list()
-      gui.add_message_at(our_player, "### " + f_src.get_name() + " - " + coord_to_string(fs[0]) + " # " + good + " # src_count_in " + src_count_in[j], fs[0])
+      //gui.add_message_at(our_player, "### " + f_src.get_name() + " - " + coord_to_string(fs[0]) + " # " + good + " # src_count_in " + src_count_in[j], fs[0])
 
       j++
 
     }
 
     if ( src_count_in.find(0) != null && f_src.get_halt_list().len() > 0 ) {
-      local fs = f_src.get_tile_list()
-      gui.add_message_at(our_player, "### return false", fs[0])
+      //local fs = f_src.get_tile_list()
+      //gui.add_message_at(our_player, "### return false", fs[0])
       return false
     }
   }

@@ -49,7 +49,7 @@ class ship_connector_t extends manager_t
     local fd = fdest.get_tile_list()
 
     if ( !check_link_catg_goods(fsrc, fdest, freight) && phase == 0 ) {
-      gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") exists catg links", world.get_time())
+      //gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") exists catg links", world.get_time())
       return r_t(RT_TOTAL_FAIL) //
     } else if ( check_factory_links(fsrc, fdest, freight) >= 1 && phase == 0 ) {
       //gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
