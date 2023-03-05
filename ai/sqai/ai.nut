@@ -42,8 +42,27 @@ month_count_ticks <- world.get_time().next_month_ticks
 // build check for new lines
 build_check_month <- world.get_time().month
 
+/*
+ *  different ticks per month for bits_per_month
+ *
+ *  bits_per_month = 16   ->   world.get_time().ticks_per_month = 65.536
+ *  bits_per_month = 17   ->   world.get_time().ticks_per_month = 131.072
+ *  bits_per_month = 18   ->   world.get_time().ticks_per_month = 262.144
+ *  bits_per_month = 19   ->   world.get_time().ticks_per_month = 524.288
+ *  bits_per_month = 20   ->   world.get_time().ticks_per_month = 1.048.576
+ *  bits_per_month = 21   ->   world.get_time().ticks_per_month = 2.097.152
+ *  bits_per_month = 22   ->   world.get_time().ticks_per_month = 4.194.304
+ *  bits_per_month = 23   ->   world.get_time().ticks_per_month = 8.388.608
+ *  bits_per_month = 24   ->   world.get_time().ticks_per_month = 16.777.216
+ *
+ *  set parameter for road lines check
+ *
+ */
+road_line_check <- 500000
+
+
 // convoy and citycar count
-convoy_count <- 0
+convoy_count <- null
 road_convoy_count <- 0
 citycar_count <- 0
 
@@ -282,4 +301,40 @@ function get_set_name()
   pakset = pakset.tolower()
 
   return pakset
+}
+
+/*
+ * set global variables citicar and convoy counts
+ *
+ * output = 0 -> no return
+ * output = 1 -> return road_car_rate
+ */
+function set_map_vehicles_counts(output = 0) {
+  local citycar_array = world.get_year_citycars()
+  local convoy_array = world.get_convoys()
+  convoy_count = convoy_array[0]
+  citycar_count = citycar_array[0]
+
+  road_convoy_count = 0
+  local list = world.get_convoy_list()
+  foreach(cnv in list) {
+    if ( cnv.get_waytype() == wt_road ) {
+      road_convoy_count++
+    }
+  }
+  /*
+  gui.add_message_at(our_player, "####### citycars " + citycar_count, world.get_time())
+  gui.add_message_at(our_player, "####### convoys " + convoy_count, world.get_time())
+  gui.add_message_at(our_player, "####### road convoys " + road_convoy_count, world.get_time())
+  */
+
+  if ( output == 1 ) {
+    // citycars and road-cnv on map - rate per tile
+    //local citycar_count = world.get_year_citycars()
+    local map_size_tiles = world.get_size().x * world.get_size().y
+    local map_citizens = world.get_citizens()
+    local road_car_rate = (map_citizens[0]/10)/ max((citycar_count + road_convoy_count), 1)
+    return road_car_rate
+  }
+
 }

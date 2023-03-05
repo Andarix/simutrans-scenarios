@@ -219,30 +219,11 @@ class manager_t extends node_seq_t
 
         }
 
-        //if (  ) {
-          local citycar_array = world.get_year_citycars()
-          local convoy_array = world.get_convoys()
-          convoy_count = convoy_array[0]
-          citycar_count = citycar_array[0]
-
-          road_convoy_count = 0
-          local list = world.get_convoy_list()
-          foreach(cnv in list) {
-            if ( cnv.get_waytype() == wt_road ) {
-              road_convoy_count++
-            }
-          }
-          /*
-          gui.add_message_at(our_player, "####### citycars " + citycar_count, world.get_time())
-          gui.add_message_at(our_player, "####### convoys " + convoy_count, world.get_time())
-          gui.add_message_at(our_player, "####### road convoys " + road_convoy_count, world.get_time())
-          */
-        //}
-
-
     } else if ( world.get_time().ticks > month_count_ticks ) {
       month_count = true
     }
+
+    set_map_vehicles_counts()
 
   }
 

@@ -239,8 +239,8 @@ class road_connector_t extends manager_t
           local result = asf.search_route([c_start], [c_end])
 
           if ( "routes" in result ) {  } else {
-            //::debug.pause()
-            //sleep()
+            ::debug.pause()
+            sleep()
             return r_t(RT_TOTAL_FAIL)
           }
 
@@ -317,7 +317,7 @@ class road_connector_t extends manager_t
             //err = construct_road(our_player, station_to_depot, c_depot, planned_way)
           } else {
             local i = c_route.len()-1
-            if ( i > 4 ) { i -= 4 }
+            if ( i > 8 ) { i -= 8 }
 
             local trial = 0
             local err = null
@@ -385,7 +385,7 @@ class road_connector_t extends manager_t
           c.p_depot  = depot_x(c_depot.x, c_depot.y, c_depot.z)
           c.p_line   = c_line
           c.p_convoy = planned_convoy
-          if ( world.get_time().year < 1935 ) {
+          if ( world.get_time().year < 1935 && get_set_name() == "pak64.german" ) {
             c.p_count  = min(planned_convoy.nr_convoys, 6)
           } else {
             c.p_count  = min(planned_convoy.nr_convoys, 3)

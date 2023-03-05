@@ -15,7 +15,7 @@ class my_line_t extends line_x
   destroy_line_month  = world.get_time().month // test month save
   line_way_speed      = 0 // save way speed for line
   build_line          = world.get_time() // create line
-  next_vehicle_check  = 0 // save ticks for next vehicle check
+  next_vehicle_check  = world.get_time().ticks + world.get_time().ticks_per_month // save ticks for next vehicle check
   next_check          = world.get_time().ticks
   halt_length         = 0 // tiles from halts
 
@@ -180,6 +180,8 @@ class industry_manager_t extends manager_t
    */
   function work()
   {
+    set_map_vehicles_counts()
+
     // iterate the link_iterator, which is a generator
     if (link_iterator == null) {
       // this is a generator
@@ -414,7 +416,7 @@ class industry_manager_t extends manager_t
     // 3
     // 4 = cnv status retired / all to old
     // 5 = electrified
-    // 6 and pl 3
+    // 6 and pl 4
     local print_message_box = 0
 
     local wt = line.get_waytype()
@@ -452,7 +454,7 @@ class industry_manager_t extends manager_t
     }
 
     dbgprint("Check line " + line.get_name())
-    if ( our_player.nr == 3 && print_message_box == 6 ) {
+    if ( our_player.nr == 6 && print_message_box == 6 ) {
       gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
     }
 
@@ -578,6 +580,10 @@ class industry_manager_t extends manager_t
         }*/
         return
       }
+
+      local entries = line.get_schedule().entries
+      local start_h = entries[0].get_halt(our_player)
+
       for ( local i = 0; i < cnv_count; i++ ) {
         if ( !list[i].is_withdrawn() && cnv == null ) {
           cnv = list[i]
@@ -593,6 +599,13 @@ class industry_manager_t extends manager_t
         if ( list[i].is_in_depot() ) {
           stucked_cnv.append(list[i])
         }
+        // destroy no waiting goods
+        local d = start_h.get_waiting()
+        if ( d[0] == 0 && list[i].is_loading() == false ) {
+          //gui.add_message_at(our_player, "(605) ####### " + start_h.get_name() + " - destroy waiting road vehicles ", world.get_time())
+          stucked_cnv.append(list[i])
+          //remove_cnv++
+        }
       }
 
       // stucked vehicle remove, not last vehicle
@@ -604,12 +617,15 @@ class industry_manager_t extends manager_t
         }
         sleep()
 
-        if ( get_set_name() == "pak128" ) {
-          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month / 2)
-        } else if ( get_set_name() == "pak128.german" ) {
-          line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+        local road_car_rate = set_map_vehicles_counts(1)
+        local next_time = road_line_check
+        if ( road_car_rate < 10 ) {
+          next_time = road_line_check / 2
+        }
+        if ( line.get_waytype() == wt_road ) {
+          line.next_vehicle_check = world.get_time().ticks + next_time
         } else {
-          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 3)
+          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
         }
         return
       }
@@ -1229,7 +1245,7 @@ class industry_manager_t extends manager_t
           }
 
         if ( wt == wt_road && check_good_quantity(start_l, end_l, lf, line) ) {
-          line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+          line.next_vehicle_check = world.get_time().ticks + (road_line_check * 2)
           return true
         }
 
@@ -1353,8 +1369,11 @@ class industry_manager_t extends manager_t
           c.p_count  = 1
         }
 
-        // input storage f_src = 0 then not add convoys
-        if ( check_fsrc_input(link.f_src) ) {
+        // input storage f_src = 0 or waiting good = 0 then not add convoys
+        local entries = line.get_schedule().entries
+        local start_h = entries[0].get_halt(our_player)
+        local d = start_h.get_waiting()
+        if ( check_fsrc_input(link.f_src) || d[0] > 0 ) {
           append_child(c)
           if ( cnv_retired.len() == 1 && cnv_retired.len() == cnv_count ) {
             cnv_retired[0].toggle_withdraw(our_player)
@@ -1391,10 +1410,15 @@ class industry_manager_t extends manager_t
           gui.add_message_at(our_player, msgtext, world.get_time())
 
           // save ticks for next check
-          if ( wt == wt_rail ) {
-            line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month*2)
+          local road_car_rate = set_map_vehicles_counts(1)
+          local next_time = road_line_check * 4
+          if ( road_car_rate < 10 ) {
+            next_time = road_line_check * 2
+          }
+          if ( wt == wt_road ) {
+            line.next_vehicle_check = world.get_time().ticks + next_time
           } else {
-            line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+            line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
           }
 
           return true
@@ -1427,12 +1451,16 @@ class industry_manager_t extends manager_t
         gui.add_message_at(our_player, msgtext, world.get_time())
 
         // save ticks for next check
-        if ( wt == wt_rail ) {
-          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month*2)
-        } else {
-          line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+        local road_car_rate = set_map_vehicles_counts(1)
+        local next_time = road_line_check
+        if ( road_car_rate < 10 ) {
+          next_time = road_line_check / 2
         }
-
+        if ( wt == wt_road ) {
+          line.next_vehicle_check = world.get_time().ticks + next_time
+        } else {
+          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
+        }
       }
     }
     dbgprint("")
@@ -1445,7 +1473,7 @@ class industry_manager_t extends manager_t
    */
   function upgrade_link_line(link, line, cnv_speed, route)
   {
-    local print_message_box = 1
+    local print_message_box = 0
 
 
     if ( print_message_box > 0 ) {
@@ -1578,7 +1606,16 @@ class industry_manager_t extends manager_t
     append_child(c)
 
     // save ticks for next check
-    line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+    local road_car_rate = set_map_vehicles_counts(1)
+    local next_time = road_line_check * 4
+    if ( road_car_rate < 10 ) {
+      next_time = road_line_check * 2
+    }
+    if ( wt == wt_road ) {
+      line.next_vehicle_check = world.get_time().ticks + next_time
+    } else {
+      line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
+    }
 
     return true
   }

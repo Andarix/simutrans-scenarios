@@ -645,15 +645,11 @@ class industry_connection_planner_t extends manager_t
       }
     }
 
-    // citycars and road-cnv on map - rate per tile
-    //local citycar_count = world.get_year_citycars()
-    local map_size_tiles = world.get_size().x * world.get_size().y
-    local map_citizens = world.get_citizens()
-    local road_car_rate = (map_citizens[0]/10)/ max((citycar_count + road_convoy_count), 1)
 
-
-    if ( print_message_box >= 0 ) {
+    local road_car_rate = set_map_vehicles_counts(1)
+    if ( print_message_box >= 0 && road_car_rate < 10 ) { //
       gui.add_message_at(our_player, "citycar_count " + citycar_count + " - road_convoy_count " + road_convoy_count + " - citycar_rate " + road_car_rate, world.get_time())
+      //gui.add_message_at(our_player, "world.get_time().ticks_per_month " + world.get_time().ticks_per_month, world.get_time())
     }
     if ( road_car_rate < 10 ) {
       switch (wt) {
