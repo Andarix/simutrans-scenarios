@@ -1232,7 +1232,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
         }
       }
 
-      if ( tile.find_object(mo_crossing) != null && wt == wt_rail ) {
+      if ( tile.is_crossing ) {
         //::debug.pause()
         // test crossing and remove
         local t_field = tile.get_way(wt)
@@ -1293,20 +1293,19 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
 
       local tiles_r = square_x(tiles[i].x, tiles[i].y).get_ground_tile()
       local test_way = tiles_r.find_object(mo_way) //.get_desc()
-      local crossing_tile = tiles_r.find_object(mo_crossing)
       local tile_coord = coord3d_to_string(tiles_r)
       if ( test_way != null ) {
-        if ( test_way.get_owner().nr != our_player_nr && crossing_tile == null ) {
+        if ( test_way.get_owner().nr != our_player_nr ) {
           tile_remove = 0
         }
       }
 
       if ( tile_remove == 1 ) {
         //gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles[i]), tiles[i])
-        if ( crossing_tile != null && wt == wt_rail ) {
+        if ( tiles_r.is_crossing() ) {
           //::debug.pause()
           // test crossing and remove
-          toolr.work(our_player, tiles_r, tiles_r, "" + wt_rail)
+          toolr.work(our_player, tiles_r, tiles_r, "" + wt)
           //tool.work(our_player, tile)
         } else {
           while(true){
@@ -1322,20 +1321,19 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
     // remove one tile
     local tile_remove = 1
     local tiles_r = tile_x(tiles.x, tiles.y, tiles.z)
-    local crossing_tile = tiles_r.find_object(mo_crossing)
     local test_way = tiles_r.find_object(mo_way) //.get_desc()
     //gui.add_message_at(our_player, "test way tile " + tiles.find_object(mo_way), tiles)
     if ( test_way != null ) {
-        if ( test_way.get_owner().nr != our_player_nr && crossing_tile == null ) {
+        if ( test_way.get_owner().nr != our_player_nr ) {
           tile_remove = 0
         }
     }
     if ( tile_remove == 1 ) {
-      //gui.add_message_at(our_player, "remove tile " + coord3d_to_string(tiles_r), tiles)
-        if ( crossing_tile != null && wt == wt_rail ) {
+      //gui.add_message_at(our_player, "crossing_tile " + tiles_r.is_crossing(), tiles)
+        if ( tiles_r.is_crossing() ) {
           //::debug.pause()
           // test crossing and remove
-          toolr.work(our_player, tiles_r, tiles_r, "" + wt_rail)
+          toolr.work(our_player, tiles_r, tiles_r, "" + wt)
           //tool.work(our_player, tile)
         } else {
           while(true){
@@ -5076,7 +5074,7 @@ function destroy_line(line_obj, good, link_obj) {
         tool.work(our_player, start_l, treeway_tile_s[0], "" + wt_road)
       } else if ( treeway_tile_s[1] != null && treeways > 0 ) {
         tool.work(our_player, start_l, treeway_tile_s[1], "" + wt_road)
-        remove_tile_to_empty(treeway_tile_s[1], wt, 0)
+        remove_tile_to_empty(treeway_tile_s[1], wt_road, 0)
       }
     }
 
@@ -5099,7 +5097,7 @@ function destroy_line(line_obj, good, link_obj) {
         tool.work(our_player, end_l, treeway_tile_e[0], "" + wt_road)
       } else if ( treeway_tile_e[1] != null && treeways > 0 ) {
         tool.work(our_player, end_l, treeway_tile_e[1], "" + wt_road)
-        remove_tile_to_empty(treeway_tile_e[1], wt, 0)
+        remove_tile_to_empty(treeway_tile_e[1], wt_road, 0)
       }
     }
 
@@ -5167,6 +5165,10 @@ function destroy_line(line_obj, good, link_obj) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj, good, link) finish line " + line_name, world.get_time())
     //::debug.pause()
   }
+
+  local msgtext = format(translate("%s removes line: %s"), our_player.get_name(), line_name)
+  gui.add_message_at(our_player, msgtext, world.get_time())
+
   return true
 }
 
@@ -5177,7 +5179,7 @@ function destroy_line(line_obj, good, link_obj) {
  */
 function test_halt_waytypes(tile) {
   if ( tile.is_water() && tile.find_object(mo_building) == null ) {
-    gui.add_message_at(our_player, "halt is water tile " + coord3d_to_string(tile), tile)
+    //gui.add_message_at(our_player, "halt is water tile " + coord3d_to_string(tile), tile)
     return 0
   }
 

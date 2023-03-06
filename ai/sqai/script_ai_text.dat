@@ -25,3 +25,6 @@ name=vehicles of the line %s were retired
 obj=script_ai_text
 name=%s electrified the line %s
 -
+obj=script_ai_text
+name=%s removes line: %s
+-
