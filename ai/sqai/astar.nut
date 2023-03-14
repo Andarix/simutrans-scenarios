@@ -3011,6 +3011,12 @@ function build_double_track(start_field, wt) {
 
         if ( b_tile == null ) {
           err = command_x.build_way(b_player, tiles_build[way_len - 1], tiles[way_len - 1], way_obj, true)
+
+          local st = tile_x(signal[1].coor.x, signal[1].coor.y, signal[1].coor.z).get_way_dirs(wt)
+          if ( st == 11 || st == 13 || st == 7 || st == 14 ) {
+            sig_field = 1
+          }
+
         } else {
           err = command_x.build_way(b_player, tiles_build[way_len - 1], b_tile, way_obj, true)
         }
