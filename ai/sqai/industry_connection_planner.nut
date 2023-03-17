@@ -698,6 +698,16 @@ class industry_connection_planner_t extends manager_t
     // successfull - complete report
     r.cost_fix     = build_cost
     r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + planned_bridge.montly_cost
+
+    // fixed cost convoy
+    local cnv_veh = planned_convoy.veh
+    local cnv_fixed_cost = 0
+    for (local x = 0; x < cnv_veh.len(); x++ ) {
+      cnv_fixed_cost += cnv_veh[x].get_maintenance()
+    }
+    r.cost_monthly += cnv_fixed_cost
+    //gui.add_message_at(our_player, "cnv_fixed_cost " + cnv_fixed_cost, world.get_time())
+
     r.gain_per_m  -= r.cost_monthly
 
     sleep()
