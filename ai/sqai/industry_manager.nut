@@ -1400,7 +1400,7 @@ class industry_manager_t extends manager_t
             } while(a > 0)
 
             // expand station
-            local ret = build_expand_station(nexttile, expand_station, st_lenght, link.freight.get_name())
+            local ret = build_expand_station(nexttile, expand_station, st_lenght, link.freight.get_name(), line)
             if ( ret ) {
               line.halt_length = st_lenght
             }
@@ -1810,7 +1810,7 @@ class industry_manager_t extends manager_t
     return expand_station
   }
 
-  function build_expand_station(nexttile, expand_station, st_lenght, freight) {
+  function build_expand_station(nexttile, expand_station, st_lenght, freight, line) {
 
     local start_l = nexttile[nexttile.len()-1]
     local end_l = nexttile[0]
