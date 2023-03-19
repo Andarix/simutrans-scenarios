@@ -1403,6 +1403,12 @@ class industry_manager_t extends manager_t
             local ret = build_expand_station(nexttile, expand_station, st_lenght, link.freight.get_name(), line)
             if ( ret ) {
               line.halt_length = st_lenght
+              // set new line entries
+              local entries = line.get_schedule().entries
+              if ( entries.len() >= 2 ) {
+                start_l = tile_x(entries[0].x, entries[0].y, entries[0].z)
+                end_l = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
+              }
             }
           }
 
@@ -1596,7 +1602,7 @@ class industry_manager_t extends manager_t
       } while(a > 0)
 
       // expand station
-      local ret = build_expand_station(route, expand_station, st_lenght, link.freight.get_name())
+      local ret = build_expand_station(route, expand_station, st_lenght, link.freight.get_name(), line)
       if ( ret ) {
         line.halt_length = st_lenght
       }
@@ -1860,6 +1866,9 @@ class industry_manager_t extends manager_t
           //gui.add_message_at(our_player, "####### st_lenght > station_count : " + st_lenght + " > " + station_exist, expand_station[0])
           if ( st_lenght > station_exist ) {
             // expand station
+            local sched = schedule_x(wt_rail, [])
+            local sched_start = start_l
+            local sched_end = end_l
             for ( local i = 0; i <= (st_lenght - station_exist); i++ ) {
               local station_obj = (i % 2) ? station_s_obj : station_e_obj
               if ( expand_station[i].find_object(mo_way) == null ) {
@@ -1867,13 +1876,16 @@ class industry_manager_t extends manager_t
                 if ( terraform_tile(expand_station[i], build_tile.z) ) {
                   command_x.build_way(our_player, build_tile, expand_station[i], way_obj, true)
                   command_x.build_station(our_player, expand_station[i], station_obj)
-                  ::debug.pause()
+
                   local entries = line.get_schedule().entries
                   if ( build_tile == start_l ) {
-                    entries[0] = schedule_entry_x(build_tile, 100, 0)
+                    sched_start = expand_station[i]
+                    gui.add_message_at(our_player, "####### expand stations tile schedule start_l  ", world.get_time())
                   } else {
-                    entries[entries.len()-1] = schedule_entry_x(build_tile, 0, 0)
+                    sched_end = expand_station[i]
+                    gui.add_message_at(our_player, "####### expand stations tile schedule end_l  ", world.get_time())
                   }
+                  //::debug.pause()
 
                 }
                 //::debug.pause()
@@ -1882,11 +1894,16 @@ class industry_manager_t extends manager_t
               }
               //gui.add_message_at(our_player, "####### expand stations tile " + coord3d_to_string(expand_station[i]), expand_station[0])
             }
+
+            sched.entries.append( schedule_entry_x(sched_start, 100, 0) );
+            sched.entries.append( schedule_entry_x(sched_end, 0, 0) );
+            line.change_schedule(our_player, sched)
+
             //line.halt_length = st_lenght
             //gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
             local message_text = format(translate("%s expand the station %s (%s) and station %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
             gui.add_message_at(our_player, message_text, start_l)
-            //::debug.pause()
+            ::debug.pause()
 
             return true
           }
