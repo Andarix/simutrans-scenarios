@@ -595,12 +595,12 @@ class rail_connector_t extends manager_t
     for ( local i = 0; i < (nr_tile_test*2); i++ ) {
       if ( i < nr_tile_test ) {
         // start
-        if ( tile_x(t_start[i].x, t_start[i].y, t_start[i].z).find_object(mo_way) ) {
+        if ( tile_x(t_start[i].x, t_start[i].y, t_start[i].z).has_way(wt_rail) ) { //find_object(mo_way)
           check_way[i] = 1
         }
       } else {
         // end
-        if ( tile_x(t_end[i-nr_tile_test].x, t_end[i-nr_tile_test].y, t_end[i-nr_tile_test].z).find_object(mo_way) ) {
+        if ( tile_x(t_end[i-nr_tile_test].x, t_end[i-nr_tile_test].y, t_end[i-nr_tile_test].z).has_way(wt_rail) ) { //find_object(mo_way)
           check_way[i] = 1
         }
       }
