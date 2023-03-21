@@ -1321,15 +1321,13 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
     // remove one tile
     local tile_remove = 1
     local tiles_r = tile_x(tiles.x, tiles.y, tiles.z)
-    local test_way = tiles_r.find_object(mo_way) //.get_desc()
-    //gui.add_message_at(our_player, "test way tile " + tiles.find_object(mo_way), tiles)
-    if ( test_way != null ) {
-        if ( test_way.get_owner().nr != our_player_nr ) {
-          tile_remove = 0
-        }
+    local test_way = tiles_r.has_way(wt) //.get_desc()
+    //gui.add_message_at(our_player, "test way tile " + tiles_r.has_way(wt), tiles)
+    if ( test_way && tiles_r.find_object(mo_way).get_owner().nr != our_player_nr && !tiles_r.is_crossing() ) {
+      tile_remove = 0
     }
     if ( tile_remove == 1 ) {
-      //gui.add_message_at(our_player, "crossing_tile " + tiles_r.is_crossing(), tiles)
+      gui.add_message_at(our_player, "crossing_tile " + tiles_r.is_crossing(), tiles)
         if ( tiles_r.is_crossing() ) {
           //::debug.pause()
           // test crossing and remove
@@ -1546,6 +1544,8 @@ function test_tile_is_empty(tile) {
   local tile_groundobj = tile.find_object(mo_groundobj)
   local tile_moving_object = tile.find_object(mo_moving_object)
 
+  gui.add_message_at(our_player, " ---=> test_tile_is_empty " + coord3d_to_string(tile) + " | tile_tree " + tile_tree + " | tile_groundobj " + tile_groundobj + " | tile_moving_object " + tile_moving_object, tile)
+
   if ( tile.is_empty() ) {
     return true
   } else if ( tile_tree != null || tile_groundobj != null || tile_moving_object != null ) {
@@ -1597,6 +1597,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
       break
   }
   //gui.add_message_at(pl, "(1496) ---=> extension_tile " + extension_tile, world.get_time())
+
 
   if ( tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z).is_water() ) {
     extension_tile = null
@@ -1998,6 +1999,10 @@ function build_extensions_connect_factory(pl, st_field, hlt_field, tiles, extens
   //gui.add_message_at(pl, " -##-=> " + coord3d_to_string(tiles[1]) + " tiles[1].is_empty() " + tiles[1].is_empty() + " - tiles[1].is_water() " + tiles[1].is_water(), tiles[1])
   //gui.add_message_at(pl, " -##-=> " + coord3d_to_string(tiles[2]) + " tiles[2].is_empty() " + tiles[2].is_empty() + " - tiles[2].is_water() " + tiles[2].is_water(), tiles[2])
 
+  //gui.add_message_at(pl, " -##-=> " + coord3d_to_string(tiles[0]) + " tiles[0].is_empty() " + tiles[0].is_empty() + " - tiles[0].is_water() " + tiles[0].is_water() + " - tiles[0].has_ways() " + tiles[0].has_ways() + " - tiles[0].has_way(wt_water) " + tiles[0].has_way(wt_water), tiles[0])
+  //gui.add_message_at(pl, " -##-=> " + coord3d_to_string(tiles[1]) + " tiles[1].is_empty() " + tiles[1].is_empty() + " - tiles[1].is_water() " + tiles[1].is_water() + " - tiles[1].has_ways() " + tiles[1].has_ways(), tiles[1])
+  //gui.add_message_at(pl, " -##-=> " + coord3d_to_string(tiles[2]) + " tiles[2].is_empty() " + tiles[2].is_empty() + " - tiles[2].is_water() " + tiles[2].is_water() + " - tiles[2].has_ways() " + tiles[2].has_ways(), tiles[2])
+
   // test 1 -> rebuild 0
   for (local i = 0; i < tiles.len(); i++ ) {
     if ( test_tile_is_empty(tiles[i]) && tiles[i].is_ground() ) {
@@ -2036,7 +2041,33 @@ function build_extensions_connect_factory(pl, st_field, hlt_field, tiles, extens
           }
         }
       }
+    } else if ( (tiles[i].get_way_dirs(wt_road) == 5 || tiles[i].get_way_dirs(wt_road) == 10 ) && (tiles[i].find_object(mo_way).get_owner().nr == our_player.nr || tiles[i].find_object(mo_way).get_owner().nr == 1) ) {
 
+        //gui.add_message_at(pl, " -##-=> build road station tile " + coord3d_to_string(tiles[i]), tiles[i])
+        //gui.add_message_at(pl, " -##-=> halt_x.get_halt(st_field, pl) " + halt_x.get_halt(st_field, pl), tiles[i])
+
+        local restor_way = 0
+
+        local station = find_station(wt_road)
+        if ( station != false ) {
+          if ( halt_x.get_halt(st_field, pl) == null ) {
+            tool.work(pl, st_field)
+            command_x.build_station(pl, st_field, extension)
+            restor_way = 1
+          }
+          err = command_x.build_station(pl, tiles[i], station)
+          if ( err != null ) {
+            gui.add_message_at(pl, " -##-=> build err tile " + i + " " + err, tiles[i])
+          }
+          fl_st = st.get_factory_list()
+          if ( fl_st.len() > 0 ) {
+            factory_connect = 1
+            if (restor_way == 1) {
+              tool.work(pl, st_field)
+            }
+            break
+          }
+        }
     }
 
   }
