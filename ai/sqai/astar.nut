@@ -1323,11 +1323,13 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
     local tiles_r = tile_x(tiles.x, tiles.y, tiles.z)
     local test_way = tiles_r.has_way(wt) //.get_desc()
     //gui.add_message_at(our_player, "test way tile " + tiles_r.has_way(wt), tiles)
+    //gui.add_message_at(our_player, "crossing_tile " + tiles_r.is_crossing(), tiles)
+    //gui.add_message_at(our_player, "tiles_r.find_object(mo_way).get_owner().nr " + tiles_r.find_object(mo_way).get_owner().nr, tiles)
     if ( test_way && tiles_r.find_object(mo_way).get_owner().nr != our_player_nr && !tiles_r.is_crossing() ) {
       tile_remove = 0
     }
     if ( tile_remove == 1 ) {
-      gui.add_message_at(our_player, "crossing_tile " + tiles_r.is_crossing(), tiles)
+      //gui.add_message_at(our_player, "crossing_tile " + tiles_r.is_crossing(), tiles)
         if ( tiles_r.is_crossing() ) {
           //::debug.pause()
           // test crossing and remove
@@ -1544,7 +1546,7 @@ function test_tile_is_empty(tile) {
   local tile_groundobj = tile.find_object(mo_groundobj)
   local tile_moving_object = tile.find_object(mo_moving_object)
 
-  gui.add_message_at(our_player, " ---=> test_tile_is_empty " + coord3d_to_string(tile) + " | tile_tree " + tile_tree + " | tile_groundobj " + tile_groundobj + " | tile_moving_object " + tile_moving_object, tile)
+  //gui.add_message_at(our_player, " ---=> test_tile_is_empty " + coord3d_to_string(tile) + " | tile_tree " + tile_tree + " | tile_groundobj " + tile_groundobj + " | tile_moving_object " + tile_moving_object, tile)
 
   if ( tile.is_empty() ) {
     return true
