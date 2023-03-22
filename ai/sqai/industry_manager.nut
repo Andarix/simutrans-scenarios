@@ -1658,178 +1658,186 @@ class industry_manager_t extends manager_t
 
     local wt = line.get_waytype()
 
-        local expand_station = []
-        local station_count = 0
-        local station_exist = 0
+    local expand_station = []
+    local station_count = 0
+    local station_exist = 0
 
-        local expand_station_end_src = []
-        local expand_station_end_dest = []
-          // count exist station lenght
-          for ( local i = 0; i < 6; i++ ) {
-            if ( nexttile[i].find_object(mo_building) != null ) {
-              station_count++
-            }
-          }
-          if ( line.halt_length == 0 ) {
-            line.halt_length = station_count
-          }
-          // check expand station -> tiles direction end from way
-          local tiles_end_src = []
-          local tiles_end_dest = []
-          local t = null
-          // line end dest
-          for ( local i = 1; i < 4; i++ ) {
-            t = check_tile_end_of_station(nexttile[0].get_way_dirs(wt), i, nexttile[0])
-            if ( t != null ) {
-              if ( print_message_box == 2 ) {
-                gui.add_message_at(our_player, "###---- check tile expand_station_end_dest : " + coord3d_to_string(t), t)
-              }
-              expand_station_end_dest.append(t)
-            } else {
-              break
-            }
-          }
-          // line end src
-          for ( local i = 1; i < 4; i++ ) {
-            t = check_tile_end_of_station(nexttile[nexttile.len()-1].get_way_dirs(wt), i, nexttile[nexttile.len()-1])
-            if ( t != null ) {
-              if ( print_message_box == 2 ) {
-                gui.add_message_at(our_player, "###---- check tile expand_station_end_src : " + coord3d_to_string(t), t)
-              }
-              expand_station_end_src.append(t)
-            } else {
-              break
-            }
-          }
+    local expand_station_end_src = []
+    local expand_station_end_dest = []
 
-          //prototyper.max_length = station_count
-          line.halt_length = station_count
-          station_exist = station_count
-          local add_tile_src = 0
-          local add_tile_dest = 0
-          if ( station_count < 6 ) {
-            // check expand station -> direction of the existing route/way
-            // built cnv to new length end expand station befor create cnv
-            //station_count++
-            for ( station_count; station_count < 6; station_count++ ) {
-              //gui.add_message_at(our_player, "###---- nexttile[station_count-1] : " + coord3d_to_string(nexttile[station_count-1]) + " - " + nexttile[station_count-1].get_way_dirs(wt), nexttile[0])
-              //gui.add_message_at(our_player, "###---- nexttile[station_count] : " + coord3d_to_string(nexttile[station_count]) + " - " + nexttile[station_count].get_way_dirs(wt), nexttile[0])
-              //gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-2] : " + coord3d_to_string(nexttile[nexttile.len()-station_count-1]) + " - " + nexttile[nexttile.len()-station_count-1].get_way_dirs(wt), nexttile[0])
-              //gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-1] : " + coord3d_to_string(nexttile[nexttile.len()-station_count]) + " - " + nexttile[nexttile.len()-station_count].get_way_dirs(wt), nexttile[0])
-              /*if ( nexttile[station_count-1].get_way_dirs(wt) != nexttile[station_count].get_way_dirs(wt) ||
-                  nexttile[nexttile.len()-station_count-1].get_way_dirs(wt) != nexttile[nexttile.len()-station_count].get_way_dirs(wt) ||
-                  (nexttile[station_count].is_bridge() && nexttile[station_count].z == square_x(nexttile[station_count].x, nexttile[station_count].y).get_ground_tile().z) ||
-                  (nexttile[nexttile.len()-station_count-1].is_bridge() && nexttile[nexttile.len()-station_count-1].z == square_x(nexttile[station_count].x, nexttile[nexttile.len()-station_count-1].y).get_ground_tile().z) ) {
-              */
-              //if ( !test_field(our_player, nexttile[station_count], wt, nexttile[station_count].get_way_dirs(wt), square_x(nexttile[station_count].x, nexttile[station_count].y).get_ground_tile().z, 1) ) {
-              local t1 = nexttile[station_count]
-              local t2 = nexttile[(nexttile.len()-1)-station_count]
+    // count exist station lenght
+    for ( local i = 0; i < 6; i++ ) {
+      if ( nexttile[i].find_object(mo_building) != null ) {
+        station_count++
+      }
+    }
+    if ( line.halt_length == 0 ) {
+      line.halt_length = station_count
+    }
 
-              local check_tile = 0
-              local check_src = 0
-              local check_dest = 0
+    // check expand station -> tiles direction end from way
+    local tiles_end_src = []
+    local tiles_end_dest = []
+    local t = null
+    // line end dest
+    for ( local i = 1; i < 4; i++ ) {
+      t = check_tile_end_of_station(nexttile[0].get_way_dirs(wt), i, nexttile[0])
+      if ( t != null ) {
+        if ( print_message_box == 2 ) {
+          gui.add_message_at(our_player, "###---- check tile expand_station_end_dest : " + coord3d_to_string(t), t)
+        }
+        expand_station_end_dest.append(t)
+      } else {
+        break
+      }
+    }
+    // line end src
+    for ( local i = 1; i < 4; i++ ) {
+      t = check_tile_end_of_station(nexttile[nexttile.len()-1].get_way_dirs(wt), i, nexttile[nexttile.len()-1])
+      if ( t != null ) {
+        if ( print_message_box == 2 ) {
+          gui.add_message_at(our_player, "###---- check tile expand_station_end_src : " + coord3d_to_string(t), t)
+        }
+        expand_station_end_src.append(t)
+      } else {
+        break
+      }
+    }
 
-              if ( t1.get_way_dirs(wt) == 5 || t1.get_way_dirs(wt) == 10 ) {
-                if ( print_message_box == 2 ) {
+    //prototyper.max_length = station_count
+    line.halt_length = station_count
+    station_exist = station_count
+    local add_tile_src = 0
+    local add_tile_dest = 0
+    if ( station_count < 6 ) {
+      // check expand station -> direction of the existing route/way
+      // built cnv to new length end expand station befor create cnv
+      //station_count++
+      for ( station_count; station_count < 6; station_count++ ) {
+        //gui.add_message_at(our_player, "###---- nexttile[station_count-1] : " + coord3d_to_string(nexttile[station_count-1]) + " - " + nexttile[station_count-1].get_way_dirs(wt), nexttile[0])
+        //gui.add_message_at(our_player, "###---- nexttile[station_count] : " + coord3d_to_string(nexttile[station_count]) + " - " + nexttile[station_count].get_way_dirs(wt), nexttile[0])
+        //gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-2] : " + coord3d_to_string(nexttile[nexttile.len()-station_count-1]) + " - " + nexttile[nexttile.len()-station_count-1].get_way_dirs(wt), nexttile[0])
+        //gui.add_message_at(our_player, "###---- nexttile[nexttile.len()-station_count-1] : " + coord3d_to_string(nexttile[nexttile.len()-station_count]) + " - " + nexttile[nexttile.len()-station_count].get_way_dirs(wt), nexttile[0])
+        /*if ( nexttile[station_count-1].get_way_dirs(wt) != nexttile[station_count].get_way_dirs(wt) ||
+          nexttile[nexttile.len()-station_count-1].get_way_dirs(wt) != nexttile[nexttile.len()-station_count].get_way_dirs(wt) ||
+          (nexttile[station_count].is_bridge() && nexttile[station_count].z == square_x(nexttile[station_count].x, nexttile[station_count].y).get_ground_tile().z) ||
+          (nexttile[nexttile.len()-station_count-1].is_bridge() && nexttile[nexttile.len()-station_count-1].z == square_x(nexttile[station_count].x, nexttile[nexttile.len()-station_count-1].y).get_ground_tile().z) ) {
+        */
+        //if ( !test_field(our_player, nexttile[station_count], wt, nexttile[station_count].get_way_dirs(wt), square_x(nexttile[station_count].x, nexttile[station_count].y).get_ground_tile().z, 1) ) {
+        local t1 = nexttile[station_count]
+        local t2 = nexttile[(nexttile.len()-1)-station_count]
+
+        local check_tile = 0
+        local check_src = 0
+        local check_dest = 0
+
+        if ( t1.get_way_dirs(wt) == 5 || t1.get_way_dirs(wt) == 10 ) {
+          if ( print_message_box == 2 ) {
                   gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t1), t1)
-                }
-                if ( (t1.z == nexttile[station_exist-1].z && !t1.is_bridge() && !t1.is_tunnel() && t1.get_slope() == 0 && !t1.has_two_ways()) || (t1.z < nexttile[station_exist-1].z && t1.is_bridge()) ) {
-                  // dest
-                  if ( print_message_box == 2 ) {
-                    gui.add_message_at(our_player, "###---- check tile t1 z : " + t1.z, t1)
-                    gui.add_message_at(our_player, "###---- check tile nexttile[station_exist-1].z (" + coord3d_to_string(nexttile[station_exist-1]) + ") : " + nexttile[station_exist-1].z, nexttile[station_exist-1])
-                  }
-                  check_tile++
-                  check_src++
-                } else {
-                  check_dest++
-                }
+          }
+          if ( (t1.z == nexttile[station_exist-1].z && !t1.is_bridge() && !t1.is_tunnel() && t1.get_slope() == 0 && !t1.has_two_ways()) || (t1.z < nexttile[station_exist-1].z && t1.is_bridge()) ) {
+            // dest
+            if ( print_message_box == 2 ) {
+              gui.add_message_at(our_player, "###---- check tile t1 z : " + t1.z, t1)
+              gui.add_message_at(our_player, "###---- check tile nexttile[station_exist-1].z (" + coord3d_to_string(nexttile[station_exist-1]) + ") : " + nexttile[station_exist-1].z, nexttile[station_exist-1])
+            }
+            check_tile++
+            check_src++
+          } else {
+            check_dest++
+          }
 
-              }
+        }
 
-              if ( t2.get_way_dirs(wt) == 5 || t2.get_way_dirs(wt) == 10 ) {
-                if ( print_message_box == 2 ) {
-                  gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t2), t2)
-                }
-                if ( (t2.z == nexttile[(nexttile.len()-1)-(station_exist-1)].z && !t2.is_bridge() && !t2.is_tunnel() && t2.get_slope() == 0 && !t2.has_two_ways()) || (t2.z < nexttile[(nexttile.len()-1)-(station_exist-1)].z && t2.is_bridge()) ) {
-                  // src
-                  if ( print_message_box == 2 ) {
-                    gui.add_message_at(our_player, "###---- check tile t2 z : " + t2.z, t2)
-                    gui.add_message_at(our_player, "###---- check tile nexttile[(nexttile.len()-1)-(station_exist-1)].z (" + coord3d_to_string(nexttile[(nexttile.len()-1)-(station_exist-1)]) + ") : " + nexttile[(nexttile.len()-1)-(station_exist-1)].z, nexttile[(nexttile.len()-1)-(station_exist-1)])
-                  }
-                  check_tile++
-                  check_dest++
-                } else {
-                  check_src++
-                }
-              }
+        if ( t2.get_way_dirs(wt) == 5 || t2.get_way_dirs(wt) == 10 ) {
+          if ( print_message_box == 2 ) {
+            gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t2), t2)
+          }
+          if ( (t2.z == nexttile[(nexttile.len()-1)-(station_exist-1)].z && !t2.is_bridge() && !t2.is_tunnel() && t2.get_slope() == 0 && !t2.has_two_ways()) || (t2.z < nexttile[(nexttile.len()-1)-(station_exist-1)].z && t2.is_bridge()) ) {
+            // src
+            if ( print_message_box == 2 ) {
+              gui.add_message_at(our_player, "###---- check tile t2 z : " + t2.z, t2)
+              gui.add_message_at(our_player, "###---- check tile nexttile[(nexttile.len()-1)-(station_exist-1)].z (" + coord3d_to_string(nexttile[(nexttile.len()-1)-(station_exist-1)]) + ") : " + nexttile[(nexttile.len()-1)-(station_exist-1)].z, nexttile[(nexttile.len()-1)-(station_exist-1)])
+            }
+            check_tile++
+            check_dest++
+          } else {
+            check_src++
+          }
+        }
 
-                if ( print_message_box == 2 ) {
-                  gui.add_message_at(our_player, "###---- station_count-station_exist : " + (station_count-station_exist), world.get_time())
-                  gui.add_message_at(our_player, "###---- check_tile: " + check_tile + " check_dest: " + check_dest + " check_src: " + check_src, world.get_time())
-                  gui.add_message_at(our_player, "###---- add_tile_dest: " + add_tile_dest + " add_tile_src: " + add_tile_src, world.get_time())
-                }
+        if ( print_message_box == 2 ) {
+          gui.add_message_at(our_player, "###---- station_count-station_exist : " + (station_count-station_exist), world.get_time())
+          gui.add_message_at(our_player, "###---- check_tile: " + check_tile + " check_dest: " + check_dest + " check_src: " + check_src, world.get_time())
+          gui.add_message_at(our_player, "###---- add_tile_dest: " + add_tile_dest + " add_tile_src: " + add_tile_src, world.get_time())
+        }
 
 
-                if (check_tile == 2) {
-                  if ( print_message_box == 2 ) {
-                    gui.add_message_at(our_player, "###---- add tile nexttile[station_count]: " + coord3d_to_string(nexttile[station_count]), nexttile[station_count])
-                    gui.add_message_at(our_player, "###---- add tile nexttile[nexttile.len()-(station_count+1)]: " + coord3d_to_string(nexttile[nexttile.len()-(station_count+1)]), nexttile[nexttile.len()-(station_count+1)])
-                  }
-                  expand_station.append(nexttile[station_count])
-                  expand_station.append(nexttile[nexttile.len()-(station_count+1)])
-                } else if (check_tile == 1 && check_dest >= 1 && expand_station_end_dest.len()-1 >= add_tile_dest) {
-                  // dest
-                  if ( print_message_box == 2 ) {
-                    gui.add_message_at(our_player, "###---- add tile expand_station_end_dest[add_tile_dest]: " + coord3d_to_string(expand_station_end_dest[add_tile_dest]), expand_station_end_dest[add_tile_dest])
-                    gui.add_message_at(our_player, "###---- add tile nexttile[nexttile.len()-(station_count+1)]: " + coord3d_to_string(nexttile[nexttile.len()-(station_count+1)]), nexttile[nexttile.len()-(station_count+1)])
-                  }
-                  expand_station.append(expand_station_end_dest[add_tile_dest])
-                  add_tile_dest++
-                  expand_station.append(nexttile[nexttile.len()-(station_count+1)])
-                } else if (check_tile == 1 && check_src >= 1 && expand_station_end_src.len()-1 >= add_tile_src) {
-                  // src
-                  if ( print_message_box == 2 ) {
-                    gui.add_message_at(our_player, "###---- add tile nexttile[station_count]: " + coord3d_to_string(nexttile[station_count]), nexttile[station_count])
-                    gui.add_message_at(our_player, "###---- add tile expand_station_end_src[add_tile_src]: " + coord3d_to_string(expand_station_end_src[add_tile_src]), expand_station_end_src[add_tile_src])
-                  }
-                  expand_station.append(nexttile[station_count])
-                  expand_station.append(expand_station_end_src[add_tile_src])
-                  add_tile_src++
-                } else if (check_tile == 0 && check_src <= 1 && check_dest <= 1 && expand_station_end_dest.len()-1 >= add_tile_dest && expand_station_end_src.len()-1 >= add_tile_src) {
-                  // src & dest
-                  if ( print_message_box == 2 ) {
-                    gui.add_message_at(our_player, "###---- add tile expand_station_end_dest[add_tile_dest]: " + coord3d_to_string(expand_station_end_dest[add_tile_dest]), expand_station_end_dest[add_tile_dest])
-                    gui.add_message_at(our_player, "###---- add tile expand_station_end_src[add_tile_src]: " + coord3d_to_string(expand_station_end_src[add_tile_src]), expand_station_end_src[add_tile_src])
-                  }
-                  expand_station.append(expand_station_end_dest[add_tile_dest])
-                  add_tile_dest++
-                  expand_station.append(expand_station_end_src[add_tile_src])
-                  add_tile_src++
-                } else {
-                  station_count--
-                  break
-                }
+        if (check_tile == 2) {
+          if ( print_message_box == 2 ) {
+            gui.add_message_at(our_player, "###---- add tile nexttile[station_count]: " + coord3d_to_string(nexttile[station_count]), nexttile[station_count])
+            gui.add_message_at(our_player, "###---- add tile nexttile[nexttile.len()-(station_count+1)]: " + coord3d_to_string(nexttile[nexttile.len()-(station_count+1)]), nexttile[nexttile.len()-(station_count+1)])
+          }
+          expand_station.append(nexttile[station_count])
+          expand_station.append(nexttile[nexttile.len()-(station_count+1)])
+        } else if (check_tile == 1 && check_dest >= 1 && expand_station_end_dest.len()-1 >= add_tile_dest) {
+          // dest
+          if ( print_message_box == 2 ) {
+            gui.add_message_at(our_player, "###---- add tile expand_station_end_dest[add_tile_dest]: " + coord3d_to_string(expand_station_end_dest[add_tile_dest]), expand_station_end_dest[add_tile_dest])
+            gui.add_message_at(our_player, "###---- add tile nexttile[nexttile.len()-(station_count+1)]: " + coord3d_to_string(nexttile[nexttile.len()-(station_count+1)]), nexttile[nexttile.len()-(station_count+1)])
+          }
+          expand_station.append(expand_station_end_dest[add_tile_dest])
+          add_tile_dest++
+          expand_station.append(nexttile[nexttile.len()-(station_count+1)])
+        } else if (check_tile == 1 && check_src >= 1 && expand_station_end_src.len()-1 >= add_tile_src) {
+          // src
+          if ( print_message_box == 2 ) {
+            gui.add_message_at(our_player, "###---- add tile nexttile[station_count]: " + coord3d_to_string(nexttile[station_count]), nexttile[station_count])
+            gui.add_message_at(our_player, "###---- add tile expand_station_end_src[add_tile_src]: " + coord3d_to_string(expand_station_end_src[add_tile_src]), expand_station_end_src[add_tile_src])
+          }
+          expand_station.append(nexttile[station_count])
+          expand_station.append(expand_station_end_src[add_tile_src])
+          add_tile_src++
+        } else if (check_tile == 0 && check_src <= 1 && check_dest <= 1 && expand_station_end_dest.len()-1 >= add_tile_dest && expand_station_end_src.len()-1 >= add_tile_src) {
+          // src & dest
+          if ( print_message_box == 2 ) {
+            gui.add_message_at(our_player, "###---- add tile expand_station_end_dest[add_tile_dest]: " + coord3d_to_string(expand_station_end_dest[add_tile_dest]), expand_station_end_dest[add_tile_dest])
+            gui.add_message_at(our_player, "###---- add tile expand_station_end_src[add_tile_src]: " + coord3d_to_string(expand_station_end_src[add_tile_src]), expand_station_end_src[add_tile_src])
+          }
+          expand_station.append(expand_station_end_dest[add_tile_dest])
+          add_tile_dest++
+          expand_station.append(expand_station_end_src[add_tile_src])
+          add_tile_src++
+        } else {
+          station_count--
+          break
+        }
 
               /*
               } else {
                 station_count--
                 break
               }*/
-            }
-            if ( station_exist < station_count && print_message_box == 2 ) {
-              gui.add_message_at(our_player, "###---- check stations field : " + station_exist, nexttile[0])
-              gui.add_message_at(our_player, "###---- check stations field expand -> direction exist way : " + station_count, nexttile[0])
-            }
+      }
 
+      if ( station_exist < station_count && print_message_box == 2 ) {
+        gui.add_message_at(our_player, "###---- check stations field : " + station_exist, nexttile[0])
+        gui.add_message_at(our_player, "###---- check stations field expand -> direction exist way : " + station_count, nexttile[0])
+      }
 
-
-          }
+    }
 
     return expand_station
   }
 
   function build_expand_station(nexttile, expand_station, st_lenght, freight, line) {
+
+    // 0 = off
+    // 1 = station expand
+    // 2
+    // 3
+    local print_message_box = 0
+
 
     local start_l = nexttile[nexttile.len()-1]
     local end_l = nexttile[0]
@@ -1858,68 +1866,79 @@ class industry_manager_t extends manager_t
       }
     }
 
-          local station_e_obj = nexttile[0].find_object(mo_building).get_desc()
-          if ( !station_e_obj.is_available(world.get_time()) ) {
-            station_e_obj = null
-            foreach(station in station_list) {
-              if ( station_e_obj == null ) {
-                station_e_obj = station
+    local station_e_obj = nexttile[0].find_object(mo_building).get_desc()
+    if ( !station_e_obj.is_available(world.get_time()) ) {
+      station_e_obj = null
+      foreach(station in station_list) {
+        if ( station_e_obj == null ) {
+          station_e_obj = station
+        }
+        if ( station.cost < station_e_obj.cost ) {
+          station_e_obj = station
+        }
+      }
+    }
+
+    local way_obj = start_l.find_object(mo_way).get_desc() //way_list[0]
+    if ( !way_obj.is_available(world.get_time()) ) {
+      way_obj = find_object("way", wt, way_obj.get_topspeed())
+    }
+
+    if ( print_message_box == 1 ) {
+      gui.add_message_at(our_player, "####### st_lenght > station_count : " + st_lenght + " > " + station_exist, expand_station[0])
+    }
+
+    if ( st_lenght > station_exist ) {
+      // expand station
+      local sched = schedule_x(wt_rail, [])
+      local sched_start = start_l
+      local sched_end = end_l
+      for ( local i = 0; i <= (st_lenght - station_exist); i++ ) {
+        local station_obj = (i % 2) ? station_s_obj : station_e_obj
+        if ( expand_station[i].find_object(mo_way) == null ) {
+          local build_tile = (i % 2) ? start_l : end_l
+          if ( terraform_tile(expand_station[i], build_tile.z) ) {
+            command_x.build_way(our_player, build_tile, expand_station[i], way_obj, true)
+            command_x.build_station(our_player, expand_station[i], station_obj)
+
+            local entries = line.get_schedule().entries
+            if ( build_tile == start_l ) {
+              sched_start = expand_station[i]
+              if ( print_message_box == 1 ) {
+                gui.add_message_at(our_player, "####### expand stations tile schedule start_l  ", expand_station[i])
               }
-              if ( station.cost < station_e_obj.cost ) {
-                station_e_obj = station
+            } else {
+              sched_end = expand_station[i]
+              if ( print_message_box == 1 ) {
+                gui.add_message_at(our_player, "####### expand stations tile schedule end_l  ", expand_station[i])
               }
             }
-          }
-
-          local way_obj = start_l.find_object(mo_way).get_desc() //way_list[0]
-          if ( !way_obj.is_available(world.get_time()) ) {
-            way_obj = find_object("way", wt, way_obj.get_topspeed())
-          }
-
-          gui.add_message_at(our_player, "####### st_lenght > station_count : " + st_lenght + " > " + station_exist, expand_station[0])
-          if ( st_lenght > station_exist ) {
-            // expand station
-            local sched = schedule_x(wt_rail, [])
-            local sched_start = start_l
-            local sched_end = end_l
-            for ( local i = 0; i <= (st_lenght - station_exist); i++ ) {
-              local station_obj = (i % 2) ? station_s_obj : station_e_obj
-              if ( expand_station[i].find_object(mo_way) == null ) {
-                local build_tile = (i % 2) ? start_l : end_l
-                if ( terraform_tile(expand_station[i], build_tile.z) ) {
-                  command_x.build_way(our_player, build_tile, expand_station[i], way_obj, true)
-                  command_x.build_station(our_player, expand_station[i], station_obj)
-
-                  local entries = line.get_schedule().entries
-                  if ( build_tile == start_l ) {
-                    sched_start = expand_station[i]
-                    gui.add_message_at(our_player, "####### expand stations tile schedule start_l  ", expand_station[i])
-                  } else {
-                    sched_end = expand_station[i]
-                    gui.add_message_at(our_player, "####### expand stations tile schedule end_l  ", expand_station[i])
-                  }
-                  //::debug.pause()
-
-                }
-                //::debug.pause()
-              } else {
-                command_x.build_station(our_player, expand_station[i], station_obj)
-              }
-              //gui.add_message_at(our_player, "####### expand stations tile " + coord3d_to_string(expand_station[i]), expand_station[0])
-            }
-
-            sched.entries.append( schedule_entry_x(sched_start, 100, 0) );
-            sched.entries.append( schedule_entry_x(sched_end, 0, 0) );
-            line.change_schedule(our_player, sched)
-
-            //line.halt_length = st_lenght
-            //gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
-            local message_text = format(translate("%s expand the station %s (%s) and station %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
-            gui.add_message_at(our_player, message_text, start_l)
             //::debug.pause()
 
-            return true
           }
+          //::debug.pause()
+        } else {
+          command_x.build_station(our_player, expand_station[i], station_obj)
+        }
+        if ( print_message_box == 1 ) {
+          gui.add_message_at(our_player, "####### expand stations tile " + coord3d_to_string(expand_station[i]), expand_station[0])
+        }
+      }
+
+      sched.entries.append( schedule_entry_x(sched_start, 100, 0) );
+      sched.entries.append( schedule_entry_x(sched_end, 0, 0) );
+      line.change_schedule(our_player, sched)
+
+      //line.halt_length = st_lenght
+      if ( print_message_box == 1 ) {
+        gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
+      }
+      local message_text = format(translate("%s expand the station %s (%s) and station %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
+      gui.add_message_at(our_player, message_text, start_l)
+      //::debug.pause()
+
+      return true
+    }
 
   }
 
