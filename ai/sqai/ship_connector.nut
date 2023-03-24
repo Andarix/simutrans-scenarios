@@ -431,6 +431,7 @@ class ship_connector_t extends manager_t
       }
     }
     else {
+      print("Error during setup of ship connection.")
       industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);
     }
     return r

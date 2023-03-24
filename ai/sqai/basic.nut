@@ -172,18 +172,23 @@ class manager_t extends node_seq_t
     reports = []
   }
 
-  function step()
-  {
-    dbgprint("stepping a child")
-    local r = base.step()
-    if (r.code == RT_DONE_NOTHING  ||  r.code == RT_SUCCESS) {
-      // all nodes were stepped
-      dbgprint("doing some work")
-      return work()
-    }
-    dbgprint("stepped a child")
-    return r
-  }
+	function step()
+	{
+		dbgprint("stepping a child")
+		local r = base.step()
+		if (r.has_failed()) {
+			if ("error_handler" in this) {
+				return error_handler()
+			}
+		}
+		if (r.code == RT_DONE_NOTHING  ||  r.code == RT_SUCCESS) {
+			// all nodes were stepped
+			dbgprint("doing some work")
+			return work()
+		}
+		dbgprint("stepped a child")
+		return r
+	}
 
   function work()
   {
