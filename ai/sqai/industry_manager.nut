@@ -1508,10 +1508,22 @@ class industry_manager_t extends manager_t
     local prototyper = prototyper_t(wt, link.freight.get_name())
 
     // iterate through schedule to estimate distance
-    //local dist = 0
-    local dist = abs(route[0].x - route[route.len()-1].x) + abs(route[0].y - route[route.len()-1].y)
-    if ( wt != wt_water && wt != wt_air ) {
+    local dist = 0
+    /*if ( wt != wt_water && wt != wt_air ) {
       dist = route.len()
+    } else */
+    if ( route.len == 0 ) {
+      local entries = line.get_schedule().entries
+      local start_h = entries[0].get_halt(our_player)
+      local end_h = entries[entries.len()-1].get_halt(our_player)
+      local t = start_h.get_tile_list()
+      start_l = tile_x(t[0].x, t[0].y, t[0].z)
+      t = end_h.get_tile_list()
+      end_l = tile_x(t[0].x, t[0].y, t[0].z)
+      dist = abs(start_l.x - end_l.x) + abs(start_l.y - end_l.y)
+    } else {
+      dist = route.len()
+      //dist = abs(route[0].x - route[route.len()-1].x) + abs(route[0].y - route[route.len()-1].y)
     }
 
     //local wt = wt
