@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "AI player implementation road/ship/rail"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.8.11"
+ai.version <- "0.8.10"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -318,7 +318,7 @@ function set_map_vehicles_counts(output = 0) {
   road_convoy_count = 0
   local list = world.get_convoy_list()
   foreach(cnv in list) {
-    if ( cnv.get_waytype() == wt_road ) {
+    if ( cnv.is_valid() && cnv.get_waytype() == wt_road ) {
       road_convoy_count++
     }
   }
