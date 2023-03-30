@@ -321,9 +321,14 @@ class industry_manager_t extends manager_t
             freight = good_list_out[0]
           } else {
             // more output goods - check good to f_dest
-            local good_list_in = []
+            //local good_list_in = []
             foreach(good, islot in f_dest[0].input) {
-              good_list_in.append(good)
+              //good_list_in.append(good)
+              for ( local i = 0; i < good_list_out.len(); i++ ) {
+                if ( good_list_out[i] == good && freight == "" ) {
+                  freight = good
+                }
+              }
             }
             // todo more goods check
 
@@ -352,9 +357,14 @@ class industry_manager_t extends manager_t
                   freight = good_list_out[0]
                 } else {
                   // more output goods - check good to f_dest
-                  local good_list_in = []
+                  //local good_list_in = []
                   foreach(good, islot in f_dest[0].input) {
-                    good_list_in.append(good)
+                    ///good_list_in.append(good)
+                    for ( local i = 0; i < good_list_out.len(); i++ ) {
+                      if ( good_list_out[i] == good && freight == "" ) {
+                        freight = good
+                      }
+                    }
                   }
                   // todo more goods check
                 }
@@ -370,6 +380,10 @@ class industry_manager_t extends manager_t
         // rename standard line name '(x) Line'
         if ( line_name.find(str_search) != null && freight != "" ) {
           local new_name = translate(wt_name[ai_lines_missing[i].get_waytype()]) + " " + translate(freight) + " " + st_names[0].get_halt(our_player).get_name() + " - " + st_names[st_names.len()-1].get_halt(our_player).get_name()
+
+          //gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### line rename: " + line_name, world.get_time())
+          //gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### new name: " + new_name, world.get_time())
+
           ai_lines_missing[i].set_name(new_name)
         }
 
