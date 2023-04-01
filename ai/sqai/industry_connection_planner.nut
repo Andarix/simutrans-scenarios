@@ -647,7 +647,7 @@ class industry_connection_planner_t extends manager_t
 
 
     local road_car_rate = set_map_vehicles_counts(1)
-    if ( print_message_box >= 0 && road_car_rate < 10 ) { //
+    if ( print_message_box > 0 && road_car_rate < 10 ) { //
       gui.add_message_at(our_player, "citycar_count " + citycar_count + " - road_convoy_count " + road_convoy_count + " - citycar_rate " + road_car_rate, world.get_time())
       //gui.add_message_at(our_player, "world.get_time().ticks_per_month " + world.get_time().ticks_per_month, world.get_time())
     }
