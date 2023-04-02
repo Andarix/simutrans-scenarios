@@ -63,6 +63,16 @@ class industry_connection_planner_t extends manager_t
     local exists_links = check_factory_links(fsrc, fdest, freight, 0)
     local freight_input = fdest.input[freight].get_base_consumption()
     local freight_output = fsrc.output[freight].get_base_production()
+
+    local fs = fsrc.get_tile_list()
+    local fs_halt = fs[0].get_halt()
+    if ( (fs_halt != null || fs_halt != false) && exists_links == 1 ) {
+      // water factory - no more links than one
+      if (debug) gui.add_message_at(our_player, " water factory - no more links than one ", fs[0])
+      return r_t(RT_TOTAL_FAIL)
+    }
+
+
     if ( (freight_input < 700 || freight_output < 550) && exists_links >= 2 ) {
       return r_t(RT_TOTAL_FAIL)
     } else if ( (freight_input < 1500 || freight_output < 1250) && exists_links >= 3 ) {
@@ -75,8 +85,8 @@ class industry_connection_planner_t extends manager_t
 
     if ( build_check_month > world.get_time().month ) {
       // not plan link
-      gui.add_message_at(our_player, " not plan link : build_check_month = " + build_check_month, world.get_time())
-      gui.add_message_at(our_player, " for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
+      if (debug) gui.add_message_at(our_player, " not plan link : build_check_month = " + build_check_month, world.get_time())
+      if (debug) gui.add_message_at(our_player, " for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
 
       return r_t(RT_TOTAL_FAIL)
     }
