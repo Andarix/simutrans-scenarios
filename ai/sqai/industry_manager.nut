@@ -627,7 +627,9 @@ class industry_manager_t extends manager_t
         local j = stucked_cnv.len()
         if ( cnv_count == j ) { j-- }
         for ( local i = 0; i < j; i++ ) {
-          stucked_cnv[i].destroy(our_player)
+          if ( stucked_cnv[i].is_valid() ) {
+            stucked_cnv[i].destroy(our_player)
+          }
         }
         sleep()
 
@@ -1965,6 +1967,8 @@ class industry_manager_t extends manager_t
 
       return true
     }
+
+    return false
 
   }
 
