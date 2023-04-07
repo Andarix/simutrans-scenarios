@@ -1359,12 +1359,13 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
  * wt             = waytype
  * select_station = station object
  * build          = 0 -> test ; 1 -> build
+ * combined_halt  = true -> yes ; false -> no
  *
  * returns false (something failed) or array of station tiles (success)
  * in case of success, the value of starts_field maybe changed
  *
  */
-function check_station(pl, starts_field, st_lenght, wt, select_station, build = 1) {
+function check_station(pl, starts_field, st_lenght, wt, select_station, build = 1, combined_halt = false) {
 
     // print messages box
     // 1
@@ -1447,7 +1448,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
       // build station
       if ( b_tile.len() == st_lenght && build == 1) {
         // this will build station, missing ways, do terraform
-        st_build = expand_station(pl, b_tile, wt, select_station, starts_field)
+        st_build = expand_station(pl, b_tile, wt, select_station, starts_field, combined_halt)
       }
       else if ( b_tile.len() == st_lenght && build == 0 ) {
         st_build = true
@@ -1565,8 +1566,9 @@ function test_tile_is_empty(tile) {
  * wt             = waytype
  * select_station = station object
  * start_fld      = c_start or c_end
+ * combined_halt  = true -> yes ; false -> no
  */
-function expand_station(pl, fields, wt, select_station, start_fld) {
+function expand_station(pl, fields, wt, select_station, start_fld, combined_halt) {
 
   local start_field = tile_x(start_fld.x, start_fld.y, start_fld.z)
 
@@ -1770,7 +1772,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
     local st = halt_x.get_halt(fields[0], pl)
     local s_tiles = []
 
-    if ( st.get_factory_list().len() == 0 ) {
+    if ( st.get_factory_list().len() == 0 && combined_halt == false ) {
       local fl_st = st.get_factory_list()
         //gui.add_message_at(our_player, "(1773) -*---> combined_station : " + combined_station, fields[0])
         //gui.add_message_at(our_player, "(1773) -*---> extension_tile : " + extension_tile, fields[0])
@@ -1963,6 +1965,8 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
         }
       }
 
+    } else if ( combined_halt ) {
+      // build combined station
     }
 
     if ( start_field.is_empty() ) {

@@ -278,8 +278,18 @@ class rail_connector_t extends manager_t
             gui.add_message_at(our_player, " rail_connector stations lenght: " + count, world.get_time())
           }
 
+          // check combined station or connect factory src
+          local tiles_y = abs(fs[0].y - c_start.y)
+          local tiles_x = abs(fs[0].x - c_start.y)
+          local tiles_c = (fs.len() / 2) + settings.get_station_coverage()
+          local combined_halt = false
+          if (tiles_x > tiles_c || tiles_y > tiles_c) {
+            gui.add_message_at(pl, "tiles_x = " + tiles_x + " - tiles_y = " + tiles_y + " - tiles_c = " + tiles_c, world.get_time())
+            combined_halt = true
+          }
+
           // check place and build station to c_start
-          s_src = check_station(pl, c_start, count, wt_rail, planned_station)
+          s_src = check_station(pl, c_start, count, wt_rail, planned_station, 1, combined_halt)
           if ( s_src == false ) {
             print("Failed to build station at " + coord_to_string(c_start))
             if ( print_message_box > 0 ) {
@@ -298,8 +308,20 @@ class rail_connector_t extends manager_t
               station_select = station
             }
           }
+
+          // check combined station or connect factory dest
+          tiles_y = abs(fd[0].y - c_end.y)
+          tiles_x = abs(fd[0].x - c_end.y)
+          tiles_c = (fd.len() / 2) + settings.get_station_coverage()
+          combined_halt = false
+          if (tiles_x > tiles_c || tiles_y > tiles_c) {
+            gui.add_message_at(pl, "tiles_x = " + tiles_x + " - tiles_y = " + tiles_y + " - tiles_c = " + tiles_c, world.get_time())
+            combined_halt = true
+          }
+
+
           // check place and build station to c_end
-          s_dest = check_station(pl, c_end, count, wt_rail, station_select)
+          s_dest = check_station(pl, c_end, count, wt_rail, station_select, 1, combined_halt)
           if ( s_dest == false ) {
             print("Failed to build station at " + coord_to_string(c_end))
             if ( print_message_box > 0 ) {
