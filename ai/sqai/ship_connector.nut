@@ -29,7 +29,7 @@ class ship_connector_t extends manager_t
   // 2 = stations
   // 3 = depot
   // 5 = errors
-  print_message_box = 0
+  print_message_box = 2
 
   constructor()
   {
@@ -68,6 +68,7 @@ class ship_connector_t extends manager_t
         if ( print_message_box > 0 ) {
           gui.add_message_at(pl, "______________________ build ship ______________________", world.get_time())
           gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
+          //::debug.pause()
         }
         // find flat harbour building
         if (planned_harbour_flat == null) {
@@ -92,7 +93,7 @@ class ship_connector_t extends manager_t
         }
 
         if (c_start.len()>0  &&  c_end.len()>0) {
-          if ( print_message_box == 1 ) { gui.add_message_at(pl, "Water way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time()) }
+          if ( print_message_box == 2 ) { gui.add_message_at(pl, "Water way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time()) }
 
           phase ++
         }
@@ -110,6 +111,7 @@ class ship_connector_t extends manager_t
           local err = find_route()
           if (err) {
             print("No way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
+          if ( print_message_box == 2 ) { gui.add_message_at(pl, "No way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time()) }
             return error_handler()
           }
           phase ++
@@ -175,7 +177,7 @@ class ship_connector_t extends manager_t
             key = coord3d_to_key(c_end[0])
             if (key in c_harbour_tiles) {
               if ( c_harbour_tiles[key].find_object(mo_building) != null ) {
-                gui.add_message_at(pl, " --- tile to build harbour not free", world.get_time())
+                if (debug) gui.add_message_at(pl, " --- tile to build harbour not free", world.get_time())
                 return r_t(RT_TOTAL_FAIL)
               }
               err = build_harbour(c_harbour_tiles[key], c_end)
