@@ -1257,7 +1257,7 @@ class industry_manager_t extends manager_t
         } else if ( wt != wt_road && wt != wt_air && wt != wt_water ) {
           prototyper.max_length = station_exist
         } else {
-          prototyper.max_length = prototyper.max_vehicles * 8
+          prototyper.max_length = 1 //prototyper.max_vehicles * 8
         }
           if ( print_message_box == 2 ) {
             //gui.add_message_at(our_player, "###---- station_exist : " + station_exist, world.get_time())
