@@ -263,10 +263,11 @@ class industry_connection_planner_t extends manager_t
     local planned_bridge = { cost = 0, montly_cost = 0, tiles = 0 }
     local tree_cost = 0 // cost remove tree
     local calc_route = null
+    local p_start = null
+    local p_end   = null
     if (wt != wt_water && wt != wt_air) {
       /* plan build route */
-      local p_start = ::finder.find_station_place(fsrc, fdest)
-      local p_end   = null
+      p_start = ::finder.find_station_place(fsrc, fdest)
       if ( p_start.len() == 0 ) {
         calc_route = "No route"
       } else {
@@ -383,6 +384,7 @@ class industry_connection_planner_t extends manager_t
       count += 1
     } while(a > 0)
 
+
     // check planned way speed - planned convoy speed
     if ( wt == wt_air && wt != wt_water && planned_way.get_topspeed() < planned_convoy.min_top_speed ) {
       //gui.add_message_at(our_player, "-- planned way (" + planned_way.get_topspeed() + ") to low speed for convoy (" + planned_convoy.min_top_speed + ")", world.get_time())
@@ -394,6 +396,7 @@ class industry_connection_planner_t extends manager_t
     // build cost / 13 months
     //build_cost = build_cost / 13
 
+    local rail_station = null
     if ( wt == wt_rail ) {
       // terraform cost
       local terraform_cost = 0
@@ -406,11 +409,22 @@ class industry_connection_planner_t extends manager_t
       }
       build_cost += count*terraform_cost
 
+      // check build station rail
+      if ( calc_route != "No route" ) {
+        rail_station = check_station(our_player, calc_route.routes[calc_route.routes.len()-1], count, wt_rail, planned_station, 0, true)
+        if (rail_station) {
+          rail_station = check_station(our_player, calc_route.routes[0], count, wt_rail, planned_station, 0, true)
+        }
+        if (debug) gui.add_message_at(our_player, "-check build station rail- rail_station " + rail_station, world.get_time())
+        //if (debug) gui.add_message_at(our_player, "-check build station rail- calc_route " + calc_route, world.get_time())
+      }
+
     }
 
     local conv_capacity = planned_convoy.capacity
     local input_convoy = freight_input/conv_capacity
     local output_convoy = freight_output/conv_capacity
+
 
     /**
      * Assessment for the different connections
@@ -620,6 +634,11 @@ class industry_connection_planner_t extends manager_t
           r.points -= 60
           break
       }
+    }
+
+    // build rail station
+    if ( rail_station == false ) {
+      r.points -= 200
     }
 
 

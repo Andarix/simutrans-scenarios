@@ -71,7 +71,7 @@ class rail_connector_t extends manager_t
 
     if ( build_check_month > world.get_time().month ) {
       // not build link
-      gui.add_message_at(our_player, " not build line : build_check_month = " + build_check_month, world.get_time())
+      if ( debug ) gui.add_message_at(our_player, " not build line : build_check_month = " + build_check_month, world.get_time())
       return r_t(RT_TOTAL_FAIL)
     }
 
@@ -79,7 +79,7 @@ class rail_connector_t extends manager_t
 
     switch(phase) {
       case 0: // find places for stations
-        if ( print_message_box > 0 ) {
+        if ( print_message_box >= 0 ) {
           gui.add_message_at(pl, "______________________ build rail ______________________", world.get_time())
           gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
         }
@@ -221,7 +221,8 @@ class rail_connector_t extends manager_t
           print("Way construction cost: " + (d-pl.get_current_cash()) )
 
           if (err) { // fail, c_start, c_end still arrays
-            print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
+            //print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
+            gui.add_message_at(pl, "Failed to build way from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time())
             return error_handler()
           }
           else {
