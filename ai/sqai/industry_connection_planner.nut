@@ -414,8 +414,9 @@ class industry_connection_planner_t extends manager_t
         rail_station = check_station(our_player, calc_route.routes[calc_route.routes.len()-1], count, wt_rail, planned_station, 0, true)
         if (rail_station) {
           rail_station = check_station(our_player, calc_route.routes[0], count, wt_rail, planned_station, 0, true)
+          if (debug) gui.add_message_at(our_player, "-check build station rail- rail_station " + rail_station, calc_route.routes[0])
         }
-        if (debug) gui.add_message_at(our_player, "-check build station rail- rail_station " + rail_station, world.get_time())
+          if (debug && !rail_station) gui.add_message_at(our_player, "-check build station rail- rail_station " + rail_station, calc_route.routes[0])
         //if (debug) gui.add_message_at(our_player, "-check build station rail- calc_route " + calc_route, world.get_time())
       }
 
