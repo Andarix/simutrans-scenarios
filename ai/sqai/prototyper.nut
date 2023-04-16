@@ -208,6 +208,8 @@ class prototyper_t extends node_t
 
     local count_cnv_length = false
 
+    local show_mwssage = true
+
     while(true) {
 
       it_ind[ind] ++
@@ -235,7 +237,7 @@ class prototyper_t extends node_t
       // check constraints
       // .. length
       local l = (ind > 1 ?  cnv[ind-1].length : 0) + max( CARUNITS_PER_TILE/2, test.get_length());
-      //gui.add_message_at(our_player, "convoy length max: " + max( CARUNITS_PER_TILE/2, test.get_length()), test)
+      //if ( wt == wt_rail ) gui.add_message_at(our_player, "convoy length max: " + max( CARUNITS_PER_TILE/2, test.get_length()), world.get_time())
       //max_vehicles
       local a = 0
       if ( wt == wt_water ) {
@@ -247,6 +249,10 @@ class prototyper_t extends node_t
           tiles = 4
         } else if ( volume > 2200 ) {
           tiles = 5
+        }
+        if ( show_mwssage ) {
+          gui.add_message_at(our_player, "#prototyper 251# tiles: " + tiles +  " - max_length: " + max_length, world.get_time())
+          show_mwssage = false
         }
         if ( tiles > max_length ) { tiles = max_length }
         a = CARUNITS_PER_TILE * tiles
@@ -297,20 +303,20 @@ class prototyper_t extends node_t
 
       ind++
 
-		local list_succ = test.get_successors()
-		if (list_succ.len()==0) {
-			it_lists[ind] = list_other
-		}
-		else{
-			it_lists[ind] = []
-			foreach(v in list_succ) {
-				if (v.is_available(date)) {
-					it_lists[ind].append(v)
-				}
-			}
-		}
+    local list_succ = test.get_successors()
+    if (list_succ.len()==0) {
+      it_lists[ind] = list_other
+    }
+    else{
+      it_lists[ind] = []
+      foreach(v in list_succ) {
+        if (v.is_available(date)) {
+          it_lists[ind].append(v)
+        }
+      }
+    }
 
-	  it_ind[ind] = -1
+    it_ind[ind] = -1
     }
 
     if (best) {
