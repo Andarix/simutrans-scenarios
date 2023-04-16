@@ -222,7 +222,7 @@ class rail_connector_t extends manager_t
 
           if (err) { // fail, c_start, c_end still arrays
             //print("Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]))
-            gui.add_message_at(pl, "Failed to build way from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time())
+            gui.add_message_at(pl, "Failed to build way from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time())
             return error_handler()
           }
           else {

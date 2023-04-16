@@ -468,7 +468,7 @@ class ship_connector_t extends manager_t
         for(local d = 1; d<16; d*=2) {
           local to = tile.get_neighbour(wt_all, d)
 
-          if ( print_message_box == 2 && to.is_empty() ) {
+          if ( print_message_box == 2 && to != null && to.is_empty() ) {
             gui.add_message_at(our_player, " ... place finder: to.is_empty() " + coord3d_to_string(to) + " = "  + to.is_empty(), world.get_time())
           }
 
