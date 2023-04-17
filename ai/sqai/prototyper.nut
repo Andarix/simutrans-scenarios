@@ -244,18 +244,16 @@ class prototyper_t extends node_t
         a = CARUNITS_PER_TILE * 4
       }
       else if ( wt == wt_rail ) {
-        local tiles = 3
+        a = CARUNITS_PER_TILE * 3
         if ( volume > 1200 && volume < 2200 ) {
-          tiles = 4
+          a = CARUNITS_PER_TILE * 4
         } else if ( volume > 2200 ) {
-          tiles = 5
+          a = CARUNITS_PER_TILE * 5
         }
         if ( show_mwssage ) {
-          gui.add_message_at(our_player, "#prototyper 251# tiles: " + tiles +  " - max_length: " + max_length, world.get_time())
+          gui.add_message_at(our_player, "#prototyper 251# tiles_length: " + a + " - max_length: " + max_length, world.get_time())
           show_mwssage = false
         }
-        if ( tiles > max_length ) { tiles = max_length }
-        a = CARUNITS_PER_TILE * tiles
       }
       else {
         a = CARUNITS_PER_TILE

@@ -1253,11 +1253,11 @@ class industry_manager_t extends manager_t
         }
 
         if ( expand_station.len() > 0 ) {
-          prototyper.max_length = (station_exist + (expand_station.len()/2))
+          prototyper.max_length = CARUNITS_PER_TILE * (station_exist + (expand_station.len()/2))
         } else if ( wt != wt_road && wt != wt_air && wt != wt_water ) {
-          prototyper.max_length = station_exist
+          prototyper.max_length = CARUNITS_PER_TILE * station_exist
         } else {
-          prototyper.max_length = 1 //prototyper.max_vehicles * 8
+          prototyper.max_length = CARUNITS_PER_TILE //prototyper.max_vehicles * 8
         }
           if ( print_message_box == 2 ) {
             //gui.add_message_at(our_player, "###---- station_exist : " + station_exist, world.get_time())
@@ -1559,9 +1559,9 @@ class industry_manager_t extends manager_t
     if ( wt == wt_rail ) {
       expand_station = check_expand_station(route, line)
       if ( expand_station.len() > 0 ) {
-        prototyper.max_length = line.halt_length + (expand_station.len()/2)
+        prototyper.max_length = CARUNITS_PER_TILE * (line.halt_length + (expand_station.len()/2))
       } else {
-        prototyper.max_length = line.halt_length
+        prototyper.max_length = CARUNITS_PER_TILE * line.halt_length
       }
       if ( print_message_box >= 0 ) {
         gui.add_message_at(our_player, "### line.halt_length = " + line.halt_length + " ## expand_station.len() : " + expand_station.len(), world.get_time())
