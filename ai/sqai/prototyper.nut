@@ -208,7 +208,7 @@ class prototyper_t extends node_t
 
     local count_cnv_length = false
 
-    local show_mwssage = true
+    local show_mwssage = false
 
     while(true) {
 
