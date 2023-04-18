@@ -18,6 +18,7 @@ class my_line_t extends line_x
   next_vehicle_check  = world.get_time().ticks + world.get_time().ticks_per_month // save ticks for next vehicle check
   next_check          = world.get_time().ticks
   halt_length         = 0 // tiles from halts
+  add_convoy_time     = world.get_time().ticks + world.get_time().ticks_per_month // save ticks for next add convoy - destroy convoy then add time
 
   constructor(line /* line_x */)
   {
@@ -642,6 +643,17 @@ class industry_manager_t extends manager_t
           line.next_vehicle_check = world.get_time().ticks + next_time
         } else {
           line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
+
+          // set longer time for add convoy by remove convoy in last 6 month
+          local cnv_line = line.get_convoy_count()
+          local a = 0
+          for ( local x = 1; x < 8; x++ ) {
+            if ( cnv_line[x] <= cnv_line[0] ) {
+              a++
+            }
+          }
+          line.add_convoy_time = line.next_vehicle_check + (world.get_time().ticks_per_month * a)
+          //gui.add_message_at(our_player, "#656# line.add_convoy_time : " + line.add_convoy_time + " -- a : " + a, world.get_time())
         }
 
         local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
@@ -1204,7 +1216,7 @@ class industry_manager_t extends manager_t
         //::debug.pause()
       }
 
-      if ( (gain_per_m > 0 || bilanz_year < 0 ) && line.next_vehicle_check < world.get_time().ticks ) {
+      if ( (gain_per_m > 0 || bilanz_year < 0 ) && line.next_vehicle_check < world.get_time().ticks && line.add_convoy_time < world.get_time().ticks ) {
         // directly append
         // TODO put into report
         if ( bilanz_year < 0 ) {
@@ -1486,6 +1498,18 @@ class industry_manager_t extends manager_t
           line.next_vehicle_check = world.get_time().ticks + next_time
         } else {
           line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
+
+          // set longer time for add convoy by remove convoy in last 6 month
+          local cnv_line = line.get_convoy_count()
+          local a = 0
+          for ( local x = 1; x < 8; x++ ) {
+            if ( cnv_line[x] <= cnv_line[0] ) {
+              a++
+            }
+          }
+          line.add_convoy_time = line.next_vehicle_check + (world.get_time().ticks_per_month * a)
+          //gui.add_message_at(our_player, "#1511# line.add_convoy_time : " + line.add_convoy_time + " -- a : " + a, world.get_time())
+
         }
       }
     }
@@ -1563,7 +1587,7 @@ class industry_manager_t extends manager_t
       } else {
         prototyper.max_length = CARUNITS_PER_TILE * line.halt_length
       }
-      if ( print_message_box >= 0 ) {
+      if ( print_message_box > 0 ) {
         gui.add_message_at(our_player, "### line.halt_length = " + line.halt_length + " ## expand_station.len() : " + expand_station.len(), world.get_time())
         gui.add_message_at(our_player, "### prototyper.max_length = " + prototyper.max_length, world.get_time())
       }
