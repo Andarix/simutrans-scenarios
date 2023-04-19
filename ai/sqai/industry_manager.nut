@@ -1258,8 +1258,8 @@ class industry_manager_t extends manager_t
             }
           }
           expand_station = check_expand_station(nexttile, line)
-          if ( print_message_box == 0 && expand_station.len() > 0 ) {
-            gui.add_message_at(our_player, "###---- station_exist : " + station_exist + " ## expand_station.len() : " + expand_station.len(), world.get_time())
+          if ( print_message_box == 2 && expand_station.len() > 0 ) {
+            gui.add_message_at(our_player, "#1262##---- station_exist : " + station_exist + " ## expand_station.len() : " + expand_station.len(), world.get_time())
           }
 
         }
