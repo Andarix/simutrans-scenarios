@@ -702,6 +702,8 @@ class astar_builder extends astar
                   gui.add_message_at(our_player, "Failed to build bridge from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
                 } else {
                   remove_wayline(route, (i - 1), way.get_waytype())
+                  // remove bridge tiles build by not build bridge
+
                 }
               }
             }
@@ -801,6 +803,7 @@ function check_ground(pos_s, pos_e, way) {
 
     local z = null
     local terraform_tiles = []
+    local terraform_grid_tiles = []
     local err = null
   if ( start_end_slope == 1 && pos_s.z == pos_e.z ) {
     for ( local i = 0; i < f_count; i++ ) {
@@ -819,19 +822,42 @@ function check_ground(pos_s, pos_e, way) {
       } else if ( ((pos_s.z-2) == z.z || (pos_s.z-1) == z.z) && z.get_slope() > 0 ) {
         // tiles free no build bridges -> terraform
         terraform_tiles.append(z)
-        //gui.add_message_at(our_player, "(817) check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
+
+        gui.add_message_at(our_player, "(817) check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
+        gui.add_message_at(our_player, "(817) z.get_slope() " + z.get_slope(), z)
+        // slope 39 -> tile y+1 grid_raise()
+        if ( z.get_slope() == 39 ) {
+          terraform_grid_tiles.append(tile_x(z.x, z.y+1, z.z))
+        }
+
       }
     }
 
     if ( terraform_tiles.len() > 0 && terraform_tiles.len() < 5 ) {
-      for ( local i = 0; i < terraform_tiles.len(); i++ ) {
-        local f = null
-        do {
-          f = square_x(terraform_tiles[i].x, terraform_tiles[i].y).get_ground_tile()
-          err = command_x.set_slope(our_player, f, 82)
-          if ( err != null ) { return false }
-          f = square_x(terraform_tiles[i].x, terraform_tiles[i].y).get_ground_tile()
-        } while(f.z < pos_s.z )
+      local terraform_field = false
+      if ( terraform_grid_tiles.len() > 0 ) {
+        for ( local i = 0; i < terraform_grid_tiles.len(); i++ ) {
+          err = command_x.grid_raise(our_player, coord3d(terraform_grid_tiles[i].x, terraform_grid_tiles[i].y, terraform_grid_tiles[i].z))
+          if ( err != null ) {
+            terraform_field = true
+          }
+        }
+
+      }
+
+      if ( terraform_field ) {
+        for ( local i = 0; i < terraform_tiles.len(); i++ ) {
+          local f = square_x(terraform_tiles[i].x, terraform_tiles[i].y).get_ground_tile()
+          if ( f.z == pos_s.z ) { continue }
+          do {
+            f = square_x(terraform_tiles[i].x, terraform_tiles[i].y).get_ground_tile()
+            err = command_x.set_slope(our_player, f, 82)
+
+            if ( err != null ) { return false }
+            f = square_x(terraform_tiles[i].x, terraform_tiles[i].y).get_ground_tile()
+          } while(f.z < pos_s.z )
+        }
+
       }
 
       err = command_x.build_way(our_player, tile_x(pos_s.x, pos_s.y, pos_s.z), tile_x(pos_e.x, pos_e.y, pos_e.z), way, true)
@@ -4071,9 +4097,10 @@ function optimize_way_line(route, wt) {
   // 1 = bridges
   // 2 = tunnel
   // 3 = crossing
-  local print_message_box = 0
+  // 4 = terraform
+  local print_message_box = 4
 
-  if ( print_message_box > 0 ) { //wt == wt_road && wt == wt_rail &&
+  if ( print_message_box > 5 ) { //wt == wt_road && wt == wt_rail &&
     gui.add_message_at(our_player, " optimize_way_line(route, wt) ", tile_x(route[0].x, route[0].y, route[0].z))
   }
   //::debug.pause()
@@ -4252,7 +4279,6 @@ function optimize_way_line(route, wt) {
           local err = tool.work(our_player, tile_3, tile_4, "" + wt)
         }
 
-
         local way_obj = tile_4.find_object(mo_way).get_desc()
         if ( !way_obj.is_available(world.get_time()) ) {
           way_obj = find_object("way", wt, speed)
@@ -4267,22 +4293,62 @@ function optimize_way_line(route, wt) {
         if ( step_ok ) {
           err = null
           // terraform down
-          err = command_x.set_slope(our_player, tile_1, 83)
-          //gui.add_message_at(our_player, " terraform tile_1: " + err, world.get_time())
-          //::debug.pause()
+          /*local t = []
+          t.append(tile_1)
+          t.append(tile_2)*/
+          if ( check_tiles_for_terraform([tile_1, tile_2]) ) {
+            // tiles left and right free -> terraform grid
+
+            local cx = 0
+            local cy = 0
+            local terraform_tile = null
+            if ( tile_1.y == tile_2.y ) {
+              cy = 1
+              if ( tile_1.x > tile_2.x ) {
+                terraform_tile = tile_1
+              } else {
+                terraform_tile = tile_2
+              }
+            } else if ( tile_1.x == tile_2.x ) {
+              cx = 1
+              if ( tile_1.y > tile_2.y ) {
+                terraform_tile = tile_1
+              } else {
+                terraform_tile = tile_2
+              }
+            }
+
+            err = command_x.grid_lower(our_player, coord3d(terraform_tile.x, terraform_tile.y, terraform_tile.z))
+
+            if ( print_message_box == 4 ) {
+              gui.add_message_at(our_player, " terraform terraform_tile " + coord3d_to_string(terraform_tile) + " : " + err, world.get_time())
+            }
+
+            err = null
+            err = command_x.grid_lower(our_player, coord3d(terraform_tile.x+cx, terraform_tile.y+cy, terraform_tile.z))
+
+            if ( print_message_box == 4 ) {
+              gui.add_message_at(our_player, " terraform terraform_tile " + coord3d_to_string(tile_x(terraform_tile.x+cx, terraform_tile.y+cy, terraform_tile.z)) + " : " + err, world.get_time())
+            }
+          } else {
+            // tiles left and right not free -> terraform tile
+
+            err = command_x.set_slope(our_player, tile_1, 83)
+
+            err = command_x.set_slope(our_player, tile_2, 83)
+          }
+
+          // check ground is water after terraform
           if ( tile_1.is_water() ) {
             command_x.change_climate_at(our_player, tile_1, cl_temperate)
             remove_tile_to_empty(tile_2, wt, 0)
           }
-          err = null
-          err = command_x.set_slope(our_player, tile_2, 83)
-          //gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
-          //::debug.pause()
           if ( tile_2.is_water() ) {
             command_x.change_climate_at(our_player, tile_2, cl_temperate)
             remove_tile_to_empty(tile_1, wt, 0)
             command_x.change_climate_at(our_player, tile_1, cl_temperate)
           }
+
           err = null
           err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
           if (err != null ) {
@@ -4298,6 +4364,7 @@ function optimize_way_line(route, wt) {
           command_x.build_wayobj(our_player, tile_4, tile_3, catenary_obj)
         }
       } else if ( build_tunnel == 2 ) {
+        err = null
         // build tunnel - not work tunnel tool script ai
         //local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
         local txt = coord3d_to_string(tile_1)
@@ -4329,19 +4396,80 @@ function optimize_way_line(route, wt) {
 
       // slope down - slope up -> bridge
       if ( build_bridge == 1 ) {
+        local err = null
+        local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
         //local err = remove_tile_to_empty(tile_2, wt, 0)
         local tool = command_x(tool_remove_way)
-        local err = tool.work(our_player, tile_2, tile_2, "" + wt)
-          //gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
-        if (err == null) {
-          err = null
-          err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
-          if (err != null ) {
-            gui.add_message_at(our_player, " build bridge: " + err, tile_1)
-          } else {
-            count_build++
-          }
+        err = tool.work(our_player, tile_4, tile_3, "" + wt)
+        if ( print_message_box == 4 ) {
+          gui.add_message_at(our_player, "#4376# remove tile_1 " + coord3d_to_string(tile_1) + " : " + err, world.get_time())
+          gui.add_message_at(our_player, "#4376# remove tile_2 " + coord3d_to_string(tile_2) + " : " + err, world.get_time())
+          //::debug.pause()
         }
+
+        if (err == null) {
+          //err = null
+          /*local t = []
+          t.append(tile_1)
+          t.append(tile_2)*/
+          if ( check_tiles_for_terraform([tile_1, tile_2]) ) {
+            // tiles left and right free -> terraform grid
+
+              local cx = 0
+              local cy = 0
+              local terraform_tile = null
+              if ( tile_1.y == tile_2.y ) {
+                cy = 1
+                if ( tile_1.x > tile_2.x ) {
+                  terraform_tile = tile_1
+                } else {
+                  terraform_tile = tile_2
+                }
+              } else if ( tile_1.x == tile_2.x ) {
+                cx = 1
+                if ( tile_1.y > tile_2.y ) {
+                  terraform_tile = tile_1
+                } else {
+                  terraform_tile = tile_2
+                }
+              }
+
+            err = command_x.grid_raise(our_player, coord3d(terraform_tile.x, terraform_tile.y, terraform_tile.z))
+            //::debug.pause()
+            if (err != null ) {
+              if ( print_message_box == 4 ) {
+                gui.add_message_at(our_player, "#4390# terraform fail -> build bridge : " + err, tile_1)
+                ::debug.pause()
+              }
+              err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
+
+            } else {
+              gui.add_message_at(our_player, "#4344# terraform_tile : " + coord3d_to_string(terraform_tile), terraform_tile)
+              err = command_x.grid_raise(our_player, coord3d(terraform_tile.x+cx, terraform_tile.y+cy, terraform_tile.z))
+
+
+              if ( err == null ) {
+                err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
+                if (err != null ) {
+                  gui.add_message_at(our_player, "#4350# build way " + coord3d_to_string(tile_4) + " - " + coord3d_to_string(tile_3) + ": " + err, world.get_time())
+                } else {
+                  count_build++
+                }
+              } else {
+                gui.add_message_at(our_player, "#4403# err : " + err, tile_1)
+              }
+            }
+
+          } else {
+            // tiles left and right not free -> build bridge
+
+            err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
+
+          }
+
+
+        }
+
         // restor exist catenary
         if ( catenary_obj != null ) {
           command_x.build_wayobj(our_player, tile_1, build_tile, catenary_obj)
@@ -4528,6 +4656,31 @@ function optimize_way_line(route, wt) {
     return false
   }
 
+}
+
+/*
+ * check tiles free for terraform
+ *
+ * tiles = array tiles for check tiles left and right is free
+ */
+function check_tiles_for_terraform(tiles) {
+  local tiles_free = true
+  local cx = 0
+  local cy = 0
+  if ( tiles[0].x == tiles[1].x ) {
+    cx = 1
+  } else if ( tiles[0].y == tiles[1].y ) {
+    cy = 1
+  }
+  for ( local x = 0; x < tiles.len(); x++ ) {
+    gui.add_message_at(our_player, "test_tile_is_empty tiles[x]+ " + test_tile_is_empty(tile_x(tiles[x].x+cx, tiles[x].y+cy, tiles[x].z)), tiles[x])
+    gui.add_message_at(our_player, "test_tile_is_empty tiles[x]- " + test_tile_is_empty(tile_x(tiles[x].x-cx, tiles[x].y-cy, tiles[x].z)), world.get_time())
+    if ( !test_tile_is_empty(tile_x(tiles[x].x+cx, tiles[x].y+cy, tiles[x].z)) || !test_tile_is_empty(tile_x(tiles[x].x-cx, tiles[x].y-cy, tiles[x].z)) ) {
+      tiles_free = false
+    }
+  }
+
+  return tiles_free
 }
 
 /*
