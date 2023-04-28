@@ -79,7 +79,7 @@ class rail_connector_t extends manager_t
 
     switch(phase) {
       case 0: // find places for stations
-        if ( print_message_box >= 0 ) {
+        if ( print_message_box > 0 ) {
           gui.add_message_at(pl, "______________________ build rail ______________________", world.get_time())
           gui.add_message_at(pl, " line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ")", world.get_time())
         }
@@ -282,10 +282,10 @@ class rail_connector_t extends manager_t
           // check combined station or connect factory src
           local tiles_y = abs(fs[0].y - c_start.y)
           local tiles_x = abs(fs[0].x - c_start.y)
-          local tiles_c = (fs.len() / 2) + settings.get_station_coverage()
+          local tiles_c = (fs.len() / 2) + settings.get_station_coverage() + 2
           local combined_halt = false
           if (tiles_x > tiles_c || tiles_y > tiles_c) {
-            gui.add_message_at(pl, "tiles_x = " + tiles_x + " - tiles_y = " + tiles_y + " - tiles_c = " + tiles_c, world.get_time())
+            //gui.add_message_at(pl, "tiles_x = " + tiles_x + " - tiles_y = " + tiles_y + " - tiles_c = " + tiles_c, world.get_time())
             combined_halt = true
           }
 
@@ -313,10 +313,10 @@ class rail_connector_t extends manager_t
           // check combined station or connect factory dest
           tiles_y = abs(fd[0].y - c_end.y)
           tiles_x = abs(fd[0].x - c_end.y)
-          tiles_c = (fd.len() / 2) + settings.get_station_coverage()
+          tiles_c = (fd.len() / 2) + settings.get_station_coverage() +2
           combined_halt = false
           if (tiles_x > tiles_c || tiles_y > tiles_c) {
-            gui.add_message_at(pl, "tiles_x = " + tiles_x + " - tiles_y = " + tiles_y + " - tiles_c = " + tiles_c, world.get_time())
+            //gui.add_message_at(pl, "tiles_x = " + tiles_x + " - tiles_y = " + tiles_y + " - tiles_c = " + tiles_c, world.get_time())
             combined_halt = true
           }
 
@@ -591,8 +591,8 @@ class rail_connector_t extends manager_t
     local nr_tile_test = 3
 
     if ( routes.len() > 150 ) {
-    //gui.add_message_at(our_player, "distance " + distance, world.get_time())
-      gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+      //gui.add_message_at(our_player, "distance " + distance, world.get_time())
+      //gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
     }
     local s = routes.len()-nr_tile_test
     t_start = routes.slice(s)
@@ -633,7 +633,7 @@ class rail_connector_t extends manager_t
     for ( local j = 0; j < t_start.len()-1; j++ ) {
       err = command_x.build_way(pl, t_start[j], t_start[j+1], planned_way, true)
       if ( err != null ) {
-        gui.add_message_at(pl, "check_station build_way " + err, t_start[0])
+        //gui.add_message_at(pl, "check_station build_way " + err, t_start[0])
       }
     }
 
