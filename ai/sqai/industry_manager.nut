@@ -19,6 +19,8 @@ class my_line_t extends line_x
   next_check          = world.get_time().ticks
   halt_length         = 0 // tiles from halts
   add_convoy_time     = world.get_time().ticks + world.get_time().ticks_per_month // save ticks for next add convoy - destroy convoy then add time
+  line_bridges_count  = 0 // count non player bridges from line
+  line_bridges        = [] // array bridge start/end from not player bridges
 
   constructor(line /* line_x */)
   {
@@ -787,10 +789,45 @@ class industry_manager_t extends manager_t
       }
     }
 
-      /*if ( bilanz_year < 0 ) {
-        gui.add_message_at(our_player, " line 726 ", world.get_time())
-        //::debug.pause()
-      }*/
+    // check bridges other player in route
+    if ( line.line_bridges.len() > 0 ) {
+      local g = line.line_bridges
+      for ( local x = 0; 0 < g.len(); x++ ) {
+        local gt = g[x]
+        if ( gt[0].is_bridge == false && gt[1].is_bridge == false ) {
+          local bridge_obj = find_object("bridge", wt, line.line_way_speed)
+          command_x.build_bridge(our_player, gt[0], gt[1], bridge_obj)
+          if ( debug ) gui.add_message_at(our_player, "**** line 800 - build missing bridge in route ## ", gt[0])
+        }
+      }
+      //if ( debug ) gui.add_message_at(our_player, "**** line 816 - line_bridges_count = " + line.line_bridges_count + " ## ", g[0])
+
+    }
+
+    // count bridges from other player
+    if ( wt == wt_road && line.line_bridges_count == 0 ) {
+      local tiles = nexttile
+      local bridge_start = null
+      local bridge_end = null
+      for ( local x = 0; x < tiles.len(); x++ ) {
+        if ( tiles[x].is_bridge() && bridge_start != null ) {
+          local test_bridge = tiles[x].find_object(mo_bridge) //.get_desc()
+          if ( test_bridge.get_owner().nr != our_player_nr && bridge_start == null ) {
+            bridge_start = tiles[x]
+          }
+        } else if ( bridge_start != null && tiles[x].is_bridge() == false ) {
+          bridge_end = tiles[x-1]
+          line.line_bridges.append([bridge_start, bridge_end])
+          line.line_bridges_count++
+          bridge_start = null
+          bridge_end = null
+        }
+      }
+      if ( line.line_bridges.len() > 0 ) {
+        local g = line.line_bridges[0]
+        if ( debug ) gui.add_message_at(our_player, "**** line 828 - line_bridges_count = " + line.line_bridges_count + " ## ", g[0])
+      }
+    }
 
     if (our_player.get_current_cash() > 50000 && wt != wt_water && wt != wt_air) {
       if ( line.optimize_way_line == 0 ) {
@@ -1933,7 +1970,7 @@ class industry_manager_t extends manager_t
 
     local way_obj = start_l.find_object(mo_way).get_desc() //way_list[0]
     if ( !way_obj.is_available(world.get_time()) ) {
-      way_obj = find_object("way", wt, way_obj.get_topspeed())
+      way_obj = find_object("way", wt_rail, way_obj.get_topspeed())
     }
 
     if ( print_message_box == 1 ) {
