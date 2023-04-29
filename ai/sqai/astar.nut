@@ -1171,6 +1171,15 @@ function remove_wayline(route, pos, wt, st_len = null) {
     if ( i > 0 ) {
       next_tile = square_x(route[i-1].x, route[i-1].y).get_ground_tile()
     }
+
+    local no_bridge = false
+    if ( abs(tile.x-next_tile.x) > 1 || abs(tile.x-next_tile.x) > 1 ) {
+      if ( tile.find_object(mo_bridge) == null ) {
+        no_bridge = true
+        gui.add_message_at(our_player, "#1179# remove way by not build bridge " + coord3d_to_string(tile), next_tile)
+      }
+    }
+
     local t_field = tile.find_object(mo_way)
     if ( t_field == null ) { continue }
     local cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]
