@@ -802,13 +802,19 @@ function check_ground(pos_s, pos_e, way) {
   //gui.add_message_at(our_player, "(800) start_end_slope " + start_end_slope, world.get_time())
 
     local z = null
+    local z1 = null
     local terraform_tiles = []
     local terraform_grid_tiles = []
     local err = null
-  if ( start_end_slope == 1 && pos_s.z == pos_e.z ) {
+  if ( start_end_slope == 1 && pos_s.z == pos_e.z && f_count > 1 ) {
     for ( local i = 0; i < f_count; i++ ) {
       // find z coord
       z = square_x(t_tile[i].x, t_tile[i].y).get_ground_tile()
+      if ( (i + 1) == f_count ) {
+        z1 = square_x(t_tile[i-1].x, t_tile[i-1].y).get_ground_tile()
+      } else {
+        z1 = square_x(t_tile[i+1].x, t_tile[i+1].y).get_ground_tile()
+      }
 
         //gui.add_message_at(our_player, "check_ground bridge - tile_tree = " + tile_tree + " || tile_groundobj = " + tile_groundobj + " tile_moving_object = " + tile_moving_object, z)
 
@@ -823,12 +829,33 @@ function check_ground(pos_s, pos_e, way) {
         // tiles free no build bridges -> terraform
         terraform_tiles.append(z)
 
-        gui.add_message_at(our_player, "(817) check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
-        gui.add_message_at(our_player, "(817) z.get_slope() " + z.get_slope(), z)
-        // slope 39 -> tile y+1 grid_raise()
-        if ( z.get_slope() == 39 ) {
-          terraform_grid_tiles.append(tile_x(z.x, z.y+1, z.z))
+        gui.add_message_at(our_player, "(832) check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
+        //gui.add_message_at(our_player, "(832) z.get_slope() " + z.get_slope(), z)
+        // EW slope 37-39 : 13-31
+        // NS slope 13-39 : 31-37
+        local z_slope_nr = z.get_slope()
+        local z1_slope_nr = z1.get_slope()
+
+        if ( ((z_slope_nr == 39 || z_slope_nr == 31) && z1_slope_nr == 37) || (z_slope_nr == 37 && (z1_slope_nr == 39 || z1_slope_nr == 31)) ) {
+          if ( z1_slope_nr == 39 ) {
+            terraform_grid_tiles.append(tile_x(z1.x, z1.y+1, z1.z))
+          } else if ( z_slope_nr == 39 ) {
+            terraform_grid_tiles.append(tile_x(z.x, z.y+1, z.z))
+          }
+          if ( z1_slope_nr == 31 ) {
+            terraform_grid_tiles.append(tile_x(z1.x+1, z1.y, z1.z))
+          } else if ( z_slope_nr == 31 ) {
+            terraform_grid_tiles.append(tile_x(z.x+1, z.y, z.z))
+          }
         }
+        if ( (z_slope_nr == 13 && (z1_slope_nr == 31 || z1_slope_nr == 39)) || ((z_slope_nr == 31 || z_slope_nr == 39) && z1_slope_nr == 13) ) {
+          if ( z1_slope_nr == 13 ) {
+            terraform_grid_tiles.append(tile_x(z1.x, z1.y, z1.z))
+          } else {
+            terraform_grid_tiles.append(tile_x(z.x, z.y, z.z))
+          }
+        }
+
 
       }
     }
