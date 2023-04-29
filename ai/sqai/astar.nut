@@ -4306,13 +4306,20 @@ function optimize_way_line(route, wt) {
         // not build tunnel -> set slope down
         local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
         tile_4_d = tile_4.get_way_dirs(wt)
-        if ( tile_4.find_object(mo_building) != null || tile_4.find_object(mo_bridge) != null ) { //dir.is_single(tile_4_d)
+        /*if ( tile_4.find_object(mo_building) != null || tile_4.find_object(mo_bridge) != null ) { //dir.is_single(tile_4_d)
           local tool = command_x(tool_remover)
           err = tool.work(our_player, tile_3)
           if ( err == null ) { err = tool.work(our_player, tile_2) }
         } else {
           local tool = command_x(tool_remove_way)
           local err = tool.work(our_player, tile_3, tile_4, "" + wt)
+        }*/
+        if ( tile_3.find_object(mo_bridge) == null && tile_4.find_object(mo_bridge) == null && tile_4.find_object(mo_building) == null && tile_3.find_object(mo_building) == null ) {
+          local tool = command_x(tool_remove_way)
+          err = tool.work(our_player, tile_4, tile_3, "" + wt)
+        } else {
+          remove_tile_to_empty(tile_1, wt, 0)
+          remove_tile_to_empty(tile_2, wt, 0)
         }
 
         local way_obj = tile_4.find_object(mo_way).get_desc()
@@ -4435,8 +4442,15 @@ function optimize_way_line(route, wt) {
         local err = null
         local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
         //local err = remove_tile_to_empty(tile_2, wt, 0)
-        local tool = command_x(tool_remove_way)
-        err = tool.work(our_player, tile_4, tile_3, "" + wt)
+
+        if ( tile_3.find_object(mo_bridge) == null && tile_4.find_object(mo_bridge) == null && tile_4.find_object(mo_building) == null && tile_3.find_object(mo_building) == null ) {
+          local tool = command_x(tool_remove_way)
+          err = tool.work(our_player, tile_4, tile_3, "" + wt)
+        } else {
+          remove_tile_to_empty(tile_1, wt, 0)
+          remove_tile_to_empty(tile_2, wt, 0)
+        }
+
         if ( print_message_box == 4 ) {
           gui.add_message_at(our_player, "#4376# remove tile_1 " + coord3d_to_string(tile_1) + " : " + err, world.get_time())
           gui.add_message_at(our_player, "#4376# remove tile_2 " + coord3d_to_string(tile_2) + " : " + err, world.get_time())
