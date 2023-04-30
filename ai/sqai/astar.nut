@@ -683,7 +683,7 @@ class astar_builder extends astar
             local build_bridge = true
             // check whether the ground can be adjusted and no bridge is necessary
             // bridge len <= 4 tiles
-            if ( b_tiles < 5 ) {
+            if ( b_tiles < 8 ) {
               build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
               //gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + build_bridge, route[i-1])
             }
@@ -748,7 +748,7 @@ function test_select_way(start, end, t_end, wt) {
  *
  */
 function check_ground(pos_s, pos_e, way) {
-  //gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + coord_to_string(pos_s), world.get_time())
+  gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + coord_to_string(pos_s) + " - " + coord_to_string(pos_e), world.get_time())
 
   local check_x = 0
   local check_y = 0
@@ -805,6 +805,7 @@ function check_ground(pos_s, pos_e, way) {
     local z1 = null
     local terraform_tiles = []
     local terraform_grid_tiles = []
+    local grid_coord = []
     local err = null
   if ( start_end_slope == 1 && pos_s.z == pos_e.z && f_count > 1 ) {
     for ( local i = 0; i < f_count; i++ ) {
@@ -829,42 +830,73 @@ function check_ground(pos_s, pos_e, way) {
         // tiles free no build bridges -> terraform
         terraform_tiles.append(z)
 
-        gui.add_message_at(our_player, "(832) check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
+        gui.add_message_at(our_player, "(832) check_ground bridge - terraform_tiles.append(z) " + coord3d_to_string(z), z)
         //gui.add_message_at(our_player, "(832) z.get_slope() " + z.get_slope(), z)
         // EW slope 37-39 : 13-31
         // NS slope 13-39 : 31-37
         local z_slope_nr = z.get_slope()
         local z1_slope_nr = z1.get_slope()
+        local grid_tile = null
 
         if ( ((z_slope_nr == 39 || z_slope_nr == 31) && z1_slope_nr == 37) || (z_slope_nr == 37 && (z1_slope_nr == 39 || z1_slope_nr == 31)) ) {
           if ( z1_slope_nr == 39 ) {
-            terraform_grid_tiles.append(tile_x(z1.x, z1.y+1, z1.z))
+            grid_tile = tile_x(z1.x, z1.y+1, z1.z)
           } else if ( z_slope_nr == 39 ) {
-            terraform_grid_tiles.append(tile_x(z.x, z.y+1, z.z))
+            grid_tile = tile_x(z.x, z.y+1, z.z)
           }
           if ( z1_slope_nr == 31 ) {
-            terraform_grid_tiles.append(tile_x(z1.x+1, z1.y, z1.z))
+            grid_tile = tile_x(z1.x+1, z1.y, z1.z)
           } else if ( z_slope_nr == 31 ) {
-            terraform_grid_tiles.append(tile_x(z.x+1, z.y, z.z))
+            grid_tile = tile_x(z.x+1, z.y, z.z)
           }
         }
         if ( (z_slope_nr == 13 && (z1_slope_nr == 31 || z1_slope_nr == 39)) || ((z_slope_nr == 31 || z_slope_nr == 39) && z1_slope_nr == 13) ) {
           if ( z1_slope_nr == 13 ) {
-            terraform_grid_tiles.append(tile_x(z1.x, z1.y, z1.z))
+            grid_tile = tile_x(z1.x, z1.y, z1.z)
           } else {
-            terraform_grid_tiles.append(tile_x(z.x, z.y, z.z))
+            grid_tile = tile_x(z.x, z.y, z.z)
           }
         }
 
+        if ( (z_slope_nr == 1 && z1_slope_nr == 31) || (z_slope_nr == 31 && z1_slope_nr == 1) ) {
+          if ( z1_slope_nr == 1 ) {
+            grid_tile = tile_x(z1.x, z1.y, z1.z)
+          } else {
+            grid_tile = tile_x(z.x, z.y, z.z)
+          }
+        }
 
+        //gui.add_message_at(our_player, "(862) grid_coord.find(coord3d_to_string(grid_tile)) " + grid_coord.find(coord3d_to_string(grid_tile)), grid_tile)
+        if ( grid_tile != null && grid_coord.find(coord3d_to_string(grid_tile)) == null ) {
+          terraform_grid_tiles.append(grid_tile)
+          grid_coord.append(coord3d_to_string(grid_tile))
+          gui.add_message_at(our_player, "(862) check_ground bridge - terraform_grid_tiles.append(grid_tile) " + coord3d_to_string(grid_tile), grid_tile)
+        }
+
+/*
+        if ( (z_slope_nr == 3 && z1_slope_nr == 9) || (z_slope_nr == 9 && z1_slope_nr == 3) ) {
+          if ( z1_slope_nr == 9 ) {
+            terraform_grid_tiles.append(tile_x(z1.x+1, z1.y, z1.z))
+          } else {
+            terraform_grid_tiles.append(tile_x(z.x+1, z.y, z.z))
+          }
+        }
+*/
       }
     }
 
-    if ( terraform_tiles.len() > 0 && terraform_tiles.len() < 5 ) {
+    if ( terraform_tiles.len() > 0 && terraform_tiles.len() < 7 ) {
       local terraform_field = false
       if ( terraform_grid_tiles.len() > 0 ) {
+        gui.add_message_at(our_player, "(873) terraform_grid_tiles.len() " + terraform_grid_tiles.len(), world.get_time())
         for ( local i = 0; i < terraform_grid_tiles.len(); i++ ) {
-          err = command_x.grid_raise(our_player, coord3d(terraform_grid_tiles[i].x, terraform_grid_tiles[i].y, terraform_grid_tiles[i].z))
+          if ( pos_s.z > terraform_grid_tiles[i].z ) {
+            err = command_x.grid_raise(our_player, coord3d(terraform_grid_tiles[i].x, terraform_grid_tiles[i].y, terraform_grid_tiles[i].z))
+          } else {
+            err = command_x.grid_lower(our_player, coord3d(terraform_grid_tiles[i].x, terraform_grid_tiles[i].y, terraform_grid_tiles[i].z))
+          }
+
+
           if ( err != null ) {
             terraform_field = true
           }
@@ -1173,7 +1205,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
     }
 
     local no_bridge = false
-    if ( abs(tile.x-next_tile.x) > 1 || abs(tile.x-next_tile.x) > 1 ) {
+    if ( i > 0 && ( abs(tile.x-next_tile.x) > 1 || abs(tile.x-next_tile.x) > 1 )) {
       if ( tile.find_object(mo_bridge) == null ) {
         no_bridge = true
         gui.add_message_at(our_player, "#1179# remove way by not build bridge " + coord3d_to_string(tile), next_tile)
