@@ -742,6 +742,7 @@ function test_select_way(start, end, t_end, wt) {
   return false
 }
 
+
 /*
  * check ground under bridges
  *
@@ -832,7 +833,7 @@ function check_ground(pos_s, pos_e, way) {
 
         gui.add_message_at(our_player, "(832) check_ground bridge - terraform_tiles.append(z) " + coord3d_to_string(z), z)
         //gui.add_message_at(our_player, "(832) z.get_slope() " + z.get_slope(), z)
-        // EW slope 37-39 : 13-31
+        // EW slope 37-39 : 13-31 : 31-1 : 3-13
         // NS slope 13-39 : 31-37
         local z_slope_nr = z.get_slope()
         local z1_slope_nr = z1.get_slope()
@@ -884,6 +885,8 @@ function check_ground(pos_s, pos_e, way) {
 */
       }
     }
+
+    local terraform_action = 1 // 0 = down ; 1 = up
 
     if ( terraform_tiles.len() > 0 && terraform_tiles.len() < 7 ) {
       local terraform_field = false
@@ -1697,7 +1700,7 @@ function expand_station(pl, fields, wt, select_station, start_fld, combined_halt
   //gui.add_message_at(pl, "(1496) ---=> extension_tile " + extension_tile, world.get_time())
 
 
-  if ( tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z).is_water() ) {
+  if ( extension_tile != null && tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z).is_water() ) {
     extension_tile = null
   }
 
@@ -5028,9 +5031,10 @@ function destroy_line(line_obj, good, link_obj) {
       //::debug.pause()
 
       // Prüfen warum next_vehicle_check nicht vorhanden bei Schiffslinien
-      if ( wt != wt_water ) {
+      // line_x statt link.line
+      //if ( wt != wt_water ) {
         line_obj.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 1)
-      }
+      //}
     }
     // sleep - convoys are destroyed when simulation continues
     sleep()
@@ -5543,6 +5547,7 @@ function check_stations_connections() {
 
     local halt_factory_connect = halt.get_factory_list().len()
     local halt_lines = halt.get_line_list()
+    local halt_line = null
     local halt_cnv = halt.get_convoy_list()
 
     //if ( halt_lines.get_count() == 1 ) { gui.add_message_at(our_player, "####### halt_lines[0]: " + halt_lines[0].get_name(), world.get_time()) }
@@ -5571,7 +5576,7 @@ function check_stations_connections() {
       foreach(line in line_list) {
         //gui.add_message_at(player_x(our_player.nr), "####### line check " + line.get_name(), world.get_time())
         if ( halt_lines[0].id == line.id ) {
-          halt_lines = line
+          halt_line = line
           break
         }
       }
@@ -5595,7 +5600,34 @@ function check_stations_connections() {
 
         //local t = halt.get_tile_list()
         //halt_cnv = halt_lines.get_convoy_list()
-        destroy_line(halt_lines, good, null)
+
+
+        // destroy_line link.line not line_x
+
+      /*
+
+      if (!check_link(link)) {
+        continue
+      }
+      yield link
+    }*/
+        local link_list = industry_manager.link_list
+        local search_line = null
+        foreach(link in link_list) {
+        // start_f[0], end_f[0], good.get_name()
+
+
+          foreach(index, line in link.lines) {
+            //gui.add_message_at(player_x(our_player.nr), "####### line check " + line.get_name(), world.get_time())
+            if ( line.is_valid() && line.get_owner().nr == our_player.nr && halt_line.get_name() == line.get_name() ) {
+              search_line = line
+            }
+          }
+
+        }
+
+
+        destroy_line(search_line, good, null) //halt_line
 
 
         break
