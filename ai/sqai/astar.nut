@@ -2895,19 +2895,33 @@ function build_double_track(start_field, wt) {
                 gui.add_message_at(b_player, " build_hight.get_slope() " + build_hight.get_slope(), build_hight)
               }
 
-              local tile_build_slope = [37, 9, 31, 1]
+              local tile_build_slope = [37, 9, 31, 1, 3]
               if ( tile_build_slope.find(build_hight.get_slope()) != null ) {
                 local cx = 0
                 local cy = 0
+                local build_side = 0
                 if ( d == 10 ) {
                   cx = 1
+                  if ( tiles_build[i].y > tiles[i].y ) {
+                    build_side = 1
+                  }
                 } else if ( d == 5 ) {
                   cy = 1
+                  if ( tiles_build[i].x > tiles[i].x ) {
+                    build_side = 1
+                  }
                 }
 
                 local tile_a = square_x(tiles_build[i].x+cx, tiles_build[i].y+cy).get_ground_tile()
-                local tile_a1 = square_x(tiles_build[i].x+cy, tiles_build[i].y+cx).get_ground_tile()
-                local tile_b1 = square_x(tile_a.x+cy, tile_a.y+cx).get_ground_tile()
+                local tile_a1 = null
+                local tile_b1 = null
+                if ( build_side == 1 ) {
+                  tile_a1 = square_x(tiles_build[i].x+cy, tiles_build[i].y+cx).get_ground_tile()
+                  tile_b1 = square_x(tile_a.x+cy, tile_a.y+cx).get_ground_tile()
+                } else {
+                  tile_a1 = square_x(tiles_build[i].x-cy, tiles_build[i].y-cx).get_ground_tile()
+                  tile_b1 = square_x(tile_a.x-cy, tile_a.y-cx).get_ground_tile()
+                }
 
                 if ( print_message_box == 21 ) {
                   gui.add_message_at(b_player, " tile_a.get_slope() " + tile_a.get_slope(), tile_a)
@@ -2959,19 +2973,33 @@ function build_double_track(start_field, wt) {
                 gui.add_message_at(b_player, " build_hight.get_slope() " + build_hight.get_slope(), build_hight)
               }
 
-              local tile_build_slope = [3, 1]
+              local tile_build_slope = [3, 1, 9]
               if ( tile_build_slope.find(build_hight.get_slope()) != null ) {
                 local cx = 0
                 local cy = 0
+                local build_side = 0
                 if ( d == 10 ) {
                   cx = 1
+                  if ( tiles_build[i].y > tiles[i].y ) {
+                    build_side = 1
+                  }
                 } else if ( d == 5 ) {
                   cy = 1
+                  if ( tiles_build[i].x > tiles[i].x ) {
+                    build_side = 1
+                  }
                 }
 
                 local tile_a = square_x(tiles_build[i].x+cx, tiles_build[i].y+cy).get_ground_tile()
-                local tile_a1 = square_x(tiles_build[i].x+cy, tiles_build[i].y+cx).get_ground_tile()
-                local tile_b1 = square_x(tile_a.x+cy, tile_a.y+cx).get_ground_tile()
+                local tile_a1 = null
+                local tile_b1 = null
+                if ( build_side == 1 ) {
+                  tile_a1 = square_x(tiles_build[i].x+cy, tiles_build[i].y+cx).get_ground_tile()
+                  tile_b1 = square_x(tile_a.x+cy, tile_a.y+cx).get_ground_tile()
+                } else {
+                  tile_a1 = square_x(tiles_build[i].x-cy, tiles_build[i].y-cx).get_ground_tile()
+                  tile_b1 = square_x(tile_a.x-cy, tile_a.y-cx).get_ground_tile()
+                }
 
                 if ( print_message_box == 21 ) {
                   gui.add_message_at(b_player, " tile_a.get_slope() " + tile_a.get_slope(), tile_a)
@@ -2979,11 +3007,11 @@ function build_double_track(start_field, wt) {
                   gui.add_message_at(b_player, " tile_b1.get_slope() " + tile_b1.get_slope(), tile_b1)
                 }
 
-                local tile_a_slope = [9, 12, 13, 1, 4, 31]
+                local tile_a_slope = [9, 12, 13, 1, 4, 31, 39]
                 local tile_a_slope_WE = [39, 27, 36]
                 if ( tile_build_slope.find(build_hight.get_slope()) != null && tile_a_slope.find(tile_a.get_slope()) != null && test_tile_is_empty(tile_a1) && test_tile_is_empty(tile_b1) ) {
                   if ( straight_slope == true ) {
-                    err = command_x.grid_raise(our_player, coord3d(tile_b1.x, tile_b1.y, tile_b1.z))
+                    err = command_x.grid_raise(our_player, coord3d(tile_a.x, tile_a.y, tile_a.z))
                   } else {
                     err = command_x.grid_lower(our_player, coord3d(tile_b1.x, tile_b1.y, tile_b1.z))
                   }
@@ -3002,8 +3030,14 @@ function build_double_track(start_field, wt) {
                   tile_a1 = square_x(tiles_build[i].x, tiles_build[i].y-1).get_ground_tile()
                   tile_b1 = square_x(tile_a.x, tile_a.y-1).get_ground_tile()
                   if ( test_tile_is_empty(tile_a1) && test_tile_is_empty(tile_b1) ) {
-                    err = command_x.grid_lower(our_player, coord3d(tile_a.x, tile_a.y, tile_a.z))
-                    terraform_tile = 0
+                    if ( straight_slope == true ) {
+                      err = command_x.grid_raise(our_player, coord3d(tile_b1.x, tile_b1.y, tile_b1.z))
+                    } else {
+                      err = command_x.grid_lower(our_player, coord3d(tile_a.x, tile_a.y, tile_a.z))
+                    }
+                    if ( err == null ) {
+                      terraform_tile = 0
+                    }
                   }
 
                 }
@@ -3047,7 +3081,7 @@ function build_double_track(start_field, wt) {
         if ( ref_hight.z == build_hight.z && ref_hight.get_slope() == build_hight.get_slope() ) {
 
           if ( print_message_box == 21 ) {
-            gui.add_message_at(b_player, " ---=> slope tiles == tiles_build * tiles.z == tiles_build.z ", world.get_time())
+            gui.add_message_at(b_player, "#3084# ---=> slope tiles == tiles_build * tiles.z == tiles_build.z ", world.get_time())
           }
 
         } else if ( build_hight.is_empty() && straight_slope == true ) {
@@ -4480,6 +4514,12 @@ function optimize_way_line(route, wt) {
         build_tile = tile_2
       }
 
+      // check is way our player
+      local tile_1_pl = tile_1.find_object(mo_way).get_owner().nr //.get_desc()
+      local tile_2_pl = tile_2.find_object(mo_way).get_owner().nr //.get_desc()
+      if ( tile_1_pl != our_player_nr || tile_2_pl != our_player_nr ) {
+        continue
+      }
 
 
       if ( (way_d > 0 || build_bridge > 0) && print_message_box > 0 ) { //
@@ -4656,15 +4696,23 @@ function optimize_way_line(route, wt) {
         local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
         //local err = remove_tile_to_empty(tile_2, wt, 0)
 
+
         if ( tile_3.find_object(mo_bridge) == null && tile_4.find_object(mo_bridge) == null && tile_4.find_object(mo_building) == null && tile_3.find_object(mo_building) == null ) {
           local tool = command_x(tool_remove_way)
           err = tool.work(our_player, tile_4, tile_3, "" + wt)
         } else {
-          remove_tile_to_empty(tile_1, wt, 0)
-          remove_tile_to_empty(tile_2, wt, 0)
+          err = remove_tile_to_empty(tile_1, wt, 0)
+          if ( err ) {
+            err = remove_tile_to_empty(tile_2, wt, 0)
+          }
+          if ( err ) {
+            err = null
+          } else {
+            continue
+          }
         }
 
-        if ( print_message_box == 4 ) {
+        if ( print_message_box == 4 && err != null ) {
           gui.add_message_at(our_player, "#4376# remove tile_1 " + coord3d_to_string(tile_1) + " : " + err, world.get_time())
           gui.add_message_at(our_player, "#4376# remove tile_2 " + coord3d_to_string(tile_2) + " : " + err, world.get_time())
           //::debug.pause()
