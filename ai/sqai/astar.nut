@@ -3259,7 +3259,7 @@ function build_double_track(start_field, wt) {
         if ( start_field.get_way_dirs(wt) == 5 ) {
           tile_a = tile_x(tiles[0].x, tiles[0].y-1, tiles[0].z)
           tile_b = tile_x(tiles[0].x-1, tiles[0].y-1, tiles[0].z)
-          if ( tile_a.get_way_dirs(wt) == 12 && (tile_b.get_way_dirs(wt) == 3 || (tile_b.get_way_dirs(wt) == 10 && !tile_b.is_bridge() && !tile_b.is_tunnel())) ) {
+          if ( tile_a.get_way_dirs(wt) == 12 && (tile_b.get_way_dirs(wt) == 3 || (tile_b.get_way_dirs(wt) == 10 && !tile_b.is_bridge() && !tile_b.is_tunnel() && tile_b.get_slope() == 0)) ) {
             b_tile = tile_b
           }
           tile_check = 1
@@ -3267,7 +3267,7 @@ function build_double_track(start_field, wt) {
         } else if ( start_field.get_way_dirs(wt) == 10 ) {
           tile_a = tile_x(tiles[0].x-1, tiles[0].y, tiles[0].z)
           tile_b = tile_x(tiles[0].x-1, tiles[0].y-1, tiles[0].z)
-          if ( (tile_a.get_way_dirs(wt) == 12 || tile_a.get_way_dirs(wt) == 3) && (tile_b.get_way_dirs(wt) == 3 || tile_b.get_way_dirs(wt) == 12 || (tile_b.get_way_dirs(wt) == 5 && !tile_b.is_bridge() && !tile_b.is_tunnel())) ) {
+          if ( (tile_a.get_way_dirs(wt) == 12 || tile_a.get_way_dirs(wt) == 3) && (tile_b.get_way_dirs(wt) == 3 || tile_b.get_way_dirs(wt) == 12 || (tile_b.get_way_dirs(wt) == 5 && !tile_b.is_bridge() && !tile_b.is_tunnel() && tile_b.get_slope() == 0)) ) {
             b_tile = tile_b
           }
           tile_check = 2
@@ -3278,7 +3278,7 @@ function build_double_track(start_field, wt) {
         if ( start_field.get_way_dirs(wt) == 5 ) {
           tile_a = tile_x(tiles[0].x, tiles[0].y-1, tiles[0].z)
           tile_b = tile_x(tiles[0].x+1, tiles[0].y-1, tiles[0].z)
-          if ( tile_a.get_way_dirs(wt) == 6 && (tile_b.get_way_dirs(wt) == 9 || (tile_b.get_way_dirs(wt) == 10 && !tile_b.is_bridge() && !tile_b.is_tunnel())) ) {
+          if ( tile_a.get_way_dirs(wt) == 6 && (tile_b.get_way_dirs(wt) == 9 || (tile_b.get_way_dirs(wt) == 10 && !tile_b.is_bridge() && !tile_b.is_tunnel() && tile_b.get_slope() == 0)) ) {
             b_tile = tile_b
             sig_tile_new = "tr5"
           }
@@ -3288,7 +3288,7 @@ function build_double_track(start_field, wt) {
         } else if ( start_field.get_way_dirs(wt) == 10 ) {
           tile_a = tile_x(tiles[0].x-1, tiles[0].y, tiles[0].z)
           tile_b = tile_x(tiles[0].x-1, tiles[0].y+1, tiles[0].z)
-          if ( tile_a.get_way_dirs(wt) == 6 && (tile_b.get_way_dirs(wt) == 9 || (tile_b.get_way_dirs(wt) == 5 && !tile_b.is_bridge() && !tile_b.is_tunnel())) ) {
+          if ( tile_a.get_way_dirs(wt) == 6 && (tile_b.get_way_dirs(wt) == 9 || (tile_b.get_way_dirs(wt) == 5 && !tile_b.is_bridge() && !tile_b.is_tunnel() && tile_b.get_slope() == 0)) ) {
             b_tile = tile_b
             sig_tile_new = "tr10t"
           }
@@ -3321,7 +3321,7 @@ function build_double_track(start_field, wt) {
 
             tile_a = tile_x(tiles[way_len - 1].x, tiles[way_len - 1].y+1, tiles[way_len - 1].z)
             tile_b = tile_x(tiles[way_len - 1].x-1, tiles[way_len - 1].y+1, tiles[way_len - 1].z)
-            if ( tile_a.get_way_dirs(wt) == 9 && (tile_b.get_way_dirs(wt) == 6 || tile_b.get_way_dirs(wt) == 10) ) {
+            if ( tile_a.get_way_dirs(wt) == 9 && (tile_b.get_way_dirs(wt) == 6 || tile_b.get_way_dirs(wt) == 10 && !tile_b.is_bridge() && !tile_b.is_tunnel() && tile_b.get_slope() == 0) ) {
               b_tile = tile_b
               sig_tile_new = "tl5"
             }
@@ -3330,7 +3330,7 @@ function build_double_track(start_field, wt) {
         } else if ( tile_check == 2 ) {
             tile_a = tile_x(tiles[way_len - 1].x+1, tiles[way_len - 1].y, tiles[way_len - 1].z)
             tile_b = tile_x(tiles[way_len - 1].x+1, tiles[way_len - 1].y-1, tiles[way_len - 1].z)
-            if ( tile_a.get_way_dirs(wt) == 6 && (tile_b.get_way_dirs(wt) == 9 || tile_b.get_way_dirs(wt) == 10) ) {
+            if ( tile_a.get_way_dirs(wt) == 6 && (tile_b.get_way_dirs(wt) == 9 || tile_b.get_way_dirs(wt) == 10 && !tile_b.is_bridge() && !tile_b.is_tunnel() && tile_b.get_slope() == 0) ) {
               b_tile = tile_b
               sig_tile_new = "tl5"
             }
@@ -3338,7 +3338,7 @@ function build_double_track(start_field, wt) {
         } else if ( tile_check == 3 ) {
             tile_a = tile_x(tiles[way_len - 1].x, tiles[way_len - 1].y+1, tiles[way_len - 1].z)
             tile_b = tile_x(tiles[way_len - 1].x+1, tiles[way_len - 1].y+1, tiles[way_len - 1].z)
-            if ( tile_a.get_way_dirs(wt) == 3 && (tile_b.get_way_dirs(wt) == 12 || (tile_b.get_way_dirs(wt) == 5 && !tile_b.is_bridge() && !tile_b.is_tunnel())) ) {
+            if ( tile_a.get_way_dirs(wt) == 3 && (tile_b.get_way_dirs(wt) == 12 || (tile_b.get_way_dirs(wt) == 5 && !tile_b.is_bridge() && !tile_b.is_tunnel() && tile_b.get_slope() == 0)) ) {
               b_tile = tile_b
               sig_tile_new = "tr5t"
             }
@@ -3347,7 +3347,7 @@ function build_double_track(start_field, wt) {
         } else if ( tile_check == 4 ) {
             tile_a = tile_x(tiles[way_len - 1].x+1, tiles[way_len - 1].y, tiles[way_len - 1].z)
             tile_b = tile_x(tiles[way_len - 1].x+1, tiles[way_len - 1].y+1, tiles[way_len - 1].z)
-            if ( tile_a.get_way_dirs(wt) == 12 && (tile_b.get_way_dirs(wt) == 3 || (tile_b.get_way_dirs(wt) == 5 && !tile_b.is_bridge() && !tile_b.is_tunnel())) ) {
+            if ( tile_a.get_way_dirs(wt) == 12 && (tile_b.get_way_dirs(wt) == 3 || (tile_b.get_way_dirs(wt) == 5 && !tile_b.is_bridge() && !tile_b.is_tunnel() && tile_b.get_slope() == 0)) ) {
               b_tile = tile_b
               sig_tile_new = "tr10"
             }
