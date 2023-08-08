@@ -281,7 +281,7 @@ class rail_connector_t extends manager_t
 
           // check combined station or connect factory src
           local tiles_y = abs(fs[0].y - c_start.y)
-          local tiles_x = abs(fs[0].x - c_start.y)
+          local tiles_x = abs(fs[0].x - c_start.x)
           local tiles_c = (fs.len() / 2) + settings.get_station_coverage() + 2
           local combined_halt = false
           if (tiles_x > tiles_c || tiles_y > tiles_c) {
@@ -312,7 +312,7 @@ class rail_connector_t extends manager_t
 
           // check combined station or connect factory dest
           tiles_y = abs(fd[0].y - c_end.y)
-          tiles_x = abs(fd[0].x - c_end.y)
+          tiles_x = abs(fd[0].x - c_end.x)
           tiles_c = (fd.len() / 2) + settings.get_station_coverage() +2
           combined_halt = false
           if (tiles_x > tiles_c || tiles_y > tiles_c) {
