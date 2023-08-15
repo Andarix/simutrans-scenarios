@@ -102,6 +102,7 @@ function start(pl_nr)
     player_x(our_player_nr).set_name( possible_names[our_player_nr-2]);
   }
 
+  gui.add_message_at(our_player, "### script version " + ai.version, world.get_time())
   print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
 }
 
