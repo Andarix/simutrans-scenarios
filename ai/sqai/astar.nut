@@ -2563,7 +2563,7 @@ function build_double_track(start_field, wt) {
   // 2 - terraform
   // 21 - terraform grid
   // 3 - double track diagonal
-  local print_message_box = 21
+  local print_message_box = 0
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, " ### build_double_track ### " + coord3d_to_string(start_field), start_field)
@@ -3126,10 +3126,18 @@ function build_double_track(start_field, wt) {
                 }*/
               }
 
+              tile_build_slope = [4, 12, 28, 36]
+              if ( tile_build_slope.find(tiles_build[i].get_slope()) != null ) {
+                terraform_tile = 0
+              }
+
+              // double hight 8, 24, 56, 72
+
+
               // terraform tile
               if ( terraform_tile == 1 ) { //&& ref_hight.z < build_hight.z
                 if ( print_message_box == 21 ) {
-                  gui.add_message_at(b_player, "#3112# terraform down ", world.get_time())
+                  gui.add_message_at(b_player, "#3132# terraform down ", world.get_time())
                   //gui.add_message_at(b_player, " tile_a1.get_slope() " + tile_a1.get_slope(), tile_a1)
                 }
                 do {
