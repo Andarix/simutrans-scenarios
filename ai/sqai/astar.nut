@@ -1924,12 +1924,13 @@ function expand_station(pl, fields, wt, select_station, start_fld, combined_halt
     local st = halt_x.get_halt(fields[0], pl)
     local s_tiles = []
 /*
+        gui.add_message_at(our_player, "(1927) -*---> halt_x.get_halt(fields[0], pl) : " + st, fields[0])
         gui.add_message_at(our_player, "(1927) -*---> combined_station : " + combined_station, fields[0])
         gui.add_message_at(our_player, "(1927) -*---> combined_halt : " + combined_halt, fields[0])
         gui.add_message_at(our_player, "(1927) -*---> extension_tile : " + extension_tile, fields[0])
         gui.add_message_at(our_player, "(1927) -*---> st.get_factory_list().len() : " + st.get_factory_list().len(), fields[0])
 */
-    if ( st.get_factory_list().len() == 0 && combined_halt == false ) {
+    if ( st != null && st.get_factory_list().len() == 0 && combined_halt == false ) {
       local fl_st = st.get_factory_list()
       if ( combined_station == false && fl_st.len() == 0 && extension_tile != null ) {
         local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
@@ -3126,16 +3127,16 @@ function build_double_track(start_field, wt) {
                 }*/
               }
 
-              tile_build_slope = [4, 12, 28, 36]
+              /*tile_build_slope = [4, 12, 28, 36]
               if ( tile_build_slope.find(tiles_build[i].get_slope()) != null ) {
                 terraform_tile = 0
-              }
+              }*/
 
               // double hight 8, 24, 56, 72
 
 
               // terraform tile
-              if ( terraform_tile == 1 ) { //&& ref_hight.z < build_hight.z
+              if ( terraform_tile == 1 || !straight_slope ) { //&& ref_hight.z < build_hight.z
                 if ( print_message_box == 21 ) {
                   gui.add_message_at(b_player, "#3132# terraform down ", world.get_time())
                   //gui.add_message_at(b_player, " tile_a1.get_slope() " + tile_a1.get_slope(), tile_a1)
