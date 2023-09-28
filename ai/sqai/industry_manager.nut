@@ -149,6 +149,16 @@ class industry_manager_t extends manager_t
         text = "Transport " + translate(fre) + " from "
         text += coord(src.x, src.y).href(src.get_name()) + " to "
         text += coord(des.x, des.y).href(des.get_name()) + "<br>"
+
+        if ( des.output.len() == 0 ) {
+            build_check_month = world.get_time().month + 3
+            if ( build_check_month > 11 ) { build_check_month = build_check_month - 12 }
+            gui.add_message_at(our_player, "### " + des.get_name() + " ## end consumer set build_check_month = " + build_check_month, world.get_time())
+        } else {
+            build_check_month = world.get_time().month + 1
+            if ( build_check_month > 11 ) { build_check_month = build_check_month - 12 }
+            gui.add_message_at(our_player, "### " + des.get_name() + " ##  set build_check_month = " + build_check_month, world.get_time())
+        }
         break
       case industry_link_t.st_missing:
         link_list[k].next_check = today_plus_months(3)
@@ -183,6 +193,8 @@ class industry_manager_t extends manager_t
    */
   function work()
   {
+    month_check_message()
+
     set_map_vehicles_counts()
 
     // iterate the link_iterator, which is a generator
@@ -219,14 +231,17 @@ class industry_manager_t extends manager_t
    */
   function check_link(link)
   {
+    //gui.add_message_at(our_player, "#######" + link.f_src + " - " + link.f_src.get_name() + " - link.state " + link.state, world.get_time())
     switch(link.state) {
       case industry_link_t.st_free:
+        break
       case industry_link_t.st_planned:
         return false
       case industry_link_t.st_built:
         if (link.lines.len()==0) return false
         break
       case industry_link_t.st_failed:
+        break
       case industry_link_t.st_missing:
         if (link.next_check >= world.get_time().ticks) return false
         // try to plan again
