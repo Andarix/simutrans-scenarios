@@ -3136,7 +3136,7 @@ function build_double_track(start_field, wt) {
 
 
               // terraform tile
-              if ( terraform_tile == 1 || !straight_slope ) { //&& ref_hight.z < build_hight.z
+              if ( terraform_tile == 1 || (!straight_slope && build_hight.get_slope() > 0) ) { //&& ref_hight.z < build_hight.z
                 if ( print_message_box == 21 ) {
                   gui.add_message_at(b_player, "#3132# terraform down ", world.get_time())
                   //gui.add_message_at(b_player, " tile_a1.get_slope() " + tile_a1.get_slope(), tile_a1)
