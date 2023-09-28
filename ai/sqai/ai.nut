@@ -37,7 +37,7 @@ function abs(x) { return x>0 ? x : -x }
 our_player_nr <- -1
 our_player    <- null // player_x instance
 // for single run functions in month
-month_count   <- null
+month_count   <- false
 month_count_ticks <- world.get_time().next_month_ticks
 // build check for new lines
 build_check_month <- world.get_time().month
@@ -215,6 +215,10 @@ function step()
   }
   else {
     //gui.add_message_at(our_player, " ai step() break : build_check_month = " + build_check_month, world.get_time())
+
+    month_check_message()
+
+    sleep()
   }
 }
 
