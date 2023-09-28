@@ -397,9 +397,19 @@ class road_connector_t extends manager_t
           c_generate_start = c_start == null
           c_generate_end   = c_end   == null
 
-          phase ++
+            // rename line
+            local line_name = c_line.get_name()
+            local str_search = ") " + translate("Line")
+            local st_names = c_line.get_schedule().entries
+            if ( line_name.find(str_search) != null ) {
+              local new_name = translate("road") + " " + translate(freight) + " " + st_names[0].get_halt(pl).get_name() + " - " + st_names[1].get_halt(pl).get_name()
+              c_line.set_name(new_name)
+            }
 
+
+          phase ++
           return r_t(RT_PARTIAL_SUCCESS)
+
         }
       case 9: // build station extension
         {
@@ -410,14 +420,6 @@ class road_connector_t extends manager_t
               //optimize_way_line(c_route, wt_road)
             }
 
-            // rename line
-            local line_name = c_line.get_name()
-            local str_search = ") " + translate("Line")
-            local st_names = c_line.get_schedule().entries
-            if ( line_name.find(str_search) != null ) {
-              local new_name = translate("road") + " " + translate(freight) + " " + st_names[0].get_halt(pl).get_name() + " - " + st_names[1].get_halt(pl).get_name()
-              c_line.set_name(new_name)
-            }
           }
         }
     }

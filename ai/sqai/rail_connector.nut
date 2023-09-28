@@ -124,7 +124,7 @@ class rail_connector_t extends manager_t
 
           local build_status = null
           if ( calc_route.routes.len() < 7 ) {
-            return r_t(RT_TOTAL_FAIL)
+            return error_handler()
           } else {
             build_status = check_build_station(calc_route)
             //gui.add_message_at(pl, "(129) build_status : " + build_status, world.get_time())
@@ -497,18 +497,6 @@ class rail_connector_t extends manager_t
           local toc = get_ops_total();
           print("rail_connector wasted " + (toc-tic) + " ops")
 
-          phase ++
-
-          return r_t(RT_PARTIAL_SUCCESS)
-        }
-      case 9: // build station extension
-        {
-          // optimize way line save in c_route
-          if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
-            // tile c_start ans c_end have station
-            if (our_player.get_current_cash() > 50000) {
-              //optimize_way_line(c_route, wt_rail)
-            }
 
             // rename line
             local line_name = c_line.get_name()
@@ -519,7 +507,22 @@ class rail_connector_t extends manager_t
               c_line.set_name(new_name)
             }
 
-          }
+
+          phase ++
+          return r_t(RT_PARTIAL_SUCCESS)
+
+        }
+      case 9: // build station extension
+        {
+          // optimize way line save in c_route
+          /*if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
+            // tile c_start ans c_end have station
+            if (our_player.get_current_cash() > 50000) {
+              //optimize_way_line(c_route, wt_rail)
+            }
+
+
+          }*/
         }
 
     }

@@ -327,14 +327,6 @@ class ship_connector_t extends manager_t
           local toc = get_ops_total();
           print("ship_connector wasted " + (toc-tic) + " ops")
 
-          phase ++
-
-          return r_t(RT_PARTIAL_SUCCESS)
-        }
-      case 9: // build station extension
-        {
-          // optimize way line save in c_route
-          //if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
 
             // rename line
             local line_name = c_line.get_name()
@@ -344,6 +336,16 @@ class ship_connector_t extends manager_t
               local new_name = translate("Ship") + " " + translate(freight) + " " + st_names[0].get_halt(pl).get_name() + " - " + st_names[1].get_halt(pl).get_name()
               c_line.set_name(new_name)
             }
+
+          phase ++
+
+          return r_t(RT_PARTIAL_SUCCESS)
+        }
+      case 9: // build station extension
+        {
+          // optimize way line save in c_route
+          //if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
+
           //}
         }
     }
