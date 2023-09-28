@@ -52,7 +52,7 @@ class industry_connection_planner_t extends manager_t
    * Evaluates transport by road, rail and ships.
    * Returns the corresponding reports.
    * In addition, returns amphibious_connection_planner_t.
-   * This planner will start to work if the connection by road or ship did not succeed.
+   * This planner will start to work if the connection by road, rail or ship did not succeed.
    */
   function step()
   {
