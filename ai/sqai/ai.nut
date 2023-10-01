@@ -41,6 +41,8 @@ month_count   <- false
 month_count_ticks <- world.get_time().next_month_ticks
 // build check for new lines
 build_check_month <- world.get_time().month
+// set factory strategie - 0 = traditional method, taken from C++ implementation
+factory_strategie <- 0
 
 /*
  *  different ticks per month for bits_per_month
@@ -104,6 +106,24 @@ function start(pl_nr)
 
   gui.add_message_at(our_player, "### script version " + ai.version, world.get_time())
   print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
+
+  local player_sai_count = 0
+  for ( local i = 2; i < 16; i++ ) {
+    if ( player_x(i).is_valid() ) {
+      if ( player_x(i).get_type() == 4 ) {
+        player_sai_count++
+      }
+    }
+  }
+  //build_check_month += abs(player_count / our_player_nr)
+  build_check_month += abs(player_sai_count / 2)
+  if ( ( player_sai_count % 2 ) == 0 ) {
+    factory_strategie = 1
+    build_check_month -= 1
+  } else {
+    factory_strategie = 0
+  }
+  gui.add_message_at(our_player, "### player_sai_count " + player_sai_count + " #  build_check_month " + build_check_month + " # factory_strategie " + factory_strategie, world.get_time())
 }
 
 /**

@@ -91,8 +91,8 @@ class node_seq_t extends node_t
 
     local ret = nodes[next_to_step].step()
     if ( ret == null ) {
-      gui.add_message_at(our_player, "####### nodes[next_to_step].step() is null; nodes.len() = " + nodes.len(), world.get_time())
-      return r_t(RT_DONE_NOTHING);
+      gui.add_message_at(our_player, "####### nodes[next_to_step].step() is null; nodes.len() = " + nodes.len() + " # next_to_step " + next_to_step, world.get_time())
+      return r_t(RT_ERROR);
     }
     // take nodes report
     if (ret.report) {
@@ -187,7 +187,8 @@ class manager_t extends node_seq_t
       //if (debug) gui.add_message_at(our_player, " for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
 
       //return RT_DONE_NOTHING
-    } else {
+    }
+
 
       dbgprint("stepping a child")
       local r = base.step()
@@ -204,7 +205,6 @@ class manager_t extends node_seq_t
       dbgprint("stepped a child")
       return r
 
-    }
   }
 
   function work()
@@ -315,6 +315,10 @@ function month_check_message() {
           local net_wealth = player_x(our_player.nr).get_net_wealth()
           local message_text = format(translate("%s - last month: operating profit %d net wealth %d"), our_player.get_name(), operating_profit[1], net_wealth[1])
           gui.add_message_at(our_player, message_text, world.get_time())
+          //gui.add_message_at(our_player, "### get_current_net_wealth() " + (player_x(our_player.nr).get_current_net_wealth()/100), world.get_time())
+          //gui.add_message_at(our_player, "### get_current_cash() " + player_x(our_player.nr).get_current_cash(), world.get_time())
+          //gui.add_message_at(our_player, "### net_wealth - cash " + ((player_x(our_player.nr).get_current_net_wealth()/100) - player_x(our_player.nr).get_current_cash()), world.get_time())
+          //gui.add_message_at(our_player, "### world.get_time().month " + world.get_time().month, world.get_time())
 
           if ( operating_profit[1] < 0 ) {
             build_check_month = world.get_time().month + 1

@@ -798,7 +798,7 @@ function replace_bridge_to_land(tiles) {
  *
  */
 function check_ground(pos_s, pos_e, way) {
-  gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + coord_to_string(pos_s) + " - " + coord_to_string(pos_e), pos_s)
+  //gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + coord_to_string(pos_s) + " - " + coord_to_string(pos_e), pos_s)
 
   local check_x = 0
   local check_y = 0
@@ -1263,7 +1263,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
     }
 
     local no_bridge = false
-    if ( i > 0 && ( abs(tile.x-next_tile.x) > 1 || abs(tile.x-next_tile.x) > 1 )) {
+    if ( i > 0 && ( abs(tile.x-next_tile.x) > 1 || abs(tile.y-next_tile.y) > 1 )) {
       if ( tile.find_object(mo_bridge) == null ) {
         no_bridge = true
         gui.add_message_at(our_player, "#1179# remove way by not build bridge " + coord3d_to_string(tile), next_tile)
@@ -3065,14 +3065,14 @@ function build_double_track(start_field, wt) {
                   }*/
 
                 } else if ( tile_build_slope.find(build_hight.get_slope()) != null && tile_a_slope_NS.find(tile_a.get_slope()) != null ) {
-                  gui.add_message_at(b_player, " #3055# NS", world.get_time())
+                  //gui.add_message_at(b_player, " #3055# NS", world.get_time())
                   /*if ( build_side == 0 ) {
                     tile_a1 = square_x(tiles_build[i].x-1, tiles_build[i].y).get_ground_tile()
                     tile_b1 = square_x(tile_a.x-1, tile_a.y).get_ground_tile()
                   }*/
 
                   if ( test_tile_is_empty(tile_a1) && test_tile_is_empty(tile_b1) ) {
-                    gui.add_message_at(b_player, " #3065#  straight_slope " + straight_slope + " -- build_side " + build_side, world.get_time())
+                    //gui.add_message_at(b_player, " #3065#  straight_slope " + straight_slope + " -- build_side " + build_side, world.get_time())
                     if ( straight_slope == true && build_side == 0 ) {
                       err = command_x.grid_lower(our_player, coord3d(tile_a.x, tile_a.y, tile_a.z))
                     } else if ( straight_slope == true && build_side == 1 ) {
@@ -3089,7 +3089,7 @@ function build_double_track(start_field, wt) {
                   }
 
                 } else if ( tile_build_slope.find(build_hight.get_slope()) != null && tile_a_slope_WE.find(tile_a.get_slope()) != null ) {
-                  gui.add_message_at(b_player, " #3091# WE", world.get_time())
+                  //gui.add_message_at(b_player, " #3091# WE", world.get_time())
 
                   /*if ( build_side == 0 ) {
                     tile_a1 = square_x(tiles_build[i].x, tiles_build[i].y-1).get_ground_tile()
@@ -5756,6 +5756,9 @@ function destroy_line(line_obj, good, link_obj) {
 
   local msgtext = format(translate("%s removes line: %s"), our_player.get_name(), line_name)
   gui.add_message_at(our_player, msgtext, world.get_time())
+
+  //link_obj.status = 4
+  //link_obj.next_check = today_plus_months(36)
 
   return true
 }

@@ -45,6 +45,12 @@ class industry_link_t
 
   state = 0
   lines = null   // array<line_x>
+  build_cost_link = 0
+  build_cost_rail = 0
+  build_cost_road = 0
+  build_cost_ship = 0
+  // 1 - link has combined lines
+  combined_link = 0
   /*
   double_ways_count   = 0 // count of double way build
   double_ways_build   = 0 // double way build: 0 = no ; 1 = yes
@@ -153,18 +159,21 @@ class industry_manager_t extends manager_t
         if ( des.output.len() == 0 ) {
             build_check_month = world.get_time().month + 3
             if ( build_check_month > 11 ) { build_check_month = build_check_month - 12 }
-            gui.add_message_at(our_player, "### " + des.get_name() + " ## end consumer set build_check_month = " + build_check_month, world.get_time())
+            //gui.add_message_at(our_player, "### " + des.get_name() + " ## end consumer set build_check_month = " + build_check_month, world.get_time())
         } else {
             build_check_month = world.get_time().month + 1
             if ( build_check_month > 11 ) { build_check_month = build_check_month - 12 }
-            gui.add_message_at(our_player, "### " + des.get_name() + " ##  set build_check_month = " + build_check_month, world.get_time())
+            //gui.add_message_at(our_player, "### " + des.get_name() + " ##  set build_check_month = " + build_check_month, world.get_time())
         }
         break
       case industry_link_t.st_missing:
         link_list[k].next_check = today_plus_months(3)
+        gui.add_message_at(our_player, "### link " + k + " ##  state = " + state, world.get_time())
         break
       case industry_link_t.st_failed:
         link_list[k].next_check = today_plus_months(12)
+        link_list[k].state = 4
+        gui.add_message_at(our_player, "### link " + k + " ##  state = " + state, world.get_time())
     }
   }
 
@@ -173,6 +182,111 @@ class industry_manager_t extends manager_t
     local link = access_link(src, des, fre)
 
     return link  ?  link.state  :  industry_link_t.st_free
+  }
+
+
+  /*
+   * select
+   *  0 - build_cost_link
+   *  1 - build_cost_rail
+   *  2 - build_cost_road
+   *  3 - build_cost_ship
+   *
+   */
+  function set_link_build_cost(src, des, fre, cost, select)
+  {
+    local k = key(src, des, fre)
+    local l = industry_link_t(src, des, fre)
+    local i = 0
+
+    switch(select) {
+      case 0:
+        try {
+          link_list[k].build_cost_link = cost
+        }
+        catch(ev) {
+          // not existing - create entry
+          l.build_cost_link = cost
+          i = 1
+        }
+        break
+      case 1:
+        try {
+          link_list[k].build_cost_rail = cost
+        }
+        catch(ev) {
+          // not existing - create entry
+          l.build_cost_rail = cost
+          i = 1
+        }
+        break
+      case 2:
+        try {
+          link_list[k].build_cost_road = cost
+        }
+        catch(ev) {
+          // not existing - create entry
+          l.build_cost_road = cost
+          i = 1
+        }
+        break
+      case 3:
+        try {
+          link_list[k].build_cost_ship = cost
+        }
+        catch(ev) {
+          // not existing - create entry
+          l.build_cost_ship = cost
+          i = 1
+        }
+        break
+    }
+    if ( i == 1 ) {
+      link_list[k] <- l
+    }
+
+  }
+
+  function get_link_build_cost(src, des, fre, select)
+  {
+    local link = access_link(src, des, fre)
+
+    switch(select) {
+      case 0:
+        return link.build_cost_link
+        break
+      case 1:
+        return link.build_cost_rail
+        break
+      case 2:
+        return link.build_cost_road
+        break
+      case 3:
+        return link.build_cost_ship
+        break
+    }
+  }
+
+  function set_combined_link(src, des, fre, state)
+  {
+    local k = key(src, des, fre)
+
+    try {
+      link_list[k].combined_link = state
+    }
+    catch(ev) {
+      // not existing - create entry
+      local l = industry_link_t(src, des, fre)
+      l.combined_link = state
+      link_list[k] <- l
+    }
+  }
+
+  function get_combined_link(src, des, fre)
+  {
+    local link = access_link(src, des, fre)
+
+    return link.combined_link
   }
 
   function access_link(src, des, fre)
