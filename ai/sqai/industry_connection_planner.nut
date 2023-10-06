@@ -84,7 +84,7 @@ class industry_connection_planner_t extends manager_t
       return r_t(RT_TOTAL_FAIL)
     }
 
-    if ( build_check_month > world.get_time().month ) {
+    if ( build_check_month > world.get_time().ticks ) {
       // not plan link
       if (debug) gui.add_message_at(our_player, " not plan link : build_check_month = " + build_check_month, world.get_time())
       if (debug) gui.add_message_at(our_player, " for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())

@@ -117,8 +117,7 @@ class node_seq_t extends node_t
     else if (next_to_step > nodes.len()) {
       rc = RT_SUCCESS // done with stepping all nodes
 
-      build_check_month = world.get_time().month + 1
-      if ( build_check_month > 11 ) { build_check_month = build_check_month - 12 }
+      build_check_month = world.get_time() + world.get_time().ticks_per_month
     }
     return r_t(rc)
   }
@@ -181,7 +180,7 @@ class manager_t extends node_seq_t
 
     month_check_message()
 
-    if ( build_check_month > world.get_time().month ) {
+    if ( build_check_month > world.get_time().ticks ) {
       // not plan link
       //if (debug) gui.add_message_at(our_player, " not plan link : build_check_month = " + build_check_month, world.get_time())
       //if (debug) gui.add_message_at(our_player, " for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
@@ -321,8 +320,7 @@ function month_check_message() {
           //gui.add_message_at(our_player, "### world.get_time().month " + world.get_time().month, world.get_time())
 
           if ( operating_profit[1] < 0 ) {
-            build_check_month = world.get_time().month + 1
-            if ( build_check_month > 11 ) { build_check_month = build_check_month - 11 }
+            build_check_month = world.get_time().ticks + world.get_time().ticks_per_month
           }
 
           local yt = world.get_time().year.tostring()

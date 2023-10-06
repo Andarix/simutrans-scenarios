@@ -119,12 +119,15 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
     gui.add_message_at(our_player, " ---> link " + fsrc + "  " + fsrc.get_name() + " - " + fdest.get_name(), world.get_time())
     gui.add_message_at(our_player, " ---> build cost lines = " + build_cost_lines + " # industry_manager.get_combined_link(fsrc, fdest, freight) = " + industry_manager.get_combined_link(fsrc, fdest, freight), world.get_time())
 
-    if ( build_cost_lines > our_player.get_current_cash() ) {
+    local build_cash = player_x(our_player.nr).get_current_cash() + (((player_x(our_player.nr).get_current_net_wealth()/100) - player_x(our_player.nr).get_current_cash())/2)
+    if ( build_cost_lines > build_cash ) {
       //industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 0)
       //industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 1)
       //industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 2)
       //industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 3)
       //industry_manager.set_combined_link(fsrc, fdest, freight, 0)
+
+      build_check_month = world.get_time().ticks + (10 * world.get_time().ticks_per_month)
 
       return r_t(RT_TOTAL_FAIL)
     }

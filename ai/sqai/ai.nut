@@ -40,7 +40,7 @@ our_player    <- null // player_x instance
 month_count   <- false
 month_count_ticks <- world.get_time().next_month_ticks
 // build check for new lines
-build_check_month <- world.get_time().month
+build_check_month <- world.get_time().ticks
 // set factory strategie - 0 = traditional method, taken from C++ implementation
 factory_strategie <- 0
 
@@ -116,10 +116,10 @@ function start(pl_nr)
     }
   }
   //build_check_month += abs(player_count / our_player_nr)
-  build_check_month += abs(player_sai_count / 2)
+  build_check_month += (abs(player_sai_count / 2) * world.get_time().ticks_per_month)
   if ( ( player_sai_count % 2 ) == 0 ) {
     factory_strategie = 1
-    build_check_month -= 1
+    build_check_month -= world.get_time().ticks_per_month
   } else {
     factory_strategie = 0
   }
@@ -193,7 +193,7 @@ function init(pl_nr)
  */
 function step()
 {
-  if ( build_check_month <= world.get_time().month ) {
+  if ( build_check_month <= world.get_time().ticks ) {
 
     tree.step()
     s._step++

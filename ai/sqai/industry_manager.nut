@@ -157,12 +157,10 @@ class industry_manager_t extends manager_t
         text += coord(des.x, des.y).href(des.get_name()) + "<br>"
 
         if ( des.output.len() == 0 ) {
-            build_check_month = world.get_time().month + 3
-            if ( build_check_month > 11 ) { build_check_month = build_check_month - 12 }
+            build_check_month = world.get_time().ticks + (3 * world.get_time().ticks_per_month)
             //gui.add_message_at(our_player, "### " + des.get_name() + " ## end consumer set build_check_month = " + build_check_month, world.get_time())
         } else {
-            build_check_month = world.get_time().month + 1
-            if ( build_check_month > 11 ) { build_check_month = build_check_month - 12 }
+            build_check_month = world.get_time().ticks + world.get_time().ticks_per_month
             //gui.add_message_at(our_player, "### " + des.get_name() + " ##  set build_check_month = " + build_check_month, world.get_time())
         }
         break
