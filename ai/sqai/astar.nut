@@ -3618,6 +3618,7 @@ function build_double_track(start_field, wt) {
               //gui.add_message_at(b_player, "signal set to ribi " + s_ribi, world.get_time())
               if ( test == 9 && s_ribi == 2 ) { s_ribi = 1 }
               if ( test == 12 && s_ribi == 1 ) { s_ribi = 8 }
+              if ( test == 3 && s_ribi == 4 ) { s_ribi = 2 }
               if ( print_message_box == 1 && signal[j].ribi != s_ribi ) {
                 gui.add_message_at(b_player, coord3d_to_string(tile_x(signal[j].coor.x-fx, signal[j].coor.y-fy, signal[j].coor.z)) + " signal set to ribi new " + s_ribi, world.get_time())
               }
