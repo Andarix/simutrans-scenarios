@@ -3616,13 +3616,6 @@ function build_double_track(start_field, wt) {
               local s_ribi = signal[j].ribi
               test = tile_x(signal[j].coor.x-fx, signal[j].coor.y-fy, signal[j].coor.z).get_way_dirs(wt)
               //gui.add_message_at(b_player, "signal set to ribi " + s_ribi, world.get_time())
-              if ( test == 9 && s_ribi == 2 ) { s_ribi = 1 }
-              if ( test == 12 && s_ribi == 1 ) { s_ribi = 8 }
-              if ( test == 3 && s_ribi == 4 ) { s_ribi = 2 }
-              if ( print_message_box == 1 && signal[j].ribi != s_ribi ) {
-                gui.add_message_at(b_player, coord3d_to_string(tile_x(signal[j].coor.x-fx, signal[j].coor.y-fy, signal[j].coor.z)) + " signal set to ribi new " + s_ribi, world.get_time())
-              }
-
               if ( print_message_box == 3 ) {
                 gui.add_message_at(b_player, "signal to tile " + coord3d_to_string(tile_x(signal[j].coor.x, signal[j].coor.y, signal[j].coor.z)), world.get_time())
               }
@@ -3633,6 +3626,15 @@ function build_double_track(start_field, wt) {
 
 
               } else {
+                // set s_ribi new by double track lenght 7
+                if ( test == 9 && s_ribi == 2 ) { s_ribi = 1 }
+                if ( test == 12 && s_ribi == 1 ) { s_ribi = 8 }
+                if ( test == 3 && s_ribi == 4 ) { s_ribi = 2 }
+                if ( test == 6 && s_ribi == 8 ) { s_ribi = 4 }
+                if ( print_message_box == 1 && signal[j].ribi != s_ribi ) {
+                  gui.add_message_at(b_player, coord3d_to_string(tile_x(signal[j].coor.x-fx, signal[j].coor.y-fy, signal[j].coor.z)) + " signal set to ribi new " + s_ribi, world.get_time())
+                }
+
                 //gui.add_message_at(b_player, "sig_tile_new " + sig_tile_new, world.get_time())
                 if ( (sig_tile_new == "tr10" && j == 0) || (sig_tile_new == "tl5" && j == 0) ) {
                   signal_build_tile = tiles_build[way_len - 1]
