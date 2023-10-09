@@ -303,6 +303,10 @@ class manager_t extends node_seq_t
   }
 }
 
+/*
+ * monthly message profit and net wealth
+ *
+ */
 function month_check_message() {
 
     if ( month_count ) {
@@ -345,4 +349,38 @@ function month_check_message() {
     }
 
     set_map_vehicles_counts()
+}
+
+/*
+ *
+ *
+ */
+function build_check_time(build_cost) {
+  local operating_profit = player_x(our_player.nr).get_operating_profit()
+  local net_wealth = player_x(our_player.nr).get_current_net_wealth()/100
+  local cash = player_x(our_player.nr).get_current_cash()
+  local maintenance = player_x(our_player.nr).get_current_maintenance()/100
+
+  local k = build_cost
+
+  if ( cash > 0 ) { k -= cash + (net_wealth / 2) }
+
+  gui.add_message_at(our_player, "### k -= cash " + k, world.get_time())
+
+  local t = 0
+  if ( operating_profit[1] > 0 ) {
+    t = abs(k / operating_profit[1])
+  } else {
+    t = 12
+  }
+
+  gui.add_message_at(our_player, "### build_cost " + build_cost, world.get_time())
+  gui.add_message_at(our_player, "### operating_profit[1] " + operating_profit[1], world.get_time())
+  gui.add_message_at(our_player, "### build_check_time(build_cost) " + t, world.get_time())
+
+  if ( t > 24 ) {
+    t = 24
+  }
+
+  return t
 }
