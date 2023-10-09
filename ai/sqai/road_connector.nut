@@ -120,7 +120,7 @@ class road_connector_t extends manager_t
 
           // test route for calculate cost
           local calc_route = test_route(our_player, c_start, c_end, planned_way)
-          gui.add_message_at(our_player, "plan road from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time())
+          //gui.add_message_at(our_player, "plan road from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time())
           if ( print_message_box == 1 && calc_route != "No route" ) {
             gui.add_message_at(our_player, "distance " + (calc_route.routes.len() + calc_route.bridge_lens), world.get_time())
           }
@@ -167,7 +167,7 @@ class road_connector_t extends manager_t
             //gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
             industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
 
-            build_check_month = world.get_time().ticks + (3 + world.get_time().ticks_per_month)
+            build_check_month = world.get_time().ticks + (build_check_time(build_cost) + world.get_time().ticks_per_month)
 
             return error_handler()
           }

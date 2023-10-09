@@ -116,8 +116,8 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
     if ( wt == wt_rail ) {
     } else if ( wt == wt_road ) {
     }
-    gui.add_message_at(our_player, " ---> link " + fsrc + "  " + fsrc.get_name() + " - " + fdest.get_name(), world.get_time())
-    gui.add_message_at(our_player, " ---> build cost lines = " + build_cost_lines + " # industry_manager.get_combined_link(fsrc, fdest, freight) = " + industry_manager.get_combined_link(fsrc, fdest, freight), world.get_time())
+    //gui.add_message_at(our_player, " ---> link " + fsrc + "  " + fsrc.get_name() + " - " + fdest.get_name(), world.get_time())
+    //gui.add_message_at(our_player, " ---> build cost lines = " + build_cost_lines + " # industry_manager.get_combined_link(fsrc, fdest, freight) = " + industry_manager.get_combined_link(fsrc, fdest, freight), world.get_time())
 
     local build_cash = player_x(our_player.nr).get_current_cash() + (((player_x(our_player.nr).get_current_net_wealth()/100) - player_x(our_player.nr).get_current_cash())/2)
     if ( build_cost_lines > build_cash ) {
@@ -127,7 +127,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
       //industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 3)
       //industry_manager.set_combined_link(fsrc, fdest, freight, 0)
 
-      build_check_month = world.get_time().ticks + (10 * world.get_time().ticks_per_month)
+      build_check_month = world.get_time().ticks + (build_check_time(build_cost) * world.get_time().ticks_per_month)
 
       return r_t(RT_TOTAL_FAIL)
     }

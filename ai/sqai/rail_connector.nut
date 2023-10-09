@@ -118,6 +118,27 @@ class rail_connector_t extends manager_t
 
           local line_start = null
 
+          if ( (abs(c_start[0].x - c_end[0].x) + abs(c_start[0].y - c_end[0].y)) < 7 && industry_manager.get_combined_link(fsrc, fdest, freight) > 0) {
+            //gui.add_message_at(pl, "c_start " + coord_to_string(c_start[0]) + " c_end " + coord_to_string(c_end[0]), c_end[0])
+            local d = settings.get_station_coverage()
+            local f = 0
+            for ( local i = 0; i < fd.len(); i++ ) {
+              f = abs(c_start[0].x - fd[i].x) + abs(c_start[0].y - fd[i].y)
+              if ( f <= d ) {
+                local extension = find_extension(wt_rail)
+                if ( extension != null ) {
+                  local err = command_x.build_station(our_player, c_start[0], extension)
+                  if ( err == null ) {
+
+                    return r_t(RT_TOTAL_SUCCESS)
+                  }
+                }
+              }
+            }
+            gui.add_message_at(pl, "c_start " + coord_to_string(c_start[0]) + " c_end " + coord_to_string(c_end[0]), c_end[0])
+            ::debug.pause
+          }
+
           // test route for calculate cost
           local calc_route = null
           local r1 = test_route(our_player, c_start, c_end, planned_way)
@@ -137,6 +158,13 @@ class rail_connector_t extends manager_t
 
           local build_status = null
           if ( calc_route.routes.len() < 7 ) {
+
+            //gui.add_message_at(pl, "route len < 7 tiles  ", c_end)
+            //gui.add_message_at(pl, "c_start " + coord_to_string(c_start) + " c_end " + coord_to_string(c_end), c_end)
+            local extension = find_extension(wt_rail)
+            //local start_h = tile_x(c_start.x, c_start.y, c_start.z).get_halt().get_name()
+            //local end_h = tile_x(c_end.x, c_end.y, c_end.z).get_halt().get_name()
+
             return error_handler()
           } else {
             build_status = check_build_station(calc_route)
@@ -207,7 +235,7 @@ class rail_connector_t extends manager_t
             industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
             gui.add_message_at(pl, "Rail: Way construction cost to height: cash: " + cash + " build cost: " + build_cost, world.get_time())
 
-            build_check_month = world.get_time().ticks + (4 * world.get_time().ticks_per_month)
+            build_check_month = world.get_time().ticks + (build_check_time(build_cost) * world.get_time().ticks_per_month)
 
             return error_handler()
           }
