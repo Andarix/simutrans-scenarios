@@ -46,6 +46,7 @@ class industry_connection_planner_t extends manager_t
   {
     base.constructor("industry_connection_planner_t");
     fsrc = s; fdest = d; freight = f;
+    debug = false
   }
 
   /**
@@ -56,7 +57,6 @@ class industry_connection_planner_t extends manager_t
    */
   function step()
   {
-    debug = true
     local tic = get_ops_total();
 
     // limit links to transport good
@@ -223,7 +223,7 @@ class industry_connection_planner_t extends manager_t
     prototyper.valuate = bound_valuator
 
     if (prototyper.step().has_failed()) {
-      gui.add_message_at(our_player, "ERROR # no " + wt_name[wt] + " vehicle found for freight " + freight, world.get_time())
+      if (debug) gui.add_message_at(our_player, "ERROR # no " + wt_name[wt] + " vehicle found for freight " + freight, world.get_time())
       return null
     }
     local planned_convoy = prototyper.best

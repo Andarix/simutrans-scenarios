@@ -35,7 +35,7 @@ class ship_connector_t extends manager_t
   {
     base.constructor("ship_connector_t")
     c_harbour_tiles = {}
-    debug = true
+    debug = false
   }
 
   function work()

@@ -3043,7 +3043,7 @@ function build_double_track(start_field, wt) {
                 }
 
                 if ( tile_build_slope.find(build_hight.get_slope()) != null && tile_a_slope.find(tile_a.get_slope()) != null && test_tile_is_empty(tile_a1) && test_tile_is_empty(tile_b1) ) {
-                  gui.add_message_at(b_player, " #3036# --", world.get_time())
+                  //gui.add_message_at(b_player, " #3036# --", world.get_time())
                   if ( straight_slope == true && build_side == 0 ) {
                     err = command_x.grid_raise(our_player, coord3d(tile_a.x, tile_a.y, tile_a.z))
                   } else if ( straight_slope == true && build_side == 1 ) {
@@ -4464,7 +4464,7 @@ function optimize_way_line(route, wt) {
   // 2 = tunnel
   // 3 = crossing
   // 4 = terraform
-  local print_message_box = 4
+  local print_message_box = 0
 
   if ( print_message_box > 5 ) { //wt == wt_road && wt == wt_rail &&
     gui.add_message_at(our_player, " optimize_way_line(route, wt) ", tile_x(route[0].x, route[0].y, route[0].z))
@@ -4838,7 +4838,7 @@ function optimize_way_line(route, wt) {
               err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
 
             } else {
-              gui.add_message_at(our_player, "#4344# terraform_tile : " + coord3d_to_string(terraform_tile), terraform_tile)
+              //gui.add_message_at(our_player, "#4344# terraform_tile : " + coord3d_to_string(terraform_tile), terraform_tile)
               err = command_x.grid_raise(our_player, coord3d(terraform_tile.x+cx, terraform_tile.y+cy, terraform_tile.z))
 
 
@@ -5067,8 +5067,8 @@ function check_tiles_for_terraform(tiles) {
     cy = 1
   }
   for ( local x = 0; x < tiles.len(); x++ ) {
-    gui.add_message_at(our_player, "test_tile_is_empty tiles[x]+ " + test_tile_is_empty(tile_x(tiles[x].x+cx, tiles[x].y+cy, tiles[x].z)), tiles[x])
-    gui.add_message_at(our_player, "test_tile_is_empty tiles[x]- " + test_tile_is_empty(tile_x(tiles[x].x-cx, tiles[x].y-cy, tiles[x].z)), world.get_time())
+    //gui.add_message_at(our_player, "test_tile_is_empty tiles[x]+ " + test_tile_is_empty(tile_x(tiles[x].x+cx, tiles[x].y+cy, tiles[x].z)), tiles[x])
+    //gui.add_message_at(our_player, "test_tile_is_empty tiles[x]- " + test_tile_is_empty(tile_x(tiles[x].x-cx, tiles[x].y-cy, tiles[x].z)), world.get_time())
     if ( !test_tile_is_empty(tile_x(tiles[x].x+cx, tiles[x].y+cy, tiles[x].z)) || !test_tile_is_empty(tile_x(tiles[x].x-cx, tiles[x].y-cy, tiles[x].z)) ) {
       tiles_free = false
     }

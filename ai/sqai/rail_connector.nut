@@ -37,7 +37,7 @@ class rail_connector_t extends manager_t
   constructor()
   {
     base.constructor("rail_connector_t")
-    debug = true
+    debug = false
   }
 
   function work()

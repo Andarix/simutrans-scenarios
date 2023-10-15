@@ -35,7 +35,7 @@ class road_connector_t extends manager_t
   constructor()
   {
     base.constructor("road_connector_t")
-    debug = true
+    debug = false
   }
 
   function work()
