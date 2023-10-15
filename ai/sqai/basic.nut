@@ -369,7 +369,7 @@ function build_check_time(build_cost) {
 
   local t = 0
   if ( operating_profit[1] > 0 ) {
-    t = abs(k / operating_profit[1])
+    t = abs(k / operating_profit[1]).tointeger()
   } else {
     t = 12
   }
