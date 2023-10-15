@@ -127,7 +127,7 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
       //industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 3)
       //industry_manager.set_combined_link(fsrc, fdest, freight, 0)
 
-      build_check_month = world.get_time().ticks + (build_check_time(build_cost) * world.get_time().ticks_per_month)
+      build_check_month = world.get_time().ticks + (build_check_time(build_cost_lines) * world.get_time().ticks_per_month)
 
       return r_t(RT_TOTAL_FAIL)
     }
