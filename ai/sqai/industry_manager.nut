@@ -1375,12 +1375,29 @@ class industry_manager_t extends manager_t
         return null
       }
 
-      cnv_count = line.double_ways_count + 1
+      if ( wt == wt_rail ) {
+        cnv_count = line.double_ways_count + 1
+
+      }
 
       if ( bilanz_year < 0 ) {
         //gui.add_message_at(our_player, " line 1149 ", world.get_time())
         //gui.add_message_at(our_player, " gain_per_m " + gain_per_m, world.get_time())
         //::debug.pause()
+      }
+
+      // pak192.comic fix
+      // line profit < 0 then not add cnv count > 3
+      // wt_water
+      local line_profit = line.get_profit()
+      //local line_cnv_count = line.get_convoy_count()
+      //if ( wt == wt_water ) gui.add_message_at(our_player, "#1390# test (line_profit[1] + line_profit[2]) " + (line_profit[1] + line_profit[2]), world.get_time())
+      //if ( wt == wt_water ) gui.add_message_at(our_player, "#1390# test line.get_convoy_count() " + line_cnv_count[0], world.get_time())
+      if ( wt == wt_water ) gui.add_message_at(our_player, "#1390# test cnv_count " + cnv_count, world.get_time())
+      if ( (line_profit[1] + line_profit[2]) < 0 && cnv_count >= 3 && wt == wt_water ) {
+        //gui.add_message_at(our_player, "#1390# break add cnv ", world.get_time())
+        line.next_vehicle_check = line.next_vehicle_check + (world.get_time().ticks_per_month * 2)
+        return true
       }
 
       if ( (gain_per_m > 0 || bilanz_year < 0 ) && line.next_vehicle_check < world.get_time().ticks && line.add_convoy_time < world.get_time().ticks ) {
@@ -1640,6 +1657,7 @@ class industry_manager_t extends manager_t
       //gui.add_message_at(our_player, "####### cnv new this month ", world.get_time())
     } //!new_cnv_add_line  &&
 */
+
     if ( !freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped && line.next_vehicle_check < world.get_time().ticks && !new_cnv_add_line ) {
       // freight, lots of empty and of stopped vehicles
       // -> something is blocked, maybe we block our own supply?

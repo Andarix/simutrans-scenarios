@@ -335,6 +335,7 @@ function get_set_name()
  * output = 1 -> return road_car_rate
  */
 function set_map_vehicles_counts(output = 0) {
+  sleep()
   local citycar_array = world.get_year_citycars()
   local convoy_array = world.get_convoys()
   convoy_count = convoy_array[0]
