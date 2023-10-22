@@ -798,6 +798,11 @@ function replace_bridge_to_land(tiles) {
  *
  */
 function check_ground(pos_s, pos_e, way) {
+  // 0 = off
+  // 1 = terraform
+  // 2 = ground bridge
+  // 3 =
+  local print_message_box = 0
   //gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + coord_to_string(pos_s) + " - " + coord_to_string(pos_e), pos_s)
 
   local check_x = 0
@@ -849,14 +854,15 @@ function check_ground(pos_s, pos_e, way) {
     start_end_slope = 1
   }
 
-  //gui.add_message_at(our_player, "(800) start_end_slope " + start_end_slope, world.get_time())
+  if (print_message_box == 2) gui.add_message_at(our_player, "(800) start_end_slope " + start_end_slope, world.get_time())
 
-    local z = null
-    local z1 = null
-    local terraform_tiles = []
-    local terraform_grid_tiles = []
-    local grid_coord = []
-    local err = null
+  local z = null
+  local z1 = null
+  local terraform_tiles = []
+  local terraform_grid_tiles = []
+  local grid_coord = []
+  local err = null
+
   if ( start_end_slope == 1 && pos_s.z == pos_e.z && f_count > 1 ) {
     for ( local i = 0; i < f_count; i++ ) {
       // find z coord
@@ -867,7 +873,7 @@ function check_ground(pos_s, pos_e, way) {
         z1 = square_x(t_tile[i+1].x, t_tile[i+1].y).get_ground_tile()
       }
 
-        //gui.add_message_at(our_player, "check_ground bridge - tile_tree = " + tile_tree + " || tile_groundobj = " + tile_groundobj + " tile_moving_object = " + tile_moving_object, z)
+      if (print_message_box == 2) gui.add_message_at(our_player, "check_ground bridge - tile_tree = " + tile_tree + " || tile_groundobj = " + tile_groundobj + " tile_moving_object = " + tile_moving_object, z)
 
       if ( !z.is_ground() ) {
         // tile is water
@@ -880,7 +886,7 @@ function check_ground(pos_s, pos_e, way) {
         // tiles free no build bridges -> terraform
         terraform_tiles.append(z)
 
-        gui.add_message_at(our_player, "(832) check_ground bridge - terraform_tiles.append(z) " + coord3d_to_string(z), z)
+        if (print_message_box == 2) gui.add_message_at(our_player, "(832) check_ground bridge - terraform_tiles.append(z) " + coord3d_to_string(z), z)
         //gui.add_message_at(our_player, "(832) z.get_slope() " + z.get_slope(), z)
         // EW slope 37-39 : 13-31 : 31-1 : 3-13
         // NS slope 13-39 : 31-37
@@ -916,7 +922,7 @@ function check_ground(pos_s, pos_e, way) {
           }
         }
 
-        //gui.add_message_at(our_player, "(862) grid_coord.find(coord3d_to_string(grid_tile)) " + grid_coord.find(coord3d_to_string(grid_tile)), grid_tile)
+        if (print_message_box == 3) gui.add_message_at(our_player, "(862) grid_coord.find(coord3d_to_string(grid_tile)) " + grid_coord.find(coord3d_to_string(grid_tile)), grid_tile)
         if ( grid_tile != null && grid_coord.find(coord3d_to_string(grid_tile)) == null ) {
           terraform_grid_tiles.append(grid_tile)
           grid_coord.append(coord3d_to_string(grid_tile))
@@ -984,26 +990,28 @@ function check_ground(pos_s, pos_e, way) {
       // find z coord
       z = square_x(t_tile[i].x, t_tile[i].y).get_ground_tile()
 
-      //gui.add_message_at(our_player, "(850) check_ground bridge - " + coord_to_string(z), z)
+      if (print_message_box == 2) gui.add_message_at(our_player, "(990) check_ground bridge - " + coord_to_string(z), z)
 
       if ( !z.is_ground() ) {
         // tile is water
         return true
       } else if ( !test_tile_is_empty(z) ) {
         // tiles not free -> build bridge
-        //gui.add_message_at(our_player, "check_ground bridge - !z.is_empty() = " + !z.is_empty() + " || !z.is_ground() = " + !z.is_ground() + " tile = " + coord_to_string(z), z)
+        if (print_message_box == 2) gui.add_message_at(our_player, "(997) check_ground bridge - !z.is_empty() = " + !z.is_empty() + " || !z.is_ground() = " + !z.is_ground() + " tile = " + coord_to_string(z), z)
         return true
       } else if ( ((pos_s.z+1) == z.z || (pos_s.z-1) == z.z || (pos_s.z) == z.z) && z.get_slope() > 0 ) {
         // tiles free no build bridges -> terraform
         terraform_tiles.append(z)
-        //gui.add_message_at(our_player, "(857) check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
+        if (print_message_box == 2) gui.add_message_at(our_player, "(1002) check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
       }
     }
 
+    if (print_message_box == 1) {
       local f = null
       for ( local i = 0; i < terraform_tiles.len(); i++ ) {
-        gui.add_message_at(our_player, " ---=> terraform_tiles[" + i + "] tile : " + coord3d_to_string(terraform_tiles[i]), world.get_time())
+        gui.add_message_at(our_player, "(1009) ---=> terraform_tiles[" + i + "] tile : " + coord3d_to_string(terraform_tiles[i]), world.get_time())
       }
+    }
     /*
       slope up 83
       slope down 82
@@ -1033,28 +1041,28 @@ function check_ground(pos_s, pos_e, way) {
 
       local slope_id = 0
       if ( pos_s.x == pos_e.x && pos_s.y < terraform_tiles[0].y ) {
-        gui.add_message_at(our_player, " ---=> (897) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
+        if (print_message_box == 1) gui.add_message_at(our_player, " ---=> (897) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
         if ( terraform_tiles[0].z == pos_s.z ) {
           slope_id = 4
         } else {
           slope_id = 36
         }
       } else if ( pos_s.x == pos_e.x && pos_s.y > terraform_tiles[0].y ) {
-        gui.add_message_at(our_player, " ---=> (900) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
+        if (print_message_box == 1) gui.add_message_at(our_player, " ---=> (900) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
         if ( terraform_tiles[0].z == pos_s.z ) {
           slope_id = 36
         } else {
           slope_id = 4
         }
       } else if ( pos_s.y == pos_e.y && pos_s.x < terraform_tiles[0].x ) {
-        gui.add_message_at(our_player, " ---=> (903) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
+        if (print_message_box == 1) gui.add_message_at(our_player, " ---=> (903) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
         if ( terraform_tiles[0].z == pos_s.z ) {
           slope_id = 12
         } else {
           slope_id = 28
         }
       } else if ( pos_s.y == pos_e.y && pos_s.x > terraform_tiles[0].x ) {
-        gui.add_message_at(our_player, " ---=> (906) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
+        if (print_message_box == 1) gui.add_message_at(our_player, " ---=> (906) tile : " + coord3d_to_string(terraform_tiles[0]), world.get_time())
         if ( terraform_tiles[0].z == pos_s.z ) {
           slope_id = 28
         } else {
