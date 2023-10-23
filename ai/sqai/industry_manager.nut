@@ -167,12 +167,12 @@ class industry_manager_t extends manager_t
         break
       case industry_link_t.st_missing:
         link_list[k].next_check = today_plus_months(3)
-        gui.add_message_at(our_player, "### link " + k + " ##  state = " + state, world.get_time())
+        //gui.add_message_at(our_player, "### link " + k + " ##  state = " + state, world.get_time())
         break
       case industry_link_t.st_failed:
         link_list[k].next_check = today_plus_months(12)
         link_list[k].state = 4
-        gui.add_message_at(our_player, "### link " + k + " ##  state = " + state, world.get_time())
+        //gui.add_message_at(our_player, "### link " + k + " ##  state = " + state, world.get_time())
     }
   }
 
@@ -1393,7 +1393,7 @@ class industry_manager_t extends manager_t
       //local line_cnv_count = line.get_convoy_count()
       //if ( wt == wt_water ) gui.add_message_at(our_player, "#1390# test (line_profit[1] + line_profit[2]) " + (line_profit[1] + line_profit[2]), world.get_time())
       //if ( wt == wt_water ) gui.add_message_at(our_player, "#1390# test line.get_convoy_count() " + line_cnv_count[0], world.get_time())
-      if ( wt == wt_water ) gui.add_message_at(our_player, "#1390# test cnv_count " + cnv_count, world.get_time())
+      //if ( wt == wt_water ) gui.add_message_at(our_player, "#1390# test cnv_count " + cnv_count, world.get_time())
       if ( (line_profit[1] + line_profit[2]) < 0 && cnv_count >= 3 && wt == wt_water ) {
         //gui.add_message_at(our_player, "#1390# break add cnv ", world.get_time())
         line.next_vehicle_check = line.next_vehicle_check + (world.get_time().ticks_per_month * 2)
