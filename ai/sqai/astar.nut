@@ -926,7 +926,7 @@ function check_ground(pos_s, pos_e, way) {
         if ( grid_tile != null && grid_coord.find(coord3d_to_string(grid_tile)) == null ) {
           terraform_grid_tiles.append(grid_tile)
           grid_coord.append(coord3d_to_string(grid_tile))
-          gui.add_message_at(our_player, "(862) check_ground bridge - terraform_grid_tiles.append(grid_tile) " + coord3d_to_string(grid_tile), grid_tile)
+          if (print_message_box == 3) gui.add_message_at(our_player, "(862) check_ground bridge - terraform_grid_tiles.append(grid_tile) " + coord3d_to_string(grid_tile), grid_tile)
         }
 
 /*
@@ -946,7 +946,7 @@ function check_ground(pos_s, pos_e, way) {
     if ( terraform_tiles.len() > 0 && terraform_tiles.len() < 7 ) {
       local terraform_field = false
       if ( terraform_grid_tiles.len() > 0 ) {
-        gui.add_message_at(our_player, "(873) terraform_grid_tiles.len() " + terraform_grid_tiles.len(), world.get_time())
+        if (print_message_box == 3) gui.add_message_at(our_player, "(873) terraform_grid_tiles.len() " + terraform_grid_tiles.len(), world.get_time())
         for ( local i = 0; i < terraform_grid_tiles.len(); i++ ) {
           if ( pos_s.z > terraform_grid_tiles[i].z ) {
             err = command_x.grid_raise(our_player, coord3d(terraform_grid_tiles[i].x, terraform_grid_tiles[i].y, terraform_grid_tiles[i].z))
