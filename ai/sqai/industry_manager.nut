@@ -1266,7 +1266,7 @@ class industry_manager_t extends manager_t
       if ( wt == wt_water || wt == wt_air ) {
         l = abs(start_l.x - end_l.x) + abs(start_l.y - end_l.y)
       } else {
-        l = check_way_line(start_l, end_l, wt, 0, 0)
+        l = check_way_line(start_l, end_l, wt, 0, 0, line)
       }
 
       local c = 0
@@ -1297,14 +1297,14 @@ class industry_manager_t extends manager_t
         //
         // check way for find fields for double track
         optimize_way_line(nexttile, wt)
-        local s_fields = check_way_line(start_l, end_l, wt, l, c)
+        local s_fields = check_way_line(start_l, end_l, wt, l, c, line)
         local cc = 1
 
         //gui.add_message_at(our_player, "####### type(s_fields) " + type(s_fields), world.get_time())
         if ( type(s_fields) == "array" ) {
           //gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
           if ( s_fields.len() == 0 ) {
-            s_fields = check_way_line(end_l, start_l, wt, l, c)
+            s_fields = check_way_line(end_l, start_l, wt, l, c, line)
           }
         }
 
