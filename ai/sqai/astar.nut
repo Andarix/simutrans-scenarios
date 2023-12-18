@@ -2614,6 +2614,7 @@ function build_double_track(start_field, wt) {
   // 11 fields diagonal
 
   for ( local i = 0; i < (way_len + way_len_d); i++ ) {
+
     if ( d == 5 ) {
       // build from n to s
       // ns - r
@@ -3826,7 +3827,7 @@ function check_way_line(start, end, wt, l, c) {
   local r = 0
   local s = []
 
-  local l_split = 25
+  local l_split = 18
 
   if ( c > 0 ) {
     // distance double ways
@@ -3922,7 +3923,7 @@ function check_way_line(start, end, wt, l, c) {
         gui.add_message_at(our_player, " ### check bridge " + coord3d_to_string(t), t)
       }
       st = 1
-    } else if ( t.get_way_dirs(wt) == 10 ) {
+    } else if ( t.get_way_dirs(wt) == 10 && t.find_object(mo_building) == null ) {
       local check_tile_str = tile_x(t.x, t.y + 1, t.z)
       local check_tile_stl = tile_x(t.x, t.y - 1, t.z)
       // check left & right ground and empty
@@ -3950,7 +3951,7 @@ function check_way_line(start, end, wt, l, c) {
       dst = 0
       dfcl = 0
       dfcr = 0
-    } else if ( t.get_way_dirs(wt) == 5 ) {
+    } else if ( t.get_way_dirs(wt) == 5 && t.find_object(mo_building) == null ) {
       // check left & right out of map and ground and empty
       local check_tile_str = tile_x(t.x + 1, t.y, t.z)
       local check_tile_stl = tile_x(t.x - 1, t.y, t.z)

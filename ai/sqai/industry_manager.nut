@@ -1273,17 +1273,17 @@ class industry_manager_t extends manager_t
       local t = l % 80
       //gui.add_message_at(our_player, "#### way len " + l + " % 80 = " + (l % 80), world.get_time())
       //gui.add_message_at(our_player, "#### way len " + l + " / 80 = " + (l / 80), world.get_time())
-      if ( l > 50 && l <= 90 ) {
+      if ( l > 30 && l <= 90 ) {
         c = 1
-      } else if ( l > 90 && l <= 160 ) {
+      } else if ( l > 70 && l <= 140 ) {
         c = 2
-      } else if ( l > 160 && l <= 220 ) {
+      } else if ( l > 140 && l <= 200 ) {
         c = 3
-      } else if ( l > 220 && l <= 350 ) {
+      } else if ( l > 200 && l <= 330 ) {
         c = 4
-      } else if ( l > 350 && l < 480 ) {
+      } else if ( l > 330 && l < 460 ) {
         c = 5
-      } else if ( l >= 480 ) {
+      } else if ( l >= 460 ) {
         c = (l / 80)
       }
 
