@@ -21,6 +21,7 @@ class my_line_t extends line_x
   add_convoy_time     = world.get_time().ticks + world.get_time().ticks_per_month // save ticks for next add convoy - destroy convoy then add time
   line_bridges_count  = 0 // count non player bridges from line
   line_bridges        = [] // array bridge start/end from not player bridges
+  way_line_count      = 1 // more lines on way > 1
 
   constructor(line /* line_x */)
   {
@@ -962,22 +963,22 @@ class industry_manager_t extends manager_t
     if (our_player.get_current_cash() > 50000 && wt != wt_water && wt != wt_air) {
       if ( line.optimize_way_line == 0 ) {
         // optimize way line befor build double ways
-        local err = optimize_way_line(nexttile, wt)
+        local err = optimize_way_line(nexttile, wt, line.optimize_way_line, line)
         if ( err ) {
           line.optimize_way_line = 1
         }
       } else if ( line.optimize_way_line == 1 && our_player.get_current_cash() > 500000 ) {
-        local err = optimize_way_line(nexttile, wt)
+        local err = optimize_way_line(nexttile, wt, line.optimize_way_line, line)
         if ( err ) {
           line.optimize_way_line = 2
         }
       } else if ( line.optimize_way_line == 2 && our_player.get_current_cash() > 1000000 ) {
-        local err = optimize_way_line(nexttile, wt)
+        local err = optimize_way_line(nexttile, wt, line.optimize_way_line, line)
         if ( err ) {
           line.optimize_way_line = 3
         }
       } else if ( line.optimize_way_line == 3 && our_player.get_current_cash() > 1000000 && world.get_time().year >= 1950 ) {
-        local err = optimize_way_line(nexttile, wt)
+        local err = optimize_way_line(nexttile, wt, line.optimize_way_line, line)
         if ( err ) {
           line.optimize_way_line = 4
         }
@@ -1296,7 +1297,12 @@ class industry_manager_t extends manager_t
         }
         //
         // check way for find fields for double track
-        optimize_way_line(nexttile, wt)
+        if ( line.optimize_way_line == 0 ) {
+          local err = optimize_way_line(nexttile, wt, line.optimize_way_line, line)
+          if ( err ) {
+            line.optimize_way_line = 1
+          }
+        }
         local s_fields = check_way_line(start_l, end_l, wt, l, c, line)
         local cc = 1
 
@@ -1375,9 +1381,19 @@ class industry_manager_t extends manager_t
         return null
       }
 
+      //gui.add_message_at(our_player, " line 1384 " + line.get_name() + " - line.way_line_count : " + line.way_line_count + " - line.double_ways_count : " + line.double_ways_count, world.get_time())
       if ( wt == wt_rail ) {
-        cnv_count = line.double_ways_count + 1
+        if ( line.way_line_count == 1 ) {
+          cnv_count = line.double_ways_count + 1
+        } else if ( line.way_line_count > 1 ) {
+          if ( line.double_ways_count > 2 ) {
+            cnv_count = line.double_ways_count - 1
+          } else {
+            cnv_count = line.double_ways_count
+          }
 
+        }
+        //gui.add_message_at(our_player, " line set cnv_count " + cnv_count, world.get_time())
       }
 
       if ( bilanz_year < 0 ) {
@@ -1583,13 +1599,27 @@ class industry_manager_t extends manager_t
           c.p_count  = 3
         } else {
           c.p_count  = 1
+          /*if ( int_li == cnv_count ) {
+            c.p_count  = 0
+          }*/
+        }
+
+        local int_li = 0
+        if ( wt == wt_rail ) {
+          local li = line.get_convoy_list()
+          foreach(cnv in li) {
+            if ( cnv.is_valid() ) { int_li++ }
+          }
+
         }
 
         // input storage f_src = 0 or waiting good = 0 then not add convoys
         local entries = line.get_schedule().entries
         local start_h = entries[0].get_halt(our_player)
         local d = start_h.get_waiting()
-        if ( check_fsrc_input(link.f_src) || d[0] > 0 ) {
+        sleep()
+
+        if ( (check_fsrc_input(link.f_src) || d[0] > 0) && int_li < cnv_count ) {
           append_child(c)
           if ( cnv_retired.len() == 1 && cnv_retired.len() == cnv_count ) {
             cnv_retired[0].toggle_withdraw(our_player)
@@ -1645,10 +1675,12 @@ class industry_manager_t extends manager_t
 
           return true
 
+        } else {
+          line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
         }
       }
     }
-/*
+    /*
     local veh_count_line = line.get_convoy_count()
     local new_cnv_add_line = false
     if ( veh_count_line[0] > veh_count_line[1] ) {
@@ -1656,7 +1688,7 @@ class industry_manager_t extends manager_t
       new_cnv_add_line = true
       //gui.add_message_at(our_player, "####### cnv new this month ", world.get_time())
     } //!new_cnv_add_line  &&
-*/
+    */
 
     if ( !freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped && line.next_vehicle_check < world.get_time().ticks && !new_cnv_add_line ) {
       // freight, lots of empty and of stopped vehicles
@@ -1699,6 +1731,8 @@ class industry_manager_t extends manager_t
       }
     }
     dbgprint("")
+
+    return true
 
   }
 
