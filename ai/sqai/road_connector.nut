@@ -545,7 +545,7 @@ class road_connector_t extends manager_t
     }
 
 
-    err = command_x.build_station(pl, tile, station, rotation )
+    err = command_x.build_station(our_player, tile, station, rotation )
 
     return err
   }
