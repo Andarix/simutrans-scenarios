@@ -1694,7 +1694,7 @@ function check_station(pl, starts_field, t_route, st_lenght, wt, select_station,
       if (st_build && step_end > 0 && build == 1) {
         starts_field.x += step_end*dc.x
         starts_field.y += step_end*dc.y
-        gui.add_message_at(pl, " ---> first tile of station reset : " + coord3d_to_string(starts_field), starts_field)
+        if ( print_message_box == 2 ) gui.add_message_at(pl, " ---> first tile of station reset : " + coord3d_to_string(starts_field), starts_field)
       }
       if (st_build) {
         break // leave for loop to test directions
