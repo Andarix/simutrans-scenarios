@@ -2,4 +2,6 @@ Repository for scenario development for simutrans.
 
 Documentation of API can be found here:
 
-https://dwachs.github.io/simutrans-sqapi-doc/
+outdate https://dwachs.github.io/simutrans-sqapi-doc/
+
+https://simutrans-squirrel.simutrans-germany.com/
