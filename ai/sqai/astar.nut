@@ -2297,6 +2297,7 @@ function build_station(tiles, station_obj) {
 }
 
 /**
+  * @fn find_signal(sig_type, wt)
   * find signal tool
   *
   * @param sig_type  = signal type (is_signal, is_presignal ... )
@@ -2334,11 +2335,12 @@ function find_station(wt) {
 }
 
 /**
+  * @fn find_object(obj, wt, speed)
   * find object tool
   *
-  * obj   = object type ( bridge, tunnel, way, catenary )
-  * wt    = waytype
-  * speed = speed
+  * @param obj   = object type ( bridge, tunnel, way, catenary )
+  * @param wt    = waytype
+  * @param speed = speed
   */
 function find_object(obj, wt, speed) {
 
