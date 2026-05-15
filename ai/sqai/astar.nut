@@ -684,8 +684,10 @@ class astar_builder extends astar
   }
 }
 
-/*
- *
+/// @publicsection
+
+/**
+ *  test route befor removed
  *
  */
 function test_select_way(start, end, t_end, wt) {
@@ -703,7 +705,7 @@ function test_select_way(start, end, t_end, wt) {
   return false
 }
 
-/*
+/**
  * check ground under bridges for terraform and remove bridge
  *
  * bridges ramp - ramp
@@ -743,12 +745,9 @@ function replace_bridge_to_land(tiles) {
     }
   }
 
-
-
-
 }
 
-/*
+/**
  * check ground under bridges
  *
  *
@@ -5670,7 +5669,6 @@ function destroy_line(line_obj, good, link_obj) {
   return true
 }
 
-/// @publicsection
 /*
  * check waytypes from halt
  * tile = one tile from halt
@@ -5712,8 +5710,7 @@ function test_halt_waytypes(tile) {
   return test_way
 }
 
-/// @publicsection
-/*
+/**
  * check depot as home for other vehicles
  * tile = depot coord
  * wt   = waytype
@@ -5845,6 +5842,10 @@ function check_stations_connections() {
 
 }
 
+/**
+  * check station - combined halt?
+  *
+  */
 function check_combined_station(halt) {
   local lines = halt.get_line_list()
   local factorys = halt.get_factory_list()
@@ -5887,6 +5888,10 @@ function check_combined_station(halt) {
 
 }
 
+/**
+  *
+  *
+  */
 function station_aw(start_field, wt, awst_array) {
   local print_message_box = 0
   local b_player = our_player
@@ -6227,6 +6232,10 @@ function station_aw(start_field, wt, awst_array) {
 
 }
 
+/**
+  * terraform for double way
+  *
+  */
 function terraform_way(tiles, tiles_build, tr, tl, way_len, d) {
   local err = null
   local b_player = our_player
@@ -6588,7 +6597,7 @@ function terraform_way(tiles, tiles_build, tr, tl, way_len, d) {
   return output
 }
 
-/*
+/**
  * search my_line_t from line_x
  *
  *
