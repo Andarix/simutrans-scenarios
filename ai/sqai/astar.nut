@@ -684,10 +684,8 @@ class astar_builder extends astar
   }
 }
 
-/// @publicsection
-
-/**
- *  test route befor removed
+/*
+ *
  *
  */
 function test_select_way(start, end, t_end, wt) {
@@ -705,7 +703,7 @@ function test_select_way(start, end, t_end, wt) {
   return false
 }
 
-/**
+/*
  * check ground under bridges for terraform and remove bridge
  *
  * bridges ramp - ramp
@@ -745,9 +743,12 @@ function replace_bridge_to_land(tiles) {
     }
   }
 
+
+
+
 }
 
-/**
+/*
  * check ground under bridges
  *
  *
@@ -2296,7 +2297,6 @@ function build_station(tiles, station_obj) {
 }
 
 /**
-  * @fn find_signal(sig_type, wt)
   * find signal tool
   *
   * @param sig_type  = signal type (is_signal, is_presignal ... )
@@ -2325,8 +2325,11 @@ function find_signal(sig_type, wt) {
  */
 function find_station(wt) {
   local list = building_desc_x.get_available_stations(building_desc_x.station, wt, good_desc_x(freight))
+  local list_all = building_desc_x.get_available_stations(building_desc_x.station, wt, {})
 
   if ( list.len() > 0 ) {
+    return list[0]
+  } else if ( list_all.len() > 0 ) {
     return list[0]
   } else {
     return false
@@ -2334,14 +2337,13 @@ function find_station(wt) {
 }
 
 /**
-  * @fn find_object(obj, wt, speed)
   * find object tool
   *
-  * @param obj   = object type ( bridge, tunnel, way, catenary )
-  * @param wt    = waytype
-  * @param speed = speed
+  * obj   = object type ( bridge, tunnel, way, catenary )
+  * wt    = waytype
+  * speed = speed
   */
-function find_object(obj, wt, speed) {
+function find_object(obj, wt, speed, st_type = st_flat) {
 
   local list = []
   switch(obj) {
@@ -2352,7 +2354,7 @@ function find_object(obj, wt, speed) {
       list = tunnel_desc_x.get_available_tunnels(wt)
       break
     case "way":
-      list = way_desc_x.get_available_ways(wt, st_flat)
+      list = way_desc_x.get_available_ways(wt, st_type)
       break
     case "catenary":
       local li = wayobj_desc_x.get_available_wayobjs(wt)
@@ -5669,6 +5671,7 @@ function destroy_line(line_obj, good, link_obj) {
   return true
 }
 
+/// @publicsection
 /*
  * check waytypes from halt
  * tile = one tile from halt
@@ -5710,7 +5713,8 @@ function test_halt_waytypes(tile) {
   return test_way
 }
 
-/**
+/// @publicsection
+/*
  * check depot as home for other vehicles
  * tile = depot coord
  * wt   = waytype
@@ -5842,10 +5846,6 @@ function check_stations_connections() {
 
 }
 
-/**
-  * check station - combined halt?
-  *
-  */
 function check_combined_station(halt) {
   local lines = halt.get_line_list()
   local factorys = halt.get_factory_list()
@@ -5888,10 +5888,6 @@ function check_combined_station(halt) {
 
 }
 
-/**
-  *
-  *
-  */
 function station_aw(start_field, wt, awst_array) {
   local print_message_box = 0
   local b_player = our_player
@@ -6232,10 +6228,6 @@ function station_aw(start_field, wt, awst_array) {
 
 }
 
-/**
-  * terraform for double way
-  *
-  */
 function terraform_way(tiles, tiles_build, tr, tl, way_len, d) {
   local err = null
   local b_player = our_player
@@ -6597,7 +6589,7 @@ function terraform_way(tiles, tiles_build, tr, tl, way_len, d) {
   return output
 }
 
-/**
+/*
  * search my_line_t from line_x
  *
  *
