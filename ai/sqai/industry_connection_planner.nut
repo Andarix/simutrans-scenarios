@@ -85,7 +85,7 @@ class industry_connection_planner_t extends manager_t
     }
 
     if ( get_set_name() == "pak64" ) {
-      if ( freight == "waste" && world.get_time().year > 1940 && exists_links >= 1 ) {
+      if ( freight == "waste" && exists_links >= 1 ) {
         // waste not more lines
         return r_t(RT_TOTAL_FAIL)
       }
@@ -829,7 +829,7 @@ class industry_connection_planner_t extends manager_t
     }
 
     if ( get_set_name() == "pak64" ) {
-      if ( freight == "waste" && world.get_time().year > 1940 ) {
+      if ( freight == "waste" ) { //&& world.get_time().year > 1940
         r.points -= 30
         if ( wt == wt_rail ) {
           r.points -= 30
@@ -949,8 +949,8 @@ class industry_connection_planner_t extends manager_t
     //gui.add_message_at(our_player, "retire " + min_retire_month + "." + min_retire_year, world.get_time())
     r.retire_obj = min_retire
 
-    gui.add_message_at(our_player, "Plan " + wt_name[wt] + " link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
-/*    if ( calc_route != null && calc_route != "No route" ) { gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time()) }
+/*    gui.add_message_at(our_player, "Plan " + wt_name[wt] + " link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
+    if ( calc_route != null && calc_route != "No route" ) { gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time()) }
     gui.add_message_at(our_player, " * Report: link points = " + r.points, world.get_time())
 */
     // successfull - complete report
@@ -992,6 +992,8 @@ class industry_connection_planner_t extends manager_t
 
       gui.add_message_at(our_player, "___________________________ End  plan_simple_connection __________________________", world.get_time())
     }
+
+    sleep()
 
     return r
   }
