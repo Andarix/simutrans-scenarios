@@ -1800,16 +1800,16 @@ class industry_manager_t extends manager_t
             if ( ret ) {
               line.halt_length = st_lenght
               // set new line entries
-              local entries = line.get_schedule().entries
+              /*local entries = line.get_schedule().entries
               if ( entries.len() >= 2 ) {
                 start_l = tile_x(entries[0].x, entries[0].y, entries[0].z)
                 end_l = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
-              }
+              }*/
             }
           }
 
           if ( wt == wt_rail && proto.veh[0].needs_electrification() ) {
-            build_catenary(start_l, end_l, depot, line)
+            build_catenary(depot, line)
           }
 
           local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
@@ -2041,7 +2041,7 @@ class industry_manager_t extends manager_t
     }
 
     if ( wt == wt_rail && c.p_convoy.veh[0].needs_electrification() ) {
-      build_catenary(route[0], route[route.len()-1], depot, line)
+      build_catenary(depot, line)
     }
 
     c.p_withdraw = true
@@ -2406,6 +2406,8 @@ class industry_manager_t extends manager_t
       gui.add_message_at(our_player, message_text, start_l)
       //::debug.pause()
 
+      sleep()
+
       return true
     }
 
@@ -2460,9 +2462,18 @@ class industry_manager_t extends manager_t
 
   }
 
-  function build_catenary(start_l, end_l, depot, line) {
+  function build_catenary(depot, line) {
     local print_message_box = 0
     local wt = line.get_waytype()
+
+    local start_l = null
+    local end_l = null
+
+    local entries = line.get_schedule().entries
+    if ( entries.len() >= 2 ) {
+      start_l = tile_x(entries[0].x, entries[0].y, entries[0].z)
+      end_l = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
+    }
 
     local way_obj = start_l.find_object(mo_way).get_desc() //way_list[0]
     if ( !way_obj.is_available(world.get_time()) ) {
