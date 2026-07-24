@@ -2354,7 +2354,7 @@ class industry_manager_t extends manager_t
           break
       }
 
-
+      local err = null
       for ( local i = 0; i <= b_count; i++ ) {
         local station_obj = (i % 2) ? station_s_obj : station_e_obj
         if ( print_message_box == 1 ) {
@@ -2363,9 +2363,14 @@ class industry_manager_t extends manager_t
 
         if ( expand_station[i].find_object(mo_way) == null ) {
           local build_tile = (i % 2) ? start_l : end_l
-          if ( terraform_tile(expand_station[i], build_tile.z) ) {
-            command_x.build_way(our_player, build_tile, expand_station[i], way_obj, true)
-            command_x.build_station(our_player, expand_station[i], station_obj)
+          local terraform_tile = terraform_tile(expand_station[i], build_tile.z)
+          //gui.add_message_at(our_player, " ---=> terraform " + terraform_tile, build_tile)
+          if ( terraform_tile ) {
+            err = command_x.build_way(our_player, build_tile, expand_station[i], way_obj, true)
+            if ( err ) {
+              gui.add_message_at(our_player, err + " ####### build way to tile " + coord3d_to_string(expand_station[i]), expand_station[i])
+            }
+            err = command_x.build_station(our_player, expand_station[i], station_obj)
             if ( catenary_obj != null ) {
               command_x.build_wayobj(our_player, build_tile, expand_station[i], catenary_obj)
             }
@@ -2384,6 +2389,28 @@ class industry_manager_t extends manager_t
             }
             //::debug.pause()
 
+          } else {
+            // error by terraform
+            local t = null
+            local j = 1
+            if ( build_tile == nexttile[nexttile.len()-1] ) {
+              t = nexttile[nexttile.len()-1-station_exist]
+              while( t.find_object(mo_building) != null ) {
+                t = nexttile[nexttile.len()-1-station_exist-j]
+                j++
+              }
+            } else if ( build_tile = nexttile[0] ) {
+              t = nexttile[station_exist]
+              while( t.find_object(mo_building) != null ) {
+                t = nexttile[station_exist+j]
+                j++
+              }
+            }
+            //gui.add_message_at(our_player, "t " + coord3d_to_string(t), world.get_time())
+            err = command_x.build_station(our_player, t, station_obj)
+            if ( err != null ) {
+              return false
+            }
           }
           //::debug.pause()
         } else {

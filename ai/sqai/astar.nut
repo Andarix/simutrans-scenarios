@@ -1117,6 +1117,7 @@ function terraform_tile(tile, ref_hight) {
 
   if ( print_message_box > 0 ) {
     if ( debug ) ::debug.set_pause_on_error(true)
+    gui.add_message_at(our_player, " ** astar.nut function terraform_tile(tile, ref_hight) **", world.get_time())
     gui.add_message_at(our_player, " ---=> terraform_tile(tile, ref_hight) tile : " + coord3d_to_string(tile) + " target hight : " + ref_hight, world.get_time())
   }
 
@@ -1134,9 +1135,14 @@ function terraform_tile(tile, ref_hight) {
           }
           do {
             err = command_x.set_slope(our_player, tile, 82 )
-            if ( err != null ) { break }
-            //z = square_x(tile.x, tile.y).get_ground_tile()
-          } while(tile.z < ref_hight )
+            if ( err != null ) { break } else { sleep() }
+            local z = square_x(tile.x, tile.y).get_ground_tile()
+            if ( print_message_box == 2 ) {
+              gui.add_message_at(our_player, " ---=> tile up to flat err " + err, world.get_time())
+              gui.add_message_at(our_player, " ---=> tile.z " + tile.z, world.get_time())
+              gui.add_message_at(our_player, " ---=> z " + coord3d_to_string(tile), world.get_time())
+            }
+          } while( tile.z < ref_hight )
 
         } else if ( tile.z >= ref_hight || tile.z <= (ref_hight + 1) ) {
            // terraform down
@@ -1146,13 +1152,17 @@ function terraform_tile(tile, ref_hight) {
           do {
             err = command_x.set_slope(pl, tile, 83 )
             if ( err != null ) { break }
-            //z = square_x(fields[i].x, fields[i].y).get_ground_tile()
-          } while(tile.z > ref_hight )
+            //local z = square_x(tile.x, tile.y).get_ground_tile()
+            if ( print_message_box == 2 ) {
+              gui.add_message_at(our_player, " ---=> tile down to flat err " + err, world.get_time())
+              gui.add_message_at(our_player, " ---=> tile.z " + tile.z, world.get_time())
+            }
+          } while( tile.z > ref_hight )
           // replace water to land
           if ( tile.is_water() ) { command_x.change_climate_at(our_player, tile, cl_temperate) }
 
         }
-        if ( err ) {
+        if ( err != null ) {
           return false
         }
         return true
