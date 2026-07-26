@@ -2357,15 +2357,16 @@ class industry_manager_t extends manager_t
       local err = null
       for ( local i = 0; i <= b_count; i++ ) {
         local station_obj = (i % 2) ? station_s_obj : station_e_obj
-        if ( print_message_box == 1 ) {
+        if ( print_message_box == 0 ) {
           gui.add_message_at(our_player, "####### [i] " + i, expand_station[i])
         }
 
         if ( expand_station[i].find_object(mo_way) == null ) {
           local build_tile = (i % 2) ? start_l : end_l
           local terraform_tile = terraform_tile(expand_station[i], build_tile.z)
-          //gui.add_message_at(our_player, " ---=> terraform " + terraform_tile, build_tile)
+          gui.add_message_at(our_player, " ---=> terraform " + terraform_tile, build_tile)
           if ( terraform_tile ) {
+            expand_station[i] = square_x(expand_station[i].x, expand_station[i].y).get_ground_tile()
             err = command_x.build_way(our_player, build_tile, expand_station[i], way_obj, true)
             if ( err ) {
               gui.add_message_at(our_player, err + " ####### build way to tile " + coord3d_to_string(expand_station[i]), expand_station[i])

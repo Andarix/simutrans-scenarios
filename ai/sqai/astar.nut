@@ -1123,6 +1123,7 @@ function terraform_tile(tile, ref_hight) {
 
   if ( test_tile_is_empty(tile) && ( tile.get_slope() > 0 || tile.z != ref_hight ) ) {
     local err = null
+    local z = null
         if ( print_message_box == 2 ) {
            gui.add_message_at(our_player, " ---=> terraform", world.get_time())
            gui.add_message_at(our_player, " ---=> tile z " + tile.z + " to ref_hight " + ref_hight, world.get_time())
@@ -1136,13 +1137,13 @@ function terraform_tile(tile, ref_hight) {
           do {
             err = command_x.set_slope(our_player, tile, 82 )
             if ( err != null ) { break } else { sleep() }
-            local z = square_x(tile.x, tile.y).get_ground_tile()
+            z = square_x(tile.x, tile.y).get_ground_tile()
             if ( print_message_box == 2 ) {
               gui.add_message_at(our_player, " ---=> tile up to flat err " + err, world.get_time())
               gui.add_message_at(our_player, " ---=> tile.z " + tile.z, world.get_time())
-              gui.add_message_at(our_player, " ---=> z " + coord3d_to_string(tile), world.get_time())
+              gui.add_message_at(our_player, " ---=> z " + coord3d_to_string(z), world.get_time())
             }
-          } while( tile.z < ref_hight )
+          } while( z.z < ref_hight )
 
         } else if ( tile.z >= ref_hight || tile.z <= (ref_hight + 1) ) {
            // terraform down
@@ -1152,12 +1153,12 @@ function terraform_tile(tile, ref_hight) {
           do {
             err = command_x.set_slope(pl, tile, 83 )
             if ( err != null ) { break }
-            //local z = square_x(tile.x, tile.y).get_ground_tile()
+            local z = square_x(tile.x, tile.y).get_ground_tile()
             if ( print_message_box == 2 ) {
               gui.add_message_at(our_player, " ---=> tile down to flat err " + err, world.get_time())
-              gui.add_message_at(our_player, " ---=> tile.z " + tile.z, world.get_time())
+              gui.add_message_at(our_player, " ---=> z.z " + z.z, world.get_time())
             }
-          } while( tile.z > ref_hight )
+          } while( z.z > ref_hight )
           // replace water to land
           if ( tile.is_water() ) { command_x.change_climate_at(our_player, tile, cl_temperate) }
 
