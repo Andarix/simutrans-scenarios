@@ -584,12 +584,17 @@ class astar_builder extends astar
 
               local build_tile = false
               if ( settings.get_pay_for_total_distance_mode == 2 && test_exists_way == null && check_build_tile ) {
-                err = command_x.build_way(our_player, route[i-1], route[i], way, true)
+                do {
+                  err = command_x.build_way(our_player, route[i-1], route[i], way, true)
+                } while(err != null)
                 build_tile = true
               } else if ( test_exists_way == null && check_build_tile ) {
-                err = command_x.build_way(our_player, route[i-1], route[i], way, false)
+                do {
+                  err = command_x.build_way(our_player, route[i-1], route[i], way, false)
+                } while(err != null)
                 build_tile = true
               }
+
               if (err) {
                 //gui.add_message_at(our_player, "Failed to build " + way.get_name() + " from " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
                 // remove way
