@@ -573,6 +573,7 @@ class industry_manager_t extends manager_t
     // 4 = cnv status retired / all to old
     // 5 = electrified
     // 6 and pl 4
+    // 7 upgrade way
     local print_message_box = 0
 
     local wt = line.get_waytype()
@@ -1165,6 +1166,7 @@ class industry_manager_t extends manager_t
       local way_obj = find_object("way", wt, cnv_max_speed)
       //gui.add_message_at(our_player, " way max speed new " + way_obj.get_topspeed(), world.get_time())
 
+      local err = null
       if ( cnv_max_speed >= way_speed && upgrade_tiles > 2 ) {
         local costs = (upgrade_tiles*(way_obj.get_cost()/100))
         local count_build = 0
@@ -1176,7 +1178,22 @@ class industry_manager_t extends manager_t
             local tile_way_1 = tile_x(nexttile[i-1].x, nexttile[i-1].y, nexttile[i-1].z)
             local tile_way_2 = tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z)
             if ( tile_way_2.find_object(mo_way) != null && (tile_way_2.find_object(mo_way).get_owner().nr == our_player_nr || tile_way_2.find_object(mo_way).get_owner().nr == 1) && tile_way_2.find_object(mo_way).get_desc().get_topspeed() < way_obj.get_topspeed() ) {
-              command_x.build_way(our_player, tile_way_1, tile_way_2, way_obj, true)
+              err = command_x.build_way(our_player, tile_way_1, tile_way_2, way_obj, true)
+              if ( print_message_box == 7 && err != null ) {
+                gui.add_message_at(our_player, " ## err upgrade way: " + err, tile_way_1)
+              }
+              while ( err != null ) {
+                tile_way_1 = square_x(tile_way_1.x, tile_way_1.y).get_ground_tile()
+                tile_way_2 = square_x(tile_way_2.x, tile_way_2.y).get_ground_tile()
+                if ( tile_way_1.find_object(mo_way) && tile_way_2.find_object(mo_way) ) {
+                  // way check
+                  err = command_x.build_way(our_player, tile_way_1, tile_way_2, way_obj, true)
+                } else {
+                  // bridge check ?
+                  err = null
+                }
+
+              }
               count_build++
             }
           }
@@ -2364,7 +2381,7 @@ class industry_manager_t extends manager_t
         if ( expand_station[i].find_object(mo_way) == null ) {
           local build_tile = (i % 2) ? start_l : end_l
           local terraform_tile = terraform_tile(expand_station[i], build_tile.z)
-          gui.add_message_at(our_player, " ---=> terraform " + terraform_tile, build_tile)
+          //gui.add_message_at(our_player, " ---=> terraform " + terraform_tile, build_tile)
           if ( terraform_tile ) {
             expand_station[i] = square_x(expand_station[i].x, expand_station[i].y).get_ground_tile()
             err = command_x.build_way(our_player, build_tile, expand_station[i], way_obj, true)
