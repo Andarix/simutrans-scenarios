@@ -130,7 +130,6 @@ class industry_manager_t extends manager_t
     base.constructor("industry_manager_t")
     link_list = {}
     ::industry_manager = this
-    debug = false
   }
 
   /// Generate unique key from link data
@@ -556,7 +555,7 @@ class industry_manager_t extends manager_t
   function check_link_line(link, line)
   {
 
-    if ( debug ) ::debug.set_pause_on_error(true)
+    if ( debug.messages ) ::debug.set_pause_on_error(true)
 
     // set first run as line build time
     /*if ( line.build_line == 0 ) {
@@ -1048,10 +1047,10 @@ class industry_manager_t extends manager_t
         if ( gt[0].is_bridge == false && gt[1].is_bridge == false ) {
           local bridge_obj = find_object("bridge", wt, line.line_way_speed)
           command_x.build_bridge(our_player, gt[0], gt[1], bridge_obj)
-          if ( debug ) gui.add_message_at(our_player, "**** line 800 - build missing bridge in route ## ", gt[0])
+          if ( debug.messages ) gui.add_message_at(our_player, "**** line 800 - build missing bridge in route ## ", gt[0])
         }
       }
-      //if ( debug ) gui.add_message_at(our_player, "**** line 816 - line_bridges_count = " + line.line_bridges_count + " ## ", g[0])
+      //if ( debug.messages ) gui.add_message_at(our_player, "**** line 816 - line_bridges_count = " + line.line_bridges_count + " ## ", g[0])
 
     }
 
@@ -1089,7 +1088,7 @@ class industry_manager_t extends manager_t
       }
       if ( line.line_bridges.len() > 0 ) {
         local g = line.line_bridges[0]
-        if ( debug ) gui.add_message_at(our_player, "**** line 828 - line_bridges_count = " + line.line_bridges_count + " ## ", g[0])
+        if ( debug.messages ) gui.add_message_at(our_player, "**** line 828 - line_bridges_count = " + line.line_bridges_count + " ## ", g[0])
       }
     }
 
