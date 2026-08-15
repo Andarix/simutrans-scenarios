@@ -46,6 +46,9 @@ build_check_month <- world.get_time().ticks
 // set factory strategie - 0 = traditional method, taken from C++ implementation
 factory_strategie <- 0
 
+// gate for the optional diagnostic output of this AI
+::debug.messages <- false
+
 /*
  *  different ticks per month for bits_per_month
  *
