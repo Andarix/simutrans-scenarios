@@ -1184,15 +1184,16 @@ function terraform_tile(tile, ref_hight) {
           if ( print_message_box == 2 ) {
             gui.add_message_at(our_player, " ---=> tile down to flat ", world.get_time())
           }
+          local z = null
           do {
             err = command_x.set_slope(our_player, tile, 83 )
+            z = square_x(tile.x, tile.y).get_ground_tile()
             if ( err != null ) { break }
-            local z = square_x(tile.x, tile.y).get_ground_tile()
-            if ( print_message_box == 2 ) {
-              gui.add_message_at(our_player, " ---=> tile down to flat err " + err, world.get_time())
-              gui.add_message_at(our_player, " ---=> z.z " + z.z, world.get_time())
-            }
           } while( z.z > ref_hight )
+          if ( print_message_box == 2 ) {
+            gui.add_message_at(our_player, " ---=> tile down to flat err " + err, world.get_time())
+            gui.add_message_at(our_player, " ---=> z.z " + z.z, world.get_time())
+          }
           // replace water to land
           if ( tile.is_water() ) { command_x.change_climate_at(our_player, tile, cl_temperate) }
 
@@ -4374,6 +4375,10 @@ function optimize_way_line(route, wt, int_run, o_line) {
     local tile_4_d = 0
 
     // check is way our player
+    if ( check_way_tile[0].is_bridge() || check_way_tile[0].is_tunnel() ) {
+      // tile is bridge or tunnel then continue
+      continue
+    }
     local tile_1_pl = check_way_tile[0].find_object(mo_way).get_owner().nr //.get_desc()
     local tile_2_coord = coord3d_to_string(check_way_tile[1]) // not use for debug
     local tile_2_pl = check_way_tile[1].find_object(mo_way).get_owner().nr //.get_desc()
@@ -4703,7 +4708,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
         //local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
         local txt = coord3d_to_string(check_way_tile[0])
         local tool = command_x(tool_remove_way)
-        err = tool.work(our_player, tile_1, build_tile, "" + wt)
+        err = tool.work(our_player, check_way_tile[0], build_tile, "" + wt)
 
         // One coordinate, not two: from the surface the tunnel tool has no
         // two-click mode at all, it digs to the far side of the hill by
@@ -4711,7 +4716,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
         // the call with "First click has side effects", because the first
         // click would already have built the tunnel.
         tool = command_x(tool_build_tunnel)
-        err = tool.work(our_player, tile_1, tunnel_obj.get_name())
+        err = tool.work(our_player, check_way_tile[0], tunnel_obj.get_name())
 
         //err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
         if (err != null ) {
