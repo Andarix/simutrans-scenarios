@@ -358,7 +358,7 @@ class pontifex
 
   function find_end(pos, dir, min_length)
   {
-    return bridge_planner_x.find_end(player, pos, dir, bridge, min_length)
+    return bridge_planner_x.find_end(player, pos, dir, bridge, min_length, 0, true)
   }
 }
 
@@ -4354,6 +4354,8 @@ function optimize_way_line(route, wt, int_run, o_line) {
   local check_way_tile_d = []
   check_way_tile_d.resize(set_tiles, null)
 
+  local reroute = false
+
   for ( local i = 1; i < (route.len() - station_len); i++ ) {
 
     for ( local j = 0; j < check_way_tile.len(); j++ ) {
@@ -4552,7 +4554,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
 
       if ( (way_d > 0 || build_bridge > 0) && print_message_box > 0 ) { //
         //gui.add_message_at(our_player, " optimize way way_d " + way_d, tile_1)
-        gui.add_message_at(our_player, " optimize way build_bridge " + build_bridge, check_way_tile[0])
+        //gui.add_message_at(our_player, " optimize way build_bridge " + build_bridge, check_way_tile[0])
       }
     }
 
@@ -4686,6 +4688,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
             gui.add_message_at(our_player, " build tunnel " + coord3d_to_string(tile_4) + " - " + coord3d_to_string(tile_3) + ": " + err, world.get_time())
           } else {
             count_build++
+            reroute = true
           }
 
         }
@@ -4708,13 +4711,14 @@ function optimize_way_line(route, wt, int_run, o_line) {
         // the call with "First click has side effects", because the first
         // click would already have built the tunnel.
         tool = command_x(tool_build_tunnel)
-        err = tool.work(our_player, tile_1, tunnel_obj.get_name()) //build_tile,
+        err = tool.work(our_player, tile_1, tunnel_obj.get_name())
 
         //err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
         if (err != null ) {
           gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
         } else {
           count_build++
+          reroute = true
         }
 
         if ( !check_way_tile[0].is_tunnel() && build_tile.is_tunnel() ) {
@@ -4806,6 +4810,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
                   gui.add_message_at(our_player, "#4350# build way " + coord3d_to_string(tile_4) + " - " + coord3d_to_string(tile_3) + ": " + err, world.get_time())
                 } else {
                   count_build++
+                  reroute = true
                 }
               } else {
                 gui.add_message_at(our_player, "#4403# err : " + err, check_way_tile[0])
@@ -4838,12 +4843,26 @@ function optimize_way_line(route, wt, int_run, o_line) {
             err = command_x.build_way(our_player, check_way_tile[0], build_tile, way_obj, true)
           } else {
             count_build++
+            reroute = true
           }
         }
         // restor exist catenary
         if ( catenary_obj != null ) {
           command_x.build_wayobj(our_player, check_way_tile[0], build_tile, catenary_obj)
         }
+      }
+
+      if ( reroute ) {
+        // replace tile coord in route
+        local asf = astar_route_finder(wt)
+        local result = asf.search_route([build_tile], [check_way_tile[0]])
+        local ii = i - 1
+        foreach(node in result.routes) {
+          local tile = tile_x(node.x, node.y, node.z)
+          route[ii] = tile
+          ii++
+        }
+        reroute = false
       }
     // END :: build bridges and tunnel - 2 to 4 tiles
 
