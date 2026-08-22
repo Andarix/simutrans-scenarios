@@ -658,14 +658,12 @@ class industry_manager_t extends manager_t
               //::debug.pause()
             }
         if ( line.destroy_line_month != (world.get_time().month+1) && (chk_f_link > 1 || (chk_f_link == 1 && link.f_src.get_suppliers().len() == 0 && link.f_dest.get_consumers().len() == 0) || (bilanz_year <= 0 && chk_f_link > 1)) ) {
+          //::debug.pause()
           local erreg = destroy_line(line, link.freight, link)
           //gui.add_message_at(our_player, "(495) : destroy_line(line, link.freight, link) = " + erreg, world.get_time())
           if ( erreg == false ) {
             line.destroy_line_month = world.get_time().month
-          } else if ( erreg == true ) {
-            link.state = 4
-            return
-          } else if ( erreg == null ) {
+          } else if ( erreg == true || erreg == null ) {
             link.state = 4
             return
           }
@@ -691,6 +689,7 @@ class industry_manager_t extends manager_t
             }
           }
           if ( test_halt_waytypes(end_l) == 1 && end_l.get_halt().get_factory_list().len() == 0 ) {
+            //::debug.pause()
             local erreg = destroy_line(line, link.freight, link)
             /*if ( bilanz_year < 0 ) {
               gui.add_message_at(our_player, "line 490 : erreg = destroy_line " + erreg, world.get_time())
@@ -723,6 +722,7 @@ class industry_manager_t extends manager_t
     local cnv_retired = []
     local new_cnv_add_line = false
     local stucked_cnv = []
+    local cnv_depot = []
     {
       local list = []
       // remove withdrawn convois
@@ -737,6 +737,7 @@ class industry_manager_t extends manager_t
         // 0 convoy destroy line
         // 1 convoy and profit year 0
         if ( line.get_owner().nr == our_player.nr ) {
+          //::debug.pause()
           destroy_line(line, link.freight, link)
           sleep()
         }
@@ -765,15 +766,18 @@ class industry_manager_t extends manager_t
           cnv = list[i]
         }
         // stucked convoy destroy
-        local d = list[i].get_traveled_distance()
+        if ( list[i].is_stuck() ) {
+          stucked_cnv.append(list[i])
+        }
+        /*
         if ( list[i].get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && list[i].is_loading() == false && cnv_count > 1 && list[i].get_loading_level() == 0 && stucked_cnv.len() <= cnv_remove_count ) {
           //gui.add_message_at(our_player, "####### destroy stucked road vehicles " + cnv_count, world.get_time())list[i].get_waytype() == wt_road &&
           stucked_cnv.append(list[i])
           //remove_cnv++
-        }
+        }*/
         // destroy convoys in depots
         if ( list[i].is_in_depot() ) {
-          stucked_cnv.append(list[i])
+          //stucked_cnv.append(list[i])
         }
         // destroy no waiting goods
         if ( start_h != null ) {
@@ -785,6 +789,7 @@ class industry_manager_t extends manager_t
           }
         }
         // stucked loaded convoy
+        local d = list[i].get_traveled_distance()
         if ( d[0] == 0 && d[1] == 0 && list[i].get_loading_level() > 0 && loading_cnv_stucked == 0 && line.get_waytype() == wt_road ) {
           loading_cnv_stucked = 1
           //gui.add_message_at(our_player, "(768) ####  loading convoy stucked ", world.get_time())
@@ -1529,7 +1534,7 @@ class industry_manager_t extends manager_t
 
           // build catenary
           if ( count_build > 0 && start_l.find_object(mo_wayobj) != null ) {
-            gui.add_message_at(our_player, " catenary ", start_l)
+            //gui.add_message_at(our_player, " catenary ", start_l)
             build_catenary(null, line)
           }
 
@@ -1693,6 +1698,7 @@ class industry_manager_t extends manager_t
         if (wt == wt_air ) {
           cnv_valuator.max_cnvs = 2
         }
+
         // add 10% from distance
         //dist += dist / 100 * 10
 
