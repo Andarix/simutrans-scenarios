@@ -1001,7 +1001,7 @@ class industry_connection_planner_t extends manager_t
     dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + planned_convoy.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
     dbgprint("Report: dist = " + cnv_valuator.distance + " way_cost = " + planned_way.get_cost())
     dbgprint("Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
-    if ( print_message_box == 4 || debug) {
+    if ( print_message_box == 4 || debug.messages ) {
       gui.add_message_at(our_player, "----- ", world.get_time())
       gui.add_message_at(our_player, "Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name(), world.get_time())
       gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys = " + planned_convoy.nr_convoys + ", cost_build = " + r.cost_fix + ", cost_monthly = " + r.cost_monthly, world.get_time())
@@ -1146,7 +1146,7 @@ class industry_connection_planner_t extends manager_t
 function check_factory_links(f_src, f_dest, good, show_msg = 0) {
 
   local print_message_box = 0
-  local print_status = 1
+  local print_status = 0
 
   if ( show_msg == 1 ) {
     print_status = 1
