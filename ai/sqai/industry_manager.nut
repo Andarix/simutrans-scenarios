@@ -737,8 +737,12 @@ class industry_manager_t extends manager_t
         // 0 convoy destroy line
         // 1 convoy and profit year 0
         if ( line.get_owner().nr == our_player.nr ) {
-          //::debug.pause()
-          destroy_line(line, link.freight, link)
+            //::debug.pause()
+          local state = destroy_line(line, link.freight, link)
+          if ( !state ) {
+            line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+            //gui.add_message_at(our_player, "line 745 : destroy_line " + state, world.get_time())
+          }
           sleep()
         }
         /*if ( bilanz_year < 0 ) {
@@ -2288,6 +2292,45 @@ class industry_manager_t extends manager_t
     }
 
     return expand_station
+  }
+
+  /**
+    * test halt connect factory
+    *
+    *
+    */
+  function check_fac_connect_halt(fac, h_tile) {
+
+    local fd = fac.get_tile_list()
+
+    local tiles_y = abs(fd[0].y - h_tile.y)
+    local tiles_x = abs(fd[0].x - h_tile.x)
+
+    local fdest_building = fd[0].find_object(mo_building).get_desc()
+    local size = fdest_building.get_size(0)
+          //size_x = size.slice(0, size.find(","))
+          //size_y = size.slice(size.find(","))
+
+    local tiles_c = 0//(fs.len() / 2) + settings.get_station_coverage() + 2
+
+    if ( size.x == size.y ) {
+      tiles_c = size.x + 2
+    } else if ( size.x > size.y ) {
+      tiles_c = size.x + 2
+    } else if ( size.x < size.y ) {
+      tiles_c = size.y + 2
+    } else {
+      tiles_c = (fd.len() / 2) + settings.get_station_coverage() + 2
+    }
+
+          //gui.add_message_at(pl, "fdest tiles_c " + tiles_c, world.get_time())
+
+     if (tiles_x > tiles_c || tiles_y > tiles_c) {
+       //gui.add_message_at(pl, "tiles_x = " + tiles_x + " - tiles_y = " + tiles_y + " - tiles_c = " + tiles_c, world.get_time())
+       return true
+     }
+
+     return false
   }
 
   function build_expand_station(nexttile, expand_station, st_lenght, freight, line) {
