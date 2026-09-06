@@ -100,7 +100,7 @@ function is_convoy_allowed(pl, cnv, depot)
 	return null
 }
 
-function is_work_allowed_here(pl, tool, pos)
+function is_work_allowed_here(pl, tool_id, name, pos, tool)
 {
 	return null
 }
@@ -114,7 +114,7 @@ function new_year()
 	print("Happy new year " + world.get_time().year )
 }
 
-function is_tool_allowed(pl, tool_id, wt)
+function is_tool_allowed(pl, tool_id, wt, name)
 {
 	if (tool_id == 0x4000) return false
 	if (tool_id == 0x401c) return false
