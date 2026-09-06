@@ -522,7 +522,7 @@ function generate_pending_goals()
 }
 
 
-function is_work_allowed_here(pl, tool_id, pos)
+function is_work_allowed_here(pl, tool_id, name, pos, tool)
 {
 	// catch bridge building here ...
 	if (tool_id == tool_build_bridge) {

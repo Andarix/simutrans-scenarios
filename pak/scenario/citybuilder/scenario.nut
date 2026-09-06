@@ -196,7 +196,7 @@ function step()
 
 
 
-function is_work_allowed_here(pl, tool_id, pos)
+function is_work_allowed_here(pl, tool_id, name, pos, tool)
 {
 	// headquarter only on governors island
 	if (tool_id == tool_headquarter) {
