@@ -531,7 +531,7 @@ function is_work_allowed_here(pl, tool_id, name, pos, tool)
 		pending_tile_checks.append( checkforbridge(pos, pl) )
 	}
 	// buy historic building
-	if (tool_id == tool_buy_house  &&  company_goal_info[pl].historic == 0) {
+	if (tool_id == tool_buy_house  &&  company_goal_info[pl] != null  &&  company_goal_info[pl].historic == 0) {
 		print("Caught buy-house at (" + pos.x + ", " +pos.y + ", " +pos.z +")")
 		pending_tile_checks.append( checkhistoric(pos, pl) )
 	}
