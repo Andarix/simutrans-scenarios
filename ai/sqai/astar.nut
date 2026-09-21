@@ -4906,7 +4906,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
 
         }
       } else if ( tile_2_d == 10 && pl_check == our_player_nr ) {
-        local t_tile = tile_2
+        local t_tile = check_way_tile[1]
         if ( check_way_tile[1].x > check_way_tile[0].x ) {
           local check_gr = tile_x(t_tile.x+1, t_tile.y, t_tile.z)
           for ( local x = 1; route[i].is_bridge(); x++ ) {
