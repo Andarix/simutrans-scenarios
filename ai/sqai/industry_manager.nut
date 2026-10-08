@@ -1805,7 +1805,14 @@ class industry_manager_t extends manager_t
         local d = start_h.get_waiting()
         sleep()
 
-        if ( (check_fsrc_input(link.f_src) || d[0] > 0) && int_li < cnv_count ) {
+        local check_input = true
+        if ( wt == wt_road ) {
+          check_input = check_dest_input(link.f_dest, freight)
+        }
+
+        if ( (check_fsrc_input(link.f_src) || d[0] > 0) && check_input && int_li < cnv_count ) {
+
+
           append_child(c)
           if ( cnv_retired.len() == 1 && cnv_retired.len() == cnv_count ) {
             cnv_retired[0].toggle_withdraw(our_player)
