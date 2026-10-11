@@ -791,8 +791,9 @@ function check_dest_input(f_dest, freight) {
       }
     }
 
+    //
     local input_ = abs((dest_capacity/100)*40)
-      gui.add_message_at(our_player, "### input_ " + input_ + " # dest_count_in[0] " + dest_count_in[0], world.get_time())
+    gui.add_message_at(our_player, "### input_ " + input_ + " # dest_count_in[0] " + dest_count_in[0], world.get_time())
     if ( dest_count_in[0] < input_ ) {
 
       return true
