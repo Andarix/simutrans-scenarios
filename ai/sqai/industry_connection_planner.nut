@@ -197,11 +197,15 @@ class industry_connection_planner_t extends manager_t
   {
 
     // set line build cost 0
-      industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 1)
-      industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 2)
-      industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 3)
-      industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 4)
+    industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 1)
+    industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 2)
+    industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 3)
+    industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 4)
 
+    if ( wt_name.len() == 4 ) {
+      wt_name.resize(17, null)
+      wt_name.insert(16, "wt_air")
+    }
 
     // compute correct distance
     if (distance == 0) {
