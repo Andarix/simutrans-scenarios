@@ -2356,9 +2356,15 @@ function find_signal(sig_type, wt) {
   foreach(o in list) {
     if (o.is_signal() && sig_type == "is_signal") {
       obj_sign = o
+      break
     }
     if ( o.is_traffic_light() && sig_type == "traffic_light" ) {
       obj_sign = o
+      break
+    }
+    if ( o.is_private_way() && sig_type == "private" ) {
+      obj_sign = o
+      break
     }
   }
 
@@ -3459,12 +3465,14 @@ function build_double_track(start_field, wt, station_len) {
               test = signal_build_tile.get_way_dirs(wt)
               if ( test == 3 && s_ribi == 4 ) { s_ribi = 2 }
 
-
+              local signal_build_tile_text = coord3d_to_string(signal_build_tile)
               while(true){
                 local err = command_x.build_sign_at(b_player, signal_build_tile, obj_sign)
-                local ribi = signal_build_tile.get_way_dirs_masked(wt)
-                if (ribi == s_ribi)
-                  break
+                if ( err == null ) {
+                  local ribi = signal_build_tile.get_way_dirs_masked(wt)
+                  if (ribi == s_ribi)
+                    break
+                }
               }
 
             }
