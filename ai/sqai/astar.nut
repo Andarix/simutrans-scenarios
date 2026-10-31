@@ -4548,6 +4548,9 @@ function optimize_way_line(route, wt, int_run, o_line) {
           continue
         }
         gui.add_message_at(our_player, " build_tunnel " + build_tunnel, check_way_tile[0])
+      } else if ( check_way_tile[0].z == check_way_tile[2].z && check_way_tile[1].z > check_way_tile[0].z) {
+        build_tunnel = 3
+
       } else if ( tile_1_d == tile_2_d && check_way_tile[0].z == check_way_tile[1].z && check_way_tile[0].get_slope() > 0 && check_way_tile[1].get_slope() > 0 ) {
         gui.add_message_at(our_player, " 4483 ", check_way_tile[0])
         // slope down - slope up -> bridge
@@ -4752,6 +4755,35 @@ function optimize_way_line(route, wt, int_run, o_line) {
 
         //::debug.pause()
 
+      } else if ( build_tunnel == 3 ) {
+        // build selectiv tunnel
+        // check_way_tile[0].z == check_way_tile[2].z
+
+        local txt = coord3d_to_string(check_way_tile[0])
+        local tool = command_x(tool_remove_way)
+        err = tool.work(our_player, check_way_tile[0], check_way_tile[2], "" + wt)
+
+        local t = command_x(tool_build_tunnel)
+        t.set_flags(2)
+        err = t.work(our_player, check_way_tile[0], tunnel_obj.get_name())
+        if ( err == null ) {
+          err = t.work(our_player, check_way_tile[2], tunnel_obj.get_name())
+        }
+        if ( err == null ) {
+          err = t.work(our_player, check_way_tile[0], check_way_tile[2], tunnel_obj.get_name())
+        }
+
+        if (err != null ) {
+          gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
+        } else {
+          count_build++
+          reroute = true
+        }
+
+        // restor exist catenary
+        if ( catenary_obj != null ) {
+          command_x.build_wayobj(our_player, check_way_tile[0], build_tile, catenary_obj)
+        }
       }
 
       // slope down - slope up -> bridge
