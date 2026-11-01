@@ -3457,7 +3457,7 @@ function build_double_track(start_field, wt, station_len) {
                 } else if ( (sig_tile_new == "tl10" && j == 0) || (sig_tile_new == "tr5" && j == 0) ) {
                   signal_build_tile = tiles_build[0]
                 } else if ( (sig_tile_new == "tr10t" && j == 1) || (sig_tile_new == "tr5t" && j == 1) ) {
-                  signal_build_tile = tiles[0]
+                  signal_build_tile = tiles[way_len - 1]
                 }
               }
 
