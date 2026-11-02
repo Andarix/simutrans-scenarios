@@ -753,7 +753,7 @@ function check_fsrc_input(f_src) {
       src_count_in.append(count)
 
       local fs = f_src.get_tile_list()
-      gui.add_message_at(our_player, "### " + f_src.get_name() + " - " + coord_to_string(fs[0]) + " # " + good + " # src_count_in " + src_count_in[j], fs[0])
+      //gui.add_message_at(our_player, "### " + f_src.get_name() + " - " + coord_to_string(fs[0]) + " # " + good + " # src_count_in " + src_count_in[j], fs[0])
 
       j++
 
@@ -787,13 +787,13 @@ function check_dest_input(f_dest, freight) {
         dest_capacity = islot.max_storage
 
         local fs = f_dest.get_tile_list()
-        gui.add_message_at(our_player, "### " + f_dest.get_name() + " - " + coord_to_string(fs[0]) + " # " + good + " # dest_capacity " + dest_capacity, fs[0])
+        //gui.add_message_at(our_player, "### " + f_dest.get_name() + " - " + coord_to_string(fs[0]) + " # " + good + " # dest_capacity " + dest_capacity, fs[0])
       }
     }
 
     //
     local input_ = abs((dest_capacity/100)*40)
-    gui.add_message_at(our_player, "### input_ " + input_ + " # dest_count_in[0] " + dest_count_in[0], world.get_time())
+    //gui.add_message_at(our_player, "### input_ " + input_ + " # dest_count_in[0] " + dest_count_in[0], world.get_time())
     if ( dest_count_in[0] < input_ ) {
 
       return true
