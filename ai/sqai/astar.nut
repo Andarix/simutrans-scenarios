@@ -4325,7 +4325,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
   // 2 = tunnel
   // 3 = crossing
   // 4 = terraform
-  local print_message_box = 2
+  local print_message_box = 0
 
   if ( print_message_box > 5 ) { //wt == wt_road && wt == wt_rail &&
     gui.add_message_at(our_player, " optimize_way_line(route, wt) ", tile_x(route[0].x, route[0].y, route[0].z))
@@ -4538,10 +4538,10 @@ function optimize_way_line(route, wt, int_run, o_line) {
               tile_list.clear()
               break
             }
-            gui.add_message_at(our_player, "tile_list route tunnel: " + coord3d_to_string(tile_list[k+1]), tile_list[k+1])
+            //gui.add_message_at(our_player, "tile_list route tunnel: " + coord3d_to_string(tile_list[k+1]), tile_list[k+1])
           }
 
-          gui.add_message_at(our_player, "---------------- tile_list[].len() " + tile_list.len(), world.get_time())
+          //gui.add_message_at(our_player, "---------------- tile_list[].len() " + tile_list.len(), world.get_time())
           if ( tile_list.len() > 0 ) {
             build_tunnel = 3
             reroute = true
@@ -4561,9 +4561,9 @@ function optimize_way_line(route, wt, int_run, o_line) {
           if ( check_way_tile[0].z == check_way_tile[1].z && check_way_tile[1].z == check_way_tile[2].z ) {
             build_bridge = 2
             build_tile = check_way_tile[3]
-          } else if ( check_way_tile[0].z < check_way_tile[1].z && check_way_tile[1].z == check_way_tile[2].z ) {
+          /*} else if ( check_way_tile[0].z < check_way_tile[1].z && check_way_tile[1].z == check_way_tile[2].z ) {
             build_tunnel = 2
-            build_tile = check_way_tile[3]
+            build_tile = check_way_tile[3]*/
           }
         } else {
           continue
@@ -4575,19 +4575,19 @@ function optimize_way_line(route, wt, int_run, o_line) {
           if ( check_way_tile[0].z == check_way_tile[1].z && check_way_tile[1].z == check_way_tile[2].z ) {
             build_bridge = 2
             build_tile = check_way_tile[2]
-          } else if ( check_way_tile[0].z < check_way_tile[1].z ) {
+          /*} else if ( check_way_tile[0].z < check_way_tile[1].z ) {
             build_tunnel = 2
-            build_tile = check_way_tile[2]
+            build_tile = check_way_tile[2]*/
           }
         } else {
           continue
         }
-        gui.add_message_at(our_player, " build_tunnel " + build_tunnel, check_way_tile[0])
+        //gui.add_message_at(our_player, " build_tunnel " + build_tunnel, check_way_tile[0])
       //} else if ( check_way_tile[0].z == check_way_tile[2].z && check_way_tile[1].z > check_way_tile[0].z ) {
         //build_tunnel = 3
         //build_tile = check_way_tile[2]
       } else if ( tile_1_d == tile_2_d && check_way_tile[0].z == check_way_tile[1].z && check_way_tile[0].get_slope() > 0 && check_way_tile[1].get_slope() > 0 ) {
-        gui.add_message_at(our_player, " 4483 ", check_way_tile[0])
+        //gui.add_message_at(our_player, " 4483 ", check_way_tile[0])
         // slope down - slope up -> bridge
         // slope up - slope down -> terraform down ( build_tunnel = 1 )
         if ( (check_way_tile[0].get_slope() == 4 && check_way_tile[1].get_slope() == 36 && check_way_tile[0].y < check_way_tile[1].y) || (check_way_tile[0].get_slope() == 36 && check_way_tile[1].get_slope() == 4 && check_way_tile[0].y > check_way_tile[1].y)  ) {
@@ -4750,7 +4750,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
         if ( catenary_obj != null ) {
           command_x.build_wayobj(our_player, check_way_tile[3], check_way_tile[2], catenary_obj)
         }
-      } else if ( build_tunnel == 2 ) {
+      /*} else if ( build_tunnel == 2 ) {
         err = null
         // build tunnel - not work tunnel tool script ai
         //local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
@@ -4791,7 +4791,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
         }
 
         //::debug.pause()
-
+        */
       } else if ( build_tunnel == 3 ) {
         // build selectiv tunnel
         // check_way_tile[0].z == check_way_tile[2].z
