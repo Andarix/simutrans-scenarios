@@ -4559,7 +4559,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
     local way_d = 0
     if ( ( tile_1_d == 5 || tile_1_d == 10 ) && !reroute ) {
       if ( tile_1_d == tile_2_d && tile_2_d == tile_3_d && tile_3_d == tile_4_d && check_way_tile[0].z == check_way_tile[3].z && check_way_tile[0].get_slope() > 0 && check_way_tile[3].get_slope() > 0 ) {
-        gui.add_message_at(our_player, " 4461 4 tiles ", check_way_tile[0])
+        //gui.add_message_at(our_player, " 4461 4 tiles ", check_way_tile[0])
         if ( our_player.get_current_cash() > 500000 ) {
           if ( check_way_tile[0].z == check_way_tile[1].z && check_way_tile[1].z == check_way_tile[2].z ) {
             build_bridge = 2
@@ -4571,9 +4571,9 @@ function optimize_way_line(route, wt, int_run, o_line) {
         } else {
           continue
         }
-        gui.add_message_at(our_player, " build_tunnel " + build_tunnel, check_way_tile[0])
+        //gui.add_message_at(our_player, " build_tunnel " + build_tunnel, check_way_tile[0])
       } else if ( tile_1_d == tile_2_d &&  tile_2_d == tile_3_d && check_way_tile[0].z == check_way_tile[2].z && check_way_tile[0].get_slope() > 0 && check_way_tile[2].get_slope() > 0 ) {
-        gui.add_message_at(our_player, " 4472 3 tiles ", check_way_tile[0])
+        //gui.add_message_at(our_player, " 4472 3 tiles ", check_way_tile[0])
         if ( our_player.get_current_cash() > 500000 ) {
           if ( check_way_tile[0].z == check_way_tile[1].z && check_way_tile[1].z == check_way_tile[2].z ) {
             build_bridge = 2
