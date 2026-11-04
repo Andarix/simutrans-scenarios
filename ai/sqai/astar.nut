@@ -4542,7 +4542,10 @@ function optimize_way_line(route, wt, int_run, o_line) {
           }
 
           //gui.add_message_at(our_player, "---------------- tile_list[].len() " + tile_list.len(), world.get_time())
-          if ( tile_list.len() > 0 ) {
+
+          // Build tunnels if the profit of the last 2 months is positive.
+          local player_profit = our_player.get_profit()
+          if ( player_profit[1] > 0 && player_profit[2] > 0 && tile_list.len() > 0 ) {
             build_tunnel = 3
             reroute = true
           }
