@@ -289,38 +289,45 @@ class road_connector_t extends manager_t
           }
 
           // check road lenght on station
-          gui.add_message_at(pl, "station 2. tile: route_tiles[2].get_way_dirs(wt_road) " + route_tiles[2].get_way_dirs(wt_road), c_end)
-          gui.add_message_at(pl, "station len - 2. tile: route_tiles[route_tiles.len()-2].get_way_dirs(wt_road) " + route_tiles[route_tiles.len()-2].get_way_dirs(wt_road), c_start)
+          //gui.add_message_at(pl, "station 2. tile: route_tiles[2].get_way_dirs(wt_road) " + route_tiles[2].get_way_dirs(wt_road), c_end)
+          //gui.add_message_at(pl, "station len - 2. tile: route_tiles[route_tiles.len()-2].get_way_dirs(wt_road) " + route_tiles[route_tiles.len()-2].get_way_dirs(wt_road), c_start)
 
-          if ( dir.is_threeway(route_tiles[3].get_way_dirs(wt_road)) || dir.is_threeway(route_tiles[route_tiles.len()-4].get_way_dirs(wt_road)) ) {
+          /*if ( dir.is_threeway(route_tiles[3].get_way_dirs(wt_road)) || dir.is_threeway(route_tiles[route_tiles.len()-4].get_way_dirs(wt_road)) ) {
             gui.add_message_at(pl, "is_threeway()  ", world.get_time())
           } else {
             gui.add_message_at(pl, "fsrc.input.len() " + fsrc.input.len(), world.get_time())
-          }
+          }*/
 
           // cnv load, then 4 tiles private way
           if ( fsrc.input.len() > 0 ) {
-            local tile_check = true
-            for ( local i = 1; i < 5; i++ ) {
+            //local tile_check = true
+            /*for ( local i = 1; i < 5; i++ ) {
               if ( dir.is_threeway(route_tiles[route_tiles.len()-i].get_way_dirs(wt_road)) ) {
                 tile_check = false
               }
-            }
+            }*/
             local private_sign = find_signal("private", wt_road)
-            if ( private_sign != null && tile_check ) {
+            if ( private_sign != null ) {
               local sign_name = private_sign.get_name()
+              local tile = null
               // private sign only on straight road
-              for ( local i = 4; i < 9; i++ ) {
-                local tile = route_tiles[route_tiles.len()-i]
+              for ( local i = 2; i < 9; i++ ) {
+                tile = route_tiles[route_tiles.len()-i]
                 local tile_text = coord3d_to_string(tile)
                 if ( ( tile.get_way_dirs(wt_road) == 5 || tile.get_way_dirs(wt_road) == 10 ) && tile.get_slope() == 0 ) {
-                  local err = command_x.build_sign_at(pl, tile, private_sign)
-                  break
+                  //local err = command_x.build_sign_at(pl, tile, private_sign)
+                  if ( i == 4 ) { break }
                 } else if ( dir.is_threeway(tile.get_way_dirs(wt_road)) ) {
+                  i--
+                  tile = route_tiles[route_tiles.len()-i]
                   break
                 }
-
               }
+
+              if ( ( tile.get_way_dirs(wt_road) == 5 || tile.get_way_dirs(wt_road) == 10 ) && tile.get_slope() == 0 ) {
+                local err = command_x.build_sign_at(pl, tile, private_sign)
+              }
+
             }
           }
 
