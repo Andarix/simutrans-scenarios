@@ -4512,6 +4512,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
     local build_tunnel = 0
     local build_tile = null
     local tile_list = [] // tunnel tile list
+    local new_route = [] // new route tile list
 
     check_way_tile[3] = tile_x(route[i+2].x, route[i+2].y, route[i+2].z)
     tile_4_d = check_way_tile[3].get_way_dirs(wt)
@@ -4541,11 +4542,34 @@ function optimize_way_line(route, wt, int_run, o_line) {
             //gui.add_message_at(our_player, "tile_list route tunnel: " + coord3d_to_string(tile_list[k+1]), tile_list[k+1])
           }
 
-          //gui.add_message_at(our_player, "---------------- tile_list[].len() " + tile_list.len(), world.get_time())
+          // new way search
+          if ( tile_list.len() > 0 ) {
+
+            local asf = astar_route_finder(wt)
+            local result = asf.search_route([tile_list[0]], [tile_list[tile_list.len()-1]])
+
+            if ( "routes" in result ) {
+              foreach(node in result.routes) {
+                local t = tile_x(node.x, node.y, node.z)
+                if ( t.z == tile_list[0].z ) {
+                  new_route.append(t)
+                  reroute = true
+                } else {
+                  new_route.clear()
+                  reroute = false
+                  break
+                }
+              }
+            }
+          }
+
+          if ( new_route.len() > 0 ) {
+            gui.add_message_at(our_player, "---------------- new_route ", new_route[0])
+          }
 
           // Build tunnels if the profit of the last 2 months is positive.
           local player_profit = our_player.get_profit()
-          if ( player_profit[1] > 0 && player_profit[2] > 0 && tile_list.len() > 0 ) {
+          if ( player_profit[1] > 0 && player_profit[2] > 0 && tile_list.len() > 0 && new_route.len() == 0 ) {
             build_tunnel = 3
             reroute = true
           }
@@ -4645,6 +4669,22 @@ function optimize_way_line(route, wt, int_run, o_line) {
       }
     }
 
+    if ( new_route.len() > 0 ) {
+      gui.add_message_at(our_player, "---------------- new route ", new_route[0])
+      for ( local i = 1; i < new_route.len(); i++ ) {
+        err = command_x.build_way(our_player, new_route[i-1], new_route[i], way_obj, true)
+
+      }
+
+      local tool = command_x(tool_remove_way)
+      err = tool.work(our_player, tile_list[0], tile_list[2], "" + wt)
+
+      if ( dir.is_threeway(tile_list[tile_list.len()-1].get_way_dirs(wt)) ) {
+        err = tool.work(our_player, tile_list[2], tile_list[tile_list.len()-1], "" + wt)
+      }
+
+    }
+
     local err = null
       // slope up - slope down -> tunnel
       if ( build_tunnel == 1 ) {
@@ -4740,11 +4780,11 @@ function optimize_way_line(route, wt, int_run, o_line) {
 
           err = null
           err = command_x.build_way(our_player, check_way_tile[3], check_way_tile[2], way_obj, true)
-          if (err != null ) {
-            gui.add_message_at(our_player, " build tunnel " + coord3d_to_string(check_way_tile[3]) + " - " + coord3d_to_string(check_way_tile[2]) + ": " + err, world.get_time())
-          } else {
+          if ( err == null || err == "" ) {
             count_build++
             reroute = true
+          } else {
+            gui.add_message_at(our_player, " build tunnel " + coord3d_to_string(check_way_tile[3]) + " - " + coord3d_to_string(check_way_tile[2]) + ": " + err, world.get_time())
           }
 
         }
