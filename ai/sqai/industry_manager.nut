@@ -1865,7 +1865,7 @@ class industry_manager_t extends manager_t
           } else {
             line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
           }
-          sleep()
+          //sleep()
           return true
 
         } else {
