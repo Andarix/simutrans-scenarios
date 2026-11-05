@@ -311,7 +311,7 @@ class road_connector_t extends manager_t
               local sign_name = private_sign.get_name()
               local tile = null
               // private sign only on straight road
-              for ( local i = 2; i < 9; i++ ) {
+              for ( local i = 1; i < 9; i++ ) {
                 tile = route_tiles[route_tiles.len()-i]
                 local tile_text = coord3d_to_string(tile)
                 if ( ( tile.get_way_dirs(wt_road) == 5 || tile.get_way_dirs(wt_road) == 10 ) && tile.get_slope() == 0 ) {
@@ -403,6 +403,16 @@ class road_connector_t extends manager_t
         }
       case 6: // create schedule
         {
+          // check station start and end exists
+          local obj_building = tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building)
+          if ( obj_building == null ) {
+            err = build_road_station(c_start, planned_station)
+          }
+          obj_building = tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building)
+          if ( obj_building == null ) {
+            err = build_road_station(c_end, planned_station)
+          }
+
           local sched = schedule_x(wt_road, [])
           sched.entries.append( schedule_entry_x(c_start, 100, 0) );
           sched.entries.append( schedule_entry_x(c_end, 0, 0) );
