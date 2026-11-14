@@ -4382,11 +4382,18 @@ function optimize_way_line(route, wt, int_run, o_line) {
     local tile_3_d = check_way_tile[2].get_way_dirs(wt)
     local tile_4_d = 0
 
-    // check is way our player
-    if ( check_way_tile[0].is_bridge() || check_way_tile[0].is_tunnel() ) {
-      // tile is bridge or tunnel then continue
-      continue
+    // check is tile bridge or tunnel
+    local bridge_tunnel = false
+    for ( local j = 0; j < check_way_tile.len(); j++ ) {
+      if ( check_way_tile[j].is_bridge() || check_way_tile[j].is_tunnel() ) {
+        // tile is bridge or tunnel then continue
+        bridge_tunnel = true
+        break
+      }
     }
+    if ( bridge_tunnel ) { continue }
+
+    // check is way our player
     local tile_1_pl = check_way_tile[0].find_object(mo_way).get_owner().nr //.get_desc()
     local tile_2_coord = coord3d_to_string(check_way_tile[1]) // not use for debug
     local tile_2_pl = check_way_tile[1].find_object(mo_way).get_owner().nr //.get_desc()
