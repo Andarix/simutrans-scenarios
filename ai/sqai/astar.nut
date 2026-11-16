@@ -4332,6 +4332,13 @@ function optimize_way_line(route, wt, int_run, o_line) {
   }
   //::debug.pause()
 
+  local entries = o_line.get_schedule().entries
+  if ( entries[0].x != route[0].x && entries[0].y != route[0].y ) {
+    route.reverse()
+    //gui.add_message_at(our_player, " optimize_way_line(route, wt) | route reverse ", tile_x(route[0].x, route[0].y, route[0].z))
+  }
+
+
   local speed = tile_x(route[0].x, route[0].y, route[0].z).find_object(mo_way).get_desc().get_topspeed()
   local bridge_obj = find_object("bridge", wt, speed)
   local tunnel_obj = find_object("tunnel", wt, speed)
@@ -4514,7 +4521,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
     }
     // END :: check station in line
 
-    // START :: build bridges and tunnel - 2 to 4 tiles
+    // START :: build bridges and tunnel - 2 to 7 tiles
     local build_bridge = 0
     local build_tunnel = 0
     local build_tile = null
@@ -4548,7 +4555,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
               tile_list.clear()
               break
             }
-            //gui.add_message_at(our_player, "tile_list route tunnel: " + coord3d_to_string(tile_list[k+1]), tile_list[k+1])
+            gui.add_message_at(our_player, "tile_list route tunnel: " + coord3d_to_string(tile_list[k+1]), tile_list[k+1])
           }
 
           // new way search
@@ -4567,7 +4574,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
                 if ( t.z == tile_list[0].z ) {
                   new_route.append(t)
                   reroute = true
-                  gui.add_message_at(our_player, "---------------- new_route ", t)
+                  //gui.add_message_at(our_player, "---------------- new_route ", t)
                 } else {
                   new_route.clear()
                   reroute = false
@@ -4578,7 +4585,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
           }
 
           if ( new_route.len() > 0 ) {
-            gui.add_message_at(our_player, "---------------- new_route ", new_route[0])
+            //gui.add_message_at(our_player, "---------------- new_route ", new_route[0])
           }
 
           // Build tunnels if the profit of the last 2 months is positive.
