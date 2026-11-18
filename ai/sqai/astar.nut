@@ -4325,12 +4325,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
   // 2 = tunnel
   // 3 = crossing
   // 4 = terraform
-  local print_message_box = 0
-
-  if ( print_message_box > 5 ) { //wt == wt_road && wt == wt_rail &&
-    gui.add_message_at(our_player, " optimize_way_line(route, wt) ", tile_x(route[0].x, route[0].y, route[0].z))
-  }
-  //::debug.pause()
+  local print_message_box = 6
 
   local entries = o_line.get_schedule().entries
   if ( entries[0].x != route[0].x && entries[0].y != route[0].y ) {
@@ -4338,10 +4333,15 @@ function optimize_way_line(route, wt, int_run, o_line) {
     //gui.add_message_at(our_player, " optimize_way_line(route, wt) | route reverse ", tile_x(route[0].x, route[0].y, route[0].z))
   }
 
+  if ( print_message_box > 5 ) { //wt == wt_road && wt == wt_rail &&
+    gui.add_message_at(our_player, " optimize_way_line(route, wt) ", tile_x(route[0].x, route[0].y, route[0].z))
+  }
+  //::debug.pause()
+
 
   local speed = tile_x(route[0].x, route[0].y, route[0].z).find_object(mo_way).get_desc().get_topspeed()
   local bridge_obj = find_object("bridge", wt, speed)
-  local tunnel_obj = find_object("tunnel", wt, speed)
+  //local tunnel_obj = find_object("tunnel", wt, speed)
 
   local count_build = 0
 
@@ -4527,13 +4527,30 @@ function optimize_way_line(route, wt, int_run, o_line) {
     local build_tile = null
     local tile_list = [] // tunnel tile list
     local new_route = [] // new route tile list
+    local sig_tile = []  // tile has signal; [0] = tile, [1] = ribi, [2] = signal object
 
     check_way_tile[3] = tile_x(route[i+2].x, route[i+2].y, route[i+2].z)
     tile_4_d = check_way_tile[3].get_way_dirs(wt)
 
     // test 6 tiles : tunnel / reroute
-    if ( check_way_tile[2].z > check_way_tile[1].z && check_way_tile[1].z == check_way_tile[0].z && check_way_tile[0].get_slope() == 0 ) {
-      local j = 6
+    if ( check_way_tile[2].z > check_way_tile[1].z && check_way_tile[1].z == check_way_tile[0].z
+            && check_way_tile[0].get_slope() == 0 && (i + 10) < route.len() && !check_way_tile[1].is_tunnel() ) {
+      gui.add_message_at(our_player, "check tunnel: " + coord3d_to_string(route[i]), route[i])
+
+      local test_route = route.slice(i-1, i+10)
+
+      local create_tunnel = check_build_tunnel(test_route, wt)
+      if ( create_tunnel ) {
+        build_tile = route[i+10]
+        count_build++
+        reroute = true
+        gui.add_message_at(our_player, "check tunnel: check_build_tunnel() true", world.get_time())
+      } else {
+        gui.add_message_at(our_player, "check tunnel: check_build_tunnel() false", world.get_time())
+        continue
+      }
+
+      /*local j = 6
       if ( (i + j) < route.len() ) {
         for ( j; j > 2; j-- ) {
           if ( route[i+j].z == check_way_tile[1].z && route[i+j].get_slope() == 0 ) {
@@ -4550,7 +4567,11 @@ function optimize_way_line(route, wt, int_run, o_line) {
           for ( local k = -1; k <= j; k++ ) {
             if ( dir.is_twoway(route[i+k].get_way_dirs(wt)) ) {
               tile_list.append(route[i+k])
-
+              local sig = route[i+k].find_object(mo_signal)
+              if ( sig != null ) {
+                sig_tile.append(route[i+k])
+                sig_tile.append(route[i+k].get_way_dirs_masked(wt))
+              }
             } else {
               tile_list.clear()
               break
@@ -4596,7 +4617,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
           }
         }
         //build_tile = tile_x(route[i+j].x, route[i+j].y, route[i+j].z)
-      }
+      }*/
     }
 
     // tile 1 - 3 direction 5 or 10 -> way_d = 1
@@ -4814,49 +4835,8 @@ function optimize_way_line(route, wt, int_run, o_line) {
         if ( catenary_obj != null ) {
           command_x.build_wayobj(our_player, check_way_tile[3], check_way_tile[2], catenary_obj)
         }
-      /*} else if ( build_tunnel == 2 ) {
-        err = null
-        // build tunnel - not work tunnel tool script ai
-        //local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
-        local txt = coord3d_to_string(check_way_tile[0])
-        local tool = command_x(tool_remove_way)
-        err = tool.work(our_player, check_way_tile[0], build_tile, "" + wt)
 
-        if (err != null ) {
-          err = null
-
-        } else {
-          // One coordinate, not two: from the surface the tunnel tool has no
-          // two-click mode at all, it digs to the far side of the hill by
-          // itself. Asking for two coordinates makes the script api refuse
-          // the call with "First click has side effects", because the first
-          // click would already have built the tunnel.
-          tool = command_x(tool_build_tunnel)
-          err = tool.work(our_player, check_way_tile[0], tunnel_obj.get_name())
-
-          //err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
-          if (err != null ) {
-            gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
-          } else {
-            count_build++
-            reroute = true
-          }
-
-          if ( !check_way_tile[0].is_tunnel() && build_tile.is_tunnel() ) {
-            // no tunnel built -> restor way
-            err = command_x.build_way(our_player, check_way_tile[0], build_tile, way_obj, true)
-          }
-
-        }
-
-        // restor exist catenary
-        if ( catenary_obj != null ) {
-          command_x.build_wayobj(our_player, check_way_tile[0], build_tile, catenary_obj)
-        }
-
-        //::debug.pause()
-        */
-      } else if ( build_tunnel == 3 ) {
+      } /*else if ( build_tunnel == 3 ) {
         // build selectiv tunnel
         // check_way_tile[0].z == check_way_tile[2].z
 
@@ -4921,7 +4901,29 @@ function optimize_way_line(route, wt, int_run, o_line) {
         if ( catenary_obj != null ) {
           command_x.build_wayobj(our_player, tile_list[1], build_tile, catenary_obj)
         }
-      }
+
+        // restor signal
+        if ( sig_tile.len() == 2 ) {
+          local obj_sign = find_signal("is_signal", wt)
+          local try_catch = 0
+          while(true){
+            local err = command_x.build_sign_at(our_player, sig_tile[0], obj_sign)
+            if ( err == null ) {
+              local ribi = sig_tile[0].get_way_dirs_masked(wt)
+              if (ribi == sig_tile[1])
+                break
+            } else if (try_catch == 5) {
+                break
+            }
+            try_catch++
+          }
+          if ( try_catch == 5 ) {
+            gui.add_message_at(our_player, " restor signal fail: " + coord3d_to_string(sig_tile[0]), sig_tile[0])
+          }
+
+        }
+
+      }*/
 
       // slope down - slope up -> bridge
       if ( build_bridge == 1 ) {
@@ -5223,6 +5225,241 @@ function optimize_way_line(route, wt, int_run, o_line) {
     return false
   }
 
+}
+
+/**
+ *  search route and build tunnel
+ *
+ *  @param start tile_x
+ *  @param end tile_x
+ *
+ */
+function check_build_tunnel(route, wt) {
+
+/*  local route = []
+
+  local asf = astar_route_finder(wt)
+  local result = asf.search_route([end], [start])
+  // result is contains routes-array or error message
+  // route is backward from end to start
+
+  if ("err" in result) {
+    return false
+  }
+  else {
+    // route found
+    foreach(node in result.routes) {
+      local tile = tile_x(node.x, node.y, node.z)
+      route.append(tile)
+    }
+  }*/
+
+  local speed = tile_x(route[0].x, route[0].y, route[0].z).find_object(mo_way).get_desc().get_topspeed()
+  // tunnel
+  local tunnel_obj = find_object("tunnel", wt, speed)
+
+  // way
+  local way_obj = route[0].find_object(mo_way).get_desc()
+  if ( !way_obj.is_available(world.get_time()) ) {
+    way_obj = find_object("way", wt, way_obj.get_topspeed())
+  }
+
+  local err = null
+  // index 0 = tile 1
+  local check_way_tile = []
+  local set_tiles = 4 // 4 tiles for check way
+  check_way_tile.resize(set_tiles, null)
+  local check_way_tile_d = []
+  check_way_tile_d.resize(set_tiles, null)
+
+  local reroute = false
+
+  for ( local i = 1; i < (route.len() - 4); i++ ) {
+
+    for ( local j = 0; j < check_way_tile.len(); j++ ) {
+      local x = j - 1
+      check_way_tile[j] = tile_x(route[i+x].x, route[i+x].y, route[i+x].z)
+      check_way_tile_d[j] = check_way_tile[j].get_way_dirs(wt)
+    }
+
+    local tile_list = [] // tunnel tile list
+    local new_route = [] // new route tile list
+    local sig_tile = []  // tile has signal; [0] = tile, [1] = ribi, [2] = signal object
+
+    check_way_tile[3] = tile_x(route[i+2].x, route[i+2].y, route[i+2].z)
+    //local tile_4_d = check_way_tile[3].get_way_dirs(wt)
+
+    // test 6 tiles : tunnel / reroute
+    if ( check_way_tile[2].z > check_way_tile[1].z && check_way_tile[1].z == check_way_tile[0].z && check_way_tile[0].get_slope() == 0 ) {
+      local j = 6
+      if ( (i + j) < route.len() ) {
+        for ( j; j > 2; j-- ) {
+          if ( route[i+j].z == check_way_tile[1].z && route[i+j].get_slope() == 0 ) {
+
+          } else if ( (route[i+j].z + 1 ) == check_way_tile[1].z && j > 5 ) {
+
+          } else {
+            break
+          }
+        }
+
+        if ( route[i+j].z == check_way_tile[1].z ) {
+          j++
+          for ( local k = -1; k <= j; k++ ) {
+            if ( dir.is_twoway(route[i+k].get_way_dirs(wt)) ) {
+              tile_list.append(route[i+k])
+              local sig = route[i+k].find_object(mo_signal)
+              if ( sig != null ) {
+                sig_tile.append(route[i+k])
+                sig_tile.append(route[i+k].get_way_dirs_masked(wt))
+              }
+            } else {
+              tile_list.clear()
+              break
+            }
+            gui.add_message_at(our_player, "tile_list route tunnel: " + coord3d_to_string(tile_list[k+1]), tile_list[k+1])
+          }
+
+          // new way search
+          if ( tile_list.len() > 0 ) {
+
+            /*local way_obj = route[0].find_object(mo_way).get_desc() //way_list[0]
+            if ( !way_obj.is_available(world.get_time()) ) {
+              way_obj = find_object("way", wt, way_obj.get_topspeed())
+            }*/
+            local result = test_route(our_player, [tile_list[tile_list.len()-1]], [tile_list[0]], way_obj)
+            //asf.search_route([tile_list[0]], [tile_list[tile_list.len()-1]])
+
+            if ( "routes" in result ) {
+              foreach(node in result.routes) {
+                local t = tile_x(node.x, node.y, node.z)
+                if ( t.z == tile_list[0].z ) {
+                  new_route.append(t)
+                  reroute = true
+                  //gui.add_message_at(our_player, "---------------- new_route ", t)
+                } else {
+                  new_route.clear()
+                  reroute = false
+                  break
+                }
+              }
+            }
+          }
+
+          if ( new_route.len() > 0 ) {
+            //gui.add_message_at(our_player, "---------------- new_route ", new_route[0])
+          }
+
+          // Build tunnels if the profit of the last 2 months is positive.
+          local player_profit = our_player.get_profit()
+          if ( player_profit[1] > 0 && player_profit[2] > 0 && tile_list.len() > 0 && new_route.len() == 0 ) {
+            //build_tunnel = 3
+
+            local build_tile = tile_list[tile_list.len()-2]
+
+            local way_tile0_txt = coord3d_to_string(tile_list[0]) // for debug
+            local tool = command_x(tool_remove_way)
+
+            local trial = 0
+            do {
+              err = tool.work(our_player, tile_list[1], build_tile, "" + wt)
+              trial++
+            } while (err != null && trial < 4)
+
+            local t = null
+            if ( err == null ) {
+              t = command_x(tool_build_tunnel)
+              t.set_flags(2)
+              // portal
+              err = t.work(our_player, tile_list[1], tunnel_obj.get_name())
+            }
+            if ( err == null ) {
+              // portal
+              err = t.work(our_player, build_tile, tunnel_obj.get_name())
+            }
+            if ( err == null ) {
+              // tunnel way
+              local d = tile_list[1].get_way_dirs(wt)
+              local b_tile = null
+              switch (d) {
+                case 1:
+                  b_tile = tile_x(tile_list[1].x, tile_list[1].y+1, tile_list[1].z)
+                  break
+                case 2:
+                  b_tile = tile_x(tile_list[1].x-1, tile_list[1].y, tile_list[1].z)
+                  break
+                case 4:
+                  b_tile = tile_x(tile_list[1].x, tile_list[1].y-1, tile_list[1].z)
+                  break
+                case 8:
+                  b_tile = tile_x(tile_list[1].x+1, tile_list[1].y, tile_list[1].z)
+                  break
+              }
+              local b_tile_text = coord3d_to_string(b_tile) // for debug
+              t.set_flags(0)
+              err = t.work(our_player, tile_list[1], b_tile, tunnel_obj.get_name())
+              err = t.work(our_player, b_tile, build_tile, tunnel_obj.get_name())
+            }
+
+            if (err != null ) {
+              gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
+              reroute = false
+              // to do restore way
+            } else {
+
+              check_way_tile[0] = tile_list[1]
+              reroute = true
+              gui.add_message_at(our_player, " build tunnel: " + coord3d_to_string(tile_list[1]), tile_list[1])
+            }
+
+            //reroute = true
+          }
+        }
+        //build_tile = tile_x(route[i+j].x, route[i+j].y, route[i+j].z)
+      }
+    }
+
+    // catenary
+    local catenary_obj = null
+    if ( route[0].find_object(mo_wayobj) != null ) {
+      catenary_obj = start.find_object(mo_wayobj).get_desc()
+      if ( catenary_obj != null && !catenary_obj.is_available(world.get_time()) ) {
+        catenary_obj = find_object("catenary", wt, catenary_obj.get_topspeed())
+      }
+    }
+
+    // restor exist catenary
+    if ( catenary_obj != null ) {
+      command_x.build_wayobj(our_player, tile_list[1], build_tile, catenary_obj)
+    }
+
+    // restor signal
+    if ( sig_tile.len() == 2 ) {
+      local obj_sign = find_signal("is_signal", wt)
+      local try_catch = 0
+      while(true){
+        local err = command_x.build_sign_at(our_player, sig_tile[0], obj_sign)
+        if ( err == null ) {
+          local ribi = sig_tile[0].get_way_dirs_masked(wt)
+          if (ribi == sig_tile[1])
+            break
+        } else if (try_catch == 5) {
+          break
+        }
+        try_catch++
+      }
+      if ( try_catch == 5 ) {
+        gui.add_message_at(our_player, " restor signal fail: " + coord3d_to_string(sig_tile[0]), sig_tile[0])
+      }
+
+    }
+
+    if ( reroute ) {
+      return true
+    }
+  }
+
+  return false
 }
 
 /**
