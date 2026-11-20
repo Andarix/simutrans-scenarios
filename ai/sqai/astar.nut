@@ -4325,7 +4325,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
   // 2 = tunnel
   // 3 = crossing
   // 4 = terraform
-  local print_message_box = 6
+  local print_message_box = 0
 
   local entries = o_line.get_schedule().entries
   if ( entries[0].x != route[0].x && entries[0].y != route[0].y ) {
@@ -4535,7 +4535,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
     // test 6 tiles : tunnel / reroute
     if ( check_way_tile[2].z > check_way_tile[1].z && check_way_tile[1].z == check_way_tile[0].z
             && check_way_tile[0].get_slope() == 0 && (i + 10) < route.len() && !check_way_tile[1].is_tunnel() ) {
-      gui.add_message_at(our_player, "check tunnel: " + coord3d_to_string(route[i]), route[i])
+      //gui.add_message_at(our_player, "check tunnel: " + coord3d_to_string(route[i]), route[i])
 
       local test_route = route.slice(i-1, i+10)
 
@@ -4544,80 +4544,62 @@ function optimize_way_line(route, wt, int_run, o_line) {
         build_tile = route[i+10]
         count_build++
         reroute = true
-        gui.add_message_at(our_player, "check tunnel: check_build_tunnel() true", world.get_time())
+        //gui.add_message_at(our_player, "check tunnel: check_build_tunnel() true", world.get_time())
       } else {
-        gui.add_message_at(our_player, "check tunnel: check_build_tunnel() false", world.get_time())
+        //gui.add_message_at(our_player, "check tunnel: check_build_tunnel() false", world.get_time())
         continue
       }
 
-      /*local j = 6
-      if ( (i + j) < route.len() ) {
-        for ( j; j > 2; j-- ) {
-          if ( route[i+j].z == check_way_tile[1].z && route[i+j].get_slope() == 0 ) {
+    }
 
-          } else if ( (route[i+j].z + 1 ) == check_way_tile[1].z && j > 5 ) {
+    // found signal and treeway -> double way
+    if ( check_way_tile[1].find_object(mo_signal) && (dir.is_threeway(check_way_tile[1].get_way_dirs(wt))
+          || dir.is_threeway(check_way_tile[2].get_way_dirs(wt)) || dir.is_threeway(check_way_tile[3].get_way_dirs(wt)) ) ) {
 
-          } else {
-            break
+      local slope_count = 0
+      local route = []
+      local asf = astar_route_finder(wt)
+      local result = asf.search_route([check_way_tile[2]], [check_way_tile[0]])
+      //local way = check_way_tile[0].find_object(mo_way).get_desc()
+      //local result = test_route(our_player, [check_way_tile[2]], [check_way_tile[0]], way)
+      if ("err" in result) {
+        gui.add_message_at(our_player, "double way route tunnel not found: " + coord3d_to_string(check_way_tile[0]), check_way_tile[0])
+      } else {
+        local set = 0
+        foreach(node in result.routes) {
+          local tile = tile_x(node.x, node.y, node.z)
+          if ( dir.is_threeway(tile.get_way_dirs(wt)) ) {
+            set++
           }
-        }
 
-        if ( route[i+j].z == check_way_tile[1].z ) {
-          j++
-          for ( local k = -1; k <= j; k++ ) {
-            if ( dir.is_twoway(route[i+k].get_way_dirs(wt)) ) {
-              tile_list.append(route[i+k])
-              local sig = route[i+k].find_object(mo_signal)
-              if ( sig != null ) {
-                sig_tile.append(route[i+k])
-                sig_tile.append(route[i+k].get_way_dirs_masked(wt))
-              }
-            } else {
-              tile_list.clear()
+          if ( set == 1 ) {
+            route.append(tile)
+            //gui.add_message_at(our_player, "double way route tunnel: " + coord3d_to_string(tile), tile)
+            local c = route.len() - 1
+            if ( c > 2 && route[c-2].z > route[c-1].z && route[c-1].z == route[c].z ) {
+                 // && route[0].get_slope() == 0 && (i + 10) < route.len() && !check_way_tile[1].is_tunnel()
               break
             }
-            gui.add_message_at(our_player, "tile_list route tunnel: " + coord3d_to_string(tile_list[k+1]), tile_list[k+1])
-          }
-
-          // new way search
-          if ( tile_list.len() > 0 ) {
-
-            local way_obj = route[0].find_object(mo_way).get_desc() //way_list[0]
-            if ( !way_obj.is_available(world.get_time()) ) {
-              way_obj = find_object("way", wt, way_obj.get_topspeed())
+            if ( tile.get_slope() == 0 ) {
+              slope_count++
             }
-            local result = test_route(our_player, [tile_list[tile_list.len()-1]], [tile_list[0]], way_obj)
-            //asf.search_route([tile_list[0]], [tile_list[tile_list.len()-1]])
-
-            if ( "routes" in result ) {
-              foreach(node in result.routes) {
-                local t = tile_x(node.x, node.y, node.z)
-                if ( t.z == tile_list[0].z ) {
-                  new_route.append(t)
-                  reroute = true
-                  //gui.add_message_at(our_player, "---------------- new_route ", t)
-                } else {
-                  new_route.clear()
-                  reroute = false
-                  break
-                }
-              }
-            }
-          }
-
-          if ( new_route.len() > 0 ) {
-            //gui.add_message_at(our_player, "---------------- new_route ", new_route[0])
-          }
-
-          // Build tunnels if the profit of the last 2 months is positive.
-          local player_profit = our_player.get_profit()
-          if ( player_profit[1] > 0 && player_profit[2] > 0 && tile_list.len() > 0 && new_route.len() == 0 ) {
-            build_tunnel = 3
-            reroute = true
           }
         }
-        //build_tile = tile_x(route[i+j].x, route[i+j].y, route[i+j].z)
-      }*/
+        route.reverse()
+      }
+      if ( slope_count != route.len() ) {
+
+        if ( route.len() < 10 ) {
+          route.resize(10, route[route.len()-1])
+        }
+
+        local create_tunnel = check_build_tunnel(route, wt)
+        if ( create_tunnel ) {
+          //gui.add_message_at(our_player, "check tunnel double way: check_build_tunnel() true", world.get_time())
+        } else {
+          //gui.add_message_at(our_player, "check tunnel double way: check_build_tunnel() false", world.get_time())
+        }
+      }
     }
 
     // tile 1 - 3 direction 5 or 10 -> way_d = 1
@@ -5257,7 +5239,7 @@ function check_build_tunnel(route, wt) {
   local speed = tile_x(route[0].x, route[0].y, route[0].z).find_object(mo_way).get_desc().get_topspeed()
   // tunnel
   local tunnel_obj = find_object("tunnel", wt, speed)
-
+  local build_tile = null
   // way
   local way_obj = route[0].find_object(mo_way).get_desc()
   if ( !way_obj.is_available(world.get_time()) ) {
@@ -5313,20 +5295,25 @@ function check_build_tunnel(route, wt) {
                 sig_tile.append(route[i+k])
                 sig_tile.append(route[i+k].get_way_dirs_masked(wt))
               }
+            } else if ( k > 2 && k < 6 && dir.is_threeway(route[i+k].get_way_dirs(wt)) && route[i+k].z < tile_list[2].z ) {
+              tile_list.append(route[i+k])
+              //gui.add_message_at(our_player, "tile_list threeway: " + coord3d_to_string(tile_list[k]), world.get_time())
+              break
             } else {
+              //gui.add_message_at(our_player, "tile_list clear ", world.get_time())
               tile_list.clear()
               break
             }
-            gui.add_message_at(our_player, "tile_list route tunnel: " + coord3d_to_string(tile_list[k+1]), tile_list[k+1])
+            //gui.add_message_at(our_player, "tile_list route tunnel: " + coord3d_to_string(tile_list[k+1]), tile_list[k+1])
           }
 
           // new way search
-          if ( tile_list.len() > 0 ) {
+          /*if ( tile_list.len() > 0 ) {
 
             /*local way_obj = route[0].find_object(mo_way).get_desc() //way_list[0]
             if ( !way_obj.is_available(world.get_time()) ) {
               way_obj = find_object("way", wt, way_obj.get_topspeed())
-            }*/
+            }* /
             local result = test_route(our_player, [tile_list[tile_list.len()-1]], [tile_list[0]], way_obj)
             //asf.search_route([tile_list[0]], [tile_list[tile_list.len()-1]])
 
@@ -5347,15 +5334,15 @@ function check_build_tunnel(route, wt) {
           }
 
           if ( new_route.len() > 0 ) {
-            //gui.add_message_at(our_player, "---------------- new_route ", new_route[0])
-          }
+            //gui.add_message_at(our_player, "---------------- new_route ", new_route[0])&& new_route.len() == 0
+          }*/
 
           // Build tunnels if the profit of the last 2 months is positive.
           local player_profit = our_player.get_profit()
-          if ( player_profit[1] > 0 && player_profit[2] > 0 && tile_list.len() > 0 && new_route.len() == 0 ) {
+          if ( player_profit[1] > 0 && player_profit[2] > 0 && tile_list.len() > 0 ) {
             //build_tunnel = 3
 
-            local build_tile = tile_list[tile_list.len()-2]
+            build_tile = tile_list[tile_list.len()-2]
 
             local way_tile0_txt = coord3d_to_string(tile_list[0]) // for debug
             local tool = command_x(tool_remove_way)
@@ -5409,7 +5396,7 @@ function check_build_tunnel(route, wt) {
 
               check_way_tile[0] = tile_list[1]
               reroute = true
-              gui.add_message_at(our_player, " build tunnel: " + coord3d_to_string(tile_list[1]), tile_list[1])
+              //gui.add_message_at(our_player, " build tunnel: " + coord3d_to_string(tile_list[1]), tile_list[1])
             }
 
             //reroute = true
@@ -5436,7 +5423,11 @@ function check_build_tunnel(route, wt) {
     // restor signal
     if ( sig_tile.len() == 2 ) {
       local obj_sign = find_signal("is_signal", wt)
-      local try_catch = 0
+      local trial = 0
+      if ( !sig_tile[0].has_way(wt) ) {
+        sig_tile[0].z = build_tile.z
+      }
+
       while(true){
         local err = command_x.build_sign_at(our_player, sig_tile[0], obj_sign)
         if ( err == null ) {
@@ -5446,9 +5437,9 @@ function check_build_tunnel(route, wt) {
         } else if (try_catch == 5) {
           break
         }
-        try_catch++
+        trial++
       }
-      if ( try_catch == 5 ) {
+      if ( trial == 5 ) {
         gui.add_message_at(our_player, " restor signal fail: " + coord3d_to_string(sig_tile[0]), sig_tile[0])
       }
 
